@@ -8,44 +8,56 @@ use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Get the current month and year
-        $currentMonth = Carbon::now()->month;
-        $currentYear = Carbon::now()->year;
+        // Get filter inputs
+        $filterMonth = $request->input('bulan', Carbon::now()->month);
+        $filterYear = Carbon::now()->year; // You can add a year filter if needed
+        $filterNamaLengkap = $request->input('nama_lengkap');
+        $filterKodeDept = $request->input('kode_dept');
 
-        // Get the number of days in the current month
-        $daysInMonth = Carbon::now()->daysInMonth;
+        // Get the departments
+        $department = DB::table('department')->get();
 
-        // Get all karyawan data
-        $karyawan = DB::table('karyawan')->get();
+        // Get the number of days in the selected month
+        $daysInMonth = Carbon::create($filterYear, $filterMonth)->daysInMonth;
 
-        // Get all presensi data for the current month
+        // Get karyawan data with filters
+        $karyawanQuery = DB::table('karyawan');
+        if ($filterNamaLengkap) {
+            $karyawanQuery->where('nama_lengkap', 'like', '%' . $filterNamaLengkap . '%');
+        }
+        if ($filterKodeDept) {
+            $karyawanQuery->where('kode_dept', $filterKodeDept);
+        }
+        $karyawan = $karyawanQuery->get();
+
+        // Get presensi data for the selected month
         $presensi = DB::table('presensi')
             ->select('nik', 'tgl_presensi', 'jam_in')
-            ->whereMonth('tgl_presensi', $currentMonth)
-            ->whereYear('tgl_presensi', $currentYear)
+            ->whereMonth('tgl_presensi', $filterMonth)
+            ->whereYear('tgl_presensi', $filterYear)
             ->get();
 
-        // Get national holidays for the current month
+        // Get national holidays for the selected month
         $liburNasional = DB::table('libur_nasional')
-            ->whereMonth('tgl_libur', $currentMonth)
-            ->whereYear('tgl_libur', $currentYear)
+            ->whereMonth('tgl_libur', $filterMonth)
+            ->whereYear('tgl_libur', $filterYear)
             ->pluck('tgl_libur')
             ->map(function ($date) {
                 return Carbon::parse($date)->format('Y-m-d');
             });
 
-        // Get all approved leave data for the current month
+        // Get approved leave data for the selected month
         $cuti = DB::table('pengajuan_cuti')
             ->select('nik', 'tgl_cuti', 'tgl_cuti_sampai')
             ->where('status_approved', 1)
             ->where('status_approved_hrd', 1)
-            ->where(function ($query) use ($currentMonth, $currentYear) {
-                $query->whereMonth('tgl_cuti', $currentMonth)
-                      ->whereYear('tgl_cuti', $currentYear)
-                      ->orWhereMonth('tgl_cuti_sampai', $currentMonth)
-                      ->whereYear('tgl_cuti_sampai', $currentYear);
+            ->where(function ($query) use ($filterMonth, $filterYear) {
+                $query->whereMonth('tgl_cuti', $filterMonth)
+                      ->whereYear('tgl_cuti', $filterYear)
+                      ->orWhereMonth('tgl_cuti_sampai', $filterMonth)
+                      ->whereYear('tgl_cuti_sampai', $filterYear);
             })
             ->get();
 
@@ -58,7 +70,7 @@ class AttendanceController extends Controller
             ];
 
             for ($i = 1; $i <= $daysInMonth; $i++) {
-                $date = Carbon::create($currentYear, $currentMonth, $i);
+                $date = Carbon::create($filterYear, $filterMonth, $i);
                 $dateString = $date->toDateString();
                 $attendance = $presensi->where('nik', $k->nik)->where('tgl_presensi', $dateString)->first();
                 $isCuti = $this->checkCuti($cuti, $k->nik, $date);
@@ -83,8 +95,9 @@ class AttendanceController extends Controller
         $data = [
             'attendanceData' => $attendanceData,
             'daysInMonth' => $daysInMonth,
-            'currentMonth' => $currentMonth,
-            'currentYear' => $currentYear
+            'currentMonth' => $filterMonth,
+            'currentYear' => $filterYear,
+            'department' => $department,
         ];
 
         return view('attendance.attendance', $data);
@@ -121,8 +134,7 @@ class AttendanceController extends Controller
     }
 
     // Helper function to determine CSS classes for attendance cell
-    // Helper function to determine CSS classes for attendance cell
-private function getAttendanceClass($date, $status)
+    private function getAttendanceClass($date, $status)
     {
         $classes = [];
         if ($date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY) {
@@ -145,5 +157,4 @@ private function getAttendanceClass($date, $status)
 
         return implode(' ', $classes);
     }
-
 }
