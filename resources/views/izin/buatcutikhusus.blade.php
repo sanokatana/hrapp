@@ -11,7 +11,7 @@
     }
 
     .btn {
-        border-radius: 200px
+        border-radius: 200px;
     }
 </style>
 <!-- App Header -->
@@ -21,7 +21,7 @@
             <ion-icon name="chevron-back-outline"></ion-icon>
         </a>
     </div>
-    <div class="pageTitle">Pengajuan Cuti Khusus</div>
+    <div class="pageTitle">Pengajuan Cuti</div>
     <div class="right"></div>
 </div>
 <!-- * App Header -->
@@ -41,7 +41,7 @@
                 </select>
             </div>
             <div class="form-group">
-                <input type="text" id="tgl_cuti" name="tgl_cuti" class="datepicker form-control" placeholder="Tanggal Pengajuan Cuti Khusus" disabled autocomplete="off">
+                <input type="text" id="tgl_cuti" name="tgl_cuti" class="datepicker form-control" placeholder="Tanggal Pengajuan Cuti" disabled autocomplete="off">
             </div>
             <div class="form-group">
                 <input type="text" id="tgl_cuti_sampai" name="tgl_cuti_sampai" class="datepicker form-control" placeholder="Sampai Tanggal" disabled autocomplete="off">
@@ -58,7 +58,6 @@
             </div>
             <button type="submit" class="btn btn-primary btn-block">Submit</button>
         </form>
-
     </div>
 </div>
 @endsection
@@ -66,6 +65,18 @@
 @push('myscript')
 <script>
     $(document).ready(function() {
+        function getQueryParam(param) {
+            var urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        var idTipeCuti = getQueryParam('id_tipe_cuti');
+        if (idTipeCuti) {
+            $('#id_tipe_cuti').val(idTipeCuti);
+            // Trigger the change event manually
+            $('#id_tipe_cuti').trigger('change');
+        }
+
         $(".datepicker").datepicker({
             format: "yyyy-mm-dd"
         });
@@ -141,8 +152,12 @@
             }
         });
 
-        // Initialize datepickers with current restrictions
-        restrictDateRange();
+        // Ensure date pickers are initialized properly
+        if (idTipeCuti) {
+            restrictDateRange();
+            $("#tgl_cuti, #tgl_cuti_sampai").prop('disabled', false);
+        }
     });
 </script>
 @endpush
+

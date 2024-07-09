@@ -17,9 +17,10 @@ class ApprovalController extends Controller
     public function izinapprovalhrd(Request $request)
     {
         $query = Pengajuanizin::query();
-        $query->join('karyawan', 'pengajuan_izin.nik', '=', 'karyawan.nik');
+        $query->join('karyawan',  'pengajuan_izin.nik', '=', 'karyawan.nik');
         $query->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
-        $query->select('pengajuan_izin.*', 'karyawan.nama_lengkap', 'karyawan.jabatan', 'department.nama_dept')
+        $query->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id');
+        $query->select('pengajuan_izin.*', 'karyawan.nama_lengkap', 'karyawan.jabatan', 'department.nama_dept' , 'jabatan.nama_jabatan')
             ->where('pengajuan_izin.status', '!=', 'Cuti');
 
         if (!empty($request->dari) && !empty($request->sampai)) {
@@ -103,8 +104,9 @@ class ApprovalController extends Controller
         $query = PengajuanCuti::query();
         $query->join('karyawan', 'pengajuan_cuti.nik', '=', 'karyawan.nik');
         $query->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
+        $query->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id');
         $query->leftJoin('tipe_cuti', 'pengajuan_cuti.tipe', '=', 'tipe_cuti.id_tipe_cuti');
-        $query->select('pengajuan_cuti.*', 'karyawan.nama_lengkap', 'karyawan.jabatan', 'department.nama_dept', 'karyawan.tgl_masuk','tipe_cuti.tipe_cuti');
+        $query->select('pengajuan_cuti.*', 'karyawan.nama_lengkap', 'karyawan.jabatan', 'department.nama_dept', 'karyawan.tgl_masuk','tipe_cuti.tipe_cuti' , 'jabatan.nama_jabatan');
 
         if (!empty($request->dari) && !empty($request->sampai)) {
             $query->whereBetween('tgl_Cuti', [$request->dari, $request->sampai]);
@@ -266,7 +268,8 @@ class ApprovalController extends Controller
         $query = Pengajuanizin::query();
         $query->join('karyawan', 'pengajuan_izin.nik', '=', 'karyawan.nik')
             ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept')
-            ->select('pengajuan_izin.*', 'karyawan.nama_lengkap', 'karyawan.jabatan', 'department.nama_dept')
+            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+            ->select('pengajuan_izin.*', 'karyawan.nama_lengkap', 'karyawan.jabatan', 'department.nama_dept', 'jabatan.nama_jabatan')
             ->whereIn('pengajuan_izin.nik', $employeeNiks) // Filter to only include employees supervised by the current user
             ->where('pengajuan_izin.status', '!=', 'Cuti');
 
@@ -349,8 +352,9 @@ class ApprovalController extends Controller
         $query = PengajuanCuti::query();
         $query->join('karyawan', 'pengajuan_cuti.nik', '=', 'karyawan.nik')
             ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept')
+            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
             ->leftJoin('tipe_cuti', 'pengajuan_cuti.tipe', '=', 'tipe_cuti.id_tipe_cuti')
-            ->select('pengajuan_cuti.*', 'karyawan.nama_lengkap', 'karyawan.jabatan', 'department.nama_dept', 'karyawan.tgl_masuk', 'tipe_cuti.tipe_cuti')
+            ->select('pengajuan_cuti.*', 'karyawan.nama_lengkap', 'karyawan.jabatan', 'department.nama_dept', 'karyawan.tgl_masuk', 'tipe_cuti.tipe_cuti', 'jabatan.nama_jabatan')
             ->whereIn('pengajuan_cuti.nik', $employeeNiks); // Filter to only include employees supervised by the current user
 
         // Apply date filter if provided

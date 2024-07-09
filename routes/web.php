@@ -65,6 +65,7 @@ Route::middleware(['auth:karyawan'])->group(function(){
     Route::post('/presensi/storeizin', [PresensiController::class,'storeizin']);
 
     //Cuti
+    Route::get('/presensi/cuti', [PengajuanCutiController::class,'cuti']);
     Route::get('/presensi/buatcuti', [PengajuanCutiController::class,'buatcuti']);
     Route::post('/presensi/storecuti', [PengajuanCutiController::class,'storecuti']);
     Route::post('/presensi/cek-sisa-cuti', [PengajuanCutiController::class,'getSisaCuti']);

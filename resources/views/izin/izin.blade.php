@@ -107,15 +107,19 @@
     <div class="dropdown-menu">
         <a href="/presensi/buatizin" class="dropdown-item bg-primary">
             <ion-icon name="document-outline" role="img" class="md hydrated" aria-label="image outline"></ion-icon>
-            <p style="margin-bottom: 0px;">Izin Absen</p>
+            <p style="margin-bottom: 0px;">Pengajuan Absen</p>
         </a>
-        <a href="/presensi/buatcuti" class="dropdown-item bg-primary">
+        <!-- <a href="/presensi/buatcuti" class="dropdown-item bg-primary">
             <ion-icon name="document-outline" role="img" class="md hydrated" aria-label="image outline"></ion-icon>
-            <p style="margin-bottom: 0px;">Izin Cuti</p>
+            <p style="margin-bottom: 0px;">Pengajuan Cuti</p>
         </a>
         <a href="/presensi/buatcutikhusus" class="dropdown-item bg-primary">
             <ion-icon name="document-outline" role="img" class="md hydrated" aria-label="image outline"></ion-icon>
             <p style="margin-bottom: 0px;">Cuti Khusus</p>
+        </a> -->
+        <a href="/presensi/cuti" class="dropdown-item bg-primary">
+            <ion-icon name="document-outline" role="img" class="md hydrated" aria-label="image outline"></ion-icon>
+            <p style="margin-bottom: 0px;">Pengajuan Cuti</p>
         </a>
     </div>
 </div>

@@ -173,7 +173,7 @@ use App\Helpers\DateHelper;
                                             <td>{{ $loop->iteration + $izinapproval->firstItem() -1}} </td>
                                             <td>{{ $d->nik }} </td>
                                             <td>{{ $d->nama_lengkap }}</td>
-                                            <td>{{ $d->jabatan }}</td>
+                                            <td>{{ $d->nama_jabatan }}</td>
                                             <td>@if ($d->tgl_izin)
                                                 {{ DateHelper::formatIndonesianDate($d->tgl_izin) }}
                                                 @endif

@@ -14,22 +14,31 @@ class DashboardController extends Controller
         $bulanini = date("m") * 1;
         $tahunini = date("Y");
         $nik = Auth::guard('karyawan')->user()->nik;
-        $namaUser = DB::table('karyawan')->where('nik', $nik)->first();
+
+        // Join karyawan and jabatan tables to get nama_jabatan
+        $namaUser = DB::table('karyawan')
+            ->leftJoin('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+            ->where('karyawan.nik', $nik)
+            ->select('karyawan.*', 'jabatan.nama_jabatan')
+            ->first();
+
         $presensihariini = DB::table('presensi')->where('nik', $nik)
-        ->where('tgl_presensi',$hariini)
-        ->first();
+            ->where('tgl_presensi', $hariini)
+            ->first();
+
         $historibulanini = DB::table('presensi')
-        ->where('nik',$nik)->whereRaw('MONTH(tgl_presensi)="'.$bulanini.'"')
-        ->whereRaw('YEAR(tgl_presensi)="'.$tahunini.'"')
-        ->orderBy('tgl_presensi')
-        ->get();
+            ->where('nik', $nik)
+            ->whereRaw('MONTH(tgl_presensi)="' . $bulanini . '"')
+            ->whereRaw('YEAR(tgl_presensi)="' . $tahunini . '"')
+            ->orderBy('tgl_presensi')
+            ->get();
 
         $rekappresensi = DB::table('presensi')
-        ->selectRaw('COUNT(nik) as jmlhadir, SUM(IF(jam_in > "08:00",1,0)) as jmlterlambat')
-        ->where('nik',$nik)
-        ->whereRaw('MONTH(tgl_presensi)="'.$bulanini.'"')
-        ->whereRaw('YEAR(tgl_presensi)="'.$tahunini.'"')
-        ->first();
+            ->selectRaw('COUNT(nik) as jmlhadir, SUM(IF(jam_in > "08:00",1,0)) as jmlterlambat')
+            ->where('nik', $nik)
+            ->whereRaw('MONTH(tgl_presensi)="' . $bulanini . '"')
+            ->whereRaw('YEAR(tgl_presensi)="' . $tahunini . '"')
+            ->first();
 
         $historiizin = DB::table('pengajuan_izin')
             ->whereRaw('MONTH(tgl_izin)="' . $bulanini . '"')
@@ -48,21 +57,21 @@ class DashboardController extends Controller
             ->get();
 
         $rekapizin = DB::table('pengajuan_izin')
-        ->selectRaw('SUM(IF(status != "s",1,0)) as jmlizin, SUM(IF(status="s",1,0)) as jmlsakit')
-        ->where('nik', $nik)
-        ->whereRaw('MONTH(tgl_izin)="'.$bulanini.'"')
-        ->whereRaw('YEAR(tgl_izin)="'.$tahunini.'"')
-        ->first();
+            ->selectRaw('SUM(IF(status != "s",1,0)) as jmlizin, SUM(IF(status="s",1,0)) as jmlsakit')
+            ->where('nik', $nik)
+            ->whereRaw('MONTH(tgl_izin)="' . $bulanini . '"')
+            ->whereRaw('YEAR(tgl_izin)="' . $tahunini . '"')
+            ->first();
 
         $rekapcuti = DB::table('pengajuan_cuti')
-        ->selectRaw('count(id) as jmlcuti')
-        ->where('nik', $nik)
-        ->whereRaw('MONTH(tgl_cuti)="'.$bulanini.'"')
-        ->whereRaw('YEAR(tgl_cuti)="'.$tahunini.'"')
-        ->first();
+            ->selectRaw('count(id) as jmlcuti')
+            ->where('nik', $nik)
+            ->whereRaw('MONTH(tgl_cuti)="' . $bulanini . '"')
+            ->whereRaw('YEAR(tgl_cuti)="' . $tahunini . '"')
+            ->first();
 
-        $namabulan = ["","Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-        return view('dashboard.dashboard', compact('presensihariini','historibulanini', 'namabulan', 'bulanini', 'tahunini', 'namaUser', 'rekappresensi','historiizin', 'historicuti', 'rekapizin', 'rekapcuti'));
+        $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        return view('dashboard.dashboard', compact('presensihariini', 'historibulanini', 'namabulan', 'bulanini', 'tahunini', 'namaUser', 'rekappresensi', 'historiizin', 'historicuti', 'rekapizin', 'rekapcuti'));
     }
 
     public function dashboardadmin() {

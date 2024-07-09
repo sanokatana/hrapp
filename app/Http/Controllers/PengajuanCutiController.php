@@ -126,6 +126,13 @@ class PengajuanCutiController extends Controller
 
     //Cuti Khusus
 
+    public function cuti()
+    {
+        $tipecuti = DB::table('tipe_cuti')->get();
+
+        return view('izin.cuti', compact('tipecuti'));
+    }
+
     public function buatcutikhusus()
     {
         $tipecuti = DB::table('tipe_cuti')->get();

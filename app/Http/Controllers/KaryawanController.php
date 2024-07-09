@@ -14,8 +14,9 @@ class KaryawanController extends Controller
     public function index(Request $request)
     {
         $query = Karyawan::query();
-        $query->select('karyawan.*', 'department.nama_dept', 'atasan.nama_lengkap as nama_atasan');
+        $query->select('karyawan.*', 'department.nama_dept', 'atasan.nama_lengkap as nama_atasan', 'jabatan.nama_jabatan');
         $query->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
+        $query->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id');
         $query->leftJoin('karyawan as atasan', 'karyawan.nik_atasan', '=', 'atasan.nik'); // Self-join to get atasan's name
         $query->orderBy('karyawan.nama_lengkap', 'asc');
 
@@ -41,7 +42,8 @@ class KaryawanController extends Controller
         $atasan = Karyawan::where('level', '!=', 'Officer')->get();
 
         $department = DB::table('department')->get();
-        return view("karyawan.index", compact('karyawan', 'department', 'atasan'));
+        $jabatan = DB::table('jabatan')->get();
+        return view("karyawan.index", compact('karyawan', 'department', 'atasan', 'jabatan'));
     }
 
 
@@ -98,11 +100,12 @@ class KaryawanController extends Controller
 
         $nik = $request->nik;
         $department = DB::table('department')->get();
+        $jabatan = DB::table('jabatan')->get();
         $atasan = Karyawan::where('level', '!=', 'Officer')->get();
         $karyawan = DB::table('karyawan')
             ->where('nik', $nik)
             ->first();
-        return view('karyawan.edit', compact('department', 'karyawan', 'atasan'));
+        return view('karyawan.edit', compact('department', 'karyawan', 'atasan','jabatan'));
     }
 
     public function update($nik, Request $request)

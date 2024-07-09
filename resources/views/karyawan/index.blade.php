@@ -124,7 +124,7 @@ use App\Helpers\DateHelper;
                                             <td>{{ $d->nik}}</td>
                                             <td>{{ $d->nama_lengkap}}</td>
                                             <td>{{ $d->email}}</td>
-                                            <td>{{ $d->jabatan}}</td>
+                                            <td>{{ $d->nama_jabatan}}</td>
                                             <td>{{ $d->no_hp}}</td>
                                             <td>
                                                 @if ($d->tgl_masuk)
@@ -233,7 +233,7 @@ use App\Helpers\DateHelper;
                                 <input type="text" value="" class="form-control" name="email" id="email" placeholder="@ciptaharmoni.com">
                             </div>
                         </div>
-                        <div class="col-6">
+                        <!-- <div class="col-6">
                             <div class="form-label">Jabatan</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
@@ -247,6 +247,15 @@ use App\Helpers\DateHelper;
                                 </span>
                                 <input type="text" value="" class="form-control" name="jabatan" id="jabatan" placeholder="IT Manager">
                             </div>
+                        </div> -->
+                        <div class="col-6">
+                            <div class="form-label">Jabatan</div>
+                            <select name="jabatan" id="jabatan" class="form-select">
+                                <option value="">Pilih</option>
+                                @foreach ($jabatan as $d)
+                                <option {{ Request('id') == $d->id ? 'selected' : '' }} value="{{ $d->id }}">{{ $d->nama_jabatan }}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
                     <div class="row">

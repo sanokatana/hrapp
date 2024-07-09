@@ -34,21 +34,22 @@ use App\Helpers\DateHelper;
 <div class="section" id="user-section">
     <div id="user-detail">
         <div class="avatar">
-            @if (!empty(Auth::guard('karyawan')->user()->foto))
+            @if (!empty($namaUser->foto))
             @php
-            $path = Storage::url('uploads/karyawan/'.Auth::guard('karyawan')->user()->foto)
+            $path = Storage::url('uploads/karyawan/' . $namaUser->foto)
             @endphp
-            <img src="{{ url($path)}}" alt="avatar" class="imaged w64" style="height:60px">
+            <img src="{{ url($path) }}" alt="avatar" class="imaged w64" style="height:60px">
             @else
             <img src="assets/img/sample/avatar/avatar1.jpg" alt="avatar" class="imaged w64 rounded">
             @endif
         </div>
         <div id="user-info">
-            <h2 id="user-name">{{ Auth::guard('karyawan')->user()->nama_lengkap}}</h2>
-            <span id="user-role">{{ Auth::guard('karyawan')->user()->jabatan}}</span>
+            <h2 id="user-name">{{ $namaUser->nama_lengkap }}</h2>
+            <span id="user-role">{{ $namaUser->nama_jabatan }}</span>
         </div>
     </div>
 </div>
+
 
 <div class="section" id="menu-section">
     <div class="card">
