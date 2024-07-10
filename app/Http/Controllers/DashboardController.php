@@ -22,6 +22,13 @@ class DashboardController extends Controller
             ->select('karyawan.*', 'jabatan.nama_jabatan')
             ->first();
 
+        // Split nama_lengkap into first and last names
+        $nameParts = explode(' ', $namaUser->nama_lengkap);
+        $firstName = $nameParts[0];
+        $lastName = end($nameParts);
+        $namaUser->first_name = $firstName;
+        $namaUser->last_name = $lastName;
+
         $presensihariini = DB::table('presensi')->where('nik', $nik)
             ->where('tgl_presensi', $hariini)
             ->first();
@@ -73,6 +80,7 @@ class DashboardController extends Controller
         $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
         return view('dashboard.dashboard', compact('presensihariini', 'historibulanini', 'namabulan', 'bulanini', 'tahunini', 'namaUser', 'rekappresensi', 'historiizin', 'historicuti', 'rekapizin', 'rekapcuti'));
     }
+
 
     public function dashboardadmin() {
         $hariini = date("Y-m-d");

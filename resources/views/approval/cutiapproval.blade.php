@@ -161,9 +161,8 @@ use App\Helpers\DateHelper;
                                             <th>Jumlah Hari</th>
                                             <th>Kar Pengganti</th>
                                             <th>Note</th>
-                                            <th>Jenis Cuti</th>
                                             <th>Tipe Cuti</th>
-                                            <th>Status Manager <br> Status HRD </th>
+                                            <th>Status Manager <br>-------------------<br> Status HRD </th>
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
@@ -186,7 +185,6 @@ use App\Helpers\DateHelper;
                                             <td>{{ $d->jml_hari }} </td>
                                             <td>{{ $d->kar_ganti}} </td>
                                             <td>{{ $d->note }}</td>
-                                            <td>{{ $d->jenis }}</td>
                                             <td>{{ $d->tipe_cuti }}</td>
                                             <td>
                                                 @if ($d->status_approved == 1)

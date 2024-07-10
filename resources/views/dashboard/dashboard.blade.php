@@ -30,6 +30,23 @@ use App\Helpers\DateHelper;
         width: 100%;
         /* Make each badge occupy full width */
     }
+    .list-menu-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    }
+
+    .list-menu {
+        display: flex;
+        flex-wrap: nowrap;
+    }
+
+    .item-menu {
+        flex: 0 0 auto;
+        width: 33.3333%; /* Adjust this width as necessary to show 3 items */
+    }
+
+
 </style>
 <div class="section" id="user-section">
     <div id="user-detail">
@@ -38,61 +55,81 @@ use App\Helpers\DateHelper;
             @php
             $path = Storage::url('uploads/karyawan/' . $namaUser->foto)
             @endphp
-            <img src="{{ url($path) }}" alt="avatar" class="imaged w64" style="height:60px">
+            <img src="{{ url($path) }}" alt="avatar" class="imaged w64" style="height:64px">
             @else
-            <img src="assets/img/sample/avatar/avatar1.jpg" alt="avatar" class="imaged w64 rounded">
+            <img src="{{ asset('assets/img/sample/avatar/avatar1.jpg') }}" alt="avatar" class="imaged w64 rounded">
             @endif
         </div>
         <div id="user-info">
-            <h2 id="user-name">{{ $namaUser->nama_lengkap }}</h2>
+            <h2 id="user-name">{{ $namaUser->first_name }} {{ $namaUser->last_name }}</h2>
             <span id="user-role">{{ $namaUser->nama_jabatan }}</span>
         </div>
     </div>
 </div>
-
-
 <div class="section" id="menu-section">
     <div class="card">
         <div class="card-body text-center">
-            <div class="list-menu">
-                <div class="item-menu text-center">
-                    <div class="menu-icon">
-                        <a href="/editprofile" class="green" style="font-size: 40px;">
-                            <ion-icon name="person-sharp"></ion-icon>
-                        </a>
+            <div class="list-menu-wrapper">
+                <div class="list-menu">
+                    <div class="item-menu text-center">
+                        <div class="menu-icon">
+                            <a href="/editprofile" class="green" style="font-size: 40px;">
+                                <ion-icon name="person-sharp"></ion-icon>
+                            </a>
+                        </div>
+                        <div class="menu-name">
+                            <span class="text-center">Profil</span>
+                        </div>
                     </div>
-                    <div class="menu-name">
-                        <span class="text-center">Profil</span>
+                    <div class="item-menu text-center">
+                        <div class="menu-icon">
+                            <a href="/presensi/izin" class="danger" style="font-size: 40px;">
+                                <ion-icon name="calendar-number"></ion-icon>
+                            </a>
+                        </div>
+                        <div class="menu-name">
+                            <span class="text-center">Cuti</span>
+                        </div>
                     </div>
-                </div>
-                <div class="item-menu text-center">
-                    <div class="menu-icon">
-                        <a href="/presensi/izin" class="danger" style="font-size: 40px;">
-                            <ion-icon name="calendar-number"></ion-icon>
-                        </a>
+                    <div class="item-menu text-center">
+                        <div class="menu-icon">
+                            <a href="/presensi/histori" class="warning" style="font-size: 40px;">
+                                <ion-icon name="document-text"></ion-icon>
+                            </a>
+                        </div>
+                        <div class="menu-name">
+                            <span class="text-center">Histori</span>
+                        </div>
                     </div>
-                    <div class="menu-name">
-                        <span class="text-center">Cuti</span>
+                    <div class="item-menu text-center">
+                        <div class="menu-icon">
+                            <a href="" class="orange" style="font-size: 40px;">
+                                <ion-icon name="folder-outline"></ion-icon>
+                            </a>
+                        </div>
+                        <div class="menu-name">
+                            Files
+                        </div>
                     </div>
-                </div>
-                <div class="item-menu text-center">
-                    <div class="menu-icon">
-                        <a href="/presensi/histori" class="warning" style="font-size: 40px;">
-                            <ion-icon name="document-text"></ion-icon>
-                        </a>
+                    <div class="item-menu text-center">
+                        <div class="menu-icon">
+                            <a href="" class="blue" style="font-size: 40px;">
+                                <ion-icon name="briefcase-outline"></ion-icon>
+                            </a>
+                        </div>
+                        <div class="menu-name">
+                            Reimbursement
+                        </div>
                     </div>
-                    <div class="menu-name">
-                        <span class="text-center">Histori</span>
-                    </div>
-                </div>
-                <div class="item-menu text-center">
-                    <div class="menu-icon">
-                        <a href="" class="orange" style="font-size: 40px;">
-                            <ion-icon name="location"></ion-icon>
-                        </a>
-                    </div>
-                    <div class="menu-name">
-                        Lokasi
+                    <div class="item-menu text-center">
+                        <div class="menu-icon">
+                            <a href="" class="purple" style="font-size: 40px;">
+                                <ion-icon name="school-outline"></ion-icon>
+                            </a>
+                        </div>
+                        <div class="menu-name">
+                            Training
+                        </div>
                     </div>
                 </div>
             </div>
@@ -272,7 +309,7 @@ use App\Helpers\DateHelper;
                                         <span class="badge badge-success">{{ $d->jam_in }}</span>
                                     </div>
                                     <div class="jam-out">
-                                        <span class="badge badge-danger">{{ $presensihariini != null && $d->jam_out != null ? $d->jam_out : "NoAbsen"}}</span>
+                                        <span class="badge badge-danger">{{ $presensihariini != null && $d->jam_out != null ? $d->jam_out : "No Scan"}}</span>
                                     </div>
                                 </div>
                             </div>
@@ -345,11 +382,13 @@ use App\Helpers\DateHelper;
                                     @if ($d->tgl_cuti_sampai)
                                     <b>{{ $izinFormattedDateAkhir }}</b><br>
                                     @endif
-                                    <b style="color: red;">{{ $d->jenis }}</b><br>
+                                    <b style="color: red;">Cuti</b><br>
                                     @if ($d->tipe_cuti)
-                                    <b>{{ $d->tipe_cuti }}</b><br>
+                                    <b class="text-info">{{ $d->tipe_cuti }}</b><br>
+                                    @else
+                                    <b class="text-info">Cuti Tahunan</b><br>
                                     @endif
-                                    <b class="text-info">{{ $d->note }}</b>
+                                    <b class="text-success">{{ $d->note }}</b>
                                 </div>
 
                                 <div class="status-row" style="text-align: right">
@@ -382,3 +421,37 @@ use App\Helpers\DateHelper;
     </div>
 </div>
 @endsection
+@push('myscript')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const listMenuWrapper = document.querySelector('.list-menu-wrapper');
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    listMenuWrapper.addEventListener('mousedown', (e) => {
+        isDown = true;
+        listMenuWrapper.classList.add('active');
+        startX = e.pageX - listMenuWrapper.offsetLeft;
+        scrollLeft = listMenuWrapper.scrollLeft;
+    });
+    listMenuWrapper.addEventListener('mouseleave', () => {
+        isDown = false;
+        listMenuWrapper.classList.remove('active');
+    });
+    listMenuWrapper.addEventListener('mouseup', () => {
+        isDown = false;
+        listMenuWrapper.classList.remove('active');
+    });
+    listMenuWrapper.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - listMenuWrapper.offsetLeft;
+        const walk = (x - startX) * 3; //scroll-fast
+        listMenuWrapper.scrollLeft = scrollLeft - walk;
+    });
+});
+
+
+</script>
+@endpush

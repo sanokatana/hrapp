@@ -173,12 +173,11 @@ use App\Helpers\DateHelper;
                                             <th>Sisa Cuti Master</th>
                                             <th>Jumlah Hari</th>
                                             <th>Sisa Setelah</th>
-                                            <th>Sisa Setelah Real</th>
                                             <th>Kar Pengganti</th>
                                             <th>Note</th>
                                             <th>Jenis Cuti</th>
                                             <th>Tipe Cuti</th>
-                                            <th>Status Manager <br> Status HRD </th>
+                                            <th>Status Manager <br>-------------------<br> Status HRD </th>
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
@@ -206,13 +205,6 @@ use App\Helpers\DateHelper;
                                             </td>
                                             <td>{{ $d->jml_hari }} </td>
                                             <td>{{ $d->sisa_cuti_setelah}} </td>
-                                            <td>
-                                                @if (!is_null($d->sisa_cuti_setelah))
-                                                    <span class="badge bg-warning" style="color: white; width: 30px;">
-                                                        {{ $d->sisa_cuti_real - $d->jml_hari }}
-                                                    </span>
-                                                @endif
-                                            </td>
                                             <td>{{ $d->kar_ganti}} </td>
                                             <td>{{ $d->note }}</td>
                                             <td>{{ $d->jenis }}</td>

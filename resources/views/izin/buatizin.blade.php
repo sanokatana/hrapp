@@ -1,18 +1,19 @@
 @extends('layouts.presensi')
+
 @section('header')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
 <style>
     .datepicker-modal {
         max-height: 450px !important;
     }
-
     .datepicker-date-display {
         background-color: #4989EF !important;
     }
     .btn {
-     border-radius: 200px
+        border-radius: 200px;
     }
 </style>
+
 <!-- App Header -->
 <div class="appHeader bg-primary text-light">
     <div class="left">
@@ -83,12 +84,13 @@
                     <span>
                         <strong>
                             <ion-icon name="cloud-upload-outline" role="img" class="md hydrated" aria-label="cloud upload outline"></ion-icon>
-                            <i>Upload Surat Dokter</i>
+                            <i>Upload Dokumen</i>
                         </strong>
                     </span>
                 </label>
             </div>
             <div class="form-group">
+                <button type="button" class="btn btn-primary btn-block" id="backButton">Back</button>
                 <button type="submit" class="btn btn-primary btn-block">Submit</button>
             </div>
         </form>
@@ -160,6 +162,12 @@
                 $("#hidden_status").val(status);
                 $("#hidden_pukul").val(pukul);
             }
+        });
+
+        $("#backButton").click(function() {
+            // Hide Page 2 and Show Page 1
+            $("#page2").hide();
+            $("#page1").show();
         });
 
         $("#formizinPage2").submit(function(event) {

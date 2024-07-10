@@ -162,8 +162,7 @@ use App\Helpers\DateHelper;
                                             <th>Keterangan</th>
                                             <th>Pukul</th>
                                             <th>Document</th>
-                                            <th>Status Manager</th>
-                                            <th>Status HRD</th>
+                                            <th>Status Manager <br>-------------------<br> Status HRD </th>
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
@@ -219,14 +218,12 @@ use App\Helpers\DateHelper;
                                                 @else
                                                 <span class="badge bg-red" style="color: white; width:90px">Rejected</span>
                                                 @endif
-                                            </td>
-                                            <td>
                                                 @if ($d->status_approved_hrd == 1)
-                                                <span class="badge bg-success" style="color: white; width:90px">Approved</span>
+                                                <span class="badge bg-success mt-1" style="color: white; width:90px">Approved</span>
                                                 @elseif ($d->status_approved_hrd == 0)
-                                                <span class="badge bg-yellow" style="color: white; width:90px">Pending</span>
+                                                <span class="badge bg-yellow mt-1" style="color: white; width:90px">Pending</span>
                                                 @else
-                                                <span class="badge bg-red" style="color: white; width:90px">Rejected</span>
+                                                <span class="badge bg-red mt-1" style="color: white; width:90px">Rejected</span>
                                                 @endif
                                             </td>
                                             <td>
@@ -304,7 +301,7 @@ use App\Helpers\DateHelper;
     </div>
 </div>
 <div class="modal modal-blur fade" id="modal-document" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-full-width modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Photo Document</h5>
