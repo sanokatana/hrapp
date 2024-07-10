@@ -156,7 +156,7 @@ use App\Helpers\DateHelper;
                                             <th>Nama Karyawan</th>
                                             <th>Jabatan</th>
                                             <th>Periode</th>
-                                            <th>Tanggal Izin</th>
+                                            <th>Tanggal Cuti</th>
                                             <th>Sampai Tanggal</th>
                                             <th>Jumlah Hari</th>
                                             <th>Kar Pengganti</th>
