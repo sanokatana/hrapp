@@ -80,6 +80,7 @@ class ApprovalController extends Controller
             ]);
 
         if ($update) {
+
             return redirect('/approval/izinapprovalhrd')->with(['success' => 'Data Berhasil Di Update']);
         } else {
             return redirect('/approval/izinapprovalhrd')->with(['error' => 'Data Gagal Di Update']);
@@ -322,6 +323,17 @@ class ApprovalController extends Controller
             ]);
 
         if ($update) {
+            $leaveApplication = DB::table('pengajuan_izin')->where('id', $id)->first();
+
+            if ($leaveApplication->status_approved == 2) {
+
+                DB::table('pengajuan_izin')
+                    ->where('id', $id)
+                    ->update([
+                        'status_approved_hrd' => $status_approved,
+                        'tgl_status_approved_hrd' => $currentDate
+                    ]);
+            }
             return redirect('/approval/izinapproval')->with(['success' => 'Data Berhasil Di Update']);
         } else {
             return redirect('/approval/izinapproval')->with(['error' => 'Data Gagal Di Update']);
@@ -330,14 +342,36 @@ class ApprovalController extends Controller
 
     public function batalapprove($id)
     {
-        $update = DB::table('pengajuan_izin')
-            ->where('id', $id)
-            ->update(['status_approved' => 0]);
 
-        if ($update) {
-            return response()->json(['success' => true, 'message' => 'Approval has been cancelled.']);
+        $leaveApplication = DB::table('pengajuan_izin')->where('id', $id)->first();
+
+        if (!$leaveApplication) {
+            return response()->json(['success' => false, 'message' => 'Pengajuan Izin tidak ditemukan']);
+        }
+        if ($leaveApplication->status_approved== 1) {
+
+            // Update status_approved to Pending and tgl_status_approved to null
+            DB::table('pengajuan_izin')
+            ->where('id', $id)
+            ->update([
+                'status_approved' => 0,
+                'tgl_status_approved' => null,
+            ]);
+            return response()->json(['success' => true, 'message' => 'Pengajuan Izin berhasil dibatalkan']);
+        } else if ($leaveApplication->status_approved == 2){
+            // Fetch current sisa_cuti
+            DB::table('pengajuan_izin')
+            ->where('id', $id)
+            ->update([
+                'status_approved' => 0,
+                'tgl_status_approved' => null,
+                'status_approved_hrd' => 0,
+                'tgl_status_approved_hrd' => null,
+            ]);
+
+            return response()->json(['success' => true, 'message' => 'Pengajuan Izin berhasil dibatalkan']);
         } else {
-            return response()->json(['success' => false, 'message' => 'Data Gagal Di Update']);
+        return response()->json(['success' => false, 'message' => 'Pengajuan Izin gagal dibatalkan']);
         }
     }
 
