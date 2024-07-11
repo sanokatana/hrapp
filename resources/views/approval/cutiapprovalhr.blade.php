@@ -282,6 +282,13 @@ use App\Helpers\DateHelper;
                             </div>
                         </div>
                     </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="form-group" id="keputusanContainer" style="display: none;">
+                                <input placeholder="Keputusan" class="form-control" type="text"  id="keputusan" name="keputusan"/>
+                            </div>
+                        </div>
+                    </div>
                     <div class="row mt-4">
                         <div class="col-12">
                             <div class="form-group">
@@ -316,6 +323,14 @@ use App\Helpers\DateHelper;
             format: 'yyyy-mm-dd'
         });
 
+        $("[id='status_approved_hrd']").change(function() {
+            var selectedStatus = $(this).val();
+            if (selectedStatus === "2") {
+                $("#keputusanContainer").show();
+            } else {
+                $("#keputusanContainer").hide();
+            }
+        });
 
         $(document).on('click', '.btnApprove', function(e) {
             e.preventDefault();

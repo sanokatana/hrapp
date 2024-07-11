@@ -3,6 +3,7 @@
 @php
 use App\Helpers\DateHelper;
 @endphp
+
 <div class="page-header d-print-none">
     <div class="container-xl">
         <div class="row g-2 align-items-center">
@@ -12,7 +13,7 @@ use App\Helpers\DateHelper;
                     Approval
                 </div>
                 <h2 class="page-title">
-                    Approval Izin HR
+                    Approval Izin Absen HR
                 </h2>
                 <br>
             </div>
@@ -307,12 +308,21 @@ use App\Helpers\DateHelper;
                                     <option value="Tukar Jadwal Off">Tukar Jadwal Off</option>
                                 </select>
                             </div>
+                            <div class="form-group" id="keputusanContainer" style="display: none;">
+                                <input placeholder="Keputusan" class="form-control" type="text"  id="keputusan" name="keputusan"/>
+                            </div>
                         </div>
                     </div>
                     <div class="row mt-3">
                         <div class="col-12">
                             <div class="form-group" id="jadwalContainer" style="display: none;">
-                                <input placeholder="Jadwal Off Yang Di Ambil" class="form-control" type="text" onfocus="(this.type='date')" onblur="(this.type='text')" id="tgl_jadwal_off" name="tgl_jadwal_off"/>
+                                <input placeholder="Jadwal Off Yang Akan Di Ambil" class="form-control" type="text" onfocus="(this.type='date')" onblur="(this.type='text')" id="tgl_jadwal_off" name="tgl_jadwal_off"/>
+                            </div>
+                            <div class="form-group" id="potongContainer" style="display: none;">
+                                <input placeholder="Berapa Hari Potong Cuti" class="form-control" type="number" id="potongcuti" name="potongcuti"/>
+                            </div>
+                            <div class="form-group" id="lainContainer" style="display: none;">
+                                <input placeholder="Penjelasan" class="form-control" type="number" id="lainlain" name="lainlain"/>
                             </div>
                         </div>
                     </div>
@@ -358,12 +368,42 @@ use App\Helpers\DateHelper;
             format: 'yyyy-mm-dd'
         });
 
-        $("#keputusan").change(function() {
+        $(document).ready(function() {
+            $('#keputusan').on('change', function() {
+                var selectedValue = $(this).val();
+
+                // Toggle visibility based on the selected value
+                if (selectedValue === 'Tukar Jadwal Off') {
+                    $('#jadwalContainer').show();
+                    $('#potongContainer').hide();
+                    $('#lainContainer').hide();
+                } else if (selectedValue === 'Potong Cuti') {
+                    $('#jadwalContainer').hide();
+                    $('#potongContainer').show();
+                    $('#lainContainer').hide();
+                } else if (selectedValue === 'Lain-lain') {
+                    $('#jadwalContainer').hide();
+                    $('#potongContainer').hide();
+                    $('#lainContainer').show();
+                }else {
+                    $('#jadwalContainer').hide();
+                    $('#potongContainer').hide();
+                    $('#lainContainer').hide();
+                }
+            });
+        });
+
+
+        $("[id='status_approved_hrd']").change(function() {
             var selectedStatus = $(this).val();
-            if (selectedStatus === "Tukar Jadwal Off") {
-                $("#jadwalContainer").show();
-            } else {
+            if (selectedStatus === "2") {
+                $("#keputusanContainer").show();
+                $("#keputusan").hide();
                 $("#jadwalContainer").hide();
+                $('#lainContainer').hide();
+            } else {
+                $("#keputusanContainer").hide();
+                $("#keputusan").show();
             }
         });
 

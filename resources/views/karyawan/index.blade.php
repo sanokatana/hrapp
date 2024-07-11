@@ -179,7 +179,7 @@ use App\Helpers\DateHelper;
     </div>
 </div>
 <div class="modal modal-blur fade" id="modal-inputkaryawan" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-full-width modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Tambah Data Karyawan</h5>
@@ -189,7 +189,7 @@ use App\Helpers\DateHelper;
                 <form action="/karyawan/store" method="POST" id="formKaryawan" enctype="multipart/form-data">
                     @csrf
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-3">
                             <div class="form-label">NIK</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
@@ -205,7 +205,7 @@ use App\Helpers\DateHelper;
                                 <input type="text" value="" class="form-control" name="nik" id="nik" placeholder="10101">
                             </div>
                         </div>
-                        <div class="col-6">
+                        <div class="col-3">
                             <div class="form-label">Nama Karyawan</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
@@ -218,9 +218,7 @@ use App\Helpers\DateHelper;
                                 <input type="text" value="" class="form-control" name="nama_lengkap" id="nama_lengkap" placeholder="John Doe">
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-6">
+                        <div class="col-3">
                             <div class="form-label">Email</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
@@ -233,18 +231,7 @@ use App\Helpers\DateHelper;
                                 <input type="text" value="" class="form-control" name="email" id="email" placeholder="@ciptaharmoni.com">
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="form-label">Jabatan</div>
-                            <select name="jabatan" id="jabatan" class="form-select">
-                                <option value="">Pilih</option>
-                                @foreach ($jabatan as $d)
-                                <option {{ Request('id') == $d->id ? 'selected' : '' }} value="{{ $d->id }}">{{ $d->nama_jabatan }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-6">
+                        <div class="col-3">
                             <div class="form-label">Nomer HP</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
@@ -256,6 +243,8 @@ use App\Helpers\DateHelper;
                                 <input type="text" value="" class="form-control" name="no_hp" id="no_hp" placeholder="No HP">
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-6">
                             <div class="form-label">Tanggal Masuk</div>
                             <div class="input-icon mb-3">
@@ -269,7 +258,7 @@ use App\Helpers\DateHelper;
                                         <path d="M8 15h2v2h-2z" />
                                     </svg>
                                 </span>
-                                <input type="date" value="" class="form-control" name="tgl_masuk" id="tgl_masuk" placeholder="No HP">
+                                <input type="date" value="" class="form-control" name="tgl_masuk" id="tgl_masuk" placeholder="Tanggal Masuk">
                             </div>
                         </div>
                     </div>
@@ -298,7 +287,7 @@ use App\Helpers\DateHelper;
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-12">
+                        <div class="col-6">
                             <div class="form-label">Department</div>
                             <select name="kode_dept" id="kode_dept" class="form-select">
                                 <option value="">Pilih</option>
@@ -307,9 +296,18 @@ use App\Helpers\DateHelper;
                                 @endforeach
                             </select>
                         </div>
+                        <div class="col-6">
+                            <div class="form-label">Jabatan</div>
+                            <select name="jabatan" id="jabatan" class="form-select">
+                                <option value="">Pilih</option>
+                                @foreach ($jabatan as $d)
+                                <option {{ Request('id') == $d->id ? 'selected' : '' }} value="{{ $d->id }}">{{ $d->nama_jabatan }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                     <div class="row mt-2">
-                    <div class="col-6">
+                        <div class="col-6">
                             <div class="form-label">Level</div>
                             <select name="level" id="level" class="form-select">
                                 <option value="">Pilih</option>
@@ -329,6 +327,222 @@ use App\Helpers\DateHelper;
                             </select>
                         </div>
                     </div>
+                    <div class="row mt-3">
+                        <!-- Additional Fields Start Here -->
+                        <div class="col-6">
+                            <div class="form-label">Grade</div>
+                            <input type="text" value="" class="form-control" name="grade" id="grade" placeholder="Grade">
+                        </div>
+                        <div class="col-6">
+                            <div class="form-label">Employee Status</div>
+                            <input type="text" value="" class="form-control" name="employee_status" id="employee_status" placeholder="Employee Status">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Base POH</div>
+                            <input type="text" value="" class="form-control" name="base_poh" id="base_poh" placeholder="Base POH">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Nama PT</div>
+                            <input type="text" value="" class="form-control" name="nama_pt" id="nama_pt" placeholder="Nama PT">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Sex</div>
+                            <input type="text" value="" class="form-control" name="sex" id="sex" placeholder="Sex">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Marital Status</div>
+                            <input type="text" value="" class="form-control" name="marital_status" id="marital_status" placeholder="Marital Status">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Birthplace</div>
+                            <input type="text" value="" class="form-control" name="birthplace" id="birthplace" placeholder="Birthplace">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Religion</div>
+                            <input type="text" value="" class="form-control" name="religion" id="religion" placeholder="Religion">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Address</div>
+                            <input type="text" value="" class="form-control" name="address" id="address" placeholder="Address">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Address RT</div>
+                            <input type="text" value="" class="form-control" name="address_rt" id="address_rt" placeholder="Address RT">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Address RW</div>
+                            <input type="text" value="" class="form-control" name="address_rw" id="address_rw" placeholder="Address RW">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Address Kel</div>
+                            <input type="text" value="" class="form-control" name="address_kel" id="address_kel" placeholder="Address Kel">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Address Kec</div>
+                            <input type="text" value="" class="form-control" name="address_kec" id="address_kec" placeholder="Address Kec">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Address Kota</div>
+                            <input type="text" value="" class="form-control" name="address_kota" id="address_kota" placeholder="Address Kota">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Address Prov</div>
+                            <input type="text" value="" class="form-control" name="address_prov" id="address_prov" placeholder="Address Prov">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Kode Pos</div>
+                            <input type="text" value="" class="form-control" name="kode_pos" id="kode_pos" placeholder="Kode Pos">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">NIK KTP</div>
+                            <input type="text" value="" class="form-control" name="nik_ktp" id="nik_ktp" placeholder="NIK KTP">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Blood Type</div>
+                            <input type="text" value="" class="form-control" name="blood_type" id="blood_type" placeholder="Blood Type">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Gelar</div>
+                            <input type="text" value="" class="form-control" name="gelar" id="gelar" placeholder="Gelar">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Major</div>
+                            <input type="text" value="" class="form-control" name="major" id="major" placeholder="Major">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Kampus</div>
+                            <input type="text" value="" class="form-control" name="kampus" id="kampus" placeholder="Kampus">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Job Experience</div>
+                            <input type="text" value="" class="form-control" name="job_exp" id="job_exp" placeholder="Job Experience">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Email Personal</div>
+                            <input type="text" value="" class="form-control" name="email_personal" id="email_personal" placeholder="Email Personal">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Family Card</div>
+                            <input type="text" value="" class="form-control" name="family_card" id="family_card" placeholder="Family Card">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">No NPWP</div>
+                            <input type="text" value="" class="form-control" name="no_npwp" id="no_npwp" placeholder="No NPWP">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Alamat NPWP</div>
+                            <input type="text" value="" class="form-control" name="alamat_npwp" id="alamat_npwp" placeholder="Alamat NPWP">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">BPJS TK</div>
+                            <input type="text" value="" class="form-control" name="bpjstk" id="bpjstk" placeholder="BPJS TK">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">BPJS Kes</div>
+                            <input type="text" value="" class="form-control" name="bpjskes" id="bpjskes" placeholder="BPJS Kes">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Rekening No</div>
+                            <input type="text" value="" class="form-control" name="rek_no" id="rek_no" placeholder="Rekening No">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Bank Name</div>
+                            <input type="text" value="" class="form-control" name="bank_name" id="bank_name" placeholder="Bank Name">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Rekening Name</div>
+                            <input type="text" value="" class="form-control" name="rek_name" id="rek_name" placeholder="Rekening Name">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Father's Name</div>
+                            <input type="text" value="" class="form-control" name="father_name" id="father_name" placeholder="Father's Name">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Mother's Name</div>
+                            <input type="text" value="" class="form-control" name="mother_name" id="mother_name" placeholder="Mother's Name">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">FD SI Name</div>
+                            <input type="text" value="" class="form-control" name="fd_si_name" id="fd_si_name" placeholder="FD SI Name">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">FD SI NIK</div>
+                            <input type="text" value="" class="form-control" name="fd_si_nik" id="fd_si_nik" placeholder="FD SI NIK">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">FD SI Kota</div>
+                            <input type="text" value="" class="form-control" name="fd_si_kota" id="fd_si_kota" placeholder="FD SI Kota">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">FD SI DOB</div>
+                            <input type="date" value="" class="form-control" name="fd_si_dob" id="fd_si_dob" placeholder="FD SI DOB">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">FD Anak 1 Name</div>
+                            <input type="text" value="" class="form-control" name="fd_anak1_name" id="fd_anak1_name" placeholder="FD Anak 1 Name">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">FD Anak 1 NIK</div>
+                            <input type="text" value="" class="form-control" name="fd_anak1_nik" id="fd_anak1_nik" placeholder="FD Anak 1 NIK">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">FD Anak 1 Kota</div>
+                            <input type="text" value="" class="form-control" name="fd_anak1_kota" id="fd_anak1_kota" placeholder="FD Anak 1 Kota">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">FD Anak 1 DOB</div>
+                            <input type="date" value="" class="form-control" name="fd_anak1_dob" id="fd_anak1_dob" placeholder="FD Anak 1 DOB">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">FD Anak 2 Name</div>
+                            <input type="text" value="" class="form-control" name="fd_anak2_name" id="fd_anak2_name" placeholder="FD Anak 2 Name">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">FD Anak 2 NIK</div>
+                            <input type="text" value="" class="form-control" name="fd_anak2_nik" id="fd_anak2_nik" placeholder="FD Anak 2 NIK">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">FD Anak 2 Kota</div>
+                            <input type="text" value="" class="form-control" name="fd_anak2_kota" id="fd_anak2_kota" placeholder="FD Anak 2 Kota">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">FD Anak 2 DOB</div>
+                            <input type="date" value="" class="form-control" name="fd_anak2_dob" id="fd_anak2_dob" placeholder="FD Anak 2 DOB">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">FD Anak 3 Name</div>
+                            <input type="text" value="" class="form-control" name="fd_anak3_name" id="fd_anak3_name" placeholder="FD Anak 3 Name">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">FD Anak 3 NIK</div>
+                            <input type="text" value="" class="form-control" name="fd_anak3_nik" id="fd_anak3_nik" placeholder="FD Anak 3 NIK">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">FD Anak 3 Kota</div>
+                            <input type="text" value="" class="form-control" name="fd_anak3_kota" id="fd_anak3_kota" placeholder="FD Anak 3 Kota">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">FD Anak 3 DOB</div>
+                            <input type="date" value="" class="form-control" name="fd_anak3_dob" id="fd_anak3_dob" placeholder="FD Anak 3 DOB">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Emergency Contact Name</div>
+                            <input type="text" value="" class="form-control" name="em_name" id="em_name" placeholder="Emergency Contact Name">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Emergency Contact Phone</div>
+                            <input type="text" value="" class="form-control" name="em_telp" id="em_telp" placeholder="Emergency Contact Phone">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Emergency Contact Relation</div>
+                            <input type="text" value="" class="form-control" name="em_relation" id="em_relation" placeholder="Emergency Contact Relation">
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="form-label">Emergency Contact Address</div>
+                            <input type="text" value="" class="form-control" name="em_alamat" id="em_alamat" placeholder="Emergency Contact Address">
+                        </div>
+                    </div>
+                    <!-- Additional Fields End Here -->
                     <div class="row mt-3">
                         <div class="col-12">
                             <div class="form-group">
@@ -350,9 +564,10 @@ use App\Helpers\DateHelper;
         </div>
     </div>
 </div>
+
 <!-- Modal Edit -->
 <div class="modal modal-blur fade" id="modal-editkaryawan" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-full-width modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Edit Data Karyawan</h5>

@@ -155,20 +155,15 @@
                 </li>
                 @if($userLevel !== 'Manager' && $userLevel !== 'Officer')
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle {{request()->is(['karyawan','department','data/user','cuti']) ? 'show' : ''}}" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="{{request()->is(['karyawan','department']) ? 'true' : 'false'}}">
+                    <a class="nav-link dropdown-toggle {{request()->is(['karyawan','data/user']) ? 'show' : ''}}" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="{{request()->is(['karyawan','data/user']) ? 'true' : 'false'}}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-database">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M12 6m-8 0a8 3 0 1 0 16 0a8 3 0 1 0 -16 0" />
-                                <path d="M4 6v6a8 3 0 0 0 16 0v-6" />
-                                <path d="M4 12v6a8 3 0 0 0 16 0v-6" />
-                            </svg>
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-user"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
                         </span>
                         <span class="nav-link-title">
-                            Master Data
+                            Data Karyawan
                         </span>
                     </a>
-                    <div class="dropdown-menu {{request()->is(['karyawan', 'department','data/user','cuti']) ? 'show' : ''}}">
+                    <div class="dropdown-menu {{request()->is(['karyawan','data/user']) ? 'show' : ''}}">
                         <div class="dropdown-menu-columns">
                             <div class="dropdown-menu-column">
                                 <a class="dropdown-item {{request()->is(['karyawan']) ? 'active' : ''}}" href="/karyawan">
@@ -177,11 +172,53 @@
                                 <a class="dropdown-item {{request()->is(['data/user']) ? 'active' : ''}}" href="/data/user">
                                     User
                                 </a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                @endif
+                @if($userLevel !== 'Manager' && $userLevel !== 'Officer')
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {{request()->is(['konfigurasi/jabatan','department']) ? 'show' : ''}}" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="{{request()->is(['konfigurasi/jabatan','department']) ? 'true' : 'false'}}">
+                        <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-clipboard-list"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" /><path d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" /><path d="M9 12l.01 0" /><path d="M13 12l2 0" /><path d="M9 16l.01 0" /><path d="M13 16l2 0" /></svg>
+                        </span>
+                        <span class="nav-link-title">
+                            Data Department
+                        </span>
+                    </a>
+                    <div class="dropdown-menu {{request()->is(['department','konfigurasi/jabatan']) ? 'show' : ''}}">
+                        <div class="dropdown-menu-columns">
+                            <div class="dropdown-menu-column">
                                 <a class="dropdown-item {{request()->is(['department']) ? 'active' : ''}}" href="/department">
                                     Department
                                 </a>
+                                <a class="dropdown-item {{request()->is(['konfigurasi/jabatan']) ? 'active' : ''}}" href="/konfigurasi/jabatan">
+                                    Jabatan
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                @endif
+                @if($userLevel !== 'Manager' && $userLevel !== 'Officer')
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {{request()->is(['konfigurasi/tipecuti','cuti']) ? 'show' : ''}}" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="{{request()->is(['cuti','konfigurasi/tipecuti']) ? 'true' : 'false'}}">
+                        <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-file-database"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12.75m-4 0a4 1.75 0 1 0 8 0a4 1.75 0 1 0 -8 0" /><path d="M8 12.5v3.75c0 .966 1.79 1.75 4 1.75s4 -.784 4 -1.75v-3.75" /><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /></svg>
+                        </span>
+                        <span class="nav-link-title">
+                            Data Cuti
+                        </span>
+                    </a>
+                    <div class="dropdown-menu {{request()->is(['konfigurasi/tipecuti','cuti']) ? 'show' : ''}}">
+                        <div class="dropdown-menu-columns">
+                            <div class="dropdown-menu-column">
                                 <a class="dropdown-item {{request()->is(['cuti']) ? 'active' : ''}}" href="/cuti">
                                     Cuti
+                                </a>
+                                <a class="dropdown-item {{request()->is(['konfigurasi/tipecuti']) ? 'active' : ''}}" href="/konfigurasi/tipecuti">
+                                    Tipe Cuti
                                 </a>
                             </div>
                         </div>
@@ -311,12 +348,6 @@
                     <div class="dropdown-menu">
                         <div class="dropdown-menu-columns">
                             <div class="dropdown-menu-column">
-                                <a class="dropdown-item" href="/konfigurasi/tipecuti">
-                                    Tipe Cuti
-                                </a>
-                                <a class="dropdown-item" href="/konfigurasi/jabatan">
-                                    Jabatan
-                                </a>
                                 <a class="dropdown-item" href="/konfigurasi/libur-nasional">
                                     Libur Nasional
                                 </a>

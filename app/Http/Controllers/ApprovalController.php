@@ -70,20 +70,87 @@ class ApprovalController extends Controller
         $tgl_jadwal_off = $request->tgl_jadwal_off;
         $currentDate = Carbon::now();
 
-        $update = DB::table('pengajuan_izin')
-            ->where('id', $id)
-            ->update([
-                'status_approved_hrd' => $status_approved_hrd,
-                'tgl_status_approved_hrd' => $currentDate,
-                'keputusan' => $keputusan,
-                'tgl_jadwal_off' => $tgl_jadwal_off,
-            ]);
+        // Check if the selected option is "Potong Cuti"
+        if ($keputusan === 'Potong Cuti') {
+            $potongcuti = $request->potongcuti; // Retrieve number of cuti days to be deducted
 
-        if ($update) {
+            // Update pengajuan_izin table
+            $update = DB::table('pengajuan_izin')
+                ->where('id', $id)
+                ->update([
+                    'status_approved_hrd' => $status_approved_hrd,
+                    'tgl_status_approved_hrd' => $currentDate,
+                    'keputusan' => $keputusan,
+                    'tgl_jadwal_off' => null, // Ensure tgl_jadwal_off is null for Potong Cuti case
+                ]);
 
-            return redirect('/approval/izinapprovalhrd')->with(['success' => 'Data Berhasil Di Update']);
+            if ($update) {
+                // Find the employee's nik
+                $nik = DB::table('pengajuan_izin')->where('id', $id)->value('nik');
+
+                // Find active cuti with status 1 (active) for the employee
+                $cuti = DB::table('cuti')
+                    ->where('nik', $nik)
+                    ->where('status', 1)
+                    ->first();
+
+                if ($cuti) {
+                    // Update sisa_cuti
+                    $sisa_cuti = $cuti->sisa_cuti - $potongcuti;
+
+                    // Update cuti table
+                    DB::table('cuti')
+                        ->where('id', $cuti->id)
+                        ->update(['sisa_cuti' => $sisa_cuti]);
+                } else {
+                    // Handle case where no active cuti record is found
+                    return redirect('/approval/izinapprovalhrd')->with(['error' => 'Data Gagal Di Update: Cuti record not found']);
+                }
+
+                return redirect('/approval/izinapprovalhrd')->with(['success' => 'Data Berhasil Di Update']);
+            } else {
+                return redirect('/approval/izinapprovalhrd')->with(['error' => 'Data Gagal Di Update']);
+            }
+        } elseif ($keputusan === 'Lain-lain') {
+            $lainlain = $request->lainlain; // Retrieve text for "Lain-lain" keputusan
+
+            // Update pengajuan_izin table
+            $update = DB::table('pengajuan_izin')
+                ->where('id', $id)
+                ->update([
+                    'status_approved_hrd' => $status_approved_hrd,
+                    'tgl_status_approved_hrd' => $currentDate,
+                    'keputusan' => $lainlain, // Use the text from lainlain input for keputusan
+                    'tgl_jadwal_off' => null, // Ensure tgl_jadwal_off is null for "Lain-lain" case
+                ]);
+
+            if ($update) {
+                return redirect('/approval/izinapprovalhrd')->with(['success' => 'Data Berhasil Di Update']);
+            } else {
+                return redirect('/approval/izinapprovalhrd')->with(['error' => 'Data Gagal Di Update']);
+            }
         } else {
-            return redirect('/approval/izinapprovalhrd')->with(['error' => 'Data Gagal Di Update']);
+            // For other cases, update pengajuan_izin without affecting cuti table
+            // Check if tgl_jadwal_off should be null
+            if ($keputusan !== 'Tukar Jadwal Off') {
+                $tgl_jadwal_off = null; // Set tgl_jadwal_off to null for non-Tukar Jadwal Off cases
+            }
+
+            // Update pengajuan_izin table
+            $update = DB::table('pengajuan_izin')
+                ->where('id', $id)
+                ->update([
+                    'status_approved_hrd' => $status_approved_hrd,
+                    'tgl_status_approved_hrd' => $currentDate,
+                    'keputusan' => $keputusan,
+                    'tgl_jadwal_off' => $tgl_jadwal_off,
+                ]);
+
+            if ($update) {
+                return redirect('/approval/izinapprovalhrd')->with(['success' => 'Data Berhasil Di Update']);
+            } else {
+                return redirect('/approval/izinapprovalhrd')->with(['error' => 'Data Gagal Di Update']);
+            }
         }
     }
 
@@ -167,6 +234,7 @@ class ApprovalController extends Controller
         $id = $request->id_cuti_form;
         $nik = $request->nik_cuti_form;
         $periode = $request->periode_cuti_form;
+        $keputusan = $request->keputusan;
         $status_approved_hrd = $request->status_approved_hrd;
         $currentDate = Carbon::now();
 
@@ -188,6 +256,11 @@ class ApprovalController extends Controller
                     ->where('tahun', $periode)
                     ->first();
 
+                DB::table('pengajuan_cuti')
+                    ->where('id', $id)
+                    ->update([
+                        'keputusan' => $keputusan
+                    ]);
                 // Calculate the new sisa_cuti
                 $newSisaCuti = $cutiRecord->sisa_cuti + $leaveApplication->jml_hari;
 
@@ -313,6 +386,7 @@ class ApprovalController extends Controller
     {
         $id = $request->id_izin_form;
         $status_approved = $request->status_approved;
+        $keputusan = $request->keputusan;
         $currentDate = Carbon::now();
 
         $update = DB::table('pengajuan_izin')
@@ -331,7 +405,8 @@ class ApprovalController extends Controller
                     ->where('id', $id)
                     ->update([
                         'status_approved_hrd' => $status_approved,
-                        'tgl_status_approved_hrd' => $currentDate
+                        'tgl_status_approved_hrd' => $currentDate,
+                        'keputusan' => $keputusan
                     ]);
             }
             return redirect('/approval/izinapproval')->with(['success' => 'Data Berhasil Di Update']);
