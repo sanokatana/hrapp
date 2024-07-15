@@ -58,30 +58,31 @@
                                 <a href="{{ route('cek.cuti.karyawan') }}" class="btn btn-primary" id="btnCekCuti">
                                     Cek Cuti Karyawan
                                 </a>
+                                <a href="#" class="btn btn-primary" id="btnUploadCuti">
+                                    Upload Cuti
+                                </a>
                             </div>
                         </div>
                         <div class="row mt-2">
                             <div class="col-12">
                                 <form action="/cuti" method="GET">
                                     <div class="row">
-                                    <div class="col-4">
+                                    <div class="col-2">
                                             <div class="form-group">
                                                 <input type="text" name="nama_kar" id="nama_kar" class="form-control" placeholder="Nama Karyawan" autocomplete="off" value="{{ Request('nama_kar')}}">
                                             </div>
                                         </div>
-                                        <div class="col-4">
+                                        <div class="col-2">
                                             <div class="form-group">
                                                 <input type="text" name="nik_req" id="nik_req" class="form-control" placeholder="NIK" autocomplete="off" value="{{ Request('nik_req')}}">
                                             </div>
                                         </div>
-                                        <div class="col-4">
+                                        <div class="col-2">
                                             <div class="form-group">
                                                 <input type="text" name="tahun_req" id="tahun_req" class="form-control" placeholder="Tahun" autocomplete="off" value="{{ Request('tahun_req')}}">
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="row mt-2">
-                                        <div class="col-4">
+                                        <div class="col-2">
                                             <div class="form-group mb-3">
                                                 <select name="kode_dept" id="kode_dept" class="form-select">
                                                     <option value="">Department</option>
@@ -91,7 +92,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-4">
+                                        <div class="col-2">
                                             <div class="form-group">
                                                 <select name="status" id="status" class="form-select">
                                                     <option value="pilih" {{ request('status') === 'pilih' ? 'selected' : '' }}>Pilih Status</option>
@@ -100,7 +101,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-4">
+                                        <div class="col-2">
                                             <div class="form-group">
                                                 <button class="btn btn-primary w-100">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-search">
@@ -321,6 +322,41 @@
         </div>
     </div>
 </div>
+<!-- Modal Upload CSV -->
+<div class="modal modal-blur fade" id="modal-uploadCuti" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upload Cuti Karyawan CSV</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/cuti/uploadCuti" method="POST" id="formCuti" enctype="multipart/form-data">
+                    @csrf
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="file">Upload CSV</label>
+                                <input type="file" name="file" class="form-control" required>
+                            </div>
+                            <div class="form-group mt-3">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    Simpan
+                                </button>
+                            </div>
+                            <div class="form-group mt-3">
+                                <a href="/cuti/downloadTemplate" class="btn btn-secondary w-100">
+                                    Download Template CSV
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Edit -->
 <div class="modal modal-blur fade" id="modal-editcuti" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
@@ -342,6 +378,10 @@
     $(function() {
         $('#btnTambahCuti').click(function() {
             $('#modal-inputcuti').modal("show");
+        });
+
+        $('#btnUploadCuti').click(function() {
+            $('#modal-uploadCuti').modal("show");
         });
 
         $('#nik').on('blur', function() {

@@ -3,13 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cuti;
-use App\Models\Karyawan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
 
 class CutiController extends Controller
 {
@@ -182,6 +181,57 @@ class CutiController extends Controller
         return response()->json($employee);
     }
 
+    public function downloadTemplate()
+    {
+        $filePath = public_path('storage/uploads/cuti/template_cuti.csv');
 
+        return response()->download($filePath, 'template_cuti.csv', [
+            'Content-Type' => 'text/csv',
+        ]);
+    }
+    public function uploadCuti(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|mimes:csv,txt',
+        ]);
 
+        if ($validator->fails()) {
+            return redirect()->back()->with('danger', 'Please upload a valid CSV file.');
+        }
+
+        $file = $request->file('file');
+        $filePath = $file->getRealPath();
+        $fileHandle = fopen($filePath, 'r');
+
+        // Skip the header row
+        $headers = fgetcsv($fileHandle, 1000, ';'); // Specify delimiter as semicolon
+
+        $data = [];
+        while ($row = fgetcsv($fileHandle, 1000, ';')) { // Specify delimiter as semicolon
+            // Ensure each row has the correct number of columns
+            if (count($row) == 6) { // Assuming there are exactly 6 columns in your CSV
+                $data[] = [
+                    'nik' => $row[0],
+                    'tahun' => $row[1],
+                    'sisa_cuti' => $row[2],
+                    'periode_awal' => Carbon::createFromFormat('d/m/Y', $row[3])->format('Y-m-d'),
+                    'periode_akhir'  => Carbon::createFromFormat('d/m/Y', $row[4])->format('Y-m-d'),
+                    'status' => $row[5],
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ];
+            } else {
+                return redirect()->back()->with('danger', 'Invalid CSV format: Each row must have exactly 7 columns.');
+            }
+        }
+
+        fclose($fileHandle);
+
+        try {
+            DB::table('cuti')->insert($data);
+            return redirect()->back()->with('success', 'Data Berhasil Di Simpan');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('danger', 'Data Gagal Di Simpan: ' . $e->getMessage());
+        }
+    }
 }

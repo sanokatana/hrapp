@@ -65,6 +65,8 @@
                                             <th>No</th>
                                             <th>Nama Jabatan</th>
                                             <th>Department</th>
+                                            <th>Jabatan Atasan</th>
+                                            <th>Site</th>
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
@@ -74,6 +76,8 @@
                                             <td>{{ $d->id}}</td>
                                             <td>{{ $d->nama_jabatan}}</td>
                                             <td>{{ $d->nama_dept}}</td>
+                                            <td>{{ $d->jabatan_atasan}}</td>
+                                            <td>{{ $d->site}}</td>
                                             <td>
                                                 <div class="form-group">
                                                     <a href="#" class="edit btn btn-info btn-sm" id_jabatan="{{ $d->id }}">
@@ -103,6 +107,7 @@
                                         @endforeach
                                     </tbody>
                                 </table>
+                                {{ $jabatan->links('vendor.pagination.bootstrap-5')}}
                             </div>
                         </div>
                     </div>
@@ -145,6 +150,28 @@
                                 <option value="">Pilih</option>
                                 @foreach ($department as $d)
                                 <option {{ Request('kode_dept') == $d->kode_dept ? 'selected' : '' }} value="{{ $d->kode_dept }}">{{ $d->nama_dept }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="form-label">Jabatan Atasan</div>
+                            <select name="atasan_jabatan" id="atasan_jabatan" class="form-select">
+                                <option value="">Pilih</option>
+                                @foreach ($jabat as $d)
+                                <option {{ Request('nama_jabatan') == $d->nama_jabatan ? 'selected' : '' }} value="{{ $d->nama_jabatan }}">{{ $d->nama_jabatan }} - {{ $d->site }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="form-label">Site</div>
+                            <select name="site" id="site" class="form-select">
+                                <option value="">Pilih</option>
+                                @foreach ($location as $d)
+                                <option {{ Request('nama_kantor') == $d->nama_kantor ? 'selected' : '' }} value="{{ $d->nama_kantor }}">{{ $d->nama_kantor }}</option>
                                 @endforeach
                             </select>
                         </div>

@@ -113,21 +113,30 @@ class KonfigurasiController extends Controller
 
     // Jabatan
 
-    public function jabatan(){
+    public function jabatan()
+    {
         $jabatan = DB::table('jabatan')
             ->select('jabatan.*', 'department.nama_dept')
             ->join('department', 'jabatan.kode_dept', '=', 'department.kode_dept')
-            ->get();
+            ->paginate(10); // Add pagination here
+
         $department = DB::table('department')->get();
-        return view("konfigurasi.jabatan", compact('jabatan','department'));
+        $jabat = DB::table('jabatan')->get();
+        $location = DB::table('konfigurasi_lokasi')->get();
+        return view("konfigurasi.jabatan", compact('jabatan', 'department', 'jabat','location'));
     }
+
 
     public function jabatanstore(Request $request){
         $nama_jabatan = $request->nama_jabatan;
         $kode_dept = $request->kode_dept;
+        $atasan_jabatan = $request->atasan_jabatan;
+        $site = $request->site;
         $data = [
             'nama_jabatan' => $nama_jabatan,
             'kode_dept' => $kode_dept,
+            'jabatan_atasan' => $atasan_jabatan,
+            'site' => $site,
         ];
 
         $simpan = DB::table('jabatan')
@@ -141,28 +150,35 @@ class KonfigurasiController extends Controller
     public function jabatanedit(Request $request){
         $id = $request->id;
         $jabatan = DB::table('jabatan')->where('id', $id)->first();
+        $jabat = DB::table('jabatan')->get();
         $department = DB::table('department')->get();
-        return view('konfigurasi.jabedit', compact('jabatan','department'));
+        $location = DB::table('konfigurasi_lokasi')->get();
+        return view('konfigurasi.jabedit', compact('jabatan','department','jabat','location'));
     }
 
-    public function jabatanupdate($id, Request $request){
-        $id = $request->id;
+    public function jabatanupdate(Request $request, $id)
+    {
         $nama_jabatan = $request->nama_jabatan;
         $kode_dept = $request->kode_dept;
+        $atasan_jabatan = $request->atasan_jabatan;
+        $site = $request->site;
+
         $data = [
-            'id'=>$id,
             'nama_jabatan' => $nama_jabatan,
             'kode_dept' => $kode_dept,
+            'jabatan_atasan' => $atasan_jabatan,
+            'site' => $site,
         ];
 
-        $update = DB::table('jabatan')->where('id',$id)->update($data);
+        $update = DB::table('jabatan')->where('id', $id)->update($data);
 
-        if($update){
-            return Redirect::back()->with(['success'=>'Data Berhasil Di Update']);
-        }else {
-            return Redirect::back()->with(['warning'=>'Data Gagal Di Update']);
+        if ($update) {
+            return redirect()->back()->with(['success' => 'Data Berhasil Di Update']);
+        } else {
+            return redirect()->back()->with(['warning' => 'Data Gagal Di Update']);
         }
     }
+
 
     public function jabatandelete($id)
     {

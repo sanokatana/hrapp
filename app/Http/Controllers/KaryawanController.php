@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\StoreEmployeeRequest;
+use Illuminate\Support\Facades\Log;
 
 class KaryawanController extends Controller
 {
@@ -18,7 +20,7 @@ class KaryawanController extends Controller
         $query->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
         $query->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id');
         $query->leftJoin('karyawan as atasan', 'karyawan.nik_atasan', '=', 'atasan.nik'); // Self-join to get atasan's name
-        $query->orderBy('karyawan.nama_lengkap', 'asc');
+        $query->orderBy('karyawan.tgl_masuk', 'asc');
 
         if (!empty($request->nama_karyawan)) {
             $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama_karyawan . '%');
@@ -28,72 +30,46 @@ class KaryawanController extends Controller
             $query->where('karyawan.kode_dept', $request->kode_dept);
         }
 
-        if (!empty($request->level)) {
-            $query->where('karyawan.level', $request->level);
-        }
-
-        if (!empty($request->nik_atasan)) {
-            $query->where('karyawan.nik_atasan', $request->nik_atasan);
-        }
-
-        $karyawan = $query->paginate(10);
+        $karyawan = $query->paginate(10)->appends($request->except('page'));
 
         // Query to get non-officer employees
         $atasan = Karyawan::where('level', '!=', 'Officer')->get();
 
         $department = DB::table('department')->get();
         $jabatan = DB::table('jabatan')->get();
-        return view("karyawan.index", compact('karyawan', 'department', 'atasan', 'jabatan'));
+        $location = DB::table('konfigurasi_lokasi')->get();
+        return view("karyawan.index", compact('karyawan', 'department', 'atasan', 'jabatan','location'));
     }
 
 
 
-    public function store(Request $request)
+
+
+    public function store(StoreEmployeeRequest $request)
     {
-        $nik = $request->nik;
-        $nama_lengkap = $request->nama_lengkap;
-        $jabatan = $request->jabatan;
-        $no_hp = $request->no_hp;
-        $email = $request->email;
-        $level = $request->level;
-        $DOB = $request->DOB;
-        $tgl_masuk = $request->tgl_masuk;
-        $nik_atasan = $request->nik_atasan;
-        $password = Hash::make('chl12345');
-        $kode_dept = $request->kode_dept;
+        $data = $request->validated();
+        $data['password'] = Hash::make('chl12345');
+
         if ($request->hasFile('foto')) {
-            $foto = $nik . "." . $request->file('foto')->getClientOriginalExtension();
-        } else {
-            $foto = null;
+            $data['foto'] = $data['nik'] . '.' . $request->file('foto')->getClientOriginalExtension();
         }
 
         try {
-            $data = [
-                'nik' => $nik,
-                'nama_lengkap' => $nama_lengkap,
-                'jabatan' => $jabatan,
-                'no_hp' => $no_hp,
-                'tgl_masuk' => $tgl_masuk,
-                'email' => $email,
-                'DOB' => $DOB,
-                'kode_dept' => $kode_dept,
-                'foto' => $foto,
-                'password' => $password,
-                'level' => $level,
-                'nik_atasan' => $nik_atasan
-            ];
             $simpan = DB::table('karyawan')->insert($data);
             if ($simpan) {
                 if ($request->hasFile('foto')) {
-                    $folderPath = "public/uploads/karyawan/";
-                    $request->file('foto')->storeAs($folderPath, $foto);
+                    $folderPath = 'public/uploads/karyawan/';
+                    $request->file('foto')->storeAs($folderPath, $data['foto']);
                 }
                 return Redirect::back()->with(['success' => 'Data Berhasil Di Simpan']);
             }
         } catch (\Exception $e) {
+            Log::error($e->getMessage());
             return Redirect::back()->with(['danger' => 'Data Gagal Di Simpan']);
         }
     }
+
+
 
     public function edit(Request $request)
     {
@@ -102,53 +78,32 @@ class KaryawanController extends Controller
         $department = DB::table('department')->get();
         $jabatan = DB::table('jabatan')->get();
         $atasan = Karyawan::where('level', '!=', 'Officer')->get();
+        $location = DB::table('konfigurasi_lokasi')->get();
         $karyawan = DB::table('karyawan')
             ->where('nik', $nik)
             ->first();
-        return view('karyawan.edit', compact('department', 'karyawan', 'atasan','jabatan'));
+        return view('karyawan.edit', compact('department', 'karyawan', 'atasan','jabatan','location'));
     }
 
-    public function update($nik, Request $request)
+    public function update($nik, StoreEmployeeRequest $request)
     {
-        $nik = $request->nik;
-        $nama_lengkap = $request->nama_lengkap;
-        $jabatan = $request->jabatan;
-        $no_hp = $request->no_hp;
-        $kode_dept = $request->kode_dept;
+        $data = $request->validated();
         $old_foto = $request->old_foto;
-        $email = $request->email;
-        $DOB = $request->DOB;
-        $level = $request->level;
-        $tgl_masuk = $request->tgl_masuk;
-        $tgl_resign = $request->tgl_resign;
-        $nik_atasan = $request->nik_atasan;
+
         if ($request->hasFile('foto')) {
-            $foto = $nik . "." . $request->file('foto')->getClientOriginalExtension();
+            $data['foto'] = $data['nik'] . '.' . $request->file('foto')->getClientOriginalExtension();
         } else {
-            $foto = $old_foto;
+            $data['foto'] = $old_foto;
         }
 
         try {
-            $data = [
-                'nama_lengkap' => $nama_lengkap,
-                'jabatan' => $jabatan,
-                'no_hp' => $no_hp,
-                'kode_dept' => $kode_dept,
-                'foto' => $foto,
-                'DOB' => $DOB,
-                'email' => $email,
-                'level' => $level,
-                'tgl_masuk' => $tgl_masuk,
-                'tgl_resign' => $tgl_resign,
-                'nik_atasan' => $nik_atasan,
-            ];
             $update = DB::table('karyawan')->where('nik', $nik)->update($data);
             if ($update) {
                 if ($request->hasFile('foto')) {
-                    $folderPath = "public/uploads/karyawan/";
-                    $folderPathOld = "public/uploads/karyawan/" . $old_foto;
+                    $folderPath = 'public/uploads/karyawan/';
+                    $folderPathOld = 'public/uploads/karyawan/' . $old_foto;
                     Storage::delete($folderPathOld);
-                    $request->file('foto')->storeAs($folderPath, $foto);
+                    $request->file('foto')->storeAs($folderPath, $data['foto']);
                 }
                 return Redirect::back()->with(['success' => 'Data Berhasil Di Update']);
             }

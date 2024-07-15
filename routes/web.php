@@ -83,6 +83,7 @@ Route::middleware(['auth:user'])->group(function (){
     //Karyawan
     Route::get('/karyawan', [KaryawanController::class,'index']);
     Route::post('/karyawan/store', [KaryawanController::class,'store']);
+    Route::post('/karyawan/store', [KaryawanController::class, 'store'])->name('karyawan.store');
     Route::post('/karyawan/edit', [KaryawanController::class,'edit']);
     Route::post('/karyawan/{nik}/update', [KaryawanController::class,'update']);
     Route::post('/karyawan/{nik}/delete', [KaryawanController::class,'delete']);
@@ -103,6 +104,8 @@ Route::middleware(['auth:user'])->group(function (){
     Route::get('/cek-cuti-karyawan', [CutiController::class, 'cekCutiKaryawan'])->name('cek.cuti.karyawan');
     Route::get('/cuti/getEmployeeByNik', [CutiController::class, 'getEmployeeByNik']);
     Route::get('/cuti/getEmployeeName', [CutiController::class, 'getEmployeeName'])->name('getEmployeeName');
+    Route::post('/cuti/uploadCuti', [CutiController::class, 'uploadCuti']);
+    Route::get('/cuti/downloadTemplate', [CutiController::class, 'downloadTemplate']);
 
     //Department
     Route::get('/department', [DepartmentController::class,'index']);
@@ -155,7 +158,7 @@ Route::middleware(['auth:user'])->group(function (){
     Route::get('/konfigurasi/jabatan', [KonfigurasiController::class,'jabatan']);
     Route::post('/konfigurasi/jabatan/store', [KonfigurasiController::class,'jabatanstore']);
     Route::post('/konfigurasi/jabatan/edit', [KonfigurasiController::class,'jabatanedit']);
-    Route::post('/konfigurasi/jabatan/{id_tipe_cuti}/update', [KonfigurasiController::class,'jabatanupdate']);
+    Route::post('/konfigurasi/jabatan/{id}/update', [KonfigurasiController::class, 'jabatanupdate'])->name('jabatan.update');
     Route::post('/konfigurasi/jabatan/{id_tipe_cuti}/delete', [KonfigurasiController::class,'jabatandelete']);
 
     //Konfigurasi Libur Nasional
