@@ -10,14 +10,21 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
     public function proseslogin(Request $request){
-        $credentials = $request->only('email', 'password');
+        $loginField = filter_var($request->input('nik_or_email'), FILTER_VALIDATE_EMAIL) ? 'email' : 'nik';
+        $credentials = [
+            $loginField => $request->input('nik_or_email'),
+            'password' => $request->input('password'),
+        ];
         $remember = $request->has('remember');
+
         if(Auth::guard('karyawan')->attempt($credentials, $remember)){
             return redirect('/dashboard');
         } else {
-            return redirect('/')->with(['warning'=>'Email / Password Anda Salah']);
+            return redirect('/')->with(['warning'=>'NIK/Email or Password is incorrect']);
         }
     }
+
+
 
     public function proseslogout(){
         if(Auth::guard('karyawan')->check()){
@@ -34,14 +41,19 @@ class AuthController extends Controller
     }
 
     public function prosesloginadmin(Request $request){
-        $credentials = $request->only('email', 'password');
+        $loginField = filter_var($request->input('nik_or_email'), FILTER_VALIDATE_EMAIL) ? 'email' : 'nik';
+        $credentials = [
+            $loginField => $request->input('nik_or_email'),
+            'password' => $request->input('password'),
+        ];
         $remember = $request->has('remember');
 
         if(Auth::guard('user')->attempt($credentials, $remember)){
             return response()->json(['success' => true]);
         } else {
-            return response()->json(['success' => false, 'message' => 'Email / Password Anda Salah']);
+            return response()->json(['success' => false, 'message' => 'NIK/Email or Password is incorrect']);
         }
     }
+
 }
 

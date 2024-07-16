@@ -48,6 +48,20 @@
     </div>
     <div class="row">
         <div class="col-12">
+            <label class="form-label">Level</label>
+            <div class="form-group mb-3">
+                <select name="level" id="level" class="form-select">
+                    <option value="pilih">Pilih Level</option>
+                    <option {{ $user->level == 'Management' ? 'selected' : '' }} value="Management">Management</option>
+                    <option {{ $user->level == 'Admin' ? 'selected' : '' }} value="Admin">Admin</option>
+                    <option {{ $user->level == 'HRD' ? 'selected' : '' }} value="HRD">HRD</option>
+                    <option {{ $user->level == 'Superadmin' ? 'selected' : '' }} value="Superadmin">Superadmin</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
             <label class="form-label">Password</label>
             <div class="input-group input-group-flat">
                 <input type="password" class="form-control" name="new_password" id="new_password" autocomplete="off" placeholder="New password">

@@ -4212,6 +4212,27 @@ textarea,
   display: none;
 }
 
+.form-group .toggle-password {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4f5050;
+    height: 38px;
+    font-size: 22px;
+    position: absolute;
+    right: -10px;
+    bottom: 0;
+    width: 32px;
+    opacity: 0.5;
+    display: none;
+  }
+
+
+.form-group .toggle-password:hover,
+.form-group .toggle-password:active {
+  opacity: 1;
+}
+
 .form-group .clear-input:hover,
 .form-group .clear-input:active {
   opacity: 0.8;
@@ -4224,6 +4245,10 @@ textarea,
 .form-group .input-wrapper.not-empty .clear-input {
   display: flex;
 }
+
+.form-group .input-wrapper.not-empty .toggle-password {
+    display: flex;
+  }
 
 .form-group .input-wrapper.active .label {
   color: #1e74fd !important;
@@ -4301,6 +4326,12 @@ textarea,
   height: 42px;
   width: 40px;
 }
+
+.form-group.boxed .toggle-password {
+    right: 0;
+    height: 42px;
+    width: 40px;
+  }
 
 .form-group.boxed .label {
   margin-bottom: 8px;

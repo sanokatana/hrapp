@@ -91,6 +91,7 @@
                                             <th>NIK</th>
                                             <th>Nama</th>
                                             <th>Email</th>
+                                            <th>Level</th>
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
@@ -101,6 +102,7 @@
                                             <td>{{ $d->nik}}</td>
                                             <td>{{ $d->name}}</td>
                                             <td>{{ $d->email}}</td>
+                                            <td>{{ $d->level}}</td>
                                             <td>
                                                 <div class="form-group">
                                                     <a href="#" class="edit btn btn-info btn-sm" nik="{{ $d->nik }}">
@@ -162,7 +164,7 @@
                                         <path d="M7 16l10 0" />
                                     </svg>
                                 </span>
-                                <input type="text" value="" class="form-control" name="nik" id="nik" placeholder="10101">
+                                <input type="text" value="" class="form-control" name="nik" id="nik" placeholder="10101" autocomplete="off">
                             </div>
                         </div>
                         <div class="col-12">
@@ -175,7 +177,10 @@
                                         <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
                                     </svg>
                                 </span>
-                                <input type="text" value="" class="form-control" name="nama" id="nama" placeholder="John Doe">
+                                <input type="text" value="" class="form-control" name="nama_lengkap" id="nama_lengkap" placeholder="John Doe">
+                            </div>
+                            <div id="employeeList" class="dropdown-menu" style="display:none; margin-top: -12px">
+
                             </div>
                         </div>
                     </div>
@@ -196,11 +201,25 @@
                     </div>
                     <div class="row">
                         <div class="col-12">
+                            <label class="form-label">Level</label>
+                            <div class="form-group mb-3">
+                                <select name="level" id="level" class="form-select">
+                                    <option value="pilih">Pilih Level</option>
+                                    <option value="Management">Management</option>
+                                    <option value="HRD">HRD</option>
+                                    <option value="Admin">Admin</option>
+                                    <option value="Superadmin">Superadmin</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
                             <label class="form-label">Password</label>
                             <div class="input-group input-group-flat">
                                 <input type="password" class="form-control" value="" name="password" id="password" autocomplete="off">
                                 <span class="input-group-text">
-                                    <a href="#" class="input-group-link" id="togglePassword" >Show password</a>
+                                    <a href="#" class="input-group-link" id="togglePassword">Show password</a>
                                 </span>
                             </div>
                         </div>
@@ -248,6 +267,78 @@
         $('#btnTambahUser').click(function() {
             $('#modal-inputuser').modal("show");
         });
+
+        $('#nik').on('blur', function() {
+            var nik = $(this).val();
+            if (nik !== "") {
+                $.ajax({
+                    url: '/data/user/getEmployeeByNik',
+                    type: 'GET',
+                    data: {
+                        nik: nik
+                    },
+                    success: function(response) {
+                        console.log(response);
+                        if (response) {
+                            $('#nama_lengkap').val(response.nama_lengkap);
+                            $('#email').val(response.email);
+                        } else {
+                            $('#nama_lengkap').val('');
+                            $('#email').val('');
+                        }
+                    }
+                });
+            }
+        });
+
+        $('#nama_lengkap').on('input', function() {
+            var nama_lengkap = $(this).val().trim();
+            if (nama_lengkap.length >= 2) {
+                $.ajax({
+                    url: '/data/user/getEmployeeNameUser',
+                    type: 'GET',
+                    data: {
+                        nama_lengkap: nama_lengkap
+                    },
+                    success: function(response) {
+                        var dropdownMenu = $('#employeeList');
+                        dropdownMenu.empty();
+
+                        if (response.length > 0) {
+                            response.forEach(function(employee) {
+                                dropdownMenu.append('<a class="dropdown-item" href="#" data-nik="' + employee.nik + '" data-email="' + employee.email + '">' + employee.nama_lengkap + '</a>');
+                            });
+
+                            dropdownMenu.show();
+                        } else {
+                            dropdownMenu.hide();
+                        }
+                    }
+                });
+            } else {
+                $('#employeeList').hide();
+            }
+        });
+
+        $(document).on('click', '#employeeList .dropdown-item', function(e) {
+            e.preventDefault();
+            var selectedName = $(this).text();
+            var selectedNIK = $(this).data('nik');
+            var selectedEmail = $(this).data('email');
+
+            $('#nama_lengkap').val(selectedName);
+            $('#nik').val(selectedNIK);
+            $('#email').val(selectedEmail);
+
+            $('#employeeList').hide();
+        });
+
+        $(document).click(function(e) {
+            if (!$(e.target).closest('#employeeList').length && !$(e.target).closest('#nama_lengkap').length) {
+                $('#employeeList').hide();
+            }
+        });
+
 
         $('.edit').click(function() {
             var nik = $(this).attr('nik');
@@ -299,7 +390,7 @@
 
         $('#formUser').submit(function() {
             var nik = $('#nik').val();
-            var nama = $('#nama').val();
+            var name = $('#name').val();
             var email = $('#email').val();
             if (nik == "") {
                 Swal.fire({
@@ -311,14 +402,14 @@
                     $('#nik').focus();
                 });
                 return false;
-            } else if (nama == "") {
+            } else if (name == "") {
                 Swal.fire({
                     title: 'Warning!',
                     text: 'Nama Harus Diisi',
                     icon: 'warning',
                     confirmButtonText: 'Ok'
                 }).then(() => {
-                    $('#nama').focus();
+                    $('#name').focus();
                 });
                 return false;
             } else if (email == "") {

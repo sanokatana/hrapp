@@ -17,8 +17,8 @@ class UserController extends Controller
         $query = User::query();
         $query->orderBy('name', 'asc');
 
-        if (!empty($request->nama)) {
-            $query->where('name', 'like', '%' . $request->nama . '%');
+        if (!empty($request->nama_lengkap)) {
+            $query->where('name', 'like', '%' . $request->nama_lengkap . '%');
         }
 
         $user = $query->paginate(10);
@@ -30,15 +30,17 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $nik = $request->nik;
-        $name = $request->nama;
+        $nama_lengkap = $request->nama_lengkap;
         $email = $request->email;
+        $level = $request->level;
         $password = Hash::make($request->password);
 
         try {
             $data = [
                 'nik' => $nik,
-                'name' => $name,
+                'name' => $nama_lengkap,
                 'email' => $email,
+                'level' => $level,
                 'password' => $password,
             ];
             $simpan = DB::table('users')->insert($data);
@@ -64,15 +66,17 @@ class UserController extends Controller
     {
         $request->validate([
             'nik' => 'required|string|max:255',
-            'nama' => 'required|string|max:255',
+            'nama_lengkap' => 'required|string|max:255',
             'email' => 'required|string|email|max:255',
+            'level' => 'required|string|max:255',
             'new_password' => 'nullable|string|min:8|confirmed',
         ]);
 
         $user = User::where('nik', $nik)->firstOrFail();
         $user->nik = $request->nik;
-        $user->name = $request->nama;
+        $user->name = $request->nama_lengkap;
         $user->email = $request->email;
+        $user->level = $request->level;
 
         if ($request->filled('new_password')) {
             $user->password = Hash::make($request->new_password);
@@ -86,7 +90,23 @@ class UserController extends Controller
         }
     }
 
+    public function getEmployeeByNik(Request $request)
+    {
+        $nik = $request->nik;
+        $employee = DB::table('karyawan')->where('nik', $nik)->first();
 
+        return response()->json($employee);
+    }
+
+    public function getEmployeeNameUser(Request $request)
+    {
+        $searchTerm = $request->nama_lengkap;
+        $employee = DB::table('karyawan')
+                    ->where('nama_lengkap', 'like', '%' . $searchTerm . '%')
+                    ->get(['nik', 'nama_lengkap','email']);
+
+        return response()->json($employee);
+    }
 
     public function delete($nik)
     {

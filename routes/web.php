@@ -80,13 +80,14 @@ Route::middleware(['auth:user'])->group(function (){
     Route::get('/panel/dashboardadmin', [DashboardController::class,'dashboardadmin']);
     Route::get('/panel/proseslogoutadmin', [AuthController::class, 'proseslogoutadmin']);
 
-    //Karyawan
-    Route::get('/karyawan', [KaryawanController::class,'index']);
-    Route::post('/karyawan/store', [KaryawanController::class,'store']);
+    // Karyawan
+    Route::get('/karyawan', [KaryawanController::class, 'index']);
     Route::post('/karyawan/store', [KaryawanController::class, 'store'])->name('karyawan.store');
-    Route::post('/karyawan/edit', [KaryawanController::class,'edit']);
-    Route::post('/karyawan/{nik}/update', [KaryawanController::class,'update']);
-    Route::post('/karyawan/{nik}/delete', [KaryawanController::class,'delete']);
+    Route::post('/karyawan/edit', [KaryawanController::class, 'edit']);
+    Route::post('/karyawan/{nik}/update', [KaryawanController::class, 'update']);
+    Route::post('/karyawan/{nik}/delete', [KaryawanController::class, 'delete']);
+    Route::post('/karyawan/uploadKaryawan', [KaryawanController::class, 'uploadKaryawan']);
+    Route::get('/karyawan/downloadTemplate', [KaryawanController::class, 'downloadTemplateKar']);
 
     //User
     Route::get('/data/user', [UserController::class,'index']);
@@ -94,6 +95,8 @@ Route::middleware(['auth:user'])->group(function (){
     Route::post('/data/user/edit', [UserController::class,'edit']);
     Route::post('/data/user/{nik}/update', [UserController::class,'update']);
     Route::post('/data/user/{nik}/delete', [UserController::class,'delete']);
+    Route::get('/data/user/getEmployeeByNik', [UserController::class, 'getEmployeeByNik']);
+    Route::get('/data/user/getEmployeeNameUser', [UserController::class, 'getEmployeeNameUser'])->name('getEmployeeNameUser');
 
     //Cuti
     Route::get('/cuti', [CutiController::class,'index']);

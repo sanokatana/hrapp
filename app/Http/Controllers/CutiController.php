@@ -63,19 +63,24 @@ class CutiController extends Controller
         $nik = $request->nik;
         $tahun = $request->tahun;
         $sisa_cuti = $request->sisa_cuti;
-        $created_by = Auth::guard('user')->user()->nik;
+        $periode_akhir = $request->periode_akhir;
+        $periode_awal = $request->periode_awal;
+        $status = $request->status;
         $created_at = Carbon::now();
 
         try {
 
-            $nama_lengkap = DB::table('karyawan')->where('nik', $created_by)->value('nama_lengkap');
+            $created_by = Auth::guard('user')->user()->name;
 
             $data = [
                 'nik' => $nik,
                 'tahun' => $tahun,
                 'sisa_cuti' => $sisa_cuti,
+                'periode_awal' => $periode_awal,
+                'periode_akhir' => $periode_akhir,
+                'status' => $status,
                 'created_at' => $created_at,
-                'created_by' => $nama_lengkap,
+                'created_by' => $created_by,
             ];
             $simpan = DB::table('cuti')->insert($data);
 
@@ -95,19 +100,19 @@ class CutiController extends Controller
 
     public function update($id, Request $request)
     {
-
-        $updated_by = Auth::guard('user')->user()->nik;
-
         try {
 
-            $nama_lengkap = DB::table('karyawan')->where('nik', $updated_by)->value('nama_lengkap');
+            $updated_by = Auth::guard('user')->user()->name;
 
             $cuti = Cuti::findOrFail($id);
             $cuti->nik = $request->nik;
             $cuti->tahun = $request->tahun;
             $cuti->sisa_cuti = $request->sisa_cuti;
+            $cuti->periode_akhir = $request->periode_akhir;
+            $cuti->periode_awal = $request->periode_awal;
+            $cuti->status = $request->status;
             $cuti->updated_at = Carbon::now();
-            $cuti->updated_by = $nama_lengkap;
+            $cuti->updated_by = $updated_by;
             $cuti->save();
             return Redirect::back()->with('success', 'Data Berhasil Di Update');
         } catch (\Exception $e) {

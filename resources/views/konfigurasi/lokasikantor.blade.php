@@ -78,7 +78,7 @@
                                             <td>{{ $d->radius}}</td>
                                             <td>
                                                 <div class="form-group">
-                                                    <a href="#" class="edit btn btn-info btn-sm" nama_kantor="{{ $d->nama_kantor }}">
+                                                    <a href="#" class="edit btn btn-info btn-sm" nama_kantor="{{ $d->id }}">
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-edit">
                                                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                             <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
@@ -217,14 +217,14 @@
         });
 
         $('.edit').click(function() {
-            var nama_kantor = $(this).attr('nama_kantor');
+            var id = $(this).attr('nama_kantor');
             $.ajax({
                 type: 'POST',
                 url: '/konfigurasi/lokasikantor/edit',
                 cache: false,
                 data: {
                     _token: "{{ csrf_token();}}",
-                    nama_kantor: nama_kantor
+                    id: id
                 },
                 success: function(respond) {
                     $('#loadedlokasi').html(respond);
@@ -251,50 +251,16 @@
             });
         });
 
-        $('#formKaryawan').submit(function() {
-            var nik = $('#nik').val();
-            var nama_lengkap = $('#nama_lengkap').val();
-            var jabatan = $('#jabatan').val();
-            var no_hp = $('#no_Hp').val();
-            var kode_dept = $("formKaryawan").find('#kode_dept').val();
-            if (nik == "") {
+        $('#formLokasi').submit(function() {
+            var nama_kantor = $('#nama_kantor').val();
+            if (nama_kantor == "") {
                 Swal.fire({
                     title: 'Warning!',
-                    text: 'NIK Harus Diisi',
+                    text: 'Nama Kantor Harus Diisi',
                     icon: 'warning',
                     confirmButtonText: 'Ok'
                 }).then(() => {
-                    $('#nik').focus();
-                });
-                return false;
-            } else if (nama_lengkap == "") {
-                Swal.fire({
-                    title: 'Warning!',
-                    text: 'Nama Lengkap Harus Diisi',
-                    icon: 'warning',
-                    confirmButtonText: 'Ok'
-                }).then(() => {
-                    $('#nama_lengkap').focus();
-                });
-                return false;
-            } else if (jabatan == "") {
-                Swal.fire({
-                    title: 'Warning!',
-                    text: 'Jabatan Harus Diisi',
-                    icon: 'warning',
-                    confirmButtonText: 'Ok'
-                }).then(() => {
-                    $('#jabatan').focus();
-                });
-                return false;
-            } else if (no_hp == "") {
-                Swal.fire({
-                    title: 'Warning!',
-                    text: 'Nomer HP Harus Diisi',
-                    icon: 'warning',
-                    confirmButtonText: 'Ok'
-                }).then(() => {
-                    $('#no_hp').focus();
+                    $('#nama_kantor').focus();
                 });
                 return false;
             }

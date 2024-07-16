@@ -3,8 +3,7 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
@@ -24,7 +23,6 @@
         <div class="spinner-border text-primary" role="status"></div>
     </div>
     <!-- * loader -->
-
 
     <!-- App Capsule -->
     <div id="appCapsule" class="pt-0">
@@ -50,7 +48,7 @@
                     @csrf
                     <div class="form-group boxed">
                         <div class="input-wrapper">
-                            <input type="text" name="email" class="form-control" id="email" placeholder="Email">
+                            <input type="text" name="nik_or_email" class="form-control" id="nik_or_email" placeholder="NIK or Email">
                             <i class="clear-input">
                                 <ion-icon name="close-circle"></ion-icon>
                             </i>
@@ -60,8 +58,8 @@
                     <div class="form-group boxed">
                         <div class="input-wrapper">
                             <input type="password" class="form-control" id="password" name="password" placeholder="Password">
-                            <i class="clear-input">
-                                <ion-icon name="close-circle"></ion-icon>
+                            <i class="toggle-password">
+                                <ion-icon name="eye-outline" onclick="togglePassword()"></ion-icon>
                             </i>
                         </div>
                     </div>
@@ -81,11 +79,8 @@
             </div>
         </div>
 
-
     </div>
     <!-- * App Capsule -->
-
-
 
     <!-- ///////////// Js Files ////////////////////  -->
     <!-- Jquery -->
@@ -102,7 +97,19 @@
     <!-- Base Js File -->
     <script src="{{ asset('assets/js/base.js')}}"></script>
 
-
+    <script>
+        function togglePassword() {
+            const passwordField = document.getElementById('password');
+            const passwordIcon = document.querySelector('.toggle-password ion-icon');
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                passwordIcon.setAttribute('name', 'eye-off-outline');
+            } else {
+                passwordField.type = 'password';
+                passwordIcon.setAttribute('name', 'eye-outline');
+            }
+        }
+    </script>
 </body>
 
 </html>

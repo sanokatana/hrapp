@@ -2,8 +2,7 @@
 <aside class="navbar navbar-vertical navbar-expand-lg" data-bs-theme="dark">
     @php
     $user = Auth::guard('user')->user();
-    $karyawan = \App\Models\Karyawan::where('nik', $user->nik)->first();
-    $userLevel = $karyawan ? $karyawan->level : null;
+    $userLevel = $user ? $user->level : null;
     @endphp
     <div class="container-fluid">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu" aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
@@ -153,7 +152,7 @@
                         </span>
                     </a>
                 </li>
-                @if($userLevel !== 'Manager' && $userLevel !== 'Officer')
+                @if($userLevel !== 'Management' && $userLevel !== 'Admin')
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle {{request()->is(['karyawan','data/user']) ? 'show' : ''}}" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="{{request()->is(['karyawan','data/user']) ? 'true' : 'false'}}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
@@ -177,7 +176,7 @@
                     </div>
                 </li>
                 @endif
-                @if($userLevel !== 'Manager' && $userLevel !== 'Officer')
+                @if($userLevel !== 'Management' && $userLevel !== 'Admin')
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle {{request()->is(['konfigurasi/jabatan','department']) ? 'show' : ''}}" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="{{request()->is(['konfigurasi/jabatan','department']) ? 'true' : 'false'}}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
@@ -201,7 +200,7 @@
                     </div>
                 </li>
                 @endif
-                @if($userLevel !== 'Manager' && $userLevel !== 'Officer')
+                @if($userLevel !== 'Management' && $userLevel !== 'Admin')
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle {{request()->is(['konfigurasi/tipecuti','cuti']) ? 'show' : ''}}" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="{{request()->is(['cuti','konfigurasi/tipecuti']) ? 'true' : 'false'}}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
@@ -257,7 +256,7 @@
                         </div>
                     </div>
                 </li>
-                @if($userLevel !== 'Manager' && $userLevel !== 'Officer')
+                @if($userLevel !== 'Admin')
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle {{request()->is(['presensi/monitoring','attendance/table']) ? 'show' : ''}}" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="{{request()->is(['presensi/monitoring']) ? 'true' : 'false'}}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
@@ -289,7 +288,7 @@
                     </div>
                 </li>
                 @endif
-                @if($userLevel !== 'Manager' && $userLevel !== 'Officer')
+                @if($userLevel !== 'Management' && $userLevel !== 'Admin')
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
                         <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
@@ -331,7 +330,7 @@
                     </div>
                 </li>
                 @endif
-                @if($userLevel !== 'Manager' && $userLevel !== 'Officer')
+                @if($userLevel !== 'Management' && $userLevel !== 'Admin')
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
                         <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->

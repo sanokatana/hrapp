@@ -35,6 +35,41 @@
             </div>
         </div>
     </div>
+    <div class="col-12">
+        <div class="form-label">Periode Awal</div>
+        <div class="input-icon mb-3">
+            <span class="input-icon-addon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-stats">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+                    <path d="M18 14v4h4" />
+                    <path d="M18 18m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                    <path d="M15 3v4" />
+                    <path d="M7 3v4" />
+                    <path d="M3 11h16" />
+                </svg>
+            </span>
+            <input type="date" value="{{ $cuti->periode_awal }}" class="form-control" name="periode_awal" id="periode_awal" placeholder="Tanggal" autocomplete="off">
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="form-label">Periode Akhir</div>
+        <div class="input-icon mb-3">
+            <span class="input-icon-addon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-stats">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+                    <path d="M18 14v4h4" />
+                    <path d="M18 18m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                    <path d="M15 3v4" />
+                    <path d="M7 3v4" />
+                    <path d="M3 11h16" />
+                </svg>
+            </span>
+            <input type="date" value="{{ $cuti->periode_akhir }}" class="form-control" name="periode_akhir" id="periode_akhir" placeholder="Tanggal" autocomplete="off">
+        </div>
+    </div>
+    </div>
     <div class="row">
         <div class="col-12">
             <div class="form-label">Sisa Cuti</div>
@@ -48,6 +83,18 @@
                     </svg>
                 </span>
                 <input type="number" value="{{ $cuti->sisa_cuti }}" class="form-control" name="sisa_cuti" id="sisa_cuti" placeholder="Sisa Cuti">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <label class="form-label">Status</label>
+            <div class="form-group mb-3">
+                <select name="status" id="status" class="form-select">
+                    <option value="pilih">Pilih Level</option>
+                    <option {{ $cuti->status == '0' ? 'selected' : '' }} value="0" >Non-Aktif</option>
+                    <option {{ $cuti->status == '1' ? 'selected' : '' }} value="1">Aktif</option>\
+                </select>
             </div>
         </div>
     </div>

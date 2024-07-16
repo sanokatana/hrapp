@@ -229,7 +229,7 @@
                                 </span>
                                 <input type="text" class="form-control" name="nama_lengkap" id="nama_lengkap" placeholder="Type or select employee name" autocomplete="off">
                             </div>
-                            <div id="employeeList" class="dropdown-menu" style="display:none; margin-top: -12px; left: 55px;">
+                            <div id="employeeList" class="dropdown-menu" style="display:none; margin-top: -12px">
                                 <!-- Dropdown items will be populated by JavaScript -->
                             </div>
                         </div>
@@ -298,6 +298,18 @@
                                     </svg>
                                 </span>
                                 <input type="number" value="" class="form-control" name="sisa_cuti" id="sisa_cuti" placeholder="Sisa Cuti" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <label class="form-label">Status</label>
+                            <div class="form-group mb-3">
+                                <select name="status" id="status" class="form-select">
+                                    <option value="pilih">Pilih Level</option>
+                                    <option value="0" >Non-Aktif</option>
+                                    <option value="1">Aktif</option>\
+                                </select>
                             </div>
                         </div>
                     </div>

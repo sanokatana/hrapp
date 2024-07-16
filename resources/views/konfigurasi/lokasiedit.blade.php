@@ -1,4 +1,4 @@
-<form action="/konfigurasi/lokasikantor/{{ $lokasi->nama_kantor }}/store" method="POST" id="formLokasi">
+<form action="/konfigurasi/lokasikantor/{{ $lokasi->id }}/update" method="POST" id="formLokasi">
     @csrf
     <div class="row">
         <div class="col-12">

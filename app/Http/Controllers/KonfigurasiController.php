@@ -34,18 +34,22 @@ class KonfigurasiController extends Controller
         }
     }
     public function edit(Request $request){
-        $nama_kantor = $request->nama_kantor;
-        $lokasi = DB::table('konfigurasi_lokasi')->where('nama_kantor', $nama_kantor)->first();
+        $id = $request->id;
+        $lokasi = DB::table('konfigurasi_lokasi')->where('id', $id)->first();
         return view('konfigurasi.lokasiedit', compact('lokasi'));
     }
 
-    public function update($nama_kantor, Request $request){
+    public function update($id, Request $request){
         $nama_kantor = $request->nama_kantor;
+        $lokasi_kantor = $request->lokasi_kantor;
+        $radius = $request->radius;
         $data = [
-            'nama_kantor'=>$nama_kantor
+            'nama_kantor'=>$nama_kantor,
+            'lokasi_kantor' => $lokasi_kantor,
+            'radius'=> $radius
         ];
 
-        $update = DB::table('konfigurasi_lokasi')->where('nama_kantor',$nama_kantor)->update($data);
+        $update = DB::table('konfigurasi_lokasi')->where('id',$id)->update($data);
 
         if($update){
             return Redirect::back()->with(['success'=>'Data Berhasil Di Update']);

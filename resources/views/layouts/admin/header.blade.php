@@ -128,8 +128,7 @@
                         <div>{{ Auth::guard('user')->user()->name}}</div>
                         @php
                         $user = Auth::guard('user')->user();
-                        $karyawan = \App\Models\Karyawan::where('nik', $user->nik)->first();
-                        $userLevel = $karyawan ? $karyawan->level : null;
+                        $userLevel = $user ? $user->level : null;
                         @endphp
                         <div class="mt-1 small text-secondary">{{$userLevel}}</div>
                     </div>

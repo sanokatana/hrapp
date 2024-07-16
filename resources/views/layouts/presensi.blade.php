@@ -18,6 +18,15 @@
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/favicon.png">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css')}}">
     <link rel="manifest" href="__manifest.json">
+    <style>
+        /* Dark Mode Styles */
+        body.dark-mode-active {
+            background-color: #343a40;
+            color: #fff;
+        }
+        /* Add more styles as needed for dark mode */
+    </style>
+    @stack('styles') <!-- Stack for additional styles -->
 </head>
 
 <body style="background-color:#e9ecef;">
@@ -39,6 +48,8 @@
     @include('layouts.bottomNav')
 
     @include('layouts.script')
+
+    @stack('scripts') <!-- Stack for additional scripts -->
 
 </body>
 

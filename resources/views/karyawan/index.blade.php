@@ -606,27 +606,24 @@ use App\Helpers\DateHelper;
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="/karyawan/uploadCSV" method="POST" id="formKaryawan" enctype="multipart/form-data">
-                    @csrf
-                    <div class="row mt-3">
-                        <div class="col-12">
-                            <div class="form-group">
-                                <label for="file">Upload CSV</label>
-                                <input type="file" name="file" class="form-control" required>
-                            </div>
-                            <div class="form-group mt-3">
-                                <button type="submit" class="btn btn-primary w-100">
-                                    Simpan
-                                </button>
-                            </div>
-                            <div class="form-group mt-3">
-                                <a href="/karyawan/downloadTemplate" class="btn btn-secondary w-100">
-                                    Download Template CSV
-                                </a>
-                            </div>
+            <form action="/karyawan/uploadKaryawan" method="POST" id="formKaryawan" enctype="multipart/form-data">
+                @csrf
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="file">Upload CSV</label>
+                            <input type="file" name="file" class="form-control" required>
+                        </div>
+                        <div class="form-group mt-3">
+                            <button type="submit" class="btn btn-primary w-100">Simpan</button>
+                        </div>
+                        <div class="form-group mt-3">
+                            <a href="/karyawan/downloadTemplate" class="btn btn-secondary w-100">Download Template CSV</a>
                         </div>
                     </div>
-                </form>
+                </div>
+            </form>
+
             </div>
         </div>
     </div>
