@@ -57,6 +57,51 @@
                                 </a>
                             </div>
                         </div>
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <form action="/konfigurasi/jabatan" method="GET">
+                                    <div class="row">
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <input type="text" name="nama_jabatan" id="nama_jabatan" class="form-control" placeholder="Nama Jabatan" value="{{ request('nama_jabatan') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="form-group mb-3">
+                                                <select name="kode_dept" id="kode_dept" class="form-select">
+                                                    <option value="">Department</option>
+                                                    @foreach ($department as $d)
+                                                    <option {{ request('kode_dept') == $d->kode_dept ? 'selected' : '' }} value="{{ $d->kode_dept }}">{{ $d->nama_dept }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="form-group mb-3">
+                                                <select name="nama_kantor" id="nama_kantor" class="form-select">
+                                                    <option value="">Site</option>
+                                                    @foreach ($location as $d)
+                                                    <option {{ request('nama_kantor') == $d->nama_kantor ? 'selected' : '' }} value="{{ $d->nama_kantor }}">{{ $d->nama_kantor }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <button class="btn btn-primary w-100">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-search">
+                                                        <path stroke="none" d="M0 0h24V0H0z" fill="none" />
+                                                        <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+                                                        <path d="M21 21l-6 -6" />
+                                                    </svg>
+                                                    Cari
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                         <div class="row mt-4">
                             <div class="col-12">
                                 <table class="table table-vcenter card-table table-striped">
@@ -76,7 +121,7 @@
                                             <td>{{ $d->id}}</td>
                                             <td>{{ $d->nama_jabatan}}</td>
                                             <td>{{ $d->nama_dept}}</td>
-                                            <td>{{ $d->jabatan_atasan}}</td>
+                                            <td>{{ $d->nama_jabatan_atasan ?? '-' }}</td>
                                             <td>{{ $d->site}}</td>
                                             <td>
                                                 <div class="form-group">
@@ -160,7 +205,7 @@
                             <select name="atasan_jabatan" id="atasan_jabatan" class="form-select">
                                 <option value="">Pilih</option>
                                 @foreach ($jabat as $d)
-                                <option {{ Request('nama_jabatan') == $d->nama_jabatan ? 'selected' : '' }} value="{{ $d->nama_jabatan }}">{{ $d->nama_jabatan }} - {{ $d->site }}</option>
+                                <option value="{{ $d->id }}">{{ $d->nama_jabatan }} || {{ $d->kode_dept }} || {{ $d->site }}</option>
                                 @endforeach
                             </select>
                         </div>

@@ -1,6 +1,6 @@
 <form action="/konfigurasi/jabatan/{{ $jabatan->id }}/update" method="POST" id="formJabatan">
     @csrf
-    @method('POST') <!-- Add this for correct HTTP method -->
+    @method('POST')
     <div class="row">
         <div class="col-12">
             <div class="form-label">ID Jabatan</div>
@@ -15,7 +15,7 @@
                         <path d="M17 15l0 .01"/>
                     </svg>
                 </span>
-                <input type="hidden" value="{{ $jabatan->id }}" name="id"> <!-- Use hidden field for ID -->
+                <input type="hidden" value="{{ $jabatan->id }}" name="id">
                 <input type="text" value="{{ $jabatan->id }}" class="form-control" name="id_display" id="id_display" placeholder="0" disabled>
             </div>
         </div>
@@ -48,10 +48,10 @@
     </div>
     <div class="col-12 mt-3">
         <div class="form-label">Jabatan Atasan</div>
-        <select name="atasan_jabatan" id="atasan_jabatan" class="form-select">
+        <select name="jabatan_atasan" id="jabatan_atasan" class="form-select">
             <option value="">Pilih</option>
             @foreach ($jabat as $d)
-                <option {{ $jabatan->jabatan_atasan == $d->nama_jabatan ? 'selected' : '' }} value="{{ $d->nama_jabatan }}">{{ $d->nama_jabatan }}</option>
+                <option {{ $jabatan->jabatan_atasan == $d->id ? 'selected' : '' }} value="{{ $d->id }}">{{ $d->nama_jabatan }} || {{ $d->kode_dept }} || {{ $d->site }}</option>
             @endforeach
         </select>
     </div>

@@ -117,17 +117,31 @@ class KonfigurasiController extends Controller
 
     // Jabatan
 
-    public function jabatan()
+    public function jabatan(Request $request)
     {
-        $jabatan = DB::table('jabatan')
-            ->select('jabatan.*', 'department.nama_dept')
-            ->join('department', 'jabatan.kode_dept', '=', 'department.kode_dept')
-            ->paginate(10); // Add pagination here
+        $query = DB::table('jabatan as j1')
+            ->select('j1.*', 'department.nama_dept', 'j2.nama_jabatan as nama_jabatan_atasan')
+            ->join('department', 'j1.kode_dept', '=', 'department.kode_dept')
+            ->leftJoin('jabatan as j2', 'j1.jabatan_atasan', '=', 'j2.id');
+
+        // Apply filters
+        if ($request->filled('nama_jabatan')) {
+            $query->where('j1.nama_jabatan', 'like', '%' . $request->nama_jabatan . '%');
+        }
+        if ($request->filled('kode_dept')) {
+            $query->where('j1.kode_dept', $request->kode_dept);
+        }
+        if ($request->filled('nama_kantor')) {
+            $query->where('j1.site', $request->nama_kantor);
+        }
+
+        $jabatan = $query->paginate(10)->appends($request->all());
 
         $department = DB::table('department')->get();
-        $jabat = DB::table('jabatan')->get();
+        $jabat = DB::table('jabatan')->orderBy('nama_jabatan', 'asc')->get();
         $location = DB::table('konfigurasi_lokasi')->get();
-        return view("konfigurasi.jabatan", compact('jabatan', 'department', 'jabat','location'));
+
+        return view("konfigurasi.jabatan", compact('jabatan', 'department', 'jabat', 'location'));
     }
 
 
@@ -153,24 +167,29 @@ class KonfigurasiController extends Controller
     }
     public function jabatanedit(Request $request){
         $id = $request->id;
-        $jabatan = DB::table('jabatan')->where('id', $id)->first();
-        $jabat = DB::table('jabatan')->get();
+        $jabatan = DB::table('jabatan as j1')
+            ->select('j1.*', 'j2.nama_jabatan as nama_jabatan_atasan')
+            ->leftJoin('jabatan as j2', 'j1.jabatan_atasan', '=', 'j2.id')
+            ->where('j1.id', $id)
+            ->first();
+        $jabat = DB::table('jabatan')->orderBy('nama_jabatan', 'asc')->get();
         $department = DB::table('department')->get();
         $location = DB::table('konfigurasi_lokasi')->get();
         return view('konfigurasi.jabedit', compact('jabatan','department','jabat','location'));
     }
 
+
     public function jabatanupdate(Request $request, $id)
     {
         $nama_jabatan = $request->nama_jabatan;
         $kode_dept = $request->kode_dept;
-        $atasan_jabatan = $request->atasan_jabatan;
+        $jabatan_atasan = $request->jabatan_atasan;
         $site = $request->site;
 
         $data = [
             'nama_jabatan' => $nama_jabatan,
             'kode_dept' => $kode_dept,
-            'jabatan_atasan' => $atasan_jabatan,
+            'jabatan_atasan' => $jabatan_atasan,
             'site' => $site,
         ];
 
@@ -182,7 +201,6 @@ class KonfigurasiController extends Controller
             return redirect()->back()->with(['warning' => 'Data Gagal Di Update']);
         }
     }
-
 
     public function jabatandelete($id)
     {

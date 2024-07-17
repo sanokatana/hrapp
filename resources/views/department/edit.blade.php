@@ -14,7 +14,7 @@
                         <path d="M7 16l10 0" />
                     </svg>
                 </span>
-                <input type="text" value="{{$department->kode_dept}}" class="form-control" name="kode_dept" id="kode_dept" placeholder="IT/MKT" disabled>
+                <input type="text" value="{{$department->kode_dept}}" class="form-control" name="kode_dept" id="kode_dept" placeholder="IT/MKT">
             </div>
         </div>
     </div>
