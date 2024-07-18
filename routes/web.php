@@ -119,7 +119,7 @@ Route::middleware(['auth:user'])->group(function (){
 
     //Presensi
     Route::get('/presensi/monitoring', [PresensiController::class,'monitoring']);
-    Route::post('/getpresensi', [PresensiController::class,'getpresensi']);
+    Route::get('/getpresensi', [PresensiController::class,'getpresensi']);
     Route::post('/tampilkanpeta', [PresensiController::class,'tampilkanpeta']);
 
     //Approval
@@ -181,5 +181,7 @@ Route::middleware(['auth:user'])->group(function (){
     //Attendance
     Route::get('/attendance/table',[AttendanceController::class,'index']);
     Route::post('/attendance/uploadAtt', [AttendanceController::class, 'uploadAtt']);
+
+    Route::get('/attendance/daymonitoring',[AttendanceController::class,'daymonitoring']);
 
 });

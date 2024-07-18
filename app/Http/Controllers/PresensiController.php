@@ -304,14 +304,17 @@ class PresensiController extends Controller
     public function getpresensi(Request $request)
     {
         $tanggal = $request->tanggal;
-        $presensi = DB::table('presensi')
-            ->select('presensi.*', 'nama_lengkap', 'nama_dept')
-            ->join('karyawan', 'presensi.nik', '=', 'karyawan.nik')
+        $query = DB::table('presensi')
+            ->selectRaw('DATE(tgl_presensi) as tanggal, presensi.nip, nama_lengkap, nama_dept, MIN(jam_in) as jam_masuk, MAX(jam_in) as jam_pulang')
+            ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
             ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept')
-            ->where('tgl_presensi', $tanggal)
-            ->get();
+            ->groupBy('tanggal', 'presensi.nip', 'nama_lengkap', 'nama_dept')
+            ->where('tgl_presensi', $tanggal);
 
-        return view('presensi.getpresensi', compact('presensi'));
+        $query->orderBy('jam_masuk', 'asc');
+        $presensi = $query->get(); // Fetch all results without pagination
+
+        return view("presensi.getpresensi", compact('presensi'));
     }
 
     public function tampilkanpeta(Request $request)

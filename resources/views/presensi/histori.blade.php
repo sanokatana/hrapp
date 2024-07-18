@@ -10,24 +10,6 @@
     <div class="pageTitle">Histori Presensi</div>
     <div class="right"></div>
 </div>
-<style>
-    .rounded-custom {
-        border-radius: 15px; /* Customize the radius as needed */
-    }
-    .jam-row {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .jam-in {
-        width: 100%;
-        /* Make each badge occupy full width */
-    }
-    .jam-out {
-        width: 100%;
-        /* Make each badge occupy full width */
-    }
-</style>
 <!-- * App Header -->
 @endsection
 @section('content')

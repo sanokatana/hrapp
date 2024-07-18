@@ -36,10 +36,10 @@ class AttendanceController extends Controller
 
         // Get presensi data for the selected month
         $presensi = DB::table('presensi')
-            ->select('nik', 'tgl_presensi', DB::raw('MIN(jam_in) as earliest_jam_in'))
+            ->select('nip', 'tgl_presensi', DB::raw('MIN(jam_in) as earliest_jam_in'))
             ->whereMonth('tgl_presensi', $filterMonth)
             ->whereYear('tgl_presensi', $filterYear)
-            ->groupBy('nik', 'tgl_presensi')
+            ->groupBy('nip', 'tgl_presensi')
             ->get();
 
         // Get national holidays for the selected month
@@ -75,12 +75,8 @@ class AttendanceController extends Controller
             for ($i = 1; $i <= $daysInMonth; $i++) {
                 $date = Carbon::create($filterYear, $filterMonth, $i);
                 $dateString = $date->toDateString();
-                $attendance = $presensi->where('nik', $k->nik)->where('tgl_presensi', $dateString)->first();
+                $attendance = $presensi->where('nip', $k->nip)->where('tgl_presensi', $dateString)->first();
                 $isCuti = $this->checkCuti($cuti, $k->nik, $date);
-
-                if ($attendance) {
-                    Log::info("NIK: {$k->nik}, Date: {$dateString}, Earliest Jam In: {$attendance->earliest_jam_in}");
-                }
 
                 $status = $this->getAttendanceStatus($date, $attendance, $isCuti);
 
@@ -191,23 +187,18 @@ class AttendanceController extends Controller
         $rowCount = 0;
 
         while ($row = fgetcsv($fileHandle, 1000, ',')) {
-            if (count($row) == 4 && $row[0] !== 'NULL' && $row[1] !== 'NULL') {
+            if (count($row) == 4) {
                 $nip = $row[0];
                 $nik = $row[1];
                 $tgl_presensi = $row[2];
                 $jam_in = $row[3];
 
-                // Check if nip exists in karyawan table
-                $karyawanExists = DB::table('karyawan')->where('nik', $nik)->exists();
-
-                if ($karyawanExists) {
-                    $data[] = [
-                        'nip' => $nip,
-                        'nik' => $nik,
-                        'tgl_presensi' => Carbon::createFromFormat('m/d/Y', $tgl_presensi)->format('Y-m-d'),
-                        'jam_in' => $jam_in,
-                    ];
-                }
+                $data[] = [
+                    'nip' => $nip,
+                    'nik' => $nik,
+                    'tgl_presensi' => Carbon::createFromFormat('m/d/Y', $tgl_presensi)->format('Y-m-d'),
+                    'jam_in' => $jam_in,
+                ];
             }
 
             $rowCount++;
@@ -229,46 +220,24 @@ class AttendanceController extends Controller
     }
 
 
-    // public function uploadAtt(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'file' => 'required|mimes:csv,txt',
-    //     ]);
+    public function daymonitoring(Request $request)
+    {
+        $query = DB::table('presensi')
+            ->selectRaw('DATE(tgl_presensi) as tanggal, presensi.nip, nama_lengkap, nama_dept, MIN(jam_in) as jam_masuk, MAX(jam_in) as jam_pulang')
+            ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
+            ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept')
+            ->groupBy('tanggal', 'presensi.nip', 'nama_lengkap', 'nama_dept');
 
-    //     if ($validator->fails()) {
-    //         return redirect()->back()->with('danger', 'Please upload a valid CSV file.');
-    //     }
+        if ($request->filled('nama_karyawan')) {
+            $query->where('nama_lengkap', 'like', '%' . $request->nama_karyawan . '%');
+        }
+        if ($request->filled('tanggal')) {
+            $query->whereDate('tgl_presensi', $request->tanggal);
+        }
+        $query->orderBy('tanggal', 'desc');
+        $presensi = $query->paginate(10)->appends($request->all());
 
-    //     $file = $request->file('file');
-    //     $filePath = $file->getRealPath();
-    //     $fileHandle = fopen($filePath, 'r');
+        return view("attendance.daymonitoring", compact('presensi'));
+    }
 
-    //     // Skip the header row
-    //     $headers = fgetcsv($fileHandle, 1000, ','); // Specify delimiter as semicolon
-
-    //     $data = [];
-    //     while ($row = fgetcsv($fileHandle, 1000, ',')) { // Specify delimiter as semicolon
-    //         // Ensure each row has the correct number of columns
-    //         if (count($row) == 4) { // Assuming there are exactly 6 columns in your CSV
-    //             $data[] = [
-    //                 'nip' => $row[0],
-    //                 'nik' => $row[1],
-    //                 'tgl_presensi' => Carbon::createFromFormat('d/m/Y', $row[2])->format('Y-m-d'),
-    //                 'jam_in' => $row[3],
-
-    //             ];
-    //         } else {
-    //             return redirect()->back()->with('danger', 'Invalid CSV format: Each row must have exactly 7 columns.');
-    //         }
-    //     }
-
-    //     fclose($fileHandle);
-
-    //     try {
-    //         DB::table('presensi')->insert($data);
-    //         return redirect()->back()->with('success', 'Data Berhasil Di Simpan');
-    //     } catch (\Exception $e) {
-    //         return redirect()->back()->with('danger', 'Data Gagal Di Simpan: ' . $e->getMessage());
-    //     }
-    // }
 }

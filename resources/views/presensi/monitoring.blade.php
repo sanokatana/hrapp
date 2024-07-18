@@ -46,15 +46,13 @@
                                     <thead>
                                         <tr style="text-align:center;">
                                             <th>No.</th>
-                                            <th>Nik</th>
+                                            <th>Nip</th>
                                             <th>Nama Karyawan</th>
                                             <th>Department</th>
+                                            <th>Tanggal Masuk</th>
                                             <th>Jam Masuk</th>
-                                            <th>Foto Masuk</th>
                                             <th>Jam Pulang</th>
-                                            <th>Foto Pulang</th>
                                             <th>Keterangan</th>
-                                            <th>Lokasi</th>
                                         </tr>
                                     </thead>
                                     <tbody id="loadpresensi">
@@ -95,7 +93,7 @@
         $("#tanggal").change(function(e) {
             var tanggal = $(this).val();
             $.ajax({
-                type:'POST',
+                type:'GET',
                 url:'/getpresensi',
                 data:{
                     _token:"{{ csrf_token() }}",
