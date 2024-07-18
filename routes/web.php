@@ -180,5 +180,6 @@ Route::middleware(['auth:user'])->group(function (){
 
     //Attendance
     Route::get('/attendance/table',[AttendanceController::class,'index']);
+    Route::post('/attendance/uploadAtt', [AttendanceController::class, 'uploadAtt']);
 
 });

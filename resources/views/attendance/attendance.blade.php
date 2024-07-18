@@ -23,6 +23,18 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <a href="#" class="btn btn-primary" id="btnUploadAtt">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M12 5l0 14" />
+                                        <path d="M5 12l14 0" />
+                                    </svg>
+                                    Upload Cuti
+                                </a>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-12">
                                 <form action="{{ url('/attendance/table') }}" method="GET" autocomplete="off">
@@ -48,9 +60,9 @@
                                                 <select name="bulan" id="bulan" class="form-control">
                                                     <option value="">Bulan</option>
                                                     @foreach (range(1, 12) as $month)
-                                                        <option value="{{ $month }}" {{ request('bulan') == $month ? 'selected' : '' }}>
-                                                            {{ DateTime::createFromFormat('!m', $month)->format('F') }}
-                                                        </option>
+                                                    <option value="{{ $month }}" {{ request('bulan') == $month ? 'selected' : '' }}>
+                                                        {{ DateTime::createFromFormat('!m', $month)->format('F') }}
+                                                    </option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -99,11 +111,10 @@
                                     <thead>
                                         <tr style="text-align:center;">
                                             <th style="border-color: black; border-style: solid; border-width: 1px;">Nama Karyawan</th>
-                                            @for($i = 1; $i <= $daysInMonth; $i++)
-                                            <th style="border-color: black; border-style: solid; border-width: 1px;" class="{{ $currentMonth == Carbon\Carbon::now()->month && $i == Carbon\Carbon::now()->day ? 'today' : '' }}">
+                                            @for($i = 1; $i <= $daysInMonth; $i++) <th style="border-color: black; border-style: solid; border-width: 1px;" class="{{ $currentMonth == Carbon\Carbon::now()->month && $i == Carbon\Carbon::now()->day ? 'today' : '' }}">
                                                 {{ $i }}
-                                            </th>
-                                            @endfor
+                                                </th>
+                                                @endfor
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -113,11 +124,11 @@
                                             @foreach($row['attendance'] as $day)
                                             <td style="text-align: center; border-color: black; border-style: solid; border-width: 1px;" class="{{ $day['class'] }}">
                                                 @if($day['status'] == 'T' && ($currentMonth == Carbon\Carbon::now()->month && $i == Carbon\Carbon::now()->day))
-                                                    <span>{{ $day['status'] }}</span>
+                                                <span>{{ $day['status'] }}</span>
                                                 @elseif($day['status'] == 'LN')
-                                                    LN
+                                                LN
                                                 @else
-                                                    {{ $day['status'] }}
+                                                {{ $day['status'] }}
                                                 @endif
                                             </td>
                                             @endforeach
@@ -127,18 +138,56 @@
                                 </table>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<!-- Modal Upload CSV -->
+<div class="modal modal-blur fade" id="modal-uploadatt" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upload Cuti Karyawan CSV</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/attendance/uploadAtt" method="POST" id="formAtt" enctype="multipart/form-data">
+                    @csrf
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="file">Upload CSV</label>
+                                <input type="file" name="file" class="form-control" required>
+                            </div>
+                            <div class="form-group mt-3">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    Simpan
+                                </button>
+                            </div>
+                            <div class="form-group mt-3">
+                                <a href="/cuti/downloadTemplate" class="btn btn-secondary w-100">
+                                    Download Template CSV
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('myscript')
 <script>
     $(function() {
-        // Your JavaScript code, if any
+        $('#btnUploadAtt').click(function() {
+            $('#modal-uploadatt').modal("show");
+        });
     });
 </script>
 @endpush

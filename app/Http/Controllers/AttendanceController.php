@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class AttendanceController extends Controller
 {
@@ -34,9 +36,10 @@ class AttendanceController extends Controller
 
         // Get presensi data for the selected month
         $presensi = DB::table('presensi')
-            ->select('nik', 'tgl_presensi', 'jam_in')
+            ->select('nik', 'tgl_presensi', DB::raw('MIN(jam_in) as earliest_jam_in'))
             ->whereMonth('tgl_presensi', $filterMonth)
             ->whereYear('tgl_presensi', $filterYear)
+            ->groupBy('nik', 'tgl_presensi')
             ->get();
 
         // Get national holidays for the selected month
@@ -55,9 +58,9 @@ class AttendanceController extends Controller
             ->where('status_approved_hrd', 1)
             ->where(function ($query) use ($filterMonth, $filterYear) {
                 $query->whereMonth('tgl_cuti', $filterMonth)
-                      ->whereYear('tgl_cuti', $filterYear)
-                      ->orWhereMonth('tgl_cuti_sampai', $filterMonth)
-                      ->whereYear('tgl_cuti_sampai', $filterYear);
+                    ->whereYear('tgl_cuti', $filterYear)
+                    ->orWhereMonth('tgl_cuti_sampai', $filterMonth)
+                    ->whereYear('tgl_cuti_sampai', $filterYear);
             })
             ->get();
 
@@ -75,6 +78,10 @@ class AttendanceController extends Controller
                 $attendance = $presensi->where('nik', $k->nik)->where('tgl_presensi', $dateString)->first();
                 $isCuti = $this->checkCuti($cuti, $k->nik, $date);
 
+                if ($attendance) {
+                    Log::info("NIK: {$k->nik}, Date: {$dateString}, Earliest Jam In: {$attendance->earliest_jam_in}");
+                }
+
                 $status = $this->getAttendanceStatus($date, $attendance, $isCuti);
 
                 // Check if the date is a national holiday
@@ -87,6 +94,7 @@ class AttendanceController extends Controller
                     'class' => $this->getAttendanceClass($date, $status)
                 ];
             }
+
 
             $attendanceData[] = $row;
         }
@@ -111,7 +119,7 @@ class AttendanceController extends Controller
         }
 
         if ($attendance) {
-            $jam_in = Carbon::parse($attendance->jam_in);
+            $jam_in = Carbon::parse($attendance->earliest_jam_in);
             if ($date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY) {
                 return $jam_in->gt(Carbon::parse('08:05:00')) ? 'T' : 'P';
             } else {
@@ -157,4 +165,110 @@ class AttendanceController extends Controller
 
         return implode(' ', $classes);
     }
+
+
+    public function uploadAtt(Request $request)
+    {
+        set_time_limit(600); // Increase maximum execution time to 5 minutes
+
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|mimes:csv,txt',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->with('danger', 'Please upload a valid CSV file.');
+        }
+
+        $file = $request->file('file');
+        $filePath = $file->getRealPath();
+        $fileHandle = fopen($filePath, 'r');
+
+        // Skip the header row
+        $headers = fgetcsv($fileHandle, 1000, ',');
+
+        $data = [];
+        $batchSize = 500; // Process 500 rows at a time
+        $rowCount = 0;
+
+        while ($row = fgetcsv($fileHandle, 1000, ',')) {
+            if (count($row) == 4 && $row[0] !== 'NULL' && $row[1] !== 'NULL') {
+                $nip = $row[0];
+                $nik = $row[1];
+                $tgl_presensi = $row[2];
+                $jam_in = $row[3];
+
+                // Check if nip exists in karyawan table
+                $karyawanExists = DB::table('karyawan')->where('nik', $nik)->exists();
+
+                if ($karyawanExists) {
+                    $data[] = [
+                        'nip' => $nip,
+                        'nik' => $nik,
+                        'tgl_presensi' => Carbon::createFromFormat('m/d/Y', $tgl_presensi)->format('Y-m-d'),
+                        'jam_in' => $jam_in,
+                    ];
+                }
+            }
+
+            $rowCount++;
+            if ($rowCount % $batchSize == 0) {
+                // Insert batch
+                DB::table('presensi')->insert($data);
+                $data = []; // Reset data array
+            }
+        }
+
+        // Insert any remaining data
+        if (!empty($data)) {
+            DB::table('presensi')->insert($data);
+        }
+
+        fclose($fileHandle);
+
+        return redirect()->back()->with('success', 'Data Berhasil Di Simpan');
+    }
+
+
+    // public function uploadAtt(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'file' => 'required|mimes:csv,txt',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return redirect()->back()->with('danger', 'Please upload a valid CSV file.');
+    //     }
+
+    //     $file = $request->file('file');
+    //     $filePath = $file->getRealPath();
+    //     $fileHandle = fopen($filePath, 'r');
+
+    //     // Skip the header row
+    //     $headers = fgetcsv($fileHandle, 1000, ','); // Specify delimiter as semicolon
+
+    //     $data = [];
+    //     while ($row = fgetcsv($fileHandle, 1000, ',')) { // Specify delimiter as semicolon
+    //         // Ensure each row has the correct number of columns
+    //         if (count($row) == 4) { // Assuming there are exactly 6 columns in your CSV
+    //             $data[] = [
+    //                 'nip' => $row[0],
+    //                 'nik' => $row[1],
+    //                 'tgl_presensi' => Carbon::createFromFormat('d/m/Y', $row[2])->format('Y-m-d'),
+    //                 'jam_in' => $row[3],
+
+    //             ];
+    //         } else {
+    //             return redirect()->back()->with('danger', 'Invalid CSV format: Each row must have exactly 7 columns.');
+    //         }
+    //     }
+
+    //     fclose($fileHandle);
+
+    //     try {
+    //         DB::table('presensi')->insert($data);
+    //         return redirect()->back()->with('success', 'Data Berhasil Di Simpan');
+    //     } catch (\Exception $e) {
+    //         return redirect()->back()->with('danger', 'Data Gagal Di Simpan: ' . $e->getMessage());
+    //     }
+    // }
 }
