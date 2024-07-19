@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class AttendanceController extends Controller
@@ -19,7 +18,7 @@ class AttendanceController extends Controller
         $filterKodeDept = $request->input('kode_dept');
 
         // Get the departments
-        $department = DB::table('department')->get();
+        $departments = DB::table('department')->get();
 
         // Get the number of days in the selected month
         $daysInMonth = Carbon::create($filterYear, $filterMonth)->daysInMonth;
@@ -32,7 +31,7 @@ class AttendanceController extends Controller
         if ($filterKodeDept) {
             $karyawanQuery->where('kode_dept', $filterKodeDept);
         }
-        $karyawan = $karyawanQuery->get();
+        $karyawan = $karyawanQuery->get()->groupBy('kode_dept');
 
         // Get presensi data for the selected month
         $presensi = DB::table('presensi')
@@ -66,33 +65,72 @@ class AttendanceController extends Controller
 
         // Process presensi and cuti data to format for display
         $attendanceData = [];
-        foreach ($karyawan as $k) {
-            $row = [
-                'nama_lengkap' => $k->nama_lengkap,
-                'attendance' => []
-            ];
+        foreach ($departments as $department) {
+            $departmentKaryawan = $karyawan->get($department->kode_dept) ?: collect();
+            $departmentAttendance = [];
+            $totalJumlahTelat = 0;
+            $totalP = 0;
+            $totalT = 0;
+            $totalKaryawan = count($departmentKaryawan);
 
-            for ($i = 1; $i <= $daysInMonth; $i++) {
-                $date = Carbon::create($filterYear, $filterMonth, $i);
-                $dateString = $date->toDateString();
-                $attendance = $presensi->where('nip', $k->nip)->where('tgl_presensi', $dateString)->first();
-                $isCuti = $this->checkCuti($cuti, $k->nik, $date);
+            foreach ($departmentKaryawan as $k) {
+                $jumlahTelat = 0;
+                $menitTelat = 0;
+                $totalHadir = 0;
+                $totalTidakHadir = 0;
 
-                $status = $this->getAttendanceStatus($date, $attendance, $isCuti);
+                $row = [
+                    'nama_lengkap' => $k->nama_lengkap,
+                    'attendance' => []
+                ];
 
-                // Check if the date is a national holiday
-                if ($liburNasional->contains($dateString)) {
-                    $status = 'LN'; // Mark as national holiday
+                for ($i = 1; $i <= $daysInMonth; $i++) {
+                    $date = Carbon::create($filterYear, $filterMonth, $i);
+                    $dateString = $date->toDateString();
+                    $attendance = $presensi->where('nip', $k->nip)->where('tgl_presensi', $dateString)->first();
+                    $isCuti = $this->checkCuti($cuti, $k->nik, $date);
+
+                    $status = $this->getAttendanceStatus($date, $attendance, $isCuti);
+
+                    // Check if the date is a national holiday
+                    if ($liburNasional->contains($dateString)) {
+                        $status = 'LN'; // Mark as national holiday
+                    }
+
+                    if ($status === 'T') {
+                        $jumlahTelat++;
+                        $menitTelat += Carbon::parse($attendance->earliest_jam_in)->diffInMinutes(Carbon::parse('08:05:00'));
+                        $totalTidakHadir++;
+                    }
+                    if ($status === 'P') {
+                        $totalHadir++;
+                    }
+
+                    $row['attendance'][] = [
+                        'status' => $status,
+                        'class' => $this->getAttendanceClass($date, $status)
+                    ];
                 }
 
-                $row['attendance'][] = [
-                    'status' => $status,
-                    'class' => $this->getAttendanceClass($date, $status)
-                ];
+                $row['jumlah_telat'] = $jumlahTelat;
+                $row['menit_telat'] = $menitTelat;
+                $row['presentase'] = round(($totalHadir / $daysInMonth) * 100, 2);
+                $row['totalP'] = $totalHadir;
+                $row['totalT'] = $totalTidakHadir;
+
+                $totalJumlahTelat += $jumlahTelat;
+                $totalP += $totalHadir;
+                $totalT += $totalTidakHadir;
+
+                $departmentAttendance[] = $row;
             }
 
-
-            $attendanceData[] = $row;
+            $attendanceData[] = [
+                'department' => $department->nama_dept,
+                'karyawan' => $departmentAttendance,
+                'total_jumlah_telat' => $totalJumlahTelat,
+                'total_presentase' => $totalKaryawan ? round(($totalP / ($totalKaryawan * $daysInMonth)) * 100, 2) : 0
+            ];
         }
 
         // Prepare data for the view
@@ -101,11 +139,12 @@ class AttendanceController extends Controller
             'daysInMonth' => $daysInMonth,
             'currentMonth' => $filterMonth,
             'currentYear' => $filterYear,
-            'department' => $department,
+            'departments' => $departments,
         ];
 
         return view('attendance.attendance', $data);
     }
+
 
     // Helper function to determine attendance status
     private function getAttendanceStatus($date, $attendance, $isCuti)
@@ -117,9 +156,9 @@ class AttendanceController extends Controller
         if ($attendance) {
             $jam_in = Carbon::parse($attendance->earliest_jam_in);
             if ($date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY) {
-                return $jam_in->gt(Carbon::parse('08:05:00')) ? 'T' : 'P';
+                return $jam_in->gt(Carbon::parse('08:00:00')) ? 'T' : 'P';
             } else {
-                return $jam_in->gt(Carbon::parse('08:05:00')) ? 'T' : 'P';
+                return $jam_in->gt(Carbon::parse('08:00:00')) ? 'T' : 'P';
             }
         } else {
             return $date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY ? 'L' : '';
@@ -146,6 +185,8 @@ class AttendanceController extends Controller
                 $classes[] = 'late';
             } else if ($status == 'P') {
                 $classes[] = '';
+            } else if ($status == 'LN') {
+                $classes[] = 'dark-yellow';
             } else {
                 $classes[] = 'weekend';
             }
@@ -161,6 +202,7 @@ class AttendanceController extends Controller
 
         return implode(' ', $classes);
     }
+
 
 
     public function uploadAtt(Request $request)
@@ -239,5 +281,4 @@ class AttendanceController extends Controller
 
         return view("attendance.daymonitoring", compact('presensi'));
     }
-
 }

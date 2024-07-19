@@ -1,5 +1,5 @@
 
-<aside class="navbar navbar-vertical navbar-expand-lg" data-bs-theme="dark">
+<aside class="navbar navbar-vertical navbar-expand-lg" data-bs-theme="dark" id="sidebar">
     @php
     $user = Auth::guard('user')->user();
     $userLevel = $user ? $user->level : null;
@@ -136,10 +136,14 @@
             </div>
         </div>
         <div class="collapse navbar-collapse" id="sidebar-menu">
+
+            <button class="btn btn-primary" id="sidebar-toggle" type="button">
+                <span class="navbar-toggler-icon"></span>
+            </button>
             <ul class="navbar-nav pt-lg-3">
                 <li class="nav-item">
                     <a class="nav-link" href="/">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                 <path d="M5 12l-2 0l9 -9l9 9l-2 0" />
@@ -368,6 +372,47 @@
         </div>
     </div>
 </aside>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const pageWrapper = document.querySelector('.page-wrapper');
+        const logoImage = document.querySelector('.navbar-brand img');
+        const dropdownMenus = document.querySelectorAll('.dropdown-menu');
+
+        // Toggle sidebar collapse
+        sidebarToggle.addEventListener('click', function () {
+            const isCollapsed = sidebar.classList.toggle('collapsed');
+
+            // Adjust margin and logo size based on sidebar state
+            if (isCollapsed) {
+                dropdownMenus.forEach(menu => menu.classList.remove('show')); // Hide all dropdown menus
+                pageWrapper.style.marginLeft = '4rem'; // Adjust margin when collapsed
+                logoImage.style.width = '40px'; // Adjust logo width when collapsed
+                logoImage.style.height = '40px'; // Adjust logo height when collapsed
+            } else {
+                pageWrapper.style.marginLeft = '15rem'; // Default margin
+                logoImage.style.width = '70px'; // Default logo width
+                logoImage.style.height = '60px'; // Default logo height
+            }
+        });
+
+        // Remove 'collapsed' class from sidebar when any dropdown item is clicked
+        document.querySelectorAll('.nav-item .dropdown-toggle').forEach(item => {
+            item.addEventListener('click', function () {
+                sidebar.classList.remove('collapsed');
+                pageWrapper.style.marginLeft = '15rem'; // Reset margin when item is clicked
+                logoImage.style.width = '70px'; // Reset logo width
+                logoImage.style.height = '60px'; // Reset logo height
+            });
+        });
+    });
+</script>
+
+
+
+
+
 
 
 

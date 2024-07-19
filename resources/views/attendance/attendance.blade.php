@@ -83,7 +83,7 @@
                                             <div class="form-group mb-3">
                                                 <select name="kode_dept" id="kode_dept" class="form-select">
                                                     <option value="">Department</option>
-                                                    @foreach ($department as $d)
+                                                    @foreach ($departments as $d)
                                                     <option {{ request('kode_dept')==$d->kode_dept ? 'selected' : ''}} value="{{$d->kode_dept}}">{{$d->nama_dept}}</option>
                                                     @endforeach
                                                 </select>
@@ -115,10 +115,20 @@
                                                 {{ $i }}
                                                 </th>
                                                 @endfor
+                                                <th style="border-color: black; border-style: solid; border-width: 1px;">Jumlah Telat</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px;">Presentase</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px;">Menit Telat</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px;">Total P</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px;">Total T</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($attendanceData as $row)
+                                        @foreach($attendanceData as $department)
+                                        @php
+                                        $firstRow = true;
+                                        $rowspan = count($department['karyawan']);
+                                        @endphp
+                                        @foreach($department['karyawan'] as $row)
                                         <tr>
                                             <td style="border-color: black; border-style: solid; border-width: 1px;">{{ $row['nama_lengkap'] }}</td>
                                             @foreach($row['attendance'] as $day)
@@ -132,12 +142,22 @@
                                                 @endif
                                             </td>
                                             @endforeach
+                                            @if ($firstRow)
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;" rowspan="{{ $rowspan }}">{{ $department['total_jumlah_telat'] }}</td>
+                                            <td style="border-color: black; vertical-align:middle; border-style: solid; border-width: 1px;" rowspan="{{ $rowspan }}">{{ $department['total_presentase'] }}%</td>
+                                            @php $firstRow = false; @endphp
+                                            @endif
+                                            <td style="border-color: black; border-style: solid; border-width: 1px;">{{ $row['menit_telat'] }}</td>
+                                            <td style="border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalP'] }}</td>
+                                            <td style="border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalT'] }}</td>
                                         </tr>
+                                        @endforeach
                                         @endforeach
                                     </tbody>
                                 </table>
                             </div>
                         </div>
+
 
                     </div>
                 </div>
@@ -150,7 +170,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Upload Cuti Karyawan CSV</h5>
+                <h5 class="modal-title">Upload Attendance Karyawan CSV</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -168,7 +188,7 @@
                                 </button>
                             </div>
                             <div class="form-group mt-3">
-                                <a href="/cuti/downloadTemplate" class="btn btn-secondary w-100">
+                                <a href="#" class="btn btn-secondary w-100">
                                     Download Template CSV
                                 </a>
                             </div>
