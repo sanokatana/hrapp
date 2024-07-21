@@ -374,39 +374,53 @@
 </aside>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const sidebarToggle = document.getElementById('sidebar-toggle');
-        const sidebar = document.getElementById('sidebar');
-        const pageWrapper = document.querySelector('.page-wrapper');
-        const logoImage = document.querySelector('.navbar-brand img');
-        const dropdownMenus = document.querySelectorAll('.dropdown-menu');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const pageWrapper = document.querySelector('.page-wrapper');
+    const logoImage = document.querySelector('.navbar-brand img');
+    const dropdownMenus = document.querySelectorAll('.dropdown-menu');
+    const header = document.querySelector('header.navbar');
+
+    // Function to update styles based on sidebar state
+    function updateStyles(isCollapsed) {
+        if (isCollapsed) {
+            dropdownMenus.forEach(menu => menu.classList.remove('show')); // Hide all dropdown menus
+            pageWrapper.style.marginLeft = '4rem'; // Adjust margin when collapsed
+            header.style.marginLeft = '4rem'; // Adjust header margin when collapsed
+            logoImage.style.width = '40px'; // Adjust logo width when collapsed
+            logoImage.style.height = '40px'; // Adjust logo height when collapsed
+        } else {
+            pageWrapper.style.marginLeft = '15rem'; // Default margin
+            header.style.marginLeft = '15rem'; // Default header margin
+            logoImage.style.width = '70px'; // Default logo width
+            logoImage.style.height = '60px'; // Default logo height
+        }
+    }
+
+    // Check local storage for sidebar state
+    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        if (isCollapsed) {
+            sidebar.classList.add('collapsed');
+        }
+        updateStyles(isCollapsed);
 
         // Toggle sidebar collapse
         sidebarToggle.addEventListener('click', function () {
             const isCollapsed = sidebar.classList.toggle('collapsed');
-
-            // Adjust margin and logo size based on sidebar state
-            if (isCollapsed) {
-                dropdownMenus.forEach(menu => menu.classList.remove('show')); // Hide all dropdown menus
-                pageWrapper.style.marginLeft = '4rem'; // Adjust margin when collapsed
-                logoImage.style.width = '40px'; // Adjust logo width when collapsed
-                logoImage.style.height = '40px'; // Adjust logo height when collapsed
-            } else {
-                pageWrapper.style.marginLeft = '15rem'; // Default margin
-                logoImage.style.width = '70px'; // Default logo width
-                logoImage.style.height = '60px'; // Default logo height
-            }
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
+            updateStyles(isCollapsed);
         });
 
         // Remove 'collapsed' class from sidebar when any dropdown item is clicked
         document.querySelectorAll('.nav-item .dropdown-toggle').forEach(item => {
             item.addEventListener('click', function () {
                 sidebar.classList.remove('collapsed');
-                pageWrapper.style.marginLeft = '15rem'; // Reset margin when item is clicked
-                logoImage.style.width = '70px'; // Reset logo width
-                logoImage.style.height = '60px'; // Reset logo height
+                localStorage.setItem('sidebarCollapsed', false);
+                updateStyles(false);
             });
         });
     });
+
 </script>
 
 
