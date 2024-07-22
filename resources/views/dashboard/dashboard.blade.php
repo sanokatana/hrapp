@@ -30,10 +30,11 @@ use App\Helpers\DateHelper;
         width: 100%;
         /* Make each badge occupy full width */
     }
+
     .list-menu-wrapper {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    white-space: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
     }
 
     .list-menu {
@@ -43,10 +44,9 @@ use App\Helpers\DateHelper;
 
     .item-menu {
         flex: 0 0 auto;
-        width: 33.3333%; /* Adjust this width as necessary to show 3 items */
+        width: 33.3333%;
+        /* Adjust this width as necessary to show 3 items */
     }
-
-
 </style>
 <div class="section" id="user-section">
     <div id="user-detail">
@@ -259,23 +259,19 @@ use App\Helpers\DateHelper;
                 @foreach ($historibulanini as $d)
                 <ul class="listview image-listview rounded-custom">
                     @php
-                    $path = Storage::url('uploads/absensi/'.$d->foto_in);
-                    // Extract hours and minutes from the jam_in time
-                    $jam_in_time = strtotime($d->jam_in);
-                    $hours_diff = floor(($jam_in_time - strtotime("08:05")) / 3600);
-                    $minutes_diff = floor((($jam_in_time - strtotime("08:05")) % 3600) / 60);
+                    $path = $d->foto_in ? Storage::url('uploads/absensi/'.$d->foto_in) : null;
+                    // Extract hours and minutes from the jam_masuk time
+                    $jam_masuk_time = strtotime($d->jam_masuk);
+                    $hours_diff = floor(($jam_masuk_time - strtotime("08:05")) / 3600);
+                    $minutes_diff = floor((($jam_masuk_time - strtotime("08:05")) % 3600) / 60);
 
                     // Calculate lateness
                     if ($hours_diff > 0) {
-                    if ($minutes_diff > 0) {
-                    $lateness = $hours_diff . " Jam " . $minutes_diff . " Menit";
-                    } else {
-                    $lateness = $hours_diff . " Jam";
-                    }
+                        $lateness = $hours_diff . " Jam " . $minutes_diff . " Menit";
                     } elseif ($minutes_diff > 0) {
-                    $lateness = $minutes_diff . " Menit";
+                        $lateness = $minutes_diff . " Menit";
                     } else {
-                    $lateness = "On Time";
+                        $lateness = "On Time";
                     }
 
                     // Determine status based on lateness
@@ -283,10 +279,7 @@ use App\Helpers\DateHelper;
                     @endphp
                     <li>
                         <div class="item">
-                            @if ($d != null && $d->foto_in != null)
-                            @php
-                            $path = Storage::url('/uploads/absensi/'.$d->foto_in);
-                            @endphp
+                            @if ($path)
                             <img src="{{ url($path) }}" alt="" class="imaged w48 circular-image">
                             @else
                             <div class="icon-box bg-info">
@@ -296,7 +289,7 @@ use App\Helpers\DateHelper;
 
                             <div class="in">
                                 <div class="jam-row">
-                                    <div><b>{{ DateHelper::formatIndonesianDate($d->tgl_presensi) }}</b></div>
+                                    <div><b>{{ DateHelper::formatIndonesianDate($d->tanggal) }}</b></div>
                                     <div class="status {{ $status == 'Terlambat' ? 'text-danger' : 'text-success' }}">
                                         {{ $status }}
                                     </div>
@@ -306,10 +299,10 @@ use App\Helpers\DateHelper;
                                 </div>
                                 <div class="jam-row">
                                     <div class="jam-in mb-1">
-                                        <span class="badge badge-success">{{ $d->jam_in }}</span>
+                                        <span class="badge badge-success">{{ $d->jam_masuk }}</span>
                                     </div>
                                     <div class="jam-out">
-                                        <span class="badge badge-danger">{{ $presensihariini != null && $d->jam_out != null ? $d->jam_out : "No Scan"}}</span>
+                                        <span class="badge badge-danger">{{ $d->jam_pulang != null ? $d->jam_pulang : "No Scan" }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -423,35 +416,33 @@ use App\Helpers\DateHelper;
 @endsection
 @push('myscript')
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-    const listMenuWrapper = document.querySelector('.list-menu-wrapper');
-    let isDown = false;
-    let startX;
-    let scrollLeft;
+    document.addEventListener('DOMContentLoaded', function() {
+        const listMenuWrapper = document.querySelector('.list-menu-wrapper');
+        let isDown = false;
+        let startX;
+        let scrollLeft;
 
-    listMenuWrapper.addEventListener('mousedown', (e) => {
-        isDown = true;
-        listMenuWrapper.classList.add('active');
-        startX = e.pageX - listMenuWrapper.offsetLeft;
-        scrollLeft = listMenuWrapper.scrollLeft;
+        listMenuWrapper.addEventListener('mousedown', (e) => {
+            isDown = true;
+            listMenuWrapper.classList.add('active');
+            startX = e.pageX - listMenuWrapper.offsetLeft;
+            scrollLeft = listMenuWrapper.scrollLeft;
+        });
+        listMenuWrapper.addEventListener('mouseleave', () => {
+            isDown = false;
+            listMenuWrapper.classList.remove('active');
+        });
+        listMenuWrapper.addEventListener('mouseup', () => {
+            isDown = false;
+            listMenuWrapper.classList.remove('active');
+        });
+        listMenuWrapper.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - listMenuWrapper.offsetLeft;
+            const walk = (x - startX) * 3; //scroll-fast
+            listMenuWrapper.scrollLeft = scrollLeft - walk;
+        });
     });
-    listMenuWrapper.addEventListener('mouseleave', () => {
-        isDown = false;
-        listMenuWrapper.classList.remove('active');
-    });
-    listMenuWrapper.addEventListener('mouseup', () => {
-        isDown = false;
-        listMenuWrapper.classList.remove('active');
-    });
-    listMenuWrapper.addEventListener('mousemove', (e) => {
-        if (!isDown) return;
-        e.preventDefault();
-        const x = e.pageX - listMenuWrapper.offsetLeft;
-        const walk = (x - startX) * 3; //scroll-fast
-        listMenuWrapper.scrollLeft = scrollLeft - walk;
-    });
-});
-
-
 </script>
 @endpush

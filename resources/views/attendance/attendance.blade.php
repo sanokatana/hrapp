@@ -110,16 +110,17 @@
                                 <table class="table table-hover">
                                     <thead>
                                         <tr style="text-align:center;">
-                                            <th style="border-color: black; border-style: solid; border-width: 1px;">Nama Karyawan</th>
-                                            @for($i = 1; $i <= $daysInMonth; $i++) <th style="border-color: black; border-style: solid; border-width: 1px;" class="{{ $currentMonth == Carbon\Carbon::now()->month && $i == Carbon\Carbon::now()->day ? 'today' : '' }}">
+                                            <th style="border-color: black; border-style: solid; border-width: 1px; color: black">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Nama Karyawan &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</th>
+                                            <th style="border-color: black; border-style: solid; border-width: 1px; color: black">Department</th>
+                                            @for($i = 1; $i <= $daysInMonth; $i++) <th style="border-color: black; border-style: solid; border-width: 1px; color: black" class="{{ $currentMonth == Carbon\Carbon::now()->month && $i == Carbon\Carbon::now()->day ? 'today' : '' }}">
                                                 {{ $i }}
                                                 </th>
                                                 @endfor
-                                                <th style="border-color: black; border-style: solid; border-width: 1px;">Jumlah Telat</th>
-                                                <th style="border-color: black; border-style: solid; border-width: 1px;">Presentase</th>
-                                                <th style="border-color: black; border-style: solid; border-width: 1px;">Menit Telat</th>
-                                                <th style="border-color: black; border-style: solid; border-width: 1px;">Total P</th>
-                                                <th style="border-color: black; border-style: solid; border-width: 1px;">Total T</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">Telat</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">Jumlah Telat</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">Presentase</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">Menit Telat</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">P</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -131,8 +132,12 @@
                                         @foreach($department['karyawan'] as $row)
                                         <tr>
                                             <td style="border-color: black; border-style: solid; border-width: 1px;">{{ $row['nama_lengkap'] }}</td>
+                                            @if ($firstRow)
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;" rowspan="{{ $rowspan }}">{{ $department['department'] }}</td>
+                                            @php $firstRow = false; @endphp
+                                            @endif
                                             @foreach($row['attendance'] as $day)
-                                            <td style="text-align: center; border-color: black; border-style: solid; border-width: 1px;" class="{{ $day['class'] }}">
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;" class="{{ $day['class'] }}">
                                                 @if($day['status'] == 'T' && ($currentMonth == Carbon\Carbon::now()->month && $i == Carbon\Carbon::now()->day))
                                                 <span>{{ $day['status'] }}</span>
                                                 @elseif($day['status'] == 'LN')
@@ -142,14 +147,13 @@
                                                 @endif
                                             </td>
                                             @endforeach
-                                            @if ($firstRow)
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalT'] }}</td>
+                                            @if ($loop->first)
                                             <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;" rowspan="{{ $rowspan }}">{{ $department['total_jumlah_telat'] }}</td>
-                                            <td style="border-color: black; vertical-align:middle; border-style: solid; border-width: 1px;" rowspan="{{ $rowspan }}">{{ $department['total_presentase'] }}%</td>
-                                            @php $firstRow = false; @endphp
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;" rowspan="{{ $rowspan }}">{{ $department['total_presentase'] }}%</td>
                                             @endif
-                                            <td style="border-color: black; border-style: solid; border-width: 1px;">{{ $row['menit_telat'] }}</td>
-                                            <td style="border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalP'] }}</td>
-                                            <td style="border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalT'] }}</td>
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['menit_telat'] }}</td>
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalP'] }}</td>
                                         </tr>
                                         @endforeach
                                         @endforeach
@@ -157,8 +161,6 @@
                                 </table>
                             </div>
                         </div>
-
-
                     </div>
                 </div>
             </div>

@@ -181,7 +181,8 @@ Route::middleware(['auth:user'])->group(function (){
     //Attendance
     Route::get('/attendance/table',[AttendanceController::class,'index']);
     Route::post('/attendance/uploadAtt', [AttendanceController::class, 'uploadAtt']);
-
     Route::get('/attendance/daymonitoring',[AttendanceController::class,'daymonitoring']);
+    Route::get('/attendance/att_monitoring', [AttendanceController::class,'att_monitoring']);
+    Route::get('/attendance/get_att', [AttendanceController::class,'get_att']);
 
 });

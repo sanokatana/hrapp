@@ -282,7 +282,10 @@
                         <div class="dropdown-menu-columns">
                             <div class="dropdown-menu-column">
                                 <a class="dropdown-item {{request()->is(['presensi/monitoring']) ? 'active' : ''}}" href="/presensi/monitoring">
-                                    Day Monitoring
+                                    Day Monitor
+                                </a>
+                                <a class="dropdown-item {{request()->is(['attendance/att_monitoring']) ? 'active' : ''}}" href="/attendance/att_monitoring">
+                                    Attendance Monitor
                                 </a>
                                 <a class="dropdown-item {{request()->is(['attendance/table']) ? 'active' : ''}}" href="/attendance/table">
                                     Attendance Table
@@ -386,7 +389,7 @@
         if (isCollapsed) {
             dropdownMenus.forEach(menu => menu.classList.remove('show')); // Hide all dropdown menus
             pageWrapper.style.marginLeft = '4rem'; // Adjust margin when collapsed
-            header.style.marginLeft = '4rem'; // Adjust header margin when collapsed
+            header.style.marginLeft = '5rem'; // Adjust header margin when collapsed
             logoImage.style.width = '40px'; // Adjust logo width when collapsed
             logoImage.style.height = '40px'; // Adjust logo height when collapsed
         } else {

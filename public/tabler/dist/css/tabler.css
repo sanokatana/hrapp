@@ -26788,6 +26788,11 @@ a.step-item:hover {
     color: white !important;
 }
 
+.izin {
+    background-color: #FFE599 !important;
+    color: black !important;
+}
+
 .dark-yellow {
     background-color: #FFD700 !important;
     /* Dark yellow color */

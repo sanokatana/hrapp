@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cuti;
-use App\Models\Karyawan;
-use App\Models\Pengajuancuti;
 use App\Models\Pengajuanizin;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -196,11 +194,25 @@ class PresensiController extends Controller
         $tahun = $request->tahun;
         $nik = Auth::guard('karyawan')->user()->nik;
 
-        $histori = DB::table('presensi')
-            ->whereRaw('MONTH(tgl_presensi)="' . $bulan . '"')
-            ->whereRaw('YEAR(tgl_presensi)="' . $tahun . '"')
-            ->where('nik', $nik)
-            ->orderBy('tgl_presensi')
+        $histori = DB::table(DB::raw("(SELECT
+                    DATE(tgl_presensi) as tanggal,
+                    MIN(jam_in) as jam_masuk,
+                    MAX(jam_in) as jam_pulang,
+                    nik
+                FROM presensi
+                WHERE nik = ?
+                    AND MONTH(tgl_presensi) = ?
+                    AND YEAR(tgl_presensi) = ?
+                GROUP BY DATE(tgl_presensi), nik) as sub"))
+            ->leftJoin('presensi as p', function ($join) {
+                $join->on('sub.tanggal', '=', DB::raw('DATE(p.tgl_presensi)'))
+                    ->on('sub.nik', '=', 'p.nik')
+                    ->whereRaw('p.jam_in = sub.jam_masuk OR p.jam_in = sub.jam_pulang');
+            })
+            ->select('sub.tanggal', 'sub.jam_masuk', 'sub.jam_pulang', DB::raw('MAX(p.foto_in) as foto_in'), DB::raw('MAX(p.foto_out) as foto_out'))
+            ->groupBy('sub.tanggal', 'sub.jam_masuk', 'sub.jam_pulang')
+            ->orderBy('sub.tanggal', 'asc')
+            ->setBindings([$nik, $bulan, $tahun])
             ->get();
 
         return view('presensi.gethistori', compact('histori'));
@@ -304,18 +316,28 @@ class PresensiController extends Controller
     public function getpresensi(Request $request)
     {
         $tanggal = $request->tanggal;
+        $nama_lengkap = $request->nama_karyawan;
+
         $query = DB::table('presensi')
             ->selectRaw('DATE(tgl_presensi) as tanggal, presensi.nip, nama_lengkap, nama_dept, MIN(jam_in) as jam_masuk, MAX(jam_in) as jam_pulang')
             ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
             ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept')
-            ->groupBy('tanggal', 'presensi.nip', 'nama_lengkap', 'nama_dept')
-            ->where('tgl_presensi', $tanggal);
+            ->groupBy('tanggal', 'presensi.nip', 'nama_lengkap', 'nama_dept');
 
-        $query->orderBy('jam_masuk', 'asc');
-        $presensi = $query->get(); // Fetch all results without pagination
+        if ($tanggal) {
+            $query->whereDate('tgl_presensi', $tanggal);
+        }
+
+        if ($nama_lengkap) {
+            $query->where('nama_lengkap', 'like', '%' . $nama_lengkap . '%');
+        }
+
+        $query->orderBy('nama_lengkap', 'asc');
+        $presensi = $query->get();
 
         return view("presensi.getpresensi", compact('presensi'));
     }
+
 
     public function tampilkanpeta(Request $request)
     {

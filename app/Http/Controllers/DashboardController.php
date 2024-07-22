@@ -33,19 +33,42 @@ class DashboardController extends Controller
             ->where('tgl_presensi', $hariini)
             ->first();
 
-        $historibulanini = DB::table('presensi')
-            ->where('nik', $nik)
-            ->whereRaw('MONTH(tgl_presensi)="' . $bulanini . '"')
-            ->whereRaw('YEAR(tgl_presensi)="' . $tahunini . '"')
-            ->orderBy('tgl_presensi')
+        $historibulanini = DB::table(DB::raw("(SELECT
+            DATE(tgl_presensi) as tanggal,
+            MIN(jam_in) as jam_masuk,
+            MAX(jam_in) as jam_pulang,
+            nik
+            FROM presensi
+            WHERE nik = ?
+                AND MONTH(tgl_presensi) = ?
+                AND YEAR(tgl_presensi) = ?
+            GROUP BY DATE(tgl_presensi), nik) as sub"))
+            ->leftJoin('presensi as p', function ($join) {
+                $join->on('sub.tanggal', '=', DB::raw('DATE(p.tgl_presensi)'))
+                    ->on('sub.nik', '=', 'p.nik')
+                    ->whereRaw('p.jam_in = sub.jam_masuk OR p.jam_in = sub.jam_pulang');
+            })
+            ->select('sub.tanggal', 'sub.jam_masuk', 'sub.jam_pulang', DB::raw('MAX(p.foto_in) as foto_in'), DB::raw('MAX(p.foto_out) as foto_out'))
+            ->groupBy('sub.tanggal', 'sub.jam_masuk', 'sub.jam_pulang')
+            ->orderBy('sub.tanggal', 'asc')
+            ->setBindings([$nik, $bulanini, $tahunini])
             ->get();
 
-        $rekappresensi = DB::table('presensi')
-            ->selectRaw('COUNT(nik) as jmlhadir, SUM(IF(jam_in > "08:00",1,0)) as jmlterlambat')
-            ->where('nik', $nik)
-            ->whereRaw('MONTH(tgl_presensi)="' . $bulanini . '"')
-            ->whereRaw('YEAR(tgl_presensi)="' . $tahunini . '"')
-            ->first();
+
+            $rekappresensi = DB::table(DB::raw("(SELECT
+            DATE(tgl_presensi) as tanggal,
+            MIN(jam_in) as min_jam_in
+        FROM presensi
+        WHERE nik = ?
+          AND MONTH(tgl_presensi) = ?
+          AND YEAR(tgl_presensi) = ?
+        GROUP BY DATE(tgl_presensi)) as sub"))
+        ->selectRaw('COUNT(tanggal) as jmlhadir')
+        ->selectRaw('SUM(CASE WHEN TIME(min_jam_in) > "08:05:00" THEN 1 ELSE 0 END) as jmlterlambat')
+        ->setBindings([$nik, $bulanini, $tahunini])
+        ->first();
+
+
 
         $historiizin = DB::table('pengajuan_izin')
             ->whereRaw('MONTH(tgl_izin)="' . $bulanini . '"')
@@ -82,7 +105,8 @@ class DashboardController extends Controller
     }
 
 
-    public function dashboardadmin() {
+    public function dashboardadmin()
+    {
         $hariini = date("Y-m-d");
         $bulanini = date("m");
         $tahunini = date("Y");
@@ -120,7 +144,7 @@ class DashboardController extends Controller
             ->limit(10)
             ->get();
 
-            $leaderboardOnTime = DB::table('presensi')
+        $leaderboardOnTime = DB::table('presensi')
             ->select('presensi.nik', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN jam_in < "08:05:00" THEN (8 * 60) - (HOUR(jam_in) * 60 + MINUTE(jam_in)) ELSE 0 END) as total_on_time'))
             ->join('karyawan', 'presensi.nik', '=', 'karyawan.nik')
             ->whereRaw('MONTH(tgl_presensi) = ?', [$bulanini])
