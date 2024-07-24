@@ -182,7 +182,9 @@ class CutiController extends Controller
     public function getEmployeeName(Request $request)
     {
         $searchTerm = $request->nama_lengkap;
-        $employee = DB::table('karyawan')->where('nama_lengkap', 'like', '%'.$searchTerm.'%')->get(['nik', 'nama_lengkap']);
+        $employee = DB::table('karyawan')
+            ->where('nama_lengkap', 'like', '%'.$searchTerm.'%')
+            ->get(['nip', 'nama_lengkap']);
         return response()->json($employee);
     }
 

@@ -1,3 +1,6 @@
+@php
+use App\Helpers\DateHelper;
+@endphp
 @foreach ($presensi as $d)
     @php
         // Standard office start time
@@ -18,7 +21,7 @@
         <td style="vertical-align: middle;">{{ $d->nip }}</td>
         <td style="vertical-align: middle;">{{ $d->nama_lengkap }}</td>
         <td style="vertical-align: middle;">{{ $d->nama_dept }}</td>
-        <td style="vertical-align: middle;">{{ $d->tanggal }}</td>
+        <td style="vertical-align: middle;">{{ DateHelper::formatIndonesianDate($d->tanggal) }}</td>
         <td style="vertical-align: middle;">{{ $d->jam_masuk }}</td>
         <td style="vertical-align: middle;">
             {!! $d->jam_pulang != null ? $d->jam_pulang : '<span class="badge bg-danger" style="color: white;">Belum Absen</span>' !!}

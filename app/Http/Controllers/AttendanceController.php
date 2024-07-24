@@ -13,7 +13,7 @@ class AttendanceController extends Controller
     {
         // Get filter inputs
         $filterMonth = $request->input('bulan', Carbon::now()->month);
-        $filterYear = Carbon::now()->year; // You can add a year filter if needed
+        $filterYear = $request->input('tahun', Carbon::now()->year); // Add year filter input
         $filterNamaLengkap = $request->input('nama_lengkap');
         $filterKodeDept = $request->input('kode_dept');
 
@@ -40,6 +40,14 @@ class AttendanceController extends Controller
             $karyawanQuery->where('kode_dept', $filterKodeDept);
         }
         $karyawan = $karyawanQuery->get()->groupBy('kode_dept');
+
+        // Get the earliest and latest years from the presensi table
+        $years = DB::table('presensi')
+            ->selectRaw('MIN(YEAR(tgl_presensi)) as earliest_year, MAX(YEAR(tgl_presensi)) as latest_year')
+            ->first();
+
+        $earliestYear = $years->earliest_year;
+        $latestYear = $years->latest_year;
 
         // Get presensi data for the selected month
         $presensi = DB::table('presensi')
@@ -160,6 +168,8 @@ class AttendanceController extends Controller
             'currentMonth' => $filterMonth,
             'currentYear' => $filterYear,
             'departments' => $departments,
+            'earliestYear' => $earliestYear,
+            'latestYear' => $latestYear,
         ];
 
         return view('attendance.attendance', $data);
@@ -327,6 +337,7 @@ class AttendanceController extends Controller
     public function get_att(Request $request)
     {
         $nama_lengkap = $request->nama_lengkap;
+        $nip = $request->nip;
 
         $query = DB::table('presensi')
             ->selectRaw('DATE(tgl_presensi) as tanggal, presensi.nip, nama_lengkap, nama_dept, MIN(jam_in) as jam_masuk, MAX(jam_in) as jam_pulang')
@@ -338,10 +349,13 @@ class AttendanceController extends Controller
             $query->where('nama_lengkap', 'like', '%' . $nama_lengkap . '%');
         }
 
+        if ($nip) {
+            $query->where('presensi.nip', $nip);
+        }
+
         $query->orderBy('tgl_presensi', 'desc');
         $presensi = $query->get();
 
         return view("attendance.getatt", compact('presensi'));
     }
-
 }

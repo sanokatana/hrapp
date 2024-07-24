@@ -1,5 +1,8 @@
 @extends('layouts.admin.tabler')
 @section('content')
+@php
+use App\Helpers\DateHelper;
+@endphp
 <div class="page-header d-print-none">
     <div class="container-xl">
         <div class="row g-2 align-items-center">
@@ -72,7 +75,7 @@
                                         @foreach ($libur as $d)
                                         <tr>
                                             <td>{{ $loop->iteration}}</td>
-                                            <td>{{ $d->tgl_libur}}</td>
+                                            <td>{{ DateHelper::formatIndonesianDate($d->tgl_libur) }}</td>
                                             <td>{{ $d->nama_libur}}</td>
                                             <td>
                                                 <div class="form-group">
