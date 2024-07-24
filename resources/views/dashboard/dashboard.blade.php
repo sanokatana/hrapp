@@ -262,8 +262,8 @@ use App\Helpers\DateHelper;
                     $path = $d->foto_in ? Storage::url('uploads/absensi/'.$d->foto_in) : null;
                     // Extract hours and minutes from the jam_masuk time
                     $jam_masuk_time = strtotime($d->jam_masuk);
-                    $hours_diff = floor(($jam_masuk_time - strtotime("08:05")) / 3600);
-                    $minutes_diff = floor((($jam_masuk_time - strtotime("08:05")) % 3600) / 60);
+                    $hours_diff = floor(($jam_masuk_time - strtotime("08:00")) / 3600);
+                    $minutes_diff = floor((($jam_masuk_time - strtotime("08:00")) % 3600) / 60);
 
                     // Calculate lateness
                     if ($hours_diff > 0) {

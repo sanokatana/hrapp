@@ -4,7 +4,7 @@ use App\Helpers\DateHelper;
 @foreach ($presensi as $d)
     @php
         // Standard office start time
-        $startTime = strtotime('08:05:00');
+        $startTime = strtotime('08:00:00');
         $jamInTime = strtotime($d->jam_masuk);
 
         // Calculate delay in hours and minutes

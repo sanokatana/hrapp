@@ -196,8 +196,8 @@ use App\Helpers\DateHelper;
                                 $path = Storage::url('uploads/absensi/'.$d->foto_in);
                                 // Extract hours and minutes from the jam_in time
                                 $jam_in_time = strtotime($d->jam_in);
-                                $hours_diff = floor(($jam_in_time - strtotime("08:05")) / 3600);
-                                $minutes_diff = floor((($jam_in_time - strtotime("08:05")) % 3600) / 60);
+                                $hours_diff = floor(($jam_in_time - strtotime("08:00")) / 3600);
+                                $minutes_diff = floor((($jam_in_time - strtotime("08:00")) % 3600) / 60);
 
                                 // Calculate lateness
                                 if ($hours_diff > 0) {
@@ -243,18 +243,12 @@ use App\Helpers\DateHelper;
                                         <div><b>{{ DateHelper::formatIndonesianDate($d->tgl_presensi) }}</b></div>
                                         <span class=" {{ $status == 'Terlambat' ? 'text-danger' : 'text-success' }}">
                                             {{ $status }}
-                                        </span>-
-                                        <span class=" {{ $status == 'Terlambat' ? 'text-warning' : 'text-success' }}">
-                                            ({{ $lateness }})
                                         </span>
                                     </div>
                                 </div>
                                 <div class="col-auto">
-                                    <div class="jam-in mb-1">
+                                    <div class="jam-in mt-3">
                                         <span class="status text-success">{{ $d->jam_in }}</span>
-                                    </div>
-                                    <div class="jam-out">
-                                        <span class="status text-warning">{{ $d->jam_out != null ? $d->jam_out : "NoAbsen"}}</span>
                                     </div>
                                 </div>
                             </div>

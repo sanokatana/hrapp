@@ -64,7 +64,7 @@ class DashboardController extends Controller
           AND YEAR(tgl_presensi) = ?
         GROUP BY DATE(tgl_presensi)) as sub"))
         ->selectRaw('COUNT(tanggal) as jmlhadir')
-        ->selectRaw('SUM(CASE WHEN TIME(min_jam_in) > "08:05:00" THEN 1 ELSE 0 END) as jmlterlambat')
+        ->selectRaw('SUM(CASE WHEN TIME(min_jam_in) > "08:00:00" THEN 1 ELSE 0 END) as jmlterlambat')
         ->setBindings([$nik, $bulanini, $tahunini])
         ->first();
 
@@ -134,22 +134,22 @@ class DashboardController extends Controller
             ->get();
 
         $leaderboardTelat = DB::table('presensi')
-            ->select('presensi.nik', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN jam_in > "08:05:00" THEN (HOUR(jam_in) * 60 + MINUTE(jam_in)) - (8 * 60) ELSE 0 END) as total_late_minutes'))
+            ->select('presensi.nik', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN jam_in > "08:00:00" THEN (HOUR(jam_in) * 60 + MINUTE(jam_in)) - (8 * 60) ELSE 0 END) as total_late_minutes'))
             ->join('karyawan', 'presensi.nik', '=', 'karyawan.nik')
             ->whereRaw('MONTH(tgl_presensi) = ?', [$bulanini])
             ->whereRaw('YEAR(tgl_presensi) = ?', [$tahunini])
-            ->where('jam_in', '>', '08:05:00')
+            ->where('jam_in', '>', '08:00:00')
             ->groupBy('presensi.nik', 'karyawan.nama_lengkap')
             ->orderBy('total_late_minutes', 'desc')
             ->limit(10)
             ->get();
 
         $leaderboardOnTime = DB::table('presensi')
-            ->select('presensi.nik', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN jam_in < "08:05:00" THEN (8 * 60) - (HOUR(jam_in) * 60 + MINUTE(jam_in)) ELSE 0 END) as total_on_time'))
+            ->select('presensi.nik', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN jam_in < "08:00:00" THEN (8 * 60) - (HOUR(jam_in) * 60 + MINUTE(jam_in)) ELSE 0 END) as total_on_time'))
             ->join('karyawan', 'presensi.nik', '=', 'karyawan.nik')
             ->whereRaw('MONTH(tgl_presensi) = ?', [$bulanini])
             ->whereRaw('YEAR(tgl_presensi) = ?', [$tahunini])
-            ->where('jam_in', '<', '08:05:00')
+            ->where('jam_in', '<', '08:00:00')
             ->groupBy('presensi.nik', 'karyawan.nama_lengkap')
             ->orderBy('total_on_time', 'desc')
             ->limit(10)

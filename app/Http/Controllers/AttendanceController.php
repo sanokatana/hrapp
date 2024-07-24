@@ -127,7 +127,7 @@ class AttendanceController extends Controller
 
                     if ($status === 'T') {
                         $jumlahTelat++;
-                        $menitTelat += Carbon::parse($attendance->earliest_jam_in)->diffInMinutes(Carbon::parse('08:05:00'));
+                        $menitTelat += Carbon::parse($attendance->earliest_jam_in)->diffInMinutes(Carbon::parse('08:00:00'));
                         $totalTidakHadir++;
                     }
                     if ($status === 'P') {
@@ -191,9 +191,9 @@ class AttendanceController extends Controller
         if ($attendance) {
             $jam_in = Carbon::parse($attendance->earliest_jam_in);
             if ($date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY) {
-                return $jam_in->gt(Carbon::parse('08:05:00')) ? 'T' : 'P';
+                return $jam_in->gt(Carbon::parse('08:00:00')) ? 'T' : 'P';
             } else {
-                return $jam_in->gt(Carbon::parse('08:05:00')) ? 'T' : 'P';
+                return $jam_in->gt(Carbon::parse('08:00:00')) ? 'T' : 'P';
             }
         } else {
             return $date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY ? 'L' : '';
