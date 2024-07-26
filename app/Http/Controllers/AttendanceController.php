@@ -13,7 +13,7 @@ class AttendanceController extends Controller
     {
         // Get filter inputs
         $filterMonth = $request->input('bulan', Carbon::now()->month);
-        $filterYear = $request->input('tahun', Carbon::now()->year); // Add year filter input
+        $filterYear = $request->input('tahun', Carbon::now()->year);
         $filterNamaLengkap = $request->input('nama_lengkap');
         $filterKodeDept = $request->input('kode_dept');
 
@@ -79,8 +79,9 @@ class AttendanceController extends Controller
             })
             ->get();
 
+        // Debugging: Get Izin Data
         $izin = DB::table('pengajuan_izin')
-            ->select('nik', 'tgl_izin', 'tgl_izin_akhir')
+            ->select('nik', 'tgl_izin', 'tgl_izin_akhir', 'status', 'keputusan', 'pukul', 'tgl_jadwal_off')
             ->where('status_approved', 1)
             ->where('status_approved_hrd', 1)
             ->where(function ($query) use ($filterMonth, $filterYear) {
@@ -120,23 +121,30 @@ class AttendanceController extends Controller
                     $isIzin = $this->checkIzin($izin, $k->nik, $date);
                     $status = $this->getAttendanceStatus($date, $attendance, $isCuti, $isIzin);
 
+
                     // Check if the date is a national holiday
                     if ($liburNasional->contains($dateString)) {
                         $status = 'LN'; // Mark as national holiday
                     }
 
-                    if ($status === 'T') {
-                        $jumlahTelat++;
-                        $menitTelat += Carbon::parse($attendance->earliest_jam_in)->diffInMinutes(Carbon::parse('08:00:00'));
-                        $totalTidakHadir++;
+                    // Calculate late minutes if attendance exists and status is 'T'
+                    if ($attendance) {
+                        $jam_in = Carbon::parse($attendance->earliest_jam_in);
+                        if ($status === 'T') {
+                            $menitTelat += $jam_in->diffInMinutes(Carbon::parse('08:00:00'));
+                            $jumlahTelat++;
+                        }
                     }
+
                     if ($status === 'P') {
                         $totalHadir++;
+                    } elseif ($status === 'T') {
+                        $totalTidakHadir++;
                     }
 
                     $row['attendance'][] = [
                         'status' => $status,
-                        'class' => $this->getAttendanceClass($date, $status)
+                        'class' => $this->determineAttendanceClass($date, $status)
                     ];
                 }
 
@@ -175,8 +183,6 @@ class AttendanceController extends Controller
         return view('attendance.attendance', $data);
     }
 
-
-
     // Helper function to determine attendance status
     private function getAttendanceStatus($date, $attendance, $isCuti, $isIzin)
     {
@@ -185,20 +191,63 @@ class AttendanceController extends Controller
         }
 
         if ($isIzin) {
-            return 'I';
+            $status = $isIzin->status;
+            $keputusan = $isIzin->keputusan;
+            $pukul = $isIzin->pukul;
+
+            if ($status == 'Tmk') {
+                if ($keputusan == 'Sakit') {
+                    return 'S';
+                } elseif ($keputusan == 'Ijin') {
+                    return 'I';
+                } elseif ($keputusan == 'Mangkir') {
+                    return 'M';
+                } elseif ($keputusan == 'Tugas Luar') {
+                    return 'TL';
+                } elseif ($keputusan == 'Potong Cuti') {
+                    return 'C';
+                } elseif ($keputusan == 'Tukar Jadwal Off') {
+                    return 'OFF'; // Handle Tukar Jadwal Off
+                }
+            }
+
+            if ($status == 'Dt' && $attendance) {
+                $jam_in = Carbon::parse($attendance->earliest_jam_in);
+                if ($jam_in->gte(Carbon::parse('06:00:00')) && $jam_in->lt(Carbon::parse('13:00:00'))) {
+                    if ($pukul && abs($jam_in->diffInMinutes(Carbon::parse($pukul))) <= 5 && $keputusan == 'Terlambat') {
+                        return 'P';
+                    } else {
+                        return 'P';
+                    }
+                }
+            }
+
+            if ($status == 'Tam') {
+                // If no attendance between 6 AM and 1 PM
+                $jam_in = $attendance ? Carbon::parse($attendance->earliest_jam_in) : null;
+                if (!$jam_in || $jam_in->lt(Carbon::parse('06:00:00')) || $jam_in->gte(Carbon::parse('13:00:00'))) {
+                    return 'P';
+                }
+            }
+
+            if ($status == 'Tjo') {
+                return 'OFF'; // Specific status for Tukar Jadwal Off
+            }
         }
+
 
         if ($attendance) {
             $jam_in = Carbon::parse($attendance->earliest_jam_in);
-            if ($date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY) {
+            if ($jam_in->gte(Carbon::parse('06:00:00')) && $jam_in->lt(Carbon::parse('13:00:00'))) {
                 return $jam_in->gt(Carbon::parse('08:00:00')) ? 'T' : 'P';
             } else {
-                return $jam_in->gt(Carbon::parse('08:00:00')) ? 'T' : 'P';
+                return 'T';
             }
         } else {
             return $date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY ? 'L' : '';
         }
     }
+
 
     // Helper function to determine if the date falls within a leave period
     private function checkCuti($cuti, $nik, $date)
@@ -211,46 +260,77 @@ class AttendanceController extends Controller
         return false;
     }
 
+    // Helper function to determine if the date falls within an izin period
     private function checkIzin($izin, $nik, $date)
     {
-        foreach ($izin as $c) {
-            if ($c->nik == $nik && $date->between(Carbon::parse($c->tgl_izin), Carbon::parse($c->tgl_izin_akhir))) {
-                return true;
+        foreach ($izin as $i) {
+            $start = Carbon::parse($i->tgl_izin);
+            $end = Carbon::parse($i->tgl_izin_akhir);
+
+            if ($i->nik == $nik && $date->between($start, $end)) {
+                return $i; // Return the full object, not just true
             }
         }
-        return false;
+        return null; // Return null if no match is found
     }
 
-    // Helper function to determine CSS classes for attendance cell
-    private function getAttendanceClass($date, $status)
+    // Updated function to determine CSS classes for attendance cell
+    private function determineAttendanceClass($date, $status)
     {
         $classes = [];
+
+        // Check if the date is a weekend
         if ($date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY) {
-            if ($status == 'T') {
-                $classes[] = 'late';
-            } else if ($status == 'P') {
-                $classes[] = '';
-            } else if ($status == 'LN') {
-                $classes[] = 'dark-yellow';
-            } else {
-                $classes[] = 'weekend';
+            switch ($status) {
+                case 'T':
+                    $classes[] = 'late';
+                    break;
+                case 'P':
+                    $classes[] = ''; // No specific class for present on weekends
+                    break;
+                case 'LN':
+                    $classes[] = 'dark-yellow';
+                    break;
+                case 'OFF':
+                    $classes[] = 'tukar_off'; // New class for Tukar Jadwal Off
+                    break;
+                default:
+                    $classes[] = 'weekend';
+                    break;
             }
         } else {
-            if ($status == 'T') {
-                $classes[] = 'late';
-            } else if ($status == 'LN') {
-                $classes[] = 'dark-yellow';
-            } else if ($status == 'C') {
-                $classes[] = 'cuti';
-            } else if ($status == 'I') {
-                $classes[] = 'izin';
+            switch ($status) {
+                case 'T':
+                    $classes[] = 'late';
+                    break;
+                case 'LN':
+                    $classes[] = 'dark-yellow';
+                    break;
+                case 'C':
+                    $classes[] = 'cuti';
+                    break;
+                case 'I':
+                    $classes[] = 'izin';
+                    break;
+                case 'S':
+                    $classes[] = 'sakit';
+                    break;
+                case 'M':
+                    $classes[] = 'mangkir';
+                    break;
+                case 'TL':
+                    $classes[] = 'tugas_luar';
+                    break;
+                case 'OFF':
+                    $classes[] = 'tukar_off'; // New class for Tukar Jadwal Off
+                    break;
+                default:
+                    break;
             }
         }
 
         return implode(' ', $classes);
     }
-
-
 
     public function uploadAtt(Request $request)
     {
@@ -340,10 +420,9 @@ class AttendanceController extends Controller
         $nip = $request->nip;
 
         $query = DB::table('presensi')
-            ->selectRaw('DATE(tgl_presensi) as tanggal, presensi.nip, nama_lengkap, nama_dept, MIN(jam_in) as jam_masuk, MAX(jam_in) as jam_pulang')
+            ->selectRaw('DATE(tgl_presensi) as tanggal, presensi.nip, nama_lengkap, nama_dept, jam_in')
             ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
-            ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept')
-            ->groupBy('tanggal', 'presensi.nip', 'nama_lengkap', 'nama_dept');
+            ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
 
         if ($nama_lengkap) {
             $query->where('nama_lengkap', 'like', '%' . $nama_lengkap . '%');
@@ -355,6 +434,64 @@ class AttendanceController extends Controller
 
         $query->orderBy('tgl_presensi', 'desc');
         $presensi = $query->get();
+
+        // Process records to find min and max jam_in
+        $processedPresensi = [];
+        foreach ($presensi as $record) {
+            $tanggal = $record->tanggal;
+            $nip = $record->nip;
+            $time = strtotime($record->jam_in);
+            $morning_start = strtotime('06:00:00');
+            $afternoon_start = strtotime('13:00:00');
+            $next_day_morning_end = strtotime('06:00:00') + 24 * 60 * 60;
+
+            // If the time is before 6 AM, it should be considered as the previous day's jam_pulang
+            if ($time < $morning_start) {
+                $prev_tanggal = Carbon::parse($tanggal)->subDay()->toDateString();
+                $key = $prev_tanggal . '_' . $nip;
+
+                if (!isset($processedPresensi[$key])) {
+                    $processedPresensi[$key] = [
+                        'tanggal' => $prev_tanggal,
+                        'nip' => $nip,
+                        'nama_lengkap' => $record->nama_lengkap,
+                        'nama_dept' => $record->nama_dept,
+                        'jam_masuk' => null,
+                        'jam_pulang' => null,
+                    ];
+                }
+
+                if (is_null($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
+                    $processedPresensi[$key]['jam_pulang'] = $record->jam_in;
+                }
+            } else {
+                $key = $tanggal . '_' . $nip;
+
+                if (!isset($processedPresensi[$key])) {
+                    $processedPresensi[$key] = [
+                        'tanggal' => $tanggal,
+                        'nip' => $nip,
+                        'nama_lengkap' => $record->nama_lengkap,
+                        'nama_dept' => $record->nama_dept,
+                        'jam_masuk' => null,
+                        'jam_pulang' => null,
+                    ];
+                }
+
+                if ($time >= $morning_start && $time < $afternoon_start) {
+                    if (is_null($processedPresensi[$key]['jam_masuk']) || $time < strtotime($processedPresensi[$key]['jam_masuk'])) {
+                        $processedPresensi[$key]['jam_masuk'] = $record->jam_in;
+                    }
+                } elseif ($time >= $afternoon_start) {
+                    if (is_null($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
+                        $processedPresensi[$key]['jam_pulang'] = $record->jam_in;
+                    }
+                }
+            }
+        }
+
+        // Convert the processed data to a collection for the view
+        $presensi = collect($processedPresensi);
 
         return view("attendance.getatt", compact('presensi'));
     }

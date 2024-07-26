@@ -319,10 +319,9 @@ class PresensiController extends Controller
         $nama_lengkap = $request->nama_karyawan;
 
         $query = DB::table('presensi')
-            ->selectRaw('DATE(tgl_presensi) as tanggal, presensi.nip, nama_lengkap, nama_dept, MIN(jam_in) as jam_masuk, MAX(jam_in) as jam_pulang')
+            ->selectRaw('DATE(tgl_presensi) as tanggal, presensi.nip, nama_lengkap, nama_dept, jam_in')
             ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
-            ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept')
-            ->groupBy('tanggal', 'presensi.nip', 'nama_lengkap', 'nama_dept');
+            ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
 
         if ($tanggal) {
             $query->whereDate('tgl_presensi', $tanggal);
@@ -332,12 +331,69 @@ class PresensiController extends Controller
             $query->where('nama_lengkap', 'like', '%' . $nama_lengkap . '%');
         }
 
-        $query->orderBy('nama_lengkap', 'asc');
+        $query->orderBy('nama_dept', 'asc');
         $presensi = $query->get();
+
+        // Process records to find min and max jam_in
+        $processedPresensi = [];
+        foreach ($presensi as $record) {
+            $tanggal = $record->tanggal;
+            $nip = $record->nip;
+            $time = strtotime($record->jam_in);
+            $morning_start = strtotime('06:00:00');
+            $afternoon_start = strtotime('13:00:00');
+            $next_day_morning_end = strtotime('06:00:00') + 24 * 60 * 60;
+
+            // Check if jam_in is before 6 AM and associate it with the previous day's jam_pulang
+            if ($time < $morning_start) {
+                $prev_tanggal = Carbon::parse($tanggal)->subDay()->toDateString();
+                $key = $prev_tanggal . '_' . $nip;
+
+                if (!isset($processedPresensi[$key])) {
+                    $processedPresensi[$key] = [
+                        'tanggal' => $prev_tanggal,
+                        'nip' => $nip,
+                        'nama_lengkap' => $record->nama_lengkap,
+                        'nama_dept' => $record->nama_dept,
+                        'jam_masuk' => null,
+                        'jam_pulang' => null,
+                    ];
+                }
+
+                if (is_null($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
+                    $processedPresensi[$key]['jam_pulang'] = $record->jam_in;
+                }
+            } else {
+                $key = $tanggal . '_' . $nip;
+
+                if (!isset($processedPresensi[$key])) {
+                    $processedPresensi[$key] = [
+                        'tanggal' => $tanggal,
+                        'nip' => $nip,
+                        'nama_lengkap' => $record->nama_lengkap,
+                        'nama_dept' => $record->nama_dept,
+                        'jam_masuk' => null,
+                        'jam_pulang' => null,
+                    ];
+                }
+
+                if ($time >= $morning_start && $time < $afternoon_start) {
+                    if (is_null($processedPresensi[$key]['jam_masuk']) || $time < strtotime($processedPresensi[$key]['jam_masuk'])) {
+                        $processedPresensi[$key]['jam_masuk'] = $record->jam_in;
+                    }
+                } elseif ($time >= $afternoon_start) {
+                    if (is_null($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
+                        $processedPresensi[$key]['jam_pulang'] = $record->jam_in;
+                    }
+                }
+            }
+        }
+
+        // Convert the processed data to a collection for the view
+        $presensi = collect($processedPresensi);
 
         return view("presensi.getpresensi", compact('presensi'));
     }
-
 
     public function tampilkanpeta(Request $request)
     {

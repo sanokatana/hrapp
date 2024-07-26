@@ -280,7 +280,7 @@ use App\Helpers\DateHelper;
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="/approval/approveizinhrd" method="POST">
+                <form id="approvalForm" action="/approval/approveizinhrd" method="POST">
                     @csrf
                     <input type="hidden" id="id_izin_form" name="id_izin_form">
                     <div class="row">
@@ -309,20 +309,20 @@ use App\Helpers\DateHelper;
                                 </select>
                             </div>
                             <div class="form-group" id="keputusanContainer" style="display: none;">
-                                <input placeholder="Keputusan" class="form-control" type="text"  id="keputusan" name="keputusan"/>
+                                <input placeholder="Keputusan" class="form-control" type="text" id="keputusan_text" />
                             </div>
                         </div>
                     </div>
                     <div class="row mt-3">
                         <div class="col-12">
                             <div class="form-group" id="jadwalContainer" style="display: none;">
-                                <input placeholder="Jadwal Off Yang Akan Di Ambil" class="form-control" type="text" onfocus="(this.type='date')" onblur="(this.type='text')" id="tgl_jadwal_off" name="tgl_jadwal_off"/>
+                                <input placeholder="Jadwal Off Yang Akan Di Ambil" class="form-control" type="text" onfocus="(this.type='date')" onblur="(this.type='text')" id="tgl_jadwal_off" name="tgl_jadwal_off" />
                             </div>
                             <div class="form-group" id="potongContainer" style="display: none;">
-                                <input placeholder="Berapa Hari Potong Cuti" class="form-control" type="number" id="potongcuti" name="potongcuti"/>
+                                <input placeholder="Berapa Hari Potong Cuti" class="form-control" type="number" id="potongcuti" name="potongcuti" />
                             </div>
                             <div class="form-group" id="lainContainer" style="display: none;">
-                                <input placeholder="Penjelasan" class="form-control" type="number" id="lainlain" name="lainlain"/>
+                                <input placeholder="Penjelasan" class="form-control" type="text" id="lainlain" name="lainlain" />
                             </div>
                         </div>
                     </div>
@@ -385,7 +385,7 @@ use App\Helpers\DateHelper;
                     $('#jadwalContainer').hide();
                     $('#potongContainer').hide();
                     $('#lainContainer').show();
-                }else {
+                } else {
                     $('#jadwalContainer').hide();
                     $('#potongContainer').hide();
                     $('#lainContainer').hide();
@@ -393,14 +393,11 @@ use App\Helpers\DateHelper;
             });
         });
 
-
         $("[id='status_approved_hrd']").change(function() {
             var selectedStatus = $(this).val();
             if (selectedStatus === "2") {
                 $("#keputusanContainer").show();
                 $("#keputusan").hide();
-                $("#jadwalContainer").hide();
-                $('#lainContainer').hide();
             } else {
                 $("#keputusanContainer").hide();
                 $("#keputusan").show();
@@ -413,7 +410,6 @@ use App\Helpers\DateHelper;
             $('#modal-document img').attr('src', photoUrl);
             $('#modal-document').modal("show");
         });
-
 
         $(document).on('click', '.btnNoDoc', function(e) {
             e.preventDefault();
@@ -440,7 +436,15 @@ use App\Helpers\DateHelper;
         // Submit button click event
         document.getElementById('submitBtn').addEventListener('click', function(e) {
             e.preventDefault(); // Prevent default form submission
+
+            var selectedStatus = $('#status_approved_hrd').val();
+            if (selectedStatus === '2') {
+                // If status is "Ditolak", use the value from keputusan_text
+                $('#keputusan').val($('#keputusan_text').val());
+            }
+
             $('#modal-izinapproval').modal("hide");
+
             // Show confirmation dialog
             Swal.fire({
                 title: 'Apakah Yakin ?',
@@ -453,7 +457,7 @@ use App\Helpers\DateHelper;
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Submit the form when confirmed
-                    $('#modal-izinapproval form').submit();
+                    $('#approvalForm').submit();
                 } else {
                     $('#modal-izinapproval').modal("show");
                 }

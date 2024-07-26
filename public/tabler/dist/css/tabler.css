@@ -26793,6 +26793,16 @@ a.step-item:hover {
     color: black !important;
 }
 
+.sakit {
+    background-color: var(--tblr-green) !important;
+    color: white !important;
+}
+
+.tukar_off {
+    background-color: red !important;
+    color: white !important;
+}
+
 .dark-yellow {
     background-color: #FFD700 !important;
     /* Dark yellow color */

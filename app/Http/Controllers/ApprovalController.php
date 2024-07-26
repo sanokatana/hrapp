@@ -24,7 +24,7 @@ class ApprovalController extends Controller
             ->where('pengajuan_izin.status', '!=', 'Cuti');
 
         if (!empty($request->dari) && !empty($request->sampai)) {
-            $query->whereBetween('tgl_izin', [$request->dari, $request->sampai]);
+            $query->whereBetween('tgl_create', [$request->dari, $request->sampai]);
         }
 
         if (!empty($request->nik)) {
@@ -158,7 +158,7 @@ class ApprovalController extends Controller
     {
         $update = DB::table('pengajuan_izin')
             ->where('id', $id)
-            ->update(['status_approved_hrd' => 0]);
+            ->update(['status_approved_hrd' => 0,'keputusan' => null,]);
 
         if ($update) {
             return response()->json(['success' => true, 'message' => 'Approval has been cancelled.']);

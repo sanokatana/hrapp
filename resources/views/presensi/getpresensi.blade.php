@@ -2,28 +2,38 @@
 @php
 // Standard office start time
 $startTime = strtotime('08:00:00');
-$jamInTime = strtotime($d->jam_masuk);
+$jamInTime = $d['jam_masuk'] !== null ? strtotime($d['jam_masuk']) : null;
+
 // Calculate delay in hours and minutes
 $delayHours = 0;
 $delayMinutes = 0;
-if ($jamInTime > $startTime) {
+if ($jamInTime !== null && $jamInTime > $startTime) {
 $delayInSeconds = $jamInTime - $startTime;
 $delayHours = floor($delayInSeconds / 3600);
 $delayMinutes = floor(($delayInSeconds % 3600) / 60);
 }
 @endphp
-<tr style="text-align: center; ">
+<tr style="text-align: center;">
     <td style="vertical-align: middle;">{{ $loop->iteration }}</td>
-    <td style="vertical-align: middle;">{{ $d->nip }}</td>
-    <td style="vertical-align: middle;">{{ $d->nama_lengkap }}</td>
-    <td style="vertical-align: middle;">{{ $d->nama_dept }}</td>
-    <td style="vertical-align: middle;">{{ $d->tanggal }}</td>
-    <td style="vertical-align: middle;">{{ $d->jam_masuk }}</td>
+    <td style="vertical-align: middle;">{{ $d['nip'] }}</td>
+    <td style="vertical-align: middle;">{{ $d['nama_lengkap'] }}</td>
+    <td style="vertical-align: middle;">{{ $d['nama_dept'] }}</td>
+    <td style="vertical-align: middle;">{{ $d['tanggal'] }}</td>
     <td style="vertical-align: middle;">
-        {!! $d->jam_pulang != null ? $d->jam_pulang : '<span class="badge bg-danger" style="color: white;">Belum Absen</span>' !!}
+        {!! $d['jam_masuk'] !== null ? $d['jam_masuk'] : '<span class="badge bg-danger" style="color: white;">No Data</span>' !!}
     </td>
     <td style="vertical-align: middle;">
-        @if ($jamInTime > $startTime)
+        {!! $d['jam_pulang'] !== null ? $d['jam_pulang'] : '<span class="badge bg-danger" style="color: white;">No Data</span>' !!}
+    </td>
+    <td style="vertical-align: middle;">
+        @if ($d['jam_masuk'] === null)
+        <div class="row">
+            <span class="badge bg-danger text-yellow-fg" style="color: white;">No Data</span>
+            <span class="badge bg-danger-lt" style="color: white;">
+                0
+            </span>
+        </div>
+        @elseif ($jamInTime > $startTime)
         <div class="row">
             <span class="badge bg-yellow text-yellow-fg" style="color: white;">Terlambat</span>
             <span class="badge bg-yellow-lt" style="color: white;">
