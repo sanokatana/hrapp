@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class AttendanceController extends Controller
@@ -420,7 +421,7 @@ class AttendanceController extends Controller
         $nip = $request->nip;
 
         $query = DB::table('presensi')
-            ->selectRaw('DATE(tgl_presensi) as tanggal, presensi.nip, nama_lengkap, nama_dept, jam_in')
+            ->selectRaw('DATE(tgl_presensi) as tanggal, presensi.nip, presensi.nik, nama_lengkap, nama_dept, jam_in')
             ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
             ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
 
@@ -435,15 +436,22 @@ class AttendanceController extends Controller
         $query->orderBy('tgl_presensi', 'desc');
         $presensi = $query->get();
 
+        // Fetch approved izin data for the relevant dates and NIPs
+        $izin = DB::table('pengajuan_izin')
+            ->select('nik', 'tgl_izin', 'tgl_izin_akhir', 'status', 'keputusan', 'pukul')
+            ->where('status_approved', 1)
+            ->where('status_approved_hrd', 1)
+            ->get();
+
         // Process records to find min and max jam_in
         $processedPresensi = [];
         foreach ($presensi as $record) {
             $tanggal = $record->tanggal;
             $nip = $record->nip;
+            $nik = $record->nik; // Get the nik from the record
             $time = strtotime($record->jam_in);
             $morning_start = strtotime('06:00:00');
             $afternoon_start = strtotime('13:00:00');
-            $next_day_morning_end = strtotime('06:00:00') + 24 * 60 * 60;
 
             // If the time is before 6 AM, it should be considered as the previous day's jam_pulang
             if ($time < $morning_start) {
@@ -486,6 +494,28 @@ class AttendanceController extends Controller
                     if (is_null($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
                         $processedPresensi[$key]['jam_pulang'] = $record->jam_in;
                     }
+                }
+            }
+
+            // Apply the izin logic using nik
+            $isIzin = $this->checkIzin($izin, $nik, Carbon::parse($tanggal));
+            if ($isIzin) {
+                $status = $isIzin->status;
+                $keputusan = $isIzin->keputusan;
+                if ($status == 'Dt' && $keputusan == 'Terlambat') {
+                    $processedPresensi[$key]['jam_masuk'] = '08:00:00';
+                }
+
+                if ($status == 'Pa' && $keputusan == 'Pulang Awal') {
+                    $processedPresensi[$key]['jam_pulang'] = '17:00:00';
+                }
+
+                if ($status == 'Tam' && !$processedPresensi[$key]['jam_masuk']) {
+                    $processedPresensi[$key]['jam_masuk'] = '08:00:00';
+                }
+
+                if ($status == 'Tap' && !$processedPresensi[$key]['jam_pulang']) {
+                    $processedPresensi[$key]['jam_pulang'] = '17:00:00';
                 }
             }
         }
