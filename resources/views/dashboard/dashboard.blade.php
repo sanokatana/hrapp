@@ -256,53 +256,48 @@ use App\Helpers\DateHelper;
         </div>
         <div class="tab-content mt-2" style="margin-bottom:100px;">
             <div class="tab-pane fade show active" id="home" role="tabpanel">
-                @foreach ($historibulanini as $d)
+                @foreach ($processedHistoribulanini as $d)
                 <ul class="listview image-listview rounded-custom">
-                    @php
-                    $path = $d->foto_in ? Storage::url('uploads/absensi/'.$d->foto_in) : null;
-                    // Extract hours and minutes from the jam_masuk time
-                    $jam_masuk_time = strtotime($d->jam_masuk);
-                    $hours_diff = floor(($jam_masuk_time - strtotime("08:00")) / 3600);
-                    $minutes_diff = floor((($jam_masuk_time - strtotime("08:00")) % 3600) / 60);
+                @php
+                $jam_masuk_time = strtotime($d->jam_masuk);
+                $threshold_time = strtotime("08:00:00");
+                $lateness_threshold = strtotime("08:01:00"); // Lateness threshold at 08:00:30
 
-                    // Calculate lateness
-                    if ($hours_diff > 0) {
-                        $lateness = $hours_diff . " Jam " . $minutes_diff . " Menit";
-                    } elseif ($minutes_diff > 0) {
-                        $lateness = $minutes_diff . " Menit";
-                    } else {
-                        $lateness = "On Time";
-                    }
+                // Calculate lateness
+                if ($jam_masuk_time <= $lateness_threshold) {
+                    $lateness = "Tepat Waktu";
+                } else {
+                    $hours_diff = floor(($jam_masuk_time - $threshold_time) / 3600);
+                    $minutes_diff = floor((($jam_masuk_time - $threshold_time) % 3600) / 60);
+                    $lateness = ($hours_diff > 0 ? $hours_diff . " Jam " : "") . ($minutes_diff > 0 ? $minutes_diff . " Menit" : "");
+                }
 
-                    // Determine status based on lateness
-                    $status = ($lateness != "On Time") ? "Terlambat" : "On Time";
-                    @endphp
+                // Determine status based on lateness
+                $status = ($lateness == "Tepat Waktu") ? "On Time" : "Terlambat";
+            @endphp
+
                     <li>
                         <div class="item">
-                            @if ($path)
-                            <img src="{{ url($path) }}" alt="" class="imaged w48 circular-image">
-                            @else
                             <div class="icon-box bg-info">
                                 <ion-icon name="finger-print-outline"></ion-icon>
                             </div>
-                            @endif
 
                             <div class="in">
                                 <div class="jam-row">
                                     <div><b>{{ DateHelper::formatIndonesianDate($d->tanggal) }}</b></div>
                                     <div class="status {{ $status == 'Terlambat' ? 'text-danger' : 'text-success' }}">
-                                        {{ $status }}
+                                        <b>{{ $status }}</b>
                                     </div>
-                                    <div class="lateness {{ $status == 'Terlambat' ? 'text-warning' : 'text-success' }}">
+                                    <div class="lateness {{ $status == 'Terlambat' ? 'text-warning' : 'text-info' }}">
                                         ({{ $lateness }})
                                     </div>
                                 </div>
                                 <div class="jam-row">
-                                    <div class="jam-in mb-1">
-                                        <span class="badge badge-success">{{ $d->jam_masuk }}</span>
+                                <div class="jam-in mb-1">
+                                        <span class="badge badge-success" style="width: 70px;">{{ $d->jam_masuk }}</span>
                                     </div>
                                     <div class="jam-out">
-                                        <span class="badge badge-danger">{{ $d->jam_pulang != null ? $d->jam_pulang : "No Scan" }}</span>
+                                        <span class="badge badge-danger" style="width: 70px;">{{ $d->jam_pulang != null ? $d->jam_pulang : "No Scan" }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -310,6 +305,7 @@ use App\Helpers\DateHelper;
                     </li>
                 </ul>
                 @endforeach
+
             </div>
 
             <div class="tab-pane fade" id="formView" role="tabpanel">
@@ -415,6 +411,8 @@ use App\Helpers\DateHelper;
 </div>
 @endsection
 @push('myscript')
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const listMenuWrapper = document.querySelector('.list-menu-wrapper');

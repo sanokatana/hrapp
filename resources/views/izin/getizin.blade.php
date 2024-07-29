@@ -1,7 +1,12 @@
 @if ($historiizin->isEmpty())
-<div id="alert-div" class="alert alert-warning">
-    <p style="text-align: center; height: 10px">Data Belum Ada</p>
-</div>
+<script>
+    Swal.fire({
+        title: 'Gagal!',
+        text: "Tidak Ada Data",
+        icon: 'error',
+        confirmButtonText: 'Ok'
+    });
+</script>
 @endif
 @php
 use App\Helpers\DateHelper;
@@ -23,7 +28,7 @@ $izinFormattedDateAkhir = DateHelper::formatIndonesianDate($d->tgl_izin_akhir);
                     <b>{{ $izinFormattedDateAkhir }}</b><br>
                     @endif
                     <b style="color: red;">{{ DateHelper::getStatusText($d->status) }}</b><br>
-                    <b class="text-info">{{ $d->keterangan }}</b>
+                    Note -<b class="text-info">{{ $d->keterangan }}</b>
                 </div>
                 <div class="status-row" style="text-align: right">
                     <div class="mb-1">

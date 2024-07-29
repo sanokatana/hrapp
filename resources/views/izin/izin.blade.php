@@ -109,14 +109,6 @@
             <ion-icon name="document-outline" role="img" class="md hydrated" aria-label="image outline"></ion-icon>
             <p style="margin-bottom: 0px;">Pengajuan Absen</p>
         </a>
-        <!-- <a href="/presensi/buatcuti" class="dropdown-item bg-primary">
-            <ion-icon name="document-outline" role="img" class="md hydrated" aria-label="image outline"></ion-icon>
-            <p style="margin-bottom: 0px;">Pengajuan Cuti</p>
-        </a>
-        <a href="/presensi/buatcutikhusus" class="dropdown-item bg-primary">
-            <ion-icon name="document-outline" role="img" class="md hydrated" aria-label="image outline"></ion-icon>
-            <p style="margin-bottom: 0px;">Cuti Khusus</p>
-        </a> -->
         <a href="/presensi/cuti" class="dropdown-item bg-primary">
             <ion-icon name="document-outline" role="img" class="md hydrated" aria-label="image outline"></ion-icon>
             <p style="margin-bottom: 0px;">Pengajuan Cuti</p>
@@ -125,6 +117,8 @@
 </div>
 @endsection
 @push('myscript')
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
 <script>
     $(function() {
         var isDragging = false;
@@ -168,7 +162,7 @@
                         $("#showIzin").html(respond);
                     }
                 });
-            }else if (tipe == "Cuti"){
+            } else if (tipe == "Cuti") {
                 $.ajax({
                     type: 'POST',
                     url: '/presensi/getizincuti',
@@ -182,7 +176,7 @@
                         $("#showIzin").html(respond);
                     }
                 });
-            }else{
+            } else {
                 Swal.fire({
                     title: 'Gagal!',
                     text: "Mohon Pilih Tipe",
@@ -190,9 +184,7 @@
                     confirmButtonText: 'Ok'
                 });
             }
-
         });
     });
 </script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 @endpush

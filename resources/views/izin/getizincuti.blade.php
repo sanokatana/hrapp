@@ -31,7 +31,7 @@ $izinFormattedDateAkhir = DateHelper::formatIndonesianDate($d->tgl_cuti_sampai);
                     @if ($d->tipe_cuti)
                     <b>{{ $d->tipe_cuti }}</b><br>
                     @endif
-                    <b class="text-info">{{ $d->note }}</b>
+                    <b class="text-info">Note -{{ $d->note }}</b>
                 </div>
 
                 <div class="status-row" style="text-align: right">

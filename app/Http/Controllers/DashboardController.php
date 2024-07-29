@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -33,16 +34,25 @@ class DashboardController extends Controller
             ->where('tgl_presensi', $hariini)
             ->first();
 
+        // Fetch approved izin data for the current month
+        $izin = DB::table('pengajuan_izin')
+            ->select('nik', 'tgl_izin', 'tgl_izin_akhir', 'status', 'keputusan', 'pukul')
+            ->where('status_approved', 1)
+            ->where('status_approved_hrd', 1)
+            ->whereRaw('MONTH(tgl_izin) = ?', [$bulanini])
+            ->whereRaw('YEAR(tgl_izin) = ?', [$tahunini])
+            ->get();
+
         $historibulanini = DB::table(DB::raw("(SELECT
-            DATE(tgl_presensi) as tanggal,
-            MIN(jam_in) as jam_masuk,
-            MAX(jam_in) as jam_pulang,
-            nik
-            FROM presensi
-            WHERE nik = ?
-                AND MONTH(tgl_presensi) = ?
-                AND YEAR(tgl_presensi) = ?
-            GROUP BY DATE(tgl_presensi), nik) as sub"))
+        DATE(tgl_presensi) as tanggal,
+        MIN(jam_in) as jam_masuk,
+        MAX(jam_in) as jam_pulang,
+        nik
+        FROM presensi
+        WHERE nik = ?
+            AND MONTH(tgl_presensi) = ?
+            AND YEAR(tgl_presensi) = ?
+        GROUP BY DATE(tgl_presensi), nik) as sub"))
             ->leftJoin('presensi as p', function ($join) {
                 $join->on('sub.tanggal', '=', DB::raw('DATE(p.tgl_presensi)'))
                     ->on('sub.nik', '=', 'p.nik')
@@ -54,21 +64,66 @@ class DashboardController extends Controller
             ->setBindings([$nik, $bulanini, $tahunini])
             ->get();
 
+        // Process the presensi data to adjust for izin
+        $processedHistoribulanini = $historibulanini->map(function ($item) use ($izin, $nik) {
+            $date = Carbon::parse($item->tanggal);
+            $isIzin = $this->checkIzin($izin, $nik, $date);
 
-            $rekappresensi = DB::table(DB::raw("(SELECT
-            DATE(tgl_presensi) as tanggal,
-            MIN(jam_in) as min_jam_in
-        FROM presensi
-        WHERE nik = ?
-          AND MONTH(tgl_presensi) = ?
-          AND YEAR(tgl_presensi) = ?
-        GROUP BY DATE(tgl_presensi)) as sub"))
-        ->selectRaw('COUNT(tanggal) as jmlhadir')
-        ->selectRaw('SUM(CASE WHEN TIME(min_jam_in) > "08:00:00" THEN 1 ELSE 0 END) as jmlterlambat')
-        ->setBindings([$nik, $bulanini, $tahunini])
-        ->first();
+            $morning_start = strtotime('06:00:00');
+            $afternoon_start = strtotime('13:00:00');
+            $jam_masuk_time = strtotime($item->jam_masuk);
+            $jam_pulang_time = strtotime($item->jam_pulang);
 
+            if ($jam_masuk_time < $morning_start) {
+                $prev_date = Carbon::parse($item->tanggal)->subDay()->toDateString();
+                $item->tanggal = $prev_date; // Adjust the date for early in time
+            }
 
+            if ($jam_pulang_time > strtotime('18:00:00')) {
+                $item->jam_pulang = '18:00:00'; // Cap the jam_pulang if it's after 6 PM
+            } elseif ($jam_pulang_time < $afternoon_start) {
+                $item->jam_pulang = null; // If jam_pulang is before 1 PM, it should be null
+            }
+
+            if ($isIzin) {
+                $status = $isIzin->status;
+                $keputusan = $isIzin->keputusan;
+
+                if ($status == 'Dt' && $keputusan == 'Terlambat') {
+                    $item->jam_masuk = '08:00:00';
+                }
+
+                if ($status == 'Pa' && $keputusan == 'Pulang Awal') {
+                    $item->jam_pulang = '17:00:00';
+                }
+
+                if ($status == 'Tam' && !$item->jam_masuk) {
+                    $item->jam_masuk = '08:00:00';
+                }
+
+                if ($status == 'Tap' && !$item->jam_pulang) {
+                    $item->jam_pulang = '17:00:00';
+                }
+            }
+
+            return $item;
+        });
+
+        // Calculate lateness based on adjusted jam_masuk times
+        $rekappresensi = $processedHistoribulanini->reduce(function ($carry, $item) {
+            $lateness_threshold = strtotime('08:01:00');
+            $jam_masuk_time = strtotime($item->jam_masuk);
+
+            // Increment total days and lateness count based on adjusted jam_masuk
+            $carry['jmlhadir'] += 1;
+            if ($jam_masuk_time > $lateness_threshold) {
+                $carry['jmlterlambat'] += 1;
+            }
+
+            return $carry;
+        }, ['jmlhadir' => 0, 'jmlterlambat' => 0]);
+
+        $rekappresensi = (object) $rekappresensi;
 
         $historiizin = DB::table('pengajuan_izin')
             ->whereRaw('MONTH(tgl_izin)="' . $bulanini . '"')
@@ -101,8 +156,23 @@ class DashboardController extends Controller
             ->first();
 
         $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        return view('dashboard.dashboard', compact('presensihariini', 'historibulanini', 'namabulan', 'bulanini', 'tahunini', 'namaUser', 'rekappresensi', 'historiizin', 'historicuti', 'rekapizin', 'rekapcuti'));
+        return view('dashboard.dashboard', compact('presensihariini', 'processedHistoribulanini', 'namabulan', 'bulanini', 'tahunini', 'namaUser', 'rekappresensi', 'historiizin', 'historicuti', 'rekapizin', 'rekapcuti'));
     }
+
+
+    private function checkIzin($izin, $nik, $date)
+    {
+        foreach ($izin as $i) {
+            $start = Carbon::parse($i->tgl_izin);
+            $end = Carbon::parse($i->tgl_izin_akhir);
+
+            if ($i->nik == $nik && $date->between($start, $end)) {
+                return $i; // Return the full object, not just true
+            }
+        }
+        return null; // Return null if no match is found
+    }
+
 
 
     public function dashboardadmin()

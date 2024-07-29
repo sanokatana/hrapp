@@ -10,6 +10,18 @@
     <div class="pageTitle">Histori Presensi</div>
     <div class="right"></div>
 </div>
+<style>
+    .rounded-custom {
+        border-radius: 15px;
+        /* Customize the radius as needed */
+    }
+
+    .scrollable-container {
+        max-height: 60vh;
+        /* Adjust the max-height as needed */
+        overflow-y: auto;
+    }
+</style>
 <!-- * App Header -->
 @endsection
 @section('content')
@@ -65,7 +77,7 @@
             var bulan = $("#bulan").val();
             var tahun = $("#tahun").val();
             $.ajax({
-                type: 'POST',
+                type: 'GET',
                 url: '/gethistori',
                 data: {
                     _token: "{{ csrf_token() }}",

@@ -55,7 +55,7 @@ Route::middleware(['auth:karyawan'])->group(function(){
 
     //Histori
     Route::get('/presensi/histori', [PresensiController::class, 'histori']);
-    Route::post('/gethistori', [PresensiController::class,'gethistori']);
+    Route::get('/gethistori', [PresensiController::class,'gethistori']);
 
     //Izin
     Route::get('/presensi/izin', [PresensiController::class,'izin']);
@@ -73,6 +73,8 @@ Route::middleware(['auth:karyawan'])->group(function(){
     //Cuti Khusus
     Route::get('/presensi/buatcutikhusus', [PengajuanCutiController::class,'buatcutikhusus']);
     Route::post('/presensi/storecutikhusus', [PengajuanCutiController::class, 'storecutikhusus'])->name('storecutikhusus');
+
+    Route::get('/notifikasi', [PresensiController::class,'notifikasi']);
 
 });
 
@@ -181,8 +183,9 @@ Route::middleware(['auth:user'])->group(function (){
     //Attendance
     Route::get('/attendance/table',[AttendanceController::class,'index']);
     Route::post('/attendance/uploadAtt', [AttendanceController::class, 'uploadAtt']);
-    Route::get('/attendance/daymonitoring',[AttendanceController::class,'daymonitoring']);
     Route::get('/attendance/att_monitoring', [AttendanceController::class,'att_monitoring']);
     Route::get('/attendance/get_att', [AttendanceController::class,'get_att']);
+    Route::get('/attendance/daymonitor', [AttendanceController::class,'daymonitor']);
+    Route::get('/attendance/showdaymonitor', [AttendanceController::class,'showdaymonitor']);
 
 });
