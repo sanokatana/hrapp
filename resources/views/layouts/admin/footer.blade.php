@@ -5,7 +5,7 @@
                 <ul class="list-inline list-inline-dots mb-0">
                     <li class="list-inline-item">
                         Copyright &copy; 2024
-                        <a href="." class="link-secondary">Cipta Harmoni Lestari</a>.
+                        <a href="https://www.ciptaharmoni.com/" class="link-secondary" target="_blank">Cipta Harmoni Lestari</a>.
                         All rights reserved.
                     </li>
                 </ul>

@@ -182,49 +182,72 @@ class DashboardController extends Controller
         $tahunini = date("Y");
 
         $rekappresensi = DB::table('presensi')
-            ->selectRaw('COUNT(nik) as jmlhadir, SUM(IF(jam_in > "08:00:00",1,0)) as jmlterlambat')
-            ->where('tgl_presensi', $hariini)
+            ->selectRaw('COUNT(presensi.nip) as jmlhadir, SUM(IF(presensi.jam_in > "08:00:00",1,0)) as jmlterlambat')
+            ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
+            ->where('presensi.tgl_presensi', $hariini)
             ->first();
 
         $rekapizin = DB::table('pengajuan_izin')
-            ->selectRaw('SUM(IF(status="i",1,0)) as jmlizin, SUM(IF(status="s",1,0)) as jmlsakit')
-            ->where('tgl_izin', $hariini)
+            ->selectRaw('COUNT(*) as jmlizin')
             ->where('status_approved', 1)
+            ->where('status_approved_hrd', 1)
+            ->where(function ($query) use ($hariini) {
+                $query->where('tgl_izin', '<=', $hariini)
+                    ->where('tgl_izin_akhir', '>=', $hariini);
+            })
+            ->first();
+
+        $rekapcuti = DB::table('pengajuan_cuti')
+            ->selectRaw('COUNT(*) as jmlcuti')
+            ->where('status_approved', 1)
+            ->where('status_approved_hrd', 1)
+            ->where(function ($query) use ($hariini) {
+                $query->where('tgl_cuti', '<=', $hariini)
+                    ->where('tgl_cuti_sampai', '>=', $hariini);
+            })
             ->first();
 
         $rekapkaryawan = DB::table('karyawan')
-            ->selectRaw('COUNT(nik) as jmlkar')
+            ->selectRaw('COUNT(karyawan.nip) as jmlkar')
             ->first();
 
+        $jmlnoatt = DB::table('karyawan')
+            ->leftJoin('presensi', function ($join) use ($hariini) {
+                $join->on('karyawan.nip', '=', 'presensi.nip')
+                    ->where('presensi.tgl_presensi', '=', $hariini);
+            })
+            ->whereNull('presensi.nip')
+            ->count();
+
         $historihari = DB::table('presensi')
-            ->join('karyawan', 'presensi.nik', '=', 'karyawan.nik')
-            ->whereDate('tgl_presensi', $hariini)
-            ->orderBy('tgl_presensi')
+            ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
+            ->whereDate('presensi.tgl_presensi', $hariini)
+            ->orderBy('presensi.tgl_presensi')
             ->select('presensi.*', 'karyawan.nama_lengkap')
             ->get();
 
         $leaderboardTelat = DB::table('presensi')
-            ->select('presensi.nik', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN jam_in > "08:00:00" THEN (HOUR(jam_in) * 60 + MINUTE(jam_in)) - (8 * 60) ELSE 0 END) as total_late_minutes'))
-            ->join('karyawan', 'presensi.nik', '=', 'karyawan.nik')
-            ->whereRaw('MONTH(tgl_presensi) = ?', [$bulanini])
-            ->whereRaw('YEAR(tgl_presensi) = ?', [$tahunini])
-            ->where('jam_in', '>', '08:00:00')
-            ->groupBy('presensi.nik', 'karyawan.nama_lengkap')
+            ->select('presensi.nip', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN presensi.jam_in > "08:00:00" THEN (HOUR(presensi.jam_in) * 60 + MINUTE(presensi.jam_in)) - (8 * 60) ELSE 0 END) as total_late_minutes'))
+            ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
+            ->whereRaw('MONTH(presensi.tgl_presensi) = ?', [$bulanini])
+            ->whereRaw('YEAR(presensi.tgl_presensi) = ?', [$tahunini])
+            ->where('presensi.jam_in', '>', '08:00:00')
+            ->groupBy('presensi.nip', 'karyawan.nama_lengkap')
             ->orderBy('total_late_minutes', 'desc')
             ->limit(10)
             ->get();
 
         $leaderboardOnTime = DB::table('presensi')
-            ->select('presensi.nik', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN jam_in < "08:00:00" THEN (8 * 60) - (HOUR(jam_in) * 60 + MINUTE(jam_in)) ELSE 0 END) as total_on_time'))
-            ->join('karyawan', 'presensi.nik', '=', 'karyawan.nik')
-            ->whereRaw('MONTH(tgl_presensi) = ?', [$bulanini])
-            ->whereRaw('YEAR(tgl_presensi) = ?', [$tahunini])
-            ->where('jam_in', '<', '08:00:00')
-            ->groupBy('presensi.nik', 'karyawan.nama_lengkap')
+            ->select('presensi.nip', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN presensi.jam_in < "08:00:00" THEN (8 * 60) - (HOUR(presensi.jam_in) * 60 + MINUTE(presensi.jam_in)) ELSE 0 END) as total_on_time'))
+            ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
+            ->whereRaw('MONTH(presensi.tgl_presensi) = ?', [$bulanini])
+            ->whereRaw('YEAR(presensi.tgl_presensi) = ?', [$tahunini])
+            ->where('presensi.jam_in', '<', '08:00:00')
+            ->groupBy('presensi.nip', 'karyawan.nama_lengkap')
             ->orderBy('total_on_time', 'desc')
             ->limit(10)
             ->get();
 
-        return view('dashboard.dashboardadmin', compact('rekapizin', 'rekappresensi', 'rekapkaryawan', 'historihari', 'leaderboardTelat', 'leaderboardOnTime'));
+        return view('dashboard.dashboardadmin', compact('rekapizin', 'rekapcuti', 'rekappresensi', 'rekapkaryawan', 'historihari', 'leaderboardTelat', 'leaderboardOnTime', 'jmlnoatt'));
     }
 }

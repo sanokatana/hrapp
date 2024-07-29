@@ -544,7 +544,7 @@ class AttendanceController extends Controller
             $query->whereDate('tgl_presensi', $tanggal);
         }
 
-        $query->orderBy('tgl_presensi', 'desc');
+        $query->orderBy('nama_dept', 'asc');
         $presensi = $query->get();
 
         // Fetch approved izin data for the relevant dates and NIPs
