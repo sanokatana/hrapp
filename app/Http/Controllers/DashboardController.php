@@ -79,8 +79,8 @@ class DashboardController extends Controller
                 $item->tanggal = $prev_date; // Adjust the date for early in time
             }
 
-            if ($jam_pulang_time > strtotime('18:00:00')) {
-                $item->jam_pulang = '18:00:00'; // Cap the jam_pulang if it's after 6 PM
+            if ($jam_pulang_time > strtotime('17:00:00')) {
+                $item->jam_pulang = '17:00:00'; // Cap the jam_pulang if it's after 6 PM
             } elseif ($jam_pulang_time < $afternoon_start) {
                 $item->jam_pulang = null; // If jam_pulang is before 1 PM, it should be null
             }

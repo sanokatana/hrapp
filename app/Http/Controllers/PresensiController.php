@@ -191,8 +191,8 @@ class PresensiController extends Controller
     public function gethistori(Request $request)
     {
         $hariini = date("Y-m-d");
-        $bulanini = $request -> bulan;
-        $tahunini = $request -> tahun;
+        $bulanini = $request->bulan;
+        $tahunini = $request->tahun;
         $nik = Auth::guard('karyawan')->user()->nik;
 
         // Join karyawan and jabatan tables to get nama_jabatan
@@ -490,6 +490,141 @@ class PresensiController extends Controller
 
     public function notifikasi(Request $request)
     {
-        return view('presensi.notif');
+        $nik = Auth::guard('karyawan')->user()->nik;
+        $bulanini = date("m");
+        $tahunini = date("Y");
+
+        // Get historical presensi data
+        $historibulanini = DB::table(DB::raw("(SELECT
+        DATE(tgl_presensi) as tanggal,
+        MIN(jam_in) as jam_masuk,
+        MAX(jam_in) as jam_pulang,
+        nik
+        FROM presensi
+        WHERE nik = ?
+            AND MONTH(tgl_presensi) = ?
+            AND YEAR(tgl_presensi) = ?
+        GROUP BY DATE(tgl_presensi), nik) as sub"))
+            ->leftJoin('presensi as p', function ($join) {
+                $join->on('sub.tanggal', '=', DB::raw('DATE(p.tgl_presensi)'))
+                    ->on('sub.nik', '=', 'p.nik')
+                    ->whereRaw('p.jam_in = sub.jam_masuk OR p.jam_in = sub.jam_pulang');
+            })
+            ->select('sub.tanggal', 'sub.jam_masuk', 'sub.jam_pulang', DB::raw('MAX(p.foto_in) as foto_in'), DB::raw('MAX(p.foto_out) as foto_out'))
+            ->groupBy('sub.tanggal', 'sub.jam_masuk', 'sub.jam_pulang')
+            ->orderBy('sub.tanggal', 'asc')
+            ->setBindings([$nik, $bulanini, $tahunini])
+            ->get();
+
+        // Fetch approved izin data for the current month
+        $izin = DB::table('pengajuan_izin')
+            ->select('nik', 'tgl_izin', 'tgl_izin_akhir', 'status', 'keputusan', 'pukul')
+            ->where('status_approved', 1)
+            ->where('status_approved_hrd', 1)
+            ->whereRaw('MONTH(tgl_izin) = ?', [$bulanini])
+            ->whereRaw('YEAR(tgl_izin) = ?', [$tahunini])
+            ->get();
+
+        // Initialize notifications array
+        $notifications = [];
+
+        // Generate all possible dates for the current month excluding weekends
+        $dates = collect();
+        $currentDate = Carbon::createFromFormat('Y-m-d', "{$tahunini}-{$bulanini}-01");
+        // $endDate = $currentDate->copy()->endOfMonth();
+        $endDate = Carbon::now();
+
+        while ($currentDate <= $endDate) {
+            $dayOfWeek = $currentDate->dayOfWeek;
+            if ($dayOfWeek != Carbon::SATURDAY && $dayOfWeek != Carbon::SUNDAY) {
+                $dates->push($currentDate->toDateString());
+            }
+            $currentDate->addDay();
+        }
+
+        // Process each date in the current month
+        foreach ($dates as $date) {
+            $hasPresensi = $historibulanini->contains('tanggal', $date);
+            $isIzin = $this->checkIzin($izin, $nik, Carbon::parse($date));
+
+            if (!$hasPresensi && !$isIzin) {
+                // No presensi and no izin for this date
+                $notifications[] = [
+                    'tanggal' => $date,
+                    'details' => [
+                        [
+                            'status' => 'Tidak Absen Masuk',
+                            'status_class' => 'text-warning',
+                            'jam_masuk' => 'No Data',
+                            'jam_pulang' => 'No Data'
+                        ]
+                    ]
+                ];
+            } else {
+                // Find presensi data for the date
+                $presensiData = $historibulanini->firstWhere('tanggal', $date);
+                $details = [];
+
+                if ($presensiData) {
+                    // Handle lateness, no scan out, and early leave
+                    $morning_start = strtotime('06:00:00');
+                    $afternoon_start = strtotime('13:00:00');
+                    $jam_masuk_time = strtotime($presensiData->jam_masuk);
+                    $jam_pulang_time = strtotime($presensiData->jam_pulang);
+
+                    if ($jam_masuk_time < $morning_start) {
+                        $prev_date = Carbon::parse($presensiData->tanggal)->subDay()->toDateString();
+                        $presensiData->tanggal = $prev_date; // Adjust the date for early in time
+                    }
+
+                    // No capping of jam_pulang; use the actual time
+                    if ($jam_pulang_time < $afternoon_start) {
+                        $presensiData->jam_pulang = null; // If jam_pulang is before 1 PM, it should be null
+                    }
+
+                    // Check for lateness (Terlambat)
+                    $lateness_threshold = strtotime("08:01:00");
+
+                    if ($jam_masuk_time >= $lateness_threshold && !$isIzin) {
+                        $details[] = [
+                            'status' => "Terlambat",
+                            'status_class' => "text-danger",
+                            'jam_masuk' => $presensiData->jam_masuk,
+                            'jam_pulang' => $presensiData->jam_pulang ? $presensiData->jam_pulang : "No Data"
+                        ];
+                    }
+
+                    // Check for No Scan Out (Tidak Absen Pulang)
+                    if (is_null($presensiData->jam_pulang) && !$isIzin) {
+                        $details[] = [
+                            'status' => 'Tidak Absen Pulang',
+                            'status_class' => 'text-warning',
+                            'jam_masuk' => $presensiData->jam_masuk ? $presensiData->jam_masuk : 'No Data',
+                            'jam_pulang' => 'No Data'
+                        ];
+                    }
+
+                    // Check for Leaving Early (Pulang Awal)
+                    $jam_pulang_time = strtotime($presensiData->jam_pulang);
+                    if ($presensiData->jam_pulang && $jam_pulang_time < strtotime('17:00:00') && !$isIzin) {
+                        $details[] = [
+                            'status' => 'Pulang Awal',
+                            'status_class' => 'text-warning',
+                            'jam_masuk' => $presensiData->jam_masuk ? $presensiData->jam_masuk : 'No Data',
+                            'jam_pulang' => $presensiData->jam_pulang
+                        ];
+                    }
+
+                    if (count($details) > 0) {
+                        $notifications[] = [
+                            'tanggal' => $presensiData->tanggal,
+                            'details' => $details
+                        ];
+                    }
+                }
+            }
+        }
+
+        return view('presensi.notif', ['notif' => $notifications]);
     }
 }

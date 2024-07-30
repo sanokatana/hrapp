@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\CutiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,3 +18,10 @@ use Illuminate\Support\Facades\Artisan;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+Artisan::command('cuti:check', function () {
+    $cutiController = new CutiController();
+    $cutiController->cekCutiKaryawan();
+
+    $this->info('Cuti karyawan has been checked and updated.');
+})->purpose('Check and update cuti karyawan records');

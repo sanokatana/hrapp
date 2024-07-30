@@ -15,7 +15,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // Schedule the Closure-based command to run daily at 2 AM
+        $schedule->command('cuti:check')->dailyAt('06:00');
     }
 
     /**

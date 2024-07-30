@@ -1810,9 +1810,9 @@ a.badge-dark {
   min-height: auto;
 }
 
-.image-listview > li:after {
+/* .image-listview > li:after {
   left: 68px;
-}
+} */
 
 .image-listview > li .item {
   padding: 10px 16px;

@@ -12,7 +12,10 @@
 </div>
 <style>
     .rounded-custom {
-        border-radius: 15px;
+        border-radius: 10px;
+        border: 1px solid #092c9f;
+        margin-bottom: 4px;
+
         /* Customize the radius as needed */
     }
 

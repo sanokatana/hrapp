@@ -204,7 +204,7 @@ class AttendanceController extends Controller
                 } elseif ($keputusan == 'Mangkir') {
                     return 'M';
                 } elseif ($keputusan == 'Tugas Luar') {
-                    return 'TL';
+                    return 'D';
                 } elseif ($keputusan == 'Potong Cuti') {
                     return 'C';
                 } elseif ($keputusan == 'Tukar Jadwal Off') {
@@ -319,7 +319,7 @@ class AttendanceController extends Controller
                 case 'M':
                     $classes[] = 'mangkir';
                     break;
-                case 'TL':
+                case 'D':
                     $classes[] = 'tugas_luar';
                     break;
                 case 'OFF':
