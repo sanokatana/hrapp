@@ -3,7 +3,18 @@
 @php
 use App\Helpers\DateHelper;
 @endphp
-
+@if ($totalNotif > 1)
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        Swal.fire({
+            icon: 'info',
+            title: 'Anda ada notifikasi',
+            text: 'Anda memiliki {{ $totalNotif }} notifikasi',
+            confirmButtonText: 'OK'
+        });
+    });
+</script>
+@endif
 <style>
     .rounded-custom {
         border-radius: 10px;
@@ -66,6 +77,10 @@ use App\Helpers\DateHelper;
         <div id="user-info">
             <h2 id="user-name">{{ $namaUser->first_name }} {{ $namaUser->last_name }}</h2>
             <span id="user-role">{{ $namaUser->nama_jabatan }}</span>
+        </div>
+        <div class="avatar">
+        <span class="badge bg-danger" style="position:absolute; top:45px; right:29px; font-size:0.6rem; z-index:999">{{ $totalNotif }}</span>
+        <ion-icon name="notifications" style="height:64px; width:40px ; margin-left: 20px; margin-top: 5px ; color: white; vertical-align: middle;"></ion-icon>
         </div>
     </div>
 </div>

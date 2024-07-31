@@ -28,7 +28,7 @@ $izinFormattedDateAkhir = DateHelper::formatIndonesianDate($d->tgl_izin_akhir);
                     <b>{{ $izinFormattedDateAkhir }}</b><br>
                     @endif
                     <b style="color: red;">{{ DateHelper::getStatusText($d->status) }}</b><br>
-                    Note -<b class="text-info">{{ $d->keterangan }}</b>
+                    Note - <b class="text-info">{{ $d->keterangan }}</b>
                 </div>
                 <div class="status-row" style="text-align: right">
                     <div class="mb-1">

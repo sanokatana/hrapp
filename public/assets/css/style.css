@@ -1590,17 +1590,22 @@ a.badge-secondary {
 .badge-success,
 a.badge-success {
   background: #34c759 !important;
+  color: white;
+  font-weight: bold;
 }
 
 .badge-danger,
 a.badge-danger {
   background: #ec4433 !important;
+  color: white;
+  font-weight: bold;
 }
 
 .badge-warning,
 a.badge-warning {
   background: #fe9500 !important;
-  color: #fff;
+  color: white;
+  font-weight: bold;
 }
 
 .badge-info,
@@ -8054,8 +8059,9 @@ body.dark-mode-active .cart-item .cart-item-footer {
 }
 
 #user-info {
-  margin-left: 30px !important;
+  margin-left: 20px !important;
   line-height: 2px;
+  align-content: center;
 }
 #user-name {
   color: white;

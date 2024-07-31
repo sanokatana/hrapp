@@ -319,7 +319,18 @@ use App\Helpers\DateHelper;
                                 <input placeholder="Jadwal Off Yang Akan Di Ambil" class="form-control" type="text" onfocus="(this.type='date')" onblur="(this.type='text')" id="tgl_jadwal_off" name="tgl_jadwal_off" />
                             </div>
                             <div class="form-group" id="potongContainer" style="display: none;">
-                                <input placeholder="Berapa Hari Potong Cuti" class="form-control" type="number" id="potongcuti" name="potongcuti" />
+                            <select name="keputusan_potong" id="keputusan_potong" class="form-select">
+                                    <option value="">Tipe Potong Cuti</option>
+                                    <option value="Sakit">Sakit</option>
+                                    <option value="Potong Cuti">Potong Cuti</option>
+                                    <option value="Ijin">Ijin</option>
+                                    <option value="Lain-lain">Lain-lain</option>
+                                </select>
+                                <div class="form-group" id="potongContainer2" style="display: none;">
+                                <input placeholder="Tanggal Potong" class="form-control mt-3" type="text" onfocus="(this.type='date')" onblur="(this.type='text')" id="tgl_potong" name="tgl_potong" />
+                                <input placeholder="Tanggal Potong Sampai" class="form-control mt-3" type="text" onfocus="(this.type='date')" onblur="(this.type='text')" id="tgl_potong_sampai" name="tgl_potong_sampai" />
+                                <input placeholder="Berapa Hari Potong Cuti" class="form-control mt-3" type="number" id="potongcuti" name="potongcuti" />
+                                </div>
                             </div>
                             <div class="form-group" id="lainContainer" style="display: none;">
                                 <input placeholder="Penjelasan" class="form-control" type="text" id="lainlain" name="lainlain" />
@@ -389,6 +400,31 @@ use App\Helpers\DateHelper;
                     $('#jadwalContainer').hide();
                     $('#potongContainer').hide();
                     $('#lainContainer').hide();
+                }
+            });
+
+            $('#keputusan_potong').on('change', function() {
+                var selectedValue = $(this).val();
+
+                if (selectedValue === 'Potong Cuti') {
+                    $('#potongContainer2').hide();
+                } else {
+                    $('#potongContainer2').show();
+                }
+            });
+
+            // Calculate the number of days between tgl_potong and tgl_potong_sampai
+            $('#tgl_potong, #tgl_potong_sampai').on('change', function() {
+                var tgl_potong = $('#tgl_potong').val();
+                var tgl_potong_sampai = $('#tgl_potong_sampai').val();
+
+                if (tgl_potong && tgl_potong_sampai) {
+                    var startDate = new Date(tgl_potong);
+                    var endDate = new Date(tgl_potong_sampai);
+                    var timeDiff = endDate.getTime() - startDate.getTime();
+                    var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1; // +1 to include the end date
+
+                    $('#potongcuti').val(diffDays);
                 }
             });
         });
@@ -506,5 +542,6 @@ use App\Helpers\DateHelper;
         });
     });
 </script>
-
 @endpush
+
+

@@ -73,43 +73,83 @@ class ApprovalController extends Controller
         // Check if the selected option is "Potong Cuti"
         if ($keputusan === 'Potong Cuti') {
             $potongcuti = $request->potongcuti; // Retrieve number of cuti days to be deducted
+            $tgl_potong = $request->tgl_potong;
+            $tgl_potong_sampai = $request->tgl_potong_sampai;
+            $keputusan_potong = $request->keputusan_potong;
 
-            // Update pengajuan_izin table
-            $update = DB::table('pengajuan_izin')
+            if ($keputusan_potong !== 'Potong Cuti'){
+
+                $nik = DB::table('pengajuan_izin')->where('id', $id)->value('nik');
+                $jml_hari = DB::table('pengajuan_izin')->where('id', $id)->value('jml_hari');
+                $keterangan_cuti = DB::table('pengajuan_izin')->where('id', $id)->value('keterangan');
+                $tgl_sebelum = Carbon::parse($tgl_potong)->subDay();
+                DB::table('pengajuan_izin')
                 ->where('id', $id)
                 ->update([
+                    'tgl_izin_akhir' => $tgl_sebelum,
+                    'jml_hari' => $jml_hari - $potongcuti,
                     'status_approved_hrd' => $status_approved_hrd,
                     'tgl_status_approved_hrd' => $currentDate,
-                    'keputusan' => $keputusan,
+                    'keputusan' => $keputusan_potong,
                     'tgl_jadwal_off' => null, // Ensure tgl_jadwal_off is null for Potong Cuti case
                 ]);
-
-            if ($update) {
-                // Find the employee's nik
-                $nik = DB::table('pengajuan_izin')->where('id', $id)->value('nik');
-
-                // Find active cuti with status 1 (active) for the employee
-                $cuti = DB::table('cuti')
-                    ->where('nik', $nik)
-                    ->where('status', 1)
-                    ->first();
-
-                if ($cuti) {
-                    // Update sisa_cuti
-                    $sisa_cuti = $cuti->sisa_cuti - $potongcuti;
-
-                    // Update cuti table
-                    DB::table('cuti')
-                        ->where('id', $cuti->id)
-                        ->update(['sisa_cuti' => $sisa_cuti]);
-                } else {
-                    // Handle case where no active cuti record is found
-                    return redirect('/approval/izinapprovalhrd')->with(['error' => 'Data Gagal Di Update: Cuti record not found']);
-                }
-
+                DB::table('pengajuan_izin')
+                ->insert([
+                    'nik' => $nik,
+                    'tgl_izin' => $tgl_potong,
+                    'tgl_izin_akhir' => $tgl_potong_sampai,
+                    'jml_hari' => $potongcuti,
+                    'foto' => 'No Document',
+                    'tgl_create' => $currentDate,
+                    'status' => 'Tmk',
+                    'keterangan' => $keterangan_cuti,
+                    'keputusan' => 'Potong Cuti',
+                    'status_approved' => 0,
+                    'status_approved_hrd' =>0,
+                ]);
                 return redirect('/approval/izinapprovalhrd')->with(['success' => 'Data Berhasil Di Update']);
             } else {
-                return redirect('/approval/izinapprovalhrd')->with(['error' => 'Data Gagal Di Update']);
+                // Update pengajuan_izin table
+                $update = DB::table('pengajuan_izin')
+                    ->where('id', $id)
+                    ->update([
+                        'status_approved_hrd' => $status_approved_hrd,
+                        'tgl_status_approved_hrd' => $currentDate,
+                        'keputusan' => $keputusan_potong,
+                        'tgl_jadwal_off' => null, // Ensure tgl_jadwal_off is null for Potong Cuti case
+                    ]);
+
+                if ($update) {
+                    // Find the employee's nik
+
+                    if ($keputusan_potong === 'Potong Cuti'){
+                        $jml_hari = DB::table('pengajuan_izin')->where('id', $id)->value('jml_hari');
+                        $nik = DB::table('pengajuan_izin')->where('id', $id)->value('nik');
+
+                        // Find active cuti with status 1 (active) for the employee
+                        $cuti = DB::table('cuti')
+                            ->where('nik', $nik)
+                            ->where('status', 1)
+                            ->first();
+
+                        if ($cuti) {
+                            // Update sisa_cuti
+                            $sisa_cuti = $cuti->sisa_cuti - $jml_hari;
+
+                            // Update cuti table
+                            DB::table('cuti')
+                                ->where('id', $cuti->id)
+                                ->update(['sisa_cuti' => $sisa_cuti]);
+                        } else {
+                            // Handle case where no active cuti record is found
+                            return redirect('/approval/izinapprovalhrd')->with(['error' => 'Data Gagal Di Update: Cuti record not found']);
+                        }
+                    }
+
+                    return redirect('/approval/izinapprovalhrd')->with(['success' => 'Data Berhasil Di Update']);
+                } else {
+                    return redirect('/approval/izinapprovalhrd')->with(['error' => 'Data Gagal Di Update']);
+                }
             }
         } elseif ($keputusan === 'Lain-lain') {
             $lainlain = $request->lainlain; // Retrieve text for "Lain-lain" keputusan
@@ -156,16 +196,46 @@ class ApprovalController extends Controller
 
     public function batalapprovehrd($id)
     {
+        // Retrieve the jml_potong value from the pengajuan_izin record
+        $keputusan = DB::table('pengajuan_izin')->where('id', $id)->value('keputusan');
+        $jml_hari = DB::table('pengajuan_izin')->where('id', $id)->value('jml_hari');
+
+        // Find the employee's nik
+        $nik = DB::table('pengajuan_izin')->where('id', $id)->value('nik');
+
+        // Find active cuti with status 1 (active) for the employee
+        $cuti = DB::table('cuti')
+            ->where('nik', $nik)
+            ->where('status', 1)
+            ->first();
+
+        // Update pengajuan_izin table
         $update = DB::table('pengajuan_izin')
             ->where('id', $id)
-            ->update(['status_approved_hrd' => 0,'keputusan' => null,]);
+            ->update([
+                'status_approved_hrd' => 0,
+                'tgl_status_approved_hrd' => null,
+                'tgl_jadwal_off' => null,
+                'keputusan' => null,
+            ]);
 
         if ($update) {
+            if ($keputusan === 'Potong Cuti') {
+                // Update sisa_cuti by adding back the jml_potong value
+                $sisa_cuti = $cuti->sisa_cuti + $jml_hari;
+
+                // Update cuti table
+                DB::table('cuti')
+                    ->where('id', $cuti->id)
+                    ->update(['sisa_cuti' => $sisa_cuti]);
+            }
+
             return response()->json(['success' => true, 'message' => 'Approval has been cancelled.']);
         } else {
             return response()->json(['success' => false, 'message' => 'Data Gagal Di Update']);
         }
     }
+
 
     public function cutiapprovalhrd(Request $request)
     {

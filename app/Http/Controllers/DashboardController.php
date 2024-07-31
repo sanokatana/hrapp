@@ -64,6 +64,9 @@ class DashboardController extends Controller
             ->setBindings([$nik, $bulanini, $tahunini])
             ->get();
 
+        // Calculate total notifications
+        $totalNotif = $this->calculateNotifications($historibulanini, $izin, $bulanini, $tahunini, $nik);
+
         // Process the presensi data to adjust for izin
         $processedHistoribulanini = $historibulanini->map(function ($item) use ($izin, $nik) {
             $date = Carbon::parse($item->tanggal);
@@ -79,9 +82,7 @@ class DashboardController extends Controller
                 $item->tanggal = $prev_date; // Adjust the date for early in time
             }
 
-            if ($jam_pulang_time > strtotime('17:00:00')) {
-                $item->jam_pulang = '17:00:00'; // Cap the jam_pulang if it's after 6 PM
-            } elseif ($jam_pulang_time < $afternoon_start) {
+            if ($jam_pulang_time < $afternoon_start) {
                 $item->jam_pulang = null; // If jam_pulang is before 1 PM, it should be null
             }
 
@@ -156,21 +157,195 @@ class DashboardController extends Controller
             ->first();
 
         $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        return view('dashboard.dashboard', compact('presensihariini', 'processedHistoribulanini', 'namabulan', 'bulanini', 'tahunini', 'namaUser', 'rekappresensi', 'historiizin', 'historicuti', 'rekapizin', 'rekapcuti'));
+        return view('dashboard.dashboard', compact('presensihariini', 'processedHistoribulanini', 'namabulan', 'bulanini', 'tahunini', 'namaUser', 'rekappresensi', 'historiizin', 'historicuti', 'rekapizin', 'rekapcuti', 'totalNotif'));
+    }
+
+    private function calculateNotifications($historibulanini, $izin, $bulanini, $tahunini, $nik)
+    {
+        // Initialize notifications array
+        $notifications = [];
+
+        // Generate all possible dates for the current month excluding weekends
+        $dates = collect();
+        $currentDate = Carbon::createFromFormat('Y-m-d', "{$tahunini}-{$bulanini}-01");
+        $endDate = Carbon::now();
+
+        while ($currentDate <= $endDate) {
+            $dayOfWeek = $currentDate->dayOfWeek;
+            if ($dayOfWeek != Carbon::SATURDAY && $dayOfWeek != Carbon::SUNDAY) {
+                $dates->push($currentDate->toDateString());
+            }
+            $currentDate->addDay();
+        }
+
+        // Process each date in the current month
+        foreach ($dates as $date) {
+            $hasPresensi = $historibulanini->contains('tanggal', $date);
+            $isIzin = $this->checkIzin($izin, $nik, Carbon::parse($date));
+
+            $details = [];
+
+            if (!$hasPresensi && !$isIzin) {
+                // No presensi and no izin for this date
+                $notifications[] = [
+                    'tanggal' => $date,
+                    'details' => [
+                        [
+                            'status' => 'Tidak Masuk Kerja',
+                            'status_class' => 'text-warning',
+                            'jam_masuk' => 'No Data',
+                            'jam_pulang' => 'No Data'
+                        ]
+                    ]
+                ];
+            } else if ($hasPresensi) {
+                // Find presensi data for the date
+                $presensiData = $historibulanini->firstWhere('tanggal', $date);
+
+                $morning_start = strtotime('06:00:00');
+                $afternoon_start = strtotime('13:00:00');
+                $jam_masuk_time = strtotime($presensiData->jam_masuk);
+                $jam_pulang_time = strtotime($presensiData->jam_pulang);
+                $lateness_threshold = strtotime("08:01:00");
+
+                if ($jam_masuk_time < $morning_start) {
+                    $prev_date = Carbon::parse($presensiData->tanggal)->subDay()->toDateString();
+                    $presensiData->tanggal = $prev_date; // Adjust the date for early in time
+                }
+
+                if ($jam_pulang_time < $afternoon_start) {
+                    $presensiData->jam_pulang = null; // If jam_pulang is before 1 PM, it should be null
+                }
+
+                if ($isIzin) {
+                    $status = $isIzin->status;
+                    $keputusan = $isIzin->keputusan;
+
+                    if ($status == 'Dt' && $keputusan == 'Terlambat') {
+                        // Skip lateness notification if there's a valid Dt Terlambat izin
+                        continue;
+                    }
+
+                    if ($status == 'Pa' && $keputusan == 'Pulang Awal') {
+                        // Skip early leave notification if there's a valid Pa Pulang Awal izin
+                        continue;
+                    }
+
+                    if ($status == 'Tam' && is_null($presensiData->jam_masuk)) {
+                        // Skip no scan in notification if there's a valid Tam izin
+                        $details[] = [
+                            'status' => "Izin Tidak Absen Masuk",
+                            'status_class' => "text-info",
+                            'jam_masuk' => 'No Data',
+                            'jam_pulang' => $presensiData->jam_pulang ? $presensiData->jam_pulang : "No Data"
+                        ];
+                        continue;
+                    }
+
+                    if ($status == 'Tap' && is_null($presensiData->jam_pulang)) {
+                        // Skip no scan out notification if there's a valid Tap izin
+                        $details[] = [
+                            'status' => "Izin Tidak Absen Pulang",
+                            'status_class' => "text-info",
+                            'jam_masuk' => $presensiData->jam_masuk ? $presensiData->jam_masuk : 'No Data',
+                            'jam_pulang' => 'No Data'
+                        ];
+                        continue;
+                    }
+                } else {
+                    if ($jam_masuk_time >= $lateness_threshold) {
+                        $details[] = [
+                            'status' => "Terlambat",
+                            'status_class' => "text-danger",
+                            'jam_masuk' => $presensiData->jam_masuk,
+                            'jam_pulang' => $presensiData->jam_pulang ? $presensiData->jam_pulang : "No Data"
+                        ];
+                    }
+
+                    if (is_null($presensiData->jam_masuk)) {
+                        $details[] = [
+                            'status' => 'Tidak Absen Masuk',
+                            'status_class' => 'text-warning',
+                            'jam_masuk' => 'No Data',
+                            'jam_pulang' => $presensiData->jam_pulang
+                        ];
+                    }
+
+                    if (is_null($presensiData->jam_pulang)) {
+                        $details[] = [
+                            'status' => 'Tidak Absen Pulang',
+                            'status_class' => 'text-warning',
+                            'jam_masuk' => $presensiData->jam_masuk ? $presensiData->jam_masuk : 'No Data',
+                            'jam_pulang' => 'No Data'
+                        ];
+                    }
+
+                    if ($presensiData->jam_pulang && $jam_pulang_time < strtotime('17:00:00')) {
+                        $details[] = [
+                            'status' => 'Pulang Awal',
+                            'status_class' => 'text-warning',
+                            'jam_masuk' => $presensiData->jam_masuk ? $presensiData->jam_masuk : 'No Data',
+                            'jam_pulang' => $presensiData->jam_pulang
+                        ];
+                    }
+                }
+
+                if (count($details) > 0) {
+                    $notifications[] = [
+                        'tanggal' => $presensiData->tanggal,
+                        'details' => $details
+                    ];
+                }
+            } else if ($isIzin) {
+                // Handle cases where there is no presensi data but there is izin
+                $status = $isIzin->status;
+                $keputusan = $isIzin->keputusan;
+
+                if ($status == 'Tam') {
+                    // Tam izin with no presensi data
+                    $notifications[] = [
+                        'tanggal' => $date,
+                        'details' => [
+                            [
+                                'status' => 'Tidak Absen Pulang',
+                                'status_class' => 'text-warning',
+                                'jam_masuk' => 'No Data',
+                                'jam_pulang' => 'No Data'
+                            ]
+                        ]
+                    ];
+                } elseif ($status == 'Tap') {
+                    // Tap izin with no presensi data
+                    $notifications[] = [
+                        'tanggal' => $date,
+                        'details' => [
+                            [
+                                'status' => 'Tidak Absen Masuk',
+                                'status_class' => 'text-warning',
+                                'jam_masuk' => 'No Data',
+                                'jam_pulang' => 'No Data'
+                            ]
+                        ]
+                    ];
+                }
+            }
+        }
+
+        // Calculate the total notifications
+        $totalNotif = count($notifications);
+
+        return $totalNotif;
     }
 
 
     private function checkIzin($izin, $nik, $date)
     {
-        foreach ($izin as $i) {
-            $start = Carbon::parse($i->tgl_izin);
-            $end = Carbon::parse($i->tgl_izin_akhir);
-
-            if ($i->nik == $nik && $date->between($start, $end)) {
-                return $i; // Return the full object, not just true
+        foreach ($izin as $item) {
+            if ($item->nik == $nik && $date->between(Carbon::parse($item->tgl_izin), Carbon::parse($item->tgl_izin_akhir))) {
+                return $item;
             }
         }
-        return null; // Return null if no match is found
+        return false;
     }
 
 
