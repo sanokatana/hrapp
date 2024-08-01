@@ -3,7 +3,7 @@
 @php
 use App\Helpers\DateHelper;
 @endphp
-@if ($totalNotif > 1)
+@if ($totalNotif >= 1)
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         Swal.fire({

@@ -143,11 +143,12 @@ class DashboardController extends Controller
             ->get();
 
         $rekapizin = DB::table('pengajuan_izin')
-            ->selectRaw('SUM(IF(status != "s",1,0)) as jmlizin, SUM(IF(status="s",1,0)) as jmlsakit')
+            ->selectRaw('IFNULL(SUM(IF(status != "s", 1, 0)), 0) as jmlizin, IFNULL(SUM(IF(status="s", 1, 0)), 0) as jmlsakit')
             ->where('nik', $nik)
-            ->whereRaw('MONTH(tgl_izin)="' . $bulanini . '"')
-            ->whereRaw('YEAR(tgl_izin)="' . $tahunini . '"')
+            ->whereRaw('MONTH(tgl_izin) = ?', [$bulanini])
+            ->whereRaw('YEAR(tgl_izin) = ?', [$tahunini])
             ->first();
+
 
         $rekapcuti = DB::table('pengajuan_cuti')
             ->selectRaw('count(id) as jmlcuti')
