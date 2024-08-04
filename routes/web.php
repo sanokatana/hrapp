@@ -11,6 +11,7 @@ use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\KonfigurasiController;
 use App\Http\Controllers\PengajuanCutiController;
 use App\Http\Controllers\PresensiController;
+use App\Http\Controllers\TimeAttendanceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -187,5 +188,8 @@ Route::middleware(['auth:user'])->group(function (){
     Route::get('/attendance/get_att', [AttendanceController::class,'get_att']);
     Route::get('/attendance/daymonitor', [AttendanceController::class,'daymonitor']);
     Route::get('/attendance/showdaymonitor', [AttendanceController::class,'showdaymonitor']);
+
+    //Time Attendance
+    Route::get('/timeatt/table',[TimeAttendanceController::class,'index']);
 
 });

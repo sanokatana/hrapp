@@ -101,6 +101,13 @@ class AttendanceController extends Controller
             $totalJumlahTelat = 0;
             $totalP = 0;
             $totalT = 0;
+            $totalOff = 0;
+            $totalSakit = 0;
+            $totalIzin = 0;
+            $totalCuti = 0;
+            $totalDinas = 0;
+            $totalBlank = 0;
+            $totalMangkir = 0;
             $totalKaryawan = count($departmentKaryawan);
 
             foreach ($departmentKaryawan as $k) {
@@ -108,6 +115,13 @@ class AttendanceController extends Controller
                 $menitTelat = 0;
                 $totalHadir = 0;
                 $totalTidakHadir = 0;
+                $totalJumlahOff = 0;
+                $totalJumlahSakit = 0;
+                $totalJumlahIzin = 0;
+                $totalJumlahCuti = 0;
+                $totalJumlahDinas = 0;
+                $totalJumlahMangkir = 0;
+                $totalJumlahBlank = 0;
 
                 $row = [
                     'nama_lengkap' => $k->nama_lengkap,
@@ -141,6 +155,22 @@ class AttendanceController extends Controller
                         $totalHadir++;
                     } elseif ($status === 'T') {
                         $totalTidakHadir++;
+                    } elseif ($status === 'OFF') {
+                        $totalJumlahOff++;
+                    } elseif ($status === 'S') {
+                        $totalJumlahSakit++;
+                    } elseif ($status === 'I') {
+                        $totalJumlahIzin++;
+                    } elseif ($status === 'C') {
+                        $totalJumlahCuti++;
+                    } elseif ($status === 'D') {
+                        $totalJumlahDinas++;
+                    } elseif ($status === 'M') {
+                        $totalJumlahMangkir++;
+                    } else{
+                        if (!$date->isWeekend() && !$liburNasional->contains($dateString)) {
+                            $totalJumlahBlank++;
+                        }
                     }
 
                     $row['attendance'][] = [
@@ -154,10 +184,24 @@ class AttendanceController extends Controller
                 $row['presentase'] = round(($totalHadir / $daysInMonth) * 100, 2);
                 $row['totalP'] = $totalHadir;
                 $row['totalT'] = $totalTidakHadir;
+                $row['totalOff'] = $totalJumlahOff;
+                $row['totalSakit'] = $totalJumlahSakit;
+                $row['totalIzin'] = $totalJumlahIzin;
+                $row['totalCuti'] = $totalJumlahCuti;
+                $row['totalDinas'] = $totalJumlahDinas;
+                $row['totalBlank'] = $totalJumlahBlank;
+                $row['totalMangkir'] = $totalJumlahMangkir;
 
                 $totalJumlahTelat += $jumlahTelat;
                 $totalP += $totalHadir;
                 $totalT += $totalTidakHadir;
+                $totalOff += $totalJumlahOff;
+                $totalSakit += $totalJumlahSakit;
+                $totalIzin += $totalJumlahIzin;
+                $totalCuti += $totalJumlahCuti;
+                $totalDinas += $totalJumlahDinas;
+                $totalBlank += $totalJumlahBlank;
+                $totalMangkir += $totalJumlahMangkir;
 
                 $departmentAttendance[] = $row;
             }

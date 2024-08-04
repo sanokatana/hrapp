@@ -149,6 +149,17 @@
                                                 <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">Presentase</th>
                                                 <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">Menit Telat</th>
                                                 <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">P</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: black; background-color : yellow;">T</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : red;">OFF</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : green;">S</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">I</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : black;">C</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">D</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : pink;">H2</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : grey;">H1</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : grey;">Mangkir</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : grey;">Blank</th>
+
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -182,6 +193,16 @@
                                             @endif
                                             <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['menit_telat'] }}</td>
                                             <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalP'] }}</td>
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalT'] }}</td>
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalOff'] }}</td>
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalSakit'] }}</td>
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalIzin'] }}</td>
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalCuti'] }}</td>
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalDinas'] }}</td>
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalCuti'] }}</td>
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalCuti'] }}</td>
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalMangkir'] }}</td>
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalBlank'] }}</td>
                                         </tr>
                                         @endforeach
                                         @endforeach
