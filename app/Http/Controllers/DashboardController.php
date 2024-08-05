@@ -30,6 +30,16 @@ class DashboardController extends Controller
         $namaUser->first_name = $firstName;
         $namaUser->last_name = $lastName;
 
+        // Truncate nama_jabatan to the first two words
+        $jobTitleParts = explode(' ', $namaUser->nama_jabatan);
+        if (count($jobTitleParts) > 2) {
+            $initials = strtoupper($jobTitleParts[0][0] . $jobTitleParts[1][0]);
+            $remainingTitle = implode(' ', array_slice($jobTitleParts, 2));
+            $namaUser->nama_jabatan = $initials . ' ' . $remainingTitle;
+        } else {
+            $namaUser->nama_jabatan;
+        }
+
         $presensihariini = DB::table('presensi')->where('nik', $nik)
             ->where('tgl_presensi', $hariini)
             ->first();
