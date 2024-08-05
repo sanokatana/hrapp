@@ -405,6 +405,7 @@ class DashboardController extends Controller
         $leaderboardTelat = DB::table('presensi')
             ->select('presensi.nip', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN presensi.jam_in > "08:00:00" THEN (HOUR(presensi.jam_in) * 60 + MINUTE(presensi.jam_in)) - (8 * 60) ELSE 0 END) as total_late_minutes'))
             ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
+            ->whereBetween(DB::raw('TIME(presensi.jam_in)'), ['06:00:00', '13:00:00'])
             ->whereRaw('MONTH(presensi.tgl_presensi) = ?', [$bulanini])
             ->whereRaw('YEAR(presensi.tgl_presensi) = ?', [$tahunini])
             ->where('presensi.jam_in', '>', '08:00:00')

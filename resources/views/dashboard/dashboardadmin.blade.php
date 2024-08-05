@@ -193,38 +193,23 @@ use App\Helpers\DateHelper;
                             @foreach ($historihari as $d)
                             <div class="row">
                                 @php
-                                $path = Storage::url('uploads/absensi/'.$d->foto_in);
                                 // Extract hours and minutes from the jam_in time
                                 $jam_in_time = strtotime($d->jam_in);
-                                $hours_diff = floor(($jam_in_time - strtotime("08:00")) / 3600);
-                                $minutes_diff = floor((($jam_in_time - strtotime("08:00")) % 3600) / 60);
+                                $lateness = '';
 
                                 // Calculate lateness
-                                if ($hours_diff > 0) {
-                                if ($minutes_diff > 0) {
-                                $lateness = $hours_diff . " Jam " . $minutes_diff . " Menit";
-                                } else {
-                                $lateness = $hours_diff . " Jam";
-                                }
-                                } elseif ($minutes_diff > 0) {
-                                $lateness = $minutes_diff . " Menit";
+                                if ($jam_in_time > strtotime("08:00:00")) {
+                                $hours_diff = floor(($jam_in_time - strtotime("08:00:00")) / 3600);
+                                $minutes_diff = floor((($jam_in_time - strtotime("08:00:00")) % 3600) / 60);
+                                $lateness = ($hours_diff > 0 ? $hours_diff . " Jam " : "") . ($minutes_diff > 0 ? $minutes_diff . " Menit" : "");
+                                $status = "Terlambat";
                                 } else {
                                 $lateness = "On Time";
+                                $status = "On Time";
                                 }
-
-                                // Determine status based on lateness
-                                $status = ($lateness != "On Time") ? "Terlambat" : "On Time";
                                 @endphp
 
                                 <div class="col-auto">
-                                    @if ($d != null && $d->foto_in != null)
-                                    @php
-                                    $path = Storage::url('/uploads/absensi/'.$d->foto_in);
-                                    @endphp
-                                    <span class="avatar">
-                                        <img src="{{ url($path) }}" alt="" class="imaged w48 circular-image">
-                                    </span>
-                                    @else
                                     <span class="avatar">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-fingerprint">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -235,24 +220,24 @@ use App\Helpers\DateHelper;
                                             <path d="M4.9 19a22 22 0 0 1 -.9 -7v-1a8 8 0 0 1 12 -6.95" />
                                         </svg>
                                     </span>
-                                    @endif
                                 </div>
                                 <div class="col">
                                     <div class="text-truncate">
                                         <div>{{ $d->nama_lengkap }}</div>
                                         <div><b>{{ DateHelper::formatIndonesianDate($d->tgl_presensi) }}</b></div>
-                                        <span class=" {{ $status == 'Terlambat' ? 'text-danger' : 'text-success' }}">
+                                        <span class="{{ $status == 'Terlambat' ? 'text-danger' : 'text-success' }}">
                                             {{ $status }}
                                         </span>
                                     </div>
                                 </div>
                                 <div class="col-auto">
                                     <div class="jam-in mt-3">
-                                        <span class="status text-success">{{ $d->jam_in }}</span>
+                                        <span class="status {{ $status == 'Terlambat' ? 'text-danger' : 'text-success' }}">{{ $d->jam_in }}</span>
                                     </div>
                                 </div>
                             </div>
                             @endforeach
+
                         </div>
                     </div>
                 </div>
@@ -308,7 +293,7 @@ use App\Helpers\DateHelper;
                                     </div>
                                 </div>
                                 <div class="col-auto align-self-center">
-                                <div class="status status-primary">{{ $loop->iteration }}</div>
+                                    <div class="status status-primary">{{ $loop->iteration }}</div>
                                 </div>
                             </div>
                             @endforeach
