@@ -229,4 +229,286 @@ class TimeAttendanceController extends Controller
         }
         return null; // Return null if no match is found
     }
+
+    public function att_monitoring()
+    {
+        return view('time.timeatt');
+    }
+
+    public function get_att(Request $request)
+    {
+        $nama_lengkap = $request->nama_lengkap;
+        $nip = $request->nip;
+
+        $query = DB::table('presensi')
+            ->selectRaw('DATE(tgl_presensi) as tanggal, presensi.nip, presensi.nik, nama_lengkap, nama_dept, jam_in')
+            ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
+            ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
+
+        if ($nama_lengkap) {
+            $query->where('nama_lengkap', 'like', '%' . $nama_lengkap . '%');
+        }
+
+        if ($nip) {
+            $query->where('presensi.nip', $nip);
+        }
+
+        $query->orderBy('tgl_presensi', 'desc');
+        $presensi = $query->get();
+
+        // Fetch approved izin data for the relevant dates and NIPs
+        $izin = DB::table('pengajuan_izin')
+            ->select('nik', 'tgl_izin', 'tgl_izin_akhir', 'status', 'keputusan', 'pukul')
+            ->where('status_approved', 1)
+            ->where('status_approved_hrd', 1)
+            ->get();
+
+        // Process records to find min and max jam_in
+        $processedPresensi = [];
+
+        // Process presensi records first
+        foreach ($presensi as $record) {
+            $tanggal = $record->tanggal;
+            $nip = $record->nip;
+            $nama_dept = $record->nama_dept;
+            $nik = $record->nik; // Get the nik from the record
+            $time = strtotime($record->jam_in);
+            $morning_start = strtotime('06:00:00');
+            $afternoon_start = strtotime('13:00:00');
+
+            $key = $tanggal . '_' . $nip;
+
+            if (!isset($processedPresensi[$key])) {
+                $processedPresensi[$key] = [
+                    'tanggal' => $tanggal,
+                    'nip' => $nip,
+                    'nama_lengkap' => $record->nama_lengkap,
+                    'nama_dept' => $record->nama_dept,
+                    'jam_masuk' => null,
+                    'jam_pulang' => null,
+                    'total_jam_kerja' => 0,
+                ];
+            }
+
+            if ($time >= $morning_start && $time < $afternoon_start) {
+                if (is_null($processedPresensi[$key]['jam_masuk']) || $time < strtotime($processedPresensi[$key]['jam_masuk'])) {
+                    $processedPresensi[$key]['jam_masuk'] = $record->jam_in;
+                }
+            } elseif ($time >= $afternoon_start) {
+                if (is_null($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
+                    $processedPresensi[$key]['jam_pulang'] = $record->jam_in;
+                }
+            }
+
+            // Apply the izin logic using nik
+            $isIzin = $this->checkIzin($izin, $nik, Carbon::parse($tanggal));
+            if ($isIzin) {
+                $status = $isIzin->status;
+                $keputusan = $isIzin->keputusan;
+
+                if ($status == 'Tmk') {
+                    $processedPresensi[$key]['jam_masuk'] = '08:00:00';
+                    $processedPresensi[$key]['jam_pulang'] = '17:00:00';
+                }
+
+                if ($status == 'Dt' && $keputusan == 'Terlambat') {
+                    $processedPresensi[$key]['jam_masuk'] = '08:00:00';
+                }
+
+                if ($status == 'Pa' && $keputusan == 'Pulang Awal') {
+                    $processedPresensi[$key]['jam_pulang'] = '17:00:00';
+                }
+
+                if ($status == 'Tam' && !$processedPresensi[$key]['jam_masuk']) {
+                    $processedPresensi[$key]['jam_masuk'] = '08:00:00';
+                }
+
+                if ($status == 'Tap' && !$processedPresensi[$key]['jam_pulang']) {
+                    $processedPresensi[$key]['jam_pulang'] = '17:00:00';
+                }
+            }
+
+            // Calculate total working hours for the day
+            $jamMasuk = $processedPresensi[$key]['jam_masuk'];
+            $jamPulang = $processedPresensi[$key]['jam_pulang'];
+
+            if ($jamMasuk && $jamPulang) {
+                $jamMasukCarbon = Carbon::parse($jamMasuk);
+                $jamPulangCarbon = Carbon::parse($jamPulang);
+
+                if ($jamPulangCarbon->gt($jamMasukCarbon)) {
+                    $minutesWorked = $jamMasukCarbon->diffInMinutes($jamPulangCarbon);
+                    $totalHours = round(($minutesWorked - 60) / 60, 1); // Subtract 1 hour for rest and round to nearest decimal
+                    $processedPresensi[$key]['total_jam_kerja'] = $totalHours;
+                }
+            }
+        }
+
+        // Process izin records to add missing presensi data
+        foreach ($izin as $record) {
+            $nik = $record->nik;
+            $status = $record->status;
+            $tanggal = Carbon::parse($record->tgl_izin);
+
+            while ($tanggal <= Carbon::parse($record->tgl_izin_akhir)) {
+                $key = $tanggal->toDateString() . '_' . $nik;
+
+                if ($status == 'Tmk') {
+                    $processedPresensi[$key]['tanggal'] = $tanggal->toDateString();
+                    $processedPresensi[$key]['nama_lengkap'] = $nama_lengkap;
+                    $processedPresensi[$key]['nip'] = $nip;
+                    $processedPresensi[$key]['nama_dept'] = $nama_dept;
+                    $processedPresensi[$key]['jam_masuk'] = '08:00:00';
+                    $processedPresensi[$key]['jam_pulang'] = '17:00:00';
+                    $processedPresensi[$key]['total_jam_kerja'] = 8; // Add 8 hours for Tmk status
+                }
+
+                $tanggal->addDay();
+            }
+        }
+
+        // Convert the processed data to a collection and sort by date
+        $presensi = collect($processedPresensi)->sortByDesc('tanggal');
+
+        return view("time.gettimeatt", compact('presensi'));
+    }
+
+    public function daymonitor()
+    {
+        return view('time.daytimeatt');
+    }
+
+    public function showdaymonitor(Request $request)
+    {
+        $tanggal = $request->tanggal;
+
+        $query = DB::table('presensi')
+            ->selectRaw('DATE(tgl_presensi) as tanggal, presensi.nip, presensi.nik, nama_lengkap, nama_dept, jam_in')
+            ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
+            ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
+
+        if ($tanggal) {
+            $query->whereDate('tgl_presensi', $tanggal);
+        }
+
+        $query->orderBy('nama_dept', 'asc');
+        $presensi = $query->get();
+
+        // Fetch approved izin data for the relevant dates and NIPs
+        $izin = DB::table('pengajuan_izin')
+            ->select('nik', 'tgl_izin', 'tgl_izin_akhir', 'status', 'keputusan', 'pukul')
+            ->where('status_approved', 1)
+            ->where('status_approved_hrd', 1)
+            ->get();
+
+        // Process records to find min and max jam_in
+        $processedPresensi = [];
+
+        // Process presensi records first
+        foreach ($presensi as $record) {
+            $tanggal = $record->tanggal;
+            $nip = $record->nip;
+            $nama_lengkap = $record->nama_lengkap;
+            $nama_dept = $record->nama_dept;
+            $nik = $record->nik; // Get the nik from the record
+            $time = strtotime($record->jam_in);
+            $morning_start = strtotime('06:00:00');
+            $afternoon_start = strtotime('13:00:00');
+
+            $key = $tanggal . '_' . $nip;
+
+            if (!isset($processedPresensi[$key])) {
+                $processedPresensi[$key] = [
+                    'tanggal' => $tanggal,
+                    'nip' => $nip,
+                    'nama_lengkap' => $record->nama_lengkap,
+                    'nama_dept' => $record->nama_dept,
+                    'jam_masuk' => null,
+                    'jam_pulang' => null,
+                    'total_jam_kerja' => 0,
+                ];
+            }
+
+            if ($time >= $morning_start && $time < $afternoon_start) {
+                if (is_null($processedPresensi[$key]['jam_masuk']) || $time < strtotime($processedPresensi[$key]['jam_masuk'])) {
+                    $processedPresensi[$key]['jam_masuk'] = $record->jam_in;
+                }
+            } elseif ($time >= $afternoon_start) {
+                if (is_null($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
+                    $processedPresensi[$key]['jam_pulang'] = $record->jam_in;
+                }
+            }
+
+            // Apply the izin logic using nik
+            $isIzin = $this->checkIzin($izin, $nik, Carbon::parse($tanggal));
+            if ($isIzin) {
+                $status = $isIzin->status;
+                $keputusan = $isIzin->keputusan;
+
+                if ($status == 'Tmk') {
+                    $processedPresensi[$key]['jam_masuk'] = '08:00:00';
+                    $processedPresensi[$key]['jam_pulang'] = '17:00:00';
+                }
+
+                if ($status == 'Dt' && $keputusan == 'Terlambat') {
+                    $processedPresensi[$key]['jam_masuk'] = '08:00:00';
+                }
+
+                if ($status == 'Pa' && $keputusan == 'Pulang Awal') {
+                    $processedPresensi[$key]['jam_pulang'] = '17:00:00';
+                }
+
+                if ($status == 'Tam' && !$processedPresensi[$key]['jam_masuk']) {
+                    $processedPresensi[$key]['jam_masuk'] = '08:00:00';
+                }
+
+                if ($status == 'Tap' && !$processedPresensi[$key]['jam_pulang']) {
+                    $processedPresensi[$key]['jam_pulang'] = '17:00:00';
+                }
+            }
+
+            // Calculate total working hours for the day
+            $jamMasuk = $processedPresensi[$key]['jam_masuk'];
+            $jamPulang = $processedPresensi[$key]['jam_pulang'];
+
+            if ($jamMasuk && $jamPulang) {
+                $jamMasukCarbon = Carbon::parse($jamMasuk);
+                $jamPulangCarbon = Carbon::parse($jamPulang);
+
+                if ($jamPulangCarbon->gt($jamMasukCarbon)) {
+                    $minutesWorked = $jamMasukCarbon->diffInMinutes($jamPulangCarbon);
+                    $totalHours = round(($minutesWorked - 60) / 60, 1); // Subtract 1 hour for rest and round to nearest decimal
+                    $processedPresensi[$key]['total_jam_kerja'] = $totalHours;
+                }
+            }
+        }
+
+        // Process izin records to add missing presensi data
+        foreach ($izin as $record) {
+            $nik = $record->nik;
+            $status = $record->status;
+            $tanggal = Carbon::parse($record->tgl_izin);
+
+            while ($tanggal <= Carbon::parse($record->tgl_izin_akhir)) {
+                $key = $tanggal->toDateString() . '_' . $nik;
+
+                if ($status == 'Tmk') {
+                    $processedPresensi[$key]['tanggal'] = $tanggal->toDateString();
+                    $processedPresensi[$key]['nama_lengkap'] = $nama_lengkap;
+                    $processedPresensi[$key]['nip'] = $nip;
+                    $processedPresensi[$key]['nama_dept'] = $nama_dept;
+                    $processedPresensi[$key]['jam_masuk'] = '08:00:00';
+                    $processedPresensi[$key]['jam_pulang'] = '17:00:00';
+                    $processedPresensi[$key]['total_jam_kerja'] = 8; // Add 8 hours for Tmk status
+                }
+
+                $tanggal->addDay();
+            }
+        }
+
+        // Convert the processed data to a collection and sort by date
+        $presensi = collect($processedPresensi)->sortByDesc('tanggal');
+
+        return view("time.timeshowday", compact('presensi'));
+    }
 }

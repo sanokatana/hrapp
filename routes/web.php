@@ -191,5 +191,9 @@ Route::middleware(['auth:user'])->group(function (){
 
     //Time Attendance
     Route::get('/timeatt/table',[TimeAttendanceController::class,'index']);
+    Route::get('/timeatt/att_monitoring', [TimeAttendanceController::class,'att_monitoring']);
+    Route::get('/timeatt/get_att', [TimeAttendanceController::class,'get_att']);
+    Route::get('/timeatt/daymonitor', [TimeAttendanceController::class,'daymonitor']);
+    Route::get('/timeatt/showdaymonitor', [TimeAttendanceController::class,'showdaymonitor']);
 
 });
