@@ -145,6 +145,7 @@
                                                 </th>
                                                 @endfor
                                                 <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">Telat</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">Presentase T</th>
                                                 <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">Jumlah Telat</th>
                                                 <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">Presentase</th>
                                                 <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">Menit Telat</th>
@@ -187,6 +188,7 @@
                                             </td>
                                             @endforeach
                                             <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalT'] }}</td>
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['presentase'] }}%</td>
                                             @if ($loop->first)
                                             <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;" rowspan="{{ $rowspan }}">{{ $department['total_jumlah_telat'] }}</td>
                                             <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;" rowspan="{{ $rowspan }}">{{ $department['total_presentase'] }}%</td>

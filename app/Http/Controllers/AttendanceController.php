@@ -181,7 +181,7 @@ class AttendanceController extends Controller
 
                 $row['jumlah_telat'] = $jumlahTelat;
                 $row['menit_telat'] = $menitTelat;
-                $row['presentase'] = round(($totalHadir / $daysInMonth) * 100, 2);
+                $row['presentase'] = round(($totalTidakHadir / 23) * 100);
                 $row['totalP'] = $totalHadir;
                 $row['totalT'] = $totalTidakHadir;
                 $row['totalOff'] = $totalJumlahOff;
@@ -210,7 +210,7 @@ class AttendanceController extends Controller
                 'department' => $department->nama_dept,
                 'karyawan' => $departmentAttendance,
                 'total_jumlah_telat' => $totalJumlahTelat,
-                'total_presentase' => $totalKaryawan ? round(($totalT / ($totalKaryawan * $daysInMonth)) * 100, 2) : 0
+                'total_presentase' => $totalKaryawan ? round(($totalT / ($totalKaryawan * 23)) * 100) : 0
             ];
         }
 
