@@ -408,14 +408,16 @@ class DashboardController extends Controller
         $historihari = DB::table('presensi')
             ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
             ->whereDate('presensi.tgl_presensi', $hariini)
-            ->orderBy('presensi.tgl_presensi')
+            ->whereBetween('presensi.jam_in', ['05:00:00', '13:00:00'])
+            ->orderBy('presensi.jam_in', 'desc')
             ->select('presensi.*', 'karyawan.nama_lengkap')
             ->get();
+
 
         $leaderboardTelat = DB::table('presensi')
             ->select('presensi.nip', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN presensi.jam_in > "08:00:00" THEN (HOUR(presensi.jam_in) * 60 + MINUTE(presensi.jam_in)) - (8 * 60) ELSE 0 END) as total_late_minutes'))
             ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
-            ->whereBetween(DB::raw('TIME(presensi.jam_in)'), ['06:00:00', '13:00:00'])
+            ->whereBetween(DB::raw('MIN(TIME(presensi.jam_in))'), ['05:00:00', '13:00:00'])
             ->whereRaw('MONTH(presensi.tgl_presensi) = ?', [$bulanini])
             ->whereRaw('YEAR(presensi.tgl_presensi) = ?', [$tahunini])
             ->where('presensi.jam_in', '>', '08:00:00')
