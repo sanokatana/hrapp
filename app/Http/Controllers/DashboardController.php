@@ -405,38 +405,107 @@ class DashboardController extends Controller
             ->whereNull('presensi.nip')
             ->count();
 
-        $historihari = DB::table('presensi')
+        // Get historical attendance data for NS and non-NS employees
+        $historihariNS = DB::table('presensi')
             ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
             ->whereDate('presensi.tgl_presensi', $hariini)
             ->whereBetween('presensi.jam_in', ['05:00:00', '13:00:00'])
+            ->where('karyawan.grade', 'NS')
             ->orderBy('presensi.jam_in', 'desc')
             ->select('presensi.*', 'karyawan.nama_lengkap')
             ->get();
 
-
-        $leaderboardTelat = DB::table('presensi')
-            ->select('presensi.nip', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN presensi.jam_in > "08:00:00" THEN (HOUR(presensi.jam_in) * 60 + MINUTE(presensi.jam_in)) - (8 * 60) ELSE 0 END) as total_late_minutes'))
+        $historihariNonNS = DB::table('presensi')
             ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
-            ->whereBetween(DB::raw('MIN(TIME(presensi.jam_in))'), ['05:00:00', '13:00:00'])
-            ->whereRaw('MONTH(presensi.tgl_presensi) = ?', [$bulanini])
-            ->whereRaw('YEAR(presensi.tgl_presensi) = ?', [$tahunini])
-            ->where('presensi.jam_in', '>', '08:00:00')
-            ->groupBy('presensi.nip', 'karyawan.nama_lengkap')
-            ->orderBy('total_late_minutes', 'desc')
+            ->whereDate('presensi.tgl_presensi', $hariini)
+            ->whereBetween('presensi.jam_in', ['05:00:00', '13:00:00'])
+            ->where('karyawan.grade', '!=', 'NS')
+            ->orderBy('presensi.jam_in', 'desc')
+            ->select('presensi.*', 'karyawan.nama_lengkap')
+            ->get();
+
+        // Get the leaderboard for lateness for NS and non-NS employees
+        $subquery = DB::table('presensi')
+            ->select('nip', 'tgl_presensi', DB::raw('MIN(jam_in) as earliest_jam_in'))
+            ->whereBetween(DB::raw('TIME(jam_in)'), ['05:00:00', '13:00:00'])
+            ->whereRaw('MONTH(tgl_presensi) = ?', [$bulanini])
+            ->whereRaw('YEAR(tgl_presensi) = ?', [$tahunini])
+            ->groupBy('nip', 'tgl_presensi');
+
+        $leaderboardTelatNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
+            ->mergeBindings($subquery)
+            ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
+            ->where('karyawan.grade', 'NS')
+            ->select('sub.nip', 'karyawan.nama_lengkap', DB::raw('COUNT(CASE WHEN sub.earliest_jam_in > "08:00:00" THEN 1 ELSE 0 END) as total_late_count'))
+            ->groupBy('sub.nip', 'karyawan.nama_lengkap')
+            ->orderBy('total_late_count', 'desc')
             ->limit(10)
             ->get();
 
-        $leaderboardOnTime = DB::table('presensi')
+        $leaderboardTelatNonNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
+            ->mergeBindings($subquery)
+            ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
+            ->where('karyawan.grade', '!=', 'NS')
+            ->select('sub.nip', 'karyawan.nama_lengkap', DB::raw('COUNT(CASE WHEN sub.earliest_jam_in > "08:00:00" THEN 1 ELSE 0 END) as total_late_count'))
+            ->groupBy('sub.nip', 'karyawan.nama_lengkap')
+            ->orderBy('total_late_count', 'desc')
+            ->limit(10)
+            ->get();
+
+        // Total lateness count for NS and non-NS employees
+        $totalLatenessNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
+            ->mergeBindings($subquery)
+            ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
+            ->where('karyawan.grade', 'NS')
+            ->whereRaw('sub.earliest_jam_in > "08:00:00"')
+            ->count('sub.nip');
+
+        $totalLatenessNonNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
+            ->mergeBindings($subquery)
+            ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
+            ->where('karyawan.grade', '!=', 'NS')
+            ->whereRaw('sub.earliest_jam_in > "08:00:00"')
+            ->count('sub.nip');
+
+        // Leaderboard for on-time performance for NS and non-NS employees
+        $leaderboardOnTimeNS = DB::table('presensi')
             ->select('presensi.nip', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN presensi.jam_in < "08:00:00" THEN (8 * 60) - (HOUR(presensi.jam_in) * 60 + MINUTE(presensi.jam_in)) ELSE 0 END) as total_on_time'))
             ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
             ->whereRaw('MONTH(presensi.tgl_presensi) = ?', [$bulanini])
             ->whereRaw('YEAR(presensi.tgl_presensi) = ?', [$tahunini])
+            ->where('karyawan.grade', 'NS')
             ->where('presensi.jam_in', '<', '08:00:00')
             ->groupBy('presensi.nip', 'karyawan.nama_lengkap')
             ->orderBy('total_on_time', 'desc')
             ->limit(10)
             ->get();
 
-        return view('dashboard.dashboardadmin', compact('rekapizin', 'rekapcuti', 'rekappresensi', 'rekapkaryawan', 'historihari', 'leaderboardTelat', 'leaderboardOnTime', 'jmlnoatt'));
+        $leaderboardOnTimeNonNS = DB::table('presensi')
+            ->select('presensi.nip', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN presensi.jam_in < "08:00:00" THEN (8 * 60) - (HOUR(presensi.jam_in) * 60 + MINUTE(presensi.jam_in)) ELSE 0 END) as total_on_time'))
+            ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
+            ->whereRaw('MONTH(presensi.tgl_presensi) = ?', [$bulanini])
+            ->whereRaw('YEAR(presensi.tgl_presensi) = ?', [$tahunini])
+            ->where('karyawan.grade', '!=', 'NS')
+            ->where('presensi.jam_in', '<', '08:00:00')
+            ->groupBy('presensi.nip', 'karyawan.nama_lengkap')
+            ->orderBy('total_on_time', 'desc')
+            ->limit(10)
+            ->get();
+
+        return view('dashboard.dashboardadmin', compact(
+            'rekapizin',
+            'rekapcuti',
+            'rekappresensi',
+            'rekapkaryawan',
+            'jmlnoatt',
+            'historihariNS',
+            'historihariNonNS',
+            'leaderboardTelatNS',
+            'leaderboardTelatNonNS',
+            'totalLatenessNS',
+            'totalLatenessNonNS',
+            'leaderboardOnTimeNS',
+            'leaderboardOnTimeNonNS'
+        ));
     }
 }

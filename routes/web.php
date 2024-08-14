@@ -11,6 +11,7 @@ use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\KonfigurasiController;
 use App\Http\Controllers\PengajuanCutiController;
 use App\Http\Controllers\PresensiController;
+use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\TimeAttendanceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -195,5 +196,24 @@ Route::middleware(['auth:user'])->group(function (){
     Route::get('/timeatt/get_att', [TimeAttendanceController::class,'get_att']);
     Route::get('/timeatt/daymonitor', [TimeAttendanceController::class,'daymonitor']);
     Route::get('/timeatt/showdaymonitor', [TimeAttendanceController::class,'showdaymonitor']);
+
+    //Shift
+    Route::get('/shift', [ShiftController::class,'shift']);
+    Route::post('/shift/store', [ShiftController::class,'shiftstore']);
+    Route::post('/shift/edit', [ShiftController::class,'shiftedit']);
+    Route::post('/shift/update', [ShiftController::class,'shiftupdate']);
+    Route::post('/shift/{id}/delete', [ShiftController::class,'shiftdelete']);
+
+    //Shift Pattern
+    Route::get('/shiftpatt', [ShiftController::class,'shiftpatt']);
+    Route::post('/shiftpatt/store', [ShiftController::class,'shiftpattstore']);
+    Route::post('/shiftpatt/edit', [ShiftController::class,'shiftpattedit']);
+    Route::post('/shiftpatt/update', [ShiftController::class,'shiftpattupdate']);
+    Route::post('/shiftpatt/{id}/delete', [ShiftController::class,'shiftpattdelete']);
+    Route::get('/shiftpatt/{id}/cycles', [ShiftController::class, 'getCycles']);
+    Route::post('/shiftpatt/{id}/cycles', [ShiftController::class, 'saveCycles']);
+    Route::post('/delete-cycle/{id}', [ShiftController::class, 'deleteCycle']);
+
+
 
 });

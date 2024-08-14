@@ -55,7 +55,7 @@ use App\Helpers\DateHelper;
                                         <div class="col-6">
                                             <div class="input-icon mb-3">
                                                 <span class="input-icon-addon">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-month">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-month">
                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                         <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" />
                                                         <path d="M16 3v4" />
@@ -76,7 +76,7 @@ use App\Helpers\DateHelper;
                                         <div class="col-6">
                                             <div class="input-icon mb-3">
                                                 <span class="input-icon-addon">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-month">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-month">
                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                         <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" />
                                                         <path d="M16 3v4" />
@@ -99,7 +99,7 @@ use App\Helpers\DateHelper;
                                         <div class="col-3">
                                             <div class="input-icon mb-3">
                                                 <span class="input-icon-addon">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user">
                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                         <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
                                                         <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
@@ -111,7 +111,7 @@ use App\Helpers\DateHelper;
                                         <div class="col-3">
                                             <div class="input-icon mb-3">
                                                 <span class="input-icon-addon">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user">
                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                         <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
                                                         <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
@@ -133,7 +133,7 @@ use App\Helpers\DateHelper;
                                         <div class="col-3">
                                             <div class="form-group">
                                                 <button class="btn btn-primary w-100" type="submit">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-search">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-search">
                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                         <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
                                                         <path d="M21 21l-6 -6" />
@@ -192,7 +192,7 @@ use App\Helpers\DateHelper;
                                             <td>
                                                 @if ($d->foto === "No_Document")
                                                 <a href="#" class="badge bg-info btnNoDoc" style="width:100px; display:flex; align-items:center; justify-content:center">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" style="margin-right: 5px;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-file-off">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" style="margin-right: 5px;" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-file-off">
                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                         <path d="M3 3l18 18" />
                                                         <path d="M7 3h7l5 5v7m0 4a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-14" />
@@ -201,7 +201,7 @@ use App\Helpers\DateHelper;
                                                 </a>
                                                 @else
                                                 <a href="#" class="badge bg-info btnDocument" style="width:100px; display:flex; align-items:center; justify-content:center" data-id="{{ $d->id }}" data-photo-url="{{ Storage::url('uploads/pengajuan_izin/'.$d->foto) }}">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" style="margin-right: 5px;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-file">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" style="margin-right: 5px;" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-file">
                                                         <path stroke="none" d="M0 0h24V24H0z" fill="none" />
                                                         <path d="M14 3v4a1 1 0 0 0 1 1h4" />
                                                         <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h9l5 5v11a2 2 0 0 1 -2 2z" />
@@ -229,7 +229,7 @@ use App\Helpers\DateHelper;
                                             <td>
                                                 @if ($d->status_approved == 0)
                                                 <a href="#" class="badge bg-primary btnApprove" style="width:100px; justify-content:space-between" data-id="{{ $d->id }}">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="margin:0;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-checkbox">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" style="margin:0;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-checkbox">
                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                         <path d="M9 11l3 3l8 -8" />
                                                         <path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" />
@@ -238,7 +238,7 @@ use App\Helpers\DateHelper;
                                                 </a>
                                                 @else
                                                 <a href="#" class="badge bg-danger btnBatalApprove" style="width:100px" id="btnBatalApprove" data-id="{{ $d->id }}">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="margin:0;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-checkbox">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" style="margin:0;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-checkbox">
                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                         <path d="M9 11l3 3l8 -8" />
                                                         <path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" />
@@ -292,7 +292,7 @@ use App\Helpers\DateHelper;
                         <div class="col-12">
                             <div class="form-group">
                                 <button class="btn btn-primary w-100" id="submitBtn">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-send-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-send-2">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                         <path d="M4.698 4.034l16.302 7.966l-16.302 7.966a.503 .503 0 0 1 -.546 -.124a.555 .555 0 0 1 -.12 -.568l2.468 -7.274l-2.468 -7.274a.555 .555 0 0 1 .12 -.568a.503 .503 0 0 1 .546 -.124z" />
                                         <path d="M6.5 12h14.5" />

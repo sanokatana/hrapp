@@ -19,11 +19,11 @@ class KaryawanController extends Controller
     public function index(Request $request)
     {
         $query = Karyawan::query();
-        $query->select('karyawan.*', 'department.nama_dept', 'atasan.nama_lengkap as nama_atasan', 'jabatan.nama_jabatan');
+        $query->select('karyawan.*', 'department.nama_dept', 'jabatan.nama_jabatan');
         $query->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
         $query->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id');
-        $query->leftJoin('karyawan as atasan', 'karyawan.nik_atasan', '=', 'atasan.nik'); // Self-join to get atasan's name
         $query->orderBy('karyawan.tgl_masuk', 'asc');
+
 
         if (!empty($request->nama_karyawan)) {
             $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama_karyawan . '%');
@@ -35,17 +35,11 @@ class KaryawanController extends Controller
 
         $karyawan = $query->paginate(15)->appends($request->except('page'));
 
-        // Query to get non-officer employees
-        $atasan = Karyawan::where('level', '!=', 'Officer')->get();
-
         $department = DB::table('department')->get();
         $jabatan = DB::table('jabatan')->get();
         $location = DB::table('konfigurasi_lokasi')->get();
-        return view("karyawan.index", compact('karyawan', 'department', 'atasan', 'jabatan', 'location'));
+        return view("karyawan.index", compact('karyawan', 'department', 'jabatan', 'location'));
     }
-
-
-
 
 
     public function store(StoreEmployeeRequest $request)
@@ -80,12 +74,11 @@ class KaryawanController extends Controller
         $nik = $request->nik;
         $department = DB::table('department')->get();
         $jabatan = DB::table('jabatan')->get();
-        $atasan = Karyawan::where('level', '!=', 'Officer')->get();
         $location = DB::table('konfigurasi_lokasi')->get();
         $karyawan = DB::table('karyawan')
             ->where('nik', $nik)
             ->first();
-        return view('karyawan.edit', compact('department', 'karyawan', 'atasan', 'jabatan', 'location'));
+        return view('karyawan.edit', compact('department', 'karyawan', 'jabatan', 'location'));
     }
 
     public function update($nik, StoreEmployeeRequest $request)
@@ -186,7 +179,6 @@ class KaryawanController extends Controller
                         'tgl_resign' => $tglResign,
                         'DOB' => $dob,
                         'kode_dept' => $mappedData['kode_dept'],
-                        'level' => $mappedData['level'],
                         'grade' => $mappedData['grade'],
                         'employee_status' => $mappedData['employee_status'],
                         'base_poh' => $mappedData['base_poh'],
