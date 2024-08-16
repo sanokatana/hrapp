@@ -220,7 +220,7 @@ use App\Helpers\DateHelper;
                                                 </div>
                                                 <div class="card-body card-body-scrollable card-body-scrollable-shadow">
                                                     <div class="divide-y">
-                                                        @foreach ($historihari as $d)
+                                                        @foreach ($historihariNonNS as $d)
                                                         <div class="row">
                                                             @php
                                                             // Extract hours and minutes from the jam_in time
@@ -279,7 +279,7 @@ use App\Helpers\DateHelper;
                                                 </div>
                                                 <div class="card-body card-body-scrollable card-body-scrollable-shadow">
                                                     <div class="divide-y">
-                                                        @foreach ($leaderboardOnTime as $person)
+                                                        @foreach ($leaderboardOnTimeNonNS as $person)
                                                         <div class="row">
                                                             <div class="col-auto">
                                                                 <span class="avatar">{{ strtoupper(substr($person->nama_lengkap, 0, 2)) }}</span>
@@ -309,7 +309,7 @@ use App\Helpers\DateHelper;
                                                 </div>
                                                 <div class="card-body card-body-scrollable card-body-scrollable-shadow">
                                                     <div class="divide-y">
-                                                        @foreach ($leaderboardTelat as $person)
+                                                        @foreach ($leaderboardTelatNonNS as $person)
                                                         <div class="row">
                                                             <div class="col-auto">
                                                                 <span class="avatar">{{ strtoupper(substr($person->nama_lengkap, 0, 2)) }}</span>
@@ -338,7 +338,7 @@ use App\Helpers\DateHelper;
                                                 </div>
                                                 <div class="card-body card-body-scrollable card-body-scrollable-shadow">
                                                     <div class="divide-y">
-                                                        @foreach ($leaderboardTelat as $person)
+                                                        @foreach ($totalLatenessNonNS as $person)
                                                         <div class="row">
                                                             <div class="col-auto">
                                                                 <span class="avatar">{{ strtoupper(substr($person->nama_lengkap, 0, 2)) }}</span>
@@ -348,7 +348,7 @@ use App\Helpers\DateHelper;
                                                                     <strong>{{ $person->nama_lengkap }}</strong>
                                                                 </div>
                                                                 <div class="text-secondary">
-                                                                    {{ intdiv($person->total_late_minutes, 60) }} Jam {{ $person->total_late_minutes % 60 }} Menit
+                                                                    {{ $person->total_late_count }}
                                                                 </div>
                                                             </div>
                                                             <div class="col-auto align-self-center">
@@ -373,7 +373,7 @@ use App\Helpers\DateHelper;
                                                 </div>
                                                 <div class="card-body card-body-scrollable card-body-scrollable-shadow">
                                                     <div class="divide-y">
-                                                        @foreach ($historihari as $d)
+                                                        @foreach ($historihariNS as $d)
                                                         <div class="row">
                                                             @php
                                                             // Extract hours and minutes from the jam_in time
@@ -432,7 +432,7 @@ use App\Helpers\DateHelper;
                                                 </div>
                                                 <div class="card-body card-body-scrollable card-body-scrollable-shadow">
                                                     <div class="divide-y">
-                                                        @foreach ($leaderboardOnTime as $person)
+                                                        @foreach ($leaderboardOnTimeNS as $person)
                                                         <div class="row">
                                                             <div class="col-auto">
                                                                 <span class="avatar">{{ strtoupper(substr($person->nama_lengkap, 0, 2)) }}</span>
@@ -462,7 +462,7 @@ use App\Helpers\DateHelper;
                                                 </div>
                                                 <div class="card-body card-body-scrollable card-body-scrollable-shadow">
                                                     <div class="divide-y">
-                                                        @foreach ($leaderboardTelat as $person)
+                                                        @foreach ($leaderboardTelatNS as $person)
                                                         <div class="row">
                                                             <div class="col-auto">
                                                                 <span class="avatar">{{ strtoupper(substr($person->nama_lengkap, 0, 2)) }}</span>
@@ -491,7 +491,7 @@ use App\Helpers\DateHelper;
                                                 </div>
                                                 <div class="card-body card-body-scrollable card-body-scrollable-shadow">
                                                     <div class="divide-y">
-                                                        @foreach ($leaderboardTelat as $person)
+                                                        @foreach ($totalLatenessNS as $person)
                                                         <div class="row">
                                                             <div class="col-auto">
                                                                 <span class="avatar">{{ strtoupper(substr($person->nama_lengkap, 0, 2)) }}</span>
@@ -501,7 +501,7 @@ use App\Helpers\DateHelper;
                                                                     <strong>{{ $person->nama_lengkap }}</strong>
                                                                 </div>
                                                                 <div class="text-secondary">
-                                                                    {{ intdiv($person->total_late_minutes, 60) }} Jam {{ $person->total_late_minutes % 60 }} Menit
+                                                                    {{ $person->total_late_count }}
                                                                 </div>
                                                             </div>
                                                             <div class="col-auto align-self-center">

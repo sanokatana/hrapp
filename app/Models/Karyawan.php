@@ -40,4 +40,6 @@ class Karyawan extends Authenticatable
         'nik' => 'string',
     ];
 
+    public $timestamps = false;
+
 }

@@ -109,7 +109,7 @@
 
         $("#status").change(function() {
             var selectedStatus = $(this).val();
-            if (selectedStatus === "Dt" || selectedStatus === "Pa") {
+            if (selectedStatus === "Dt" || selectedStatus === "Pa" || selectedStatus === "Tam" || selectedStatus === "Tap") {
                 $("#pukulContainer").show();
             } else {
                 $("#pukulContainer").hide();

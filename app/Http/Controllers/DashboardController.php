@@ -99,21 +99,14 @@ class DashboardController extends Controller
             if ($isIzin) {
                 $status = $isIzin->status;
                 $keputusan = $isIzin->keputusan;
-
-                if ($status == 'Dt' && $keputusan == 'Terlambat') {
-                    $item->jam_masuk = '08:00:00';
-                }
-
-                if ($status == 'Pa' && $keputusan == 'Pulang Awal') {
-                    $item->jam_pulang = '17:00:00';
-                }
+                $pukul = $isIzin->pukul;
 
                 if ($status == 'Tam' && !$item->jam_masuk) {
-                    $item->jam_masuk = '08:00:00';
+                    $item->jam_masuk = $pukul;
                 }
 
                 if ($status == 'Tap' && !$item->jam_pulang) {
-                    $item->jam_pulang = '17:00:00';
+                    $item->jam_pulang = $pukul;
                 }
             }
 
@@ -170,6 +163,10 @@ class DashboardController extends Controller
         $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
         return view('dashboard.dashboard', compact('presensihariini', 'processedHistoribulanini', 'namabulan', 'bulanini', 'tahunini', 'namaUser', 'rekappresensi', 'historiizin', 'historicuti', 'rekapizin', 'rekapcuti', 'totalNotif'));
     }
+
+    // =============================================== DASHBOARD NOTIF CONTROLLER =============================================== //
+    // =============================================== DASHBOARD NOTIF CONTROLLER =============================================== //
+    // =============================================== DASHBOARD NOTIF CONTROLLER =============================================== //
 
     private function calculateNotifications($historibulanini, $izin, $bulanini, $tahunini, $nik)
     {
@@ -359,7 +356,9 @@ class DashboardController extends Controller
         return false;
     }
 
-
+    // =============================================== DASHBOARD ADMIN CONTROLLER =============================================== //
+    // =============================================== DASHBOARD ADMIN CONTROLLER =============================================== //
+    // =============================================== DASHBOARD ADMIN CONTROLLER =============================================== //
 
     public function dashboardadmin()
     {
@@ -427,7 +426,7 @@ class DashboardController extends Controller
         // Get the leaderboard for lateness for NS and non-NS employees
         $subquery = DB::table('presensi')
             ->select('nip', 'tgl_presensi', DB::raw('MIN(jam_in) as earliest_jam_in'))
-            ->whereBetween(DB::raw('TIME(jam_in)'), ['05:00:00', '13:00:00'])
+            ->whereBetween(DB::raw('TIME(jam_in)'), ['06:00:00', '13:00:00'])
             ->whereRaw('MONTH(tgl_presensi) = ?', [$bulanini])
             ->whereRaw('YEAR(tgl_presensi) = ?', [$tahunini])
             ->groupBy('nip', 'tgl_presensi');
@@ -436,9 +435,9 @@ class DashboardController extends Controller
             ->mergeBindings($subquery)
             ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
             ->where('karyawan.grade', 'NS')
-            ->select('sub.nip', 'karyawan.nama_lengkap', DB::raw('COUNT(CASE WHEN sub.earliest_jam_in > "08:00:00" THEN 1 ELSE 0 END) as total_late_count'))
+            ->select('sub.nip', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN sub.earliest_jam_in > "08:00:00" THEN (HOUR(sub.earliest_jam_in) * 60 + MINUTE(sub.earliest_jam_in)) - (8 * 60) ELSE 0 END) as total_late_minutes'))
             ->groupBy('sub.nip', 'karyawan.nama_lengkap')
-            ->orderBy('total_late_count', 'desc')
+            ->orderBy('total_late_minutes', 'desc')
             ->limit(10)
             ->get();
 
@@ -446,26 +445,36 @@ class DashboardController extends Controller
             ->mergeBindings($subquery)
             ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
             ->where('karyawan.grade', '!=', 'NS')
-            ->select('sub.nip', 'karyawan.nama_lengkap', DB::raw('COUNT(CASE WHEN sub.earliest_jam_in > "08:00:00" THEN 1 ELSE 0 END) as total_late_count'))
+            ->select('sub.nip', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN sub.earliest_jam_in > "08:00:00" THEN (HOUR(sub.earliest_jam_in) * 60 + MINUTE(sub.earliest_jam_in)) - (8 * 60) ELSE 0 END) as total_late_minutes'))
             ->groupBy('sub.nip', 'karyawan.nama_lengkap')
-            ->orderBy('total_late_count', 'desc')
+            ->orderBy('total_late_minutes', 'desc')
             ->limit(10)
             ->get();
+
 
         // Total lateness count for NS and non-NS employees
         $totalLatenessNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
             ->mergeBindings($subquery)
             ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
             ->where('karyawan.grade', 'NS')
-            ->whereRaw('sub.earliest_jam_in > "08:00:00"')
-            ->count('sub.nip');
+            ->where('sub.earliest_jam_in', '>', '08:00:00')  // Only count entries where they
+            ->select('karyawan.nama_lengkap',DB::raw('COUNT(sub.nip) as total_late_count'))
+            ->groupBy('sub.nip', 'karyawan.nama_lengkap')
+            ->orderBy('total_late_count', 'desc')
+            ->limit(10)
+            ->get();
 
         $totalLatenessNonNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
             ->mergeBindings($subquery)
             ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
             ->where('karyawan.grade', '!=', 'NS')
-            ->whereRaw('sub.earliest_jam_in > "08:00:00"')
-            ->count('sub.nip');
+            ->where('sub.earliest_jam_in', '>', '08:00:00')  // Only count entries where they
+            ->select('karyawan.nama_lengkap', DB::raw('COUNT(sub.nip) as total_late_count'))
+            ->groupBy('sub.nip', 'karyawan.nama_lengkap')
+            ->orderBy('total_late_count', 'desc')
+            ->limit(10)
+            ->get();
+
 
         // Leaderboard for on-time performance for NS and non-NS employees
         $leaderboardOnTimeNS = DB::table('presensi')

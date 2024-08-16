@@ -177,7 +177,9 @@ use App\Helpers\DateHelper;
                                                     </div>
                                                     <!-- Time Button -->
                                                     <div class="mb-1">
-                                                        <a href="#" class="time btn btn-success btn-sm" nik="{{ $d->nik }}">
+                                                        <a href="#" class="time btn btn-success btn-sm"
+                                                            data-nik="{{ $d->nik }}"
+                                                            data-shift-pattern-id="{{ $d->shift_pattern_id }}">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-hour-1">
                                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                                 <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
@@ -204,8 +206,6 @@ use App\Helpers\DateHelper;
                                                     </div>
                                                 </div>
                                             </td>
-
-
                                             @endforeach
                                     </tbody>
                                 </table>
@@ -662,6 +662,39 @@ use App\Helpers\DateHelper;
         </div>
     </div>
 </div>
+<div class="modal modal-blur fade" id="modal-editshift" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Shift Karyawan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/karyawan/storeshift" method="POST" id="formShift">
+                    @csrf
+                    <div class="row">
+                        <div class="col-12">
+                            <select name="shift_pattern_id" id="shift_pattern_id" class="form-select">
+                                <option value="">Pilih Shift</option>
+                                @foreach ($shift as $d)
+                                <option value="{{ $d->id }}">{{ $d->pattern_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <button class="btn btn-primary w-100" type="submit">Simpan</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('myscript')
@@ -690,6 +723,20 @@ use App\Helpers\DateHelper;
                 }
             });
             $('#modal-editkaryawan').modal("show");
+        });
+
+        $('.time').click(function() {
+            var nik = $(this).data('nik');
+            var shiftPatternId = $(this).data('shift-pattern-id');
+
+            // Set the form action with the correct nik if needed
+            $('#formShift').attr('action', '/karyawan/storeshift/' + nik);
+
+            // Update the selected shift pattern in the dropdown
+            $('#shift_pattern_id').val(shiftPatternId);
+
+            // Show the modal
+            $('#modal-editshift').modal("show");
         });
 
         $(".delete-confirm").click(function(e) {

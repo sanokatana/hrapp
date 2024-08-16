@@ -92,6 +92,7 @@ Route::middleware(['auth:user'])->group(function (){
     Route::post('/karyawan/{nik}/delete', [KaryawanController::class, 'delete']);
     Route::post('/karyawan/uploadKaryawan', [KaryawanController::class, 'uploadKaryawan']);
     Route::get('/karyawan/downloadTemplate', [KaryawanController::class, 'downloadTemplateKar']);
+    Route::post('/karyawan/storeshift/{nik}', [KaryawanController::class, 'storeShift'])->name('karyawan.storeShift');
 
     //User
     Route::get('/data/user', [UserController::class,'index']);

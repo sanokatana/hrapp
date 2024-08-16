@@ -66,7 +66,6 @@
                                             <th>Pattern Name</th>
                                             <th>Description</th>
                                             <th>Aksi</th>
-                                            <th>Cycle</th>
                                         </tr>
                                     </thead>
                                     <tbody style="text-align: center;">
@@ -76,37 +75,46 @@
                                             <td>{{ $d->pattern_name}}</td>
                                             <td>{{ $d->description}}</td>
                                             <td>
+                                                <!-- Each button on a separate row within the same cell -->
                                                 <div class="form-group">
-                                                    <a href="#" class="edit btn btn-info btn-sm" id="{{ $d->id }}">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-edit">
-                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                            <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                                                            <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                                                            <path d="M16 5l3 3" />
-                                                        </svg>
-                                                    </a>
-                                                    <form action="/shiftpatt/{{$d->id}}/delete" method="POST">
-                                                        @csrf
-                                                        <a class="btn btn-danger btn-sm delete-confirm">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
+                                                    <!-- Edit Button -->
+                                                    <div class="mb-1">
+                                                        <a href="#" class="edit btn btn-info btn-sm" id="{{ $d->id }}">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-edit">
                                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                                <path d="M4 7l16 0" />
-                                                                <path d="M10 11l0 6" />
-                                                                <path d="M14 11l0 6" />
-                                                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                                                <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+                                                                <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                                                                <path d="M16 5l3 3" />
                                                             </svg>
                                                         </a>
-                                                    </form>
+                                                    </div>
+                                                    <!-- Time Button -->
+                                                    <div class="mb-1">
+                                                        <a href="#" class="btn btn-success btn-sm view-cycles" data-pattern-id="{{ $d->id }}">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-eye">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                                                                <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                                                            </svg>
+                                                        </a>
+                                                    </div>
+                                                    <!-- Delete Button -->
+                                                    <div>
+                                                        <form action="/shiftpatt/{{$d->id}}/delete" method="POST" style="display: inline;">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-danger btn-sm delete-confirm" style="border: none; padding-top: 3px; padding-bottom: 3px; padding-right: 5px; padding-left: 5px;">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
+                                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                    <path d="M4 7l16 0" />
+                                                                    <path d="M10 11l0 6" />
+                                                                    <path d="M14 11l0 6" />
+                                                                    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                                                    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                                                </svg>
+                                                            </button>
+                                                        </form>
+                                                    </div>
                                                 </div>
-                                            </td>
-                                            <td>
-                                                <a href="#" class="btn btn-info btn-lg view-cycles" data-pattern-id="{{ $d->id }}">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-eye">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                                                        <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
-                                                </a>
                                             </td>
                                         </tr>
                                         @endforeach
@@ -320,35 +328,35 @@
 
         // Load cycle data into the modal
         function loadCycles(patternId) {
-    $.ajax({
-        url: '/shiftpatt/' + patternId + '/cycles',
-        method: 'GET',
-        success: function(data) {
-            var rows = '';
-            $.each(data.cycles, function(index, cycle) {
-                rows += '<tr>';
-                rows += '<td style="text-align: center;">' + cycle.id + '</td>';
-                rows += '<td><input type="number" class="form-control" name="cycle_day[]" value="' + cycle.cycle_day + '" style="text-align: center;"></td>';
-                rows += '<td>' +
+            $.ajax({
+                url: '/shiftpatt/' + patternId + '/cycles',
+                method: 'GET',
+                success: function(data) {
+                    var rows = '';
+                    $.each(data.cycles, function(index, cycle) {
+                        rows += '<tr>';
+                        rows += '<td style="text-align: center;">' + cycle.id + '</td>';
+                        rows += '<td><input type="number" class="form-control" name="cycle_day[]" value="' + cycle.cycle_day + '" style="text-align: center;"></td>';
+                        rows += '<td>' +
                             '<select class="form-control" name="shift_id[]" style="text-align: center;">';
-                                $.each(data.shifts, function(i, shift) {
-                                    rows += '<option value="' + shift.id + '" ' + (cycle.shift_id == shift.id ? 'selected' : '') + '>' + shift.shift_name + '</option>';
-                                });
-                rows += '</select>' +
-                        '</td>';
-                rows += '<td><input type="text" class="form-control" name="day_name[]" value="' + cycle.day_name + '" style="text-align: center;"></td>';
-                rows += '<td style="text-align: center;">' +
+                        $.each(data.shifts, function(i, shift) {
+                            rows += '<option value="' + shift.id + '" ' + (cycle.shift_id == shift.id ? 'selected' : '') + '>' + shift.shift_name + '</option>';
+                        });
+                        rows += '</select>' +
+                            '</td>';
+                        rows += '<td><input type="text" class="form-control" name="day_name[]" value="' + cycle.day_name + '" style="text-align: center;"></td>';
+                        rows += '<td style="text-align: center;vertical-align: middle;">' +
                             '<form action="/delete-cycle/' + cycle.id + '" method="POST" class="delete-cycle-form">' +
-                                '@csrf' +
-                                '<button type="submit" class="btn btn-danger btn-sm delete-cycle-btn">Delete</button>' +
+                            '@csrf' +
+                            '<button type="submit" class="btn btn-danger btn-sm delete-cycle-btn">Delete</button>' +
                             '</form>' +
-                        '</td>';
-                rows += '</tr>';
+                            '</td>';
+                        rows += '</tr>';
+                    });
+                    $('#cyclesTable tbody').html(rows);
+                }
             });
-            $('#cyclesTable tbody').html(rows);
         }
-    });
-}
 
         // Add new cycle row
         $('#addCycleBtn').click(function() {
@@ -356,14 +364,14 @@
             newRow += '<td style="text-align: center;">New</td>';
             newRow += '<td><input type="number" class="form-control" name="cycle_day[]" style="text-align: center;"></td>';
             newRow += '<td>' +
-                        '<select class="form-control" name="shift_id[]" style="text-align: center;">';
-                            $.each(shifts, function(i, shift) {
-                                newRow += '<option value="' + shift.id + '">' + shift.shift_name + '</option>';
-                            });
+                '<select class="form-control" name="shift_id[]" style="text-align: center;">';
+            $.each(shifts, function(i, shift) {
+                newRow += '<option value="' + shift.id + '">' + shift.shift_name + '</option>';
+            });
             newRow += '</select>' +
-                    '</td>';
+                '</td>';
             newRow += '<td><input type="text" class="form-control" name="day_name[]" style="text-align: center;"></td>';
-            newRow += '<td style="text-align: center;"><button type="button" class="btn btn-danger btn-sm delete-cycle-btn">Delete</button></td>';
+            newRow += '<td style="text-align: center;vertical-align: middle;"><button type="button" class="btn btn-danger btn-sm delete-cycle-btn">Delete</button></td>';
             newRow += '</tr>';
             $('#cyclesTable tbody').append(newRow);
         });

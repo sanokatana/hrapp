@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreEmployeeRequest;
+use App\Models\ShiftPattern;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -34,11 +35,11 @@ class KaryawanController extends Controller
         }
 
         $karyawan = $query->paginate(15)->appends($request->except('page'));
-
+        $shift = ShiftPattern::all(); // Assuming you have a Shift model and you want all shifts
         $department = DB::table('department')->get();
         $jabatan = DB::table('jabatan')->get();
         $location = DB::table('konfigurasi_lokasi')->get();
-        return view("karyawan.index", compact('karyawan', 'department', 'jabatan', 'location'));
+        return view("karyawan.index", compact('karyawan', 'department', 'jabatan', 'location', 'shift'));
     }
 
 
@@ -246,4 +247,21 @@ class KaryawanController extends Controller
             return redirect()->back()->with('danger', 'Error uploading data: ' . $e->getMessage());
         }
     }
+
+    public function storeShift(Request $request, $nik)
+    {
+        // Ensure the $karyawan is found
+        $karyawan = Karyawan::where('nik', $nik)->first();
+
+        if (!$karyawan) {
+            return redirect()->back()->withErrors('Karyawan not found.');
+        }
+
+        // Update the shift pattern ID
+        $karyawan->shift_pattern_id = $request->shift_pattern_id;
+        $karyawan->save();
+
+        return redirect()->back()->with('success', 'Shift updated successfully!');
+    }
+
 }

@@ -154,7 +154,7 @@ class TimeAttendanceController extends Controller
 
                         if ($jamPulangCarbon->gt($jamMasukCarbon)) {
                             $minutesWorked = $jamMasukCarbon->diffInMinutes($jamPulangCarbon);
-                            $totalHours = round(($minutesWorked - 60) / 60, 1); // Subtract 1 hour for rest and round to nearest decimal
+                            $totalHours = round($minutesWorked / 60, 1); // Subtract 1 hour for rest and round to nearest decimal
                         }
                     }
 
@@ -338,7 +338,7 @@ class TimeAttendanceController extends Controller
 
                 if ($jamPulangCarbon->gt($jamMasukCarbon)) {
                     $minutesWorked = $jamMasukCarbon->diffInMinutes($jamPulangCarbon);
-                    $totalHours = round(($minutesWorked - 60) / 60, 1); // Subtract 1 hour for rest and round to nearest decimal
+                    $totalHours = round($minutesWorked / 60, 1); // Subtract 1 hour for rest and round to nearest decimal
                     $processedPresensi[$key]['total_jam_kerja'] = $totalHours;
                 }
             }
@@ -455,7 +455,7 @@ class TimeAttendanceController extends Controller
 
                 if ($jamPulangCarbon->gt($jamMasukCarbon)) {
                     $minutesWorked = $jamMasukCarbon->diffInMinutes($jamPulangCarbon);
-                    $totalHours = round(($minutesWorked - 60) / 60, 1); // Subtract 1 hour for rest and round to nearest decimal
+                    $totalHours = round($minutesWorked / 60, 1); // Subtract 1 hour for rest and round to nearest decimal
                     $processedPresensi[$key]['total_jam_kerja'] = $totalHours;
                 }
             }

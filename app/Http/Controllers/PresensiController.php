@@ -531,7 +531,7 @@ class PresensiController extends Controller
     // Generate all possible dates for the current month excluding weekends
     $dates = collect();
     $currentDate = Carbon::createFromFormat('Y-m-d', "{$tahunini}-{$bulanini}-01");
-    $endDate = Carbon::now();
+    $endDate = Carbon::now()->subDay();
 
     while ($currentDate <= $endDate) {
         $dayOfWeek = $currentDate->dayOfWeek;
