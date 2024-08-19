@@ -15,6 +15,7 @@ class DashboardController extends Controller
         $bulanini = date("m") * 1;
         $tahunini = date("Y");
         $nik = Auth::guard('karyawan')->user()->nik;
+        $nip = Auth::guard('karyawan')->user()->nip;
 
         // Join karyawan and jabatan tables to get nama_jabatan
         $namaUser = DB::table('karyawan')
@@ -75,15 +76,68 @@ class DashboardController extends Controller
             ->get();
 
         // Calculate total notifications
-        $totalNotif = $this->calculateNotifications($historibulanini, $izin, $bulanini, $tahunini, $nik);
+        $totalNotif = $this->calculateNotifications($historibulanini, $izin, $bulanini, $tahunini, $nik, $nip);
+
 
         // Process the presensi data to adjust for izin
-        $processedHistoribulanini = $historibulanini->map(function ($item) use ($izin, $nik) {
-            $date = Carbon::parse($item->tanggal);
-            $isIzin = $this->checkIzin($izin, $nik, $date);
+        $processedHistoribulanini = $historibulanini->map(function ($item) use ($izin, $nik, $nip) {
+            $shiftPatternId = DB::table('karyawan')
+                ->where('nip', $nip)
+                ->value('shift_pattern_id');
 
-            $morning_start = strtotime('06:00:00');
-            $afternoon_start = strtotime('13:00:00');
+            $startShift = Carbon::parse(DB::table('karyawan')
+                ->where('nip', $nip)
+                ->value('start_shift'));
+
+            // Calculate cycle length from shift_pattern_cycle table
+            $cycleLength = DB::table('shift_pattern_cycle')
+                ->where('pattern_id', $shiftPatternId)
+                ->count();
+            $date = Carbon::parse($item->tanggal);
+
+            $dateString = $date->toDateString();
+            $daysFromStart = $date->diffInDays($startShift);
+            $dayOfWeek = Carbon::parse($dateString)->dayOfWeekIso;
+
+            if ($shiftPatternId) {
+
+                if ($cycleLength == 7) {
+                    $shiftId = DB::table('shift_pattern_cycle')
+                        ->where('pattern_id', $shiftPatternId)
+                        ->where('cycle_day', $dayOfWeek)
+                        ->value('shift_id');
+                } else {
+                    $cyclePosition = $daysFromStart % $cycleLength;
+                    $shiftId = DB::table('shift_pattern_cycle')
+                        ->where('pattern_id', $shiftPatternId)
+                        ->where('cycle_day', $cyclePosition + 1)
+                        ->value('shift_id');
+                }
+
+                if ($shiftId) {
+                    // Fetch the early_time and latest_time from the shifts table
+                    $shiftTimes = DB::table('shift')
+                        ->where('id', $shiftId)
+                        ->select('early_time', 'latest_time', 'start_time', 'status')
+                        ->first();
+
+                    $morning_start = strtotime($shiftTimes->early_time);
+                    $work_start = strtotime($shiftTimes->start_time);
+                    $afternoon_start = strtotime($shiftTimes->latest_time);
+                } else {
+                    // Default values if no shift is found
+                    $morning_start = strtotime('05:00:00');
+                    $work_start = strtotime('08:00:00');
+                    $afternoon_start = strtotime('13:00:00');
+                }
+            } else {
+                // Default values if no shift pattern is found
+                $morning_start = strtotime('06:00:00');
+                $work_start = strtotime('08:00:00');
+                $afternoon_start = strtotime('13:00:00');
+            }
+            $isIzin = $this->checkIzin($izin, $nik, $date);
+            $item->jam_kerja = $work_start;
             $jam_masuk_time = strtotime($item->jam_masuk);
             $jam_pulang_time = strtotime($item->jam_pulang);
 
@@ -98,7 +152,6 @@ class DashboardController extends Controller
 
             if ($isIzin) {
                 $status = $isIzin->status;
-                $keputusan = $isIzin->keputusan;
                 $pukul = $isIzin->pukul;
 
                 if ($status == 'Tam' && !$item->jam_masuk) {
@@ -168,7 +221,7 @@ class DashboardController extends Controller
     // =============================================== DASHBOARD NOTIF CONTROLLER =============================================== //
     // =============================================== DASHBOARD NOTIF CONTROLLER =============================================== //
 
-    private function calculateNotifications($historibulanini, $izin, $bulanini, $tahunini, $nik)
+    private function calculateNotifications($historibulanini, $izin, $bulanini, $tahunini, $nik, $nip)
     {
         // Initialize notifications array
         $notifications = [];
@@ -176,7 +229,7 @@ class DashboardController extends Controller
         // Generate all possible dates for the current month excluding weekends
         $dates = collect();
         $currentDate = Carbon::createFromFormat('Y-m-d', "{$tahunini}-{$bulanini}-01");
-        $endDate = Carbon::now();
+        $endDate = Carbon::now()->subDay();
 
         while ($currentDate <= $endDate) {
             $dayOfWeek = $currentDate->dayOfWeek;
@@ -187,10 +240,70 @@ class DashboardController extends Controller
         }
 
         // Process each date in the current month
-        foreach ($dates as $date) {
-            $hasPresensi = $historibulanini->contains('tanggal', $date);
-            $isIzin = $this->checkIzin($izin, $nik, Carbon::parse($date));
+        foreach ($dates as $dateString) {
+            $date = Carbon::parse($dateString); // Convert the string to a Carbon instance
 
+            $hasPresensi = $historibulanini->contains('tanggal', $dateString);
+            $isIzin = $this->checkIzin($izin, $nik, $date);
+
+            $shiftPatternId = DB::table('karyawan')
+                ->where('nip', $nip)
+                ->value('shift_pattern_id');
+
+            $startShift = Carbon::parse(DB::table('karyawan')
+                ->where('nip', $nip)
+                ->value('start_shift'));
+
+            // Calculate cycle length from shift_pattern_cycle table
+            $cycleLength = DB::table('shift_pattern_cycle')
+                ->where('pattern_id', $shiftPatternId)
+                ->count();
+
+            $daysFromStart = $date->diffInDays($startShift);
+            $dayOfWeek = $date->dayOfWeekIso;
+
+            if ($shiftPatternId) {
+
+                if ($cycleLength == 7) {
+                    $shiftId = DB::table('shift_pattern_cycle')
+                        ->where('pattern_id', $shiftPatternId)
+                        ->where('cycle_day', $dayOfWeek)
+                        ->value('shift_id');
+                } else {
+                    $cyclePosition = $daysFromStart % $cycleLength;
+                    $shiftId = DB::table('shift_pattern_cycle')
+                        ->where('pattern_id', $shiftPatternId)
+                        ->where('cycle_day', $cyclePosition + 1)
+                        ->value('shift_id');
+                }
+
+                if ($shiftId) {
+                    // Fetch the early_time and latest_time from the shifts table
+                    $shiftTimes = DB::table('shift')
+                        ->where('id', $shiftId)
+                        ->select('early_time', 'latest_time', 'start_time', 'status', 'end_time')
+                        ->first();
+
+                    $morning_start = strtotime($shiftTimes->early_time);
+                    $afternoon_start = strtotime($shiftTimes->latest_time);
+                    $work_start = strtotime($shiftTimes->start_time);
+                    $end_time = strtotime($shiftTimes->end_time);
+                } else {
+                    // Default values if no shift is found
+                    $morning_start = strtotime('05:00:00');
+                    $afternoon_start = strtotime('13:00:00');
+                    $work_start = strtotime('08:00:00');
+                    $end_time = strtotime('17:00:00');
+                }
+            } else {
+                // Default values if no shift pattern is found
+                $morning_start = strtotime('06:00:00');
+                $afternoon_start = strtotime('13:00:00');
+                $work_start = strtotime('08:00:00');
+                $end_time = strtotime('17:00:00');
+            }
+
+            // ... (the rest of the code remains unchanged)
             $details = [];
 
             if (!$hasPresensi && !$isIzin) {
@@ -208,13 +321,10 @@ class DashboardController extends Controller
                 ];
             } else if ($hasPresensi) {
                 // Find presensi data for the date
-                $presensiData = $historibulanini->firstWhere('tanggal', $date);
-
-                $morning_start = strtotime('06:00:00');
-                $afternoon_start = strtotime('13:00:00');
+                $presensiData = $historibulanini->firstWhere('tanggal', $dateString);
                 $jam_masuk_time = strtotime($presensiData->jam_masuk);
                 $jam_pulang_time = strtotime($presensiData->jam_pulang);
-                $lateness_threshold = strtotime("08:01:00");
+                $lateness_threshold = $work_start;
 
                 if ($jam_masuk_time < $morning_start) {
                     $prev_date = Carbon::parse($presensiData->tanggal)->subDay()->toDateString();
@@ -288,7 +398,7 @@ class DashboardController extends Controller
                         ];
                     }
 
-                    if ($presensiData->jam_pulang && $jam_pulang_time < strtotime('17:00:00')) {
+                    if ($presensiData->jam_pulang && $jam_pulang_time < $end_time) {
                         $details[] = [
                             'status' => 'Pulang Awal',
                             'status_class' => 'text-warning',
@@ -339,7 +449,6 @@ class DashboardController extends Controller
             }
         }
 
-        // Calculate the total notifications
         $totalNotif = count($notifications);
 
         return $totalNotif;
@@ -458,7 +567,7 @@ class DashboardController extends Controller
             ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
             ->where('karyawan.grade', 'NS')
             ->where('sub.earliest_jam_in', '>', '08:00:00')  // Only count entries where they
-            ->select('karyawan.nama_lengkap',DB::raw('COUNT(sub.nip) as total_late_count'))
+            ->select('karyawan.nama_lengkap', DB::raw('COUNT(sub.nip) as total_late_count'))
             ->groupBy('sub.nip', 'karyawan.nama_lengkap')
             ->orderBy('total_late_count', 'desc')
             ->limit(10)

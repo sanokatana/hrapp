@@ -32,7 +32,7 @@ use App\Helpers\DateHelper;
             <li>
                 <div class="item">
                     <div class="icon-box bg-info">
-                        <ion-icon name="information"></ion-icon>
+                        <ion-icon name="information-outline"></ion-icon>
                     </div>
                     <div class="in">
                         <div class="jam-row">

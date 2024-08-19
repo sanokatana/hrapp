@@ -5,7 +5,7 @@ use App\Helpers\DateHelper;
 @endphp
 @if ($totalNotif >= 1)
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         Swal.fire({
             icon: 'info',
             title: 'Anda ada notifikasi',
@@ -79,8 +79,8 @@ use App\Helpers\DateHelper;
             <span id="user-role">{{ $namaUser->nama_jabatan }}</span>
         </div>
         <div class="avatar">
-        <span class="badge bg-danger" style="position:absolute; top:45px; right:29px; font-size:0.6rem; z-index:999">{{ $totalNotif }}</span>
-        <ion-icon name="notifications" style="position:absolute; z-index:999; left: 280px; height:64px; width:40px ; margin-left: 20px; margin-top: 5px ; color: white; vertical-align: middle;"></ion-icon>
+            <span class="badge bg-danger" style="position:absolute; top:45px; right:29px; font-size:0.6rem; z-index:999">{{ $totalNotif }}</span>
+            <ion-icon name="notifications" style="position:absolute; z-index:999; left: 280px; height:64px; width:40px ; margin-left: 20px; margin-top: 5px ; color: white; vertical-align: middle;"></ion-icon>
         </div>
     </div>
 </div>
@@ -147,6 +147,16 @@ use App\Helpers\DateHelper;
                         </div>
                         <div class="menu-name">
                             Training
+                        </div>
+                    </div>
+                    <div class="item-menu text-center">
+                        <div class="menu-icon">
+                            <a href="" class="green" style="font-size: 40px;">
+                                <ion-icon name="camera-outline"></ion-icon>
+                            </a>
+                        </div>
+                        <div class="menu-name">
+                            Absen
                         </div>
                     </div>
                 </div>
@@ -276,51 +286,51 @@ use App\Helpers\DateHelper;
             <div class="tab-pane fade show active" id="home" role="tabpanel">
                 @foreach ($processedHistoribulanini as $d)
                 <ul class="listview image-listview rounded-custom">
-                @php
-                $jam_masuk_time = strtotime($d->jam_masuk);
-                $threshold_time = strtotime("08:00:00");
-                $lateness_threshold = strtotime("08:01:00"); // Lateness threshold at 08:00:30
+                    @php
+                    $jam_masuk_time = strtotime($d->jam_masuk);
+                    $threshold_time = $d->jam_kerja;
+                    $lateness_threshold = $d->jam_kerja;
 
-                // Calculate lateness
-                if ($jam_masuk_time <= $lateness_threshold) {
-                    $lateness = "Tepat Waktu";
-                } else {
-                    $hours_diff = floor(($jam_masuk_time - $threshold_time) / 3600);
-                    $minutes_diff = floor((($jam_masuk_time - $threshold_time) % 3600) / 60);
-                    $lateness = ($hours_diff > 0 ? $hours_diff . " Jam " : "") . ($minutes_diff > 0 ? $minutes_diff . " Menit" : "");
-                }
+                    // Calculate lateness
+                    if ($jam_masuk_time <= $lateness_threshold) {
+                        $lateness="Tepat Waktu" ;
+                        } else {
+                        $hours_diff=floor(($jam_masuk_time - $threshold_time) / 3600);
+                        $minutes_diff=floor((($jam_masuk_time - $threshold_time) % 3600) / 60);
+                        $lateness=($hours_diff> 0 ? $hours_diff . " Jam " : "") . ($minutes_diff > 0 ? $minutes_diff . " Menit" : "");
+                        }
 
-                // Determine status based on lateness
-                $status = ($lateness == "Tepat Waktu") ? "On Time" : "Terlambat";
-            @endphp
+                        // Determine status based on lateness
+                        $status = ($lateness == "Tepat Waktu") ? "On Time" : "Terlambat";
+                        @endphp
 
-                    <li>
-                        <div class="item">
-                            <div class="icon-box bg-info">
-                                <ion-icon name="finger-print-outline"></ion-icon>
-                            </div>
+                        <li>
+                            <div class="item">
+                                <div class="icon-box bg-info">
+                                    <ion-icon name="finger-print-outline"></ion-icon>
+                                </div>
 
-                            <div class="in">
-                                <div class="jam-row">
-                                    <div><b>{{ DateHelper::formatIndonesianDate($d->tanggal) }}</b></div>
-                                    <div class="status {{ $status == 'Terlambat' ? 'text-danger' : 'text-success' }}">
-                                        <b>{{ $status }}</b>
+                                <div class="in">
+                                    <div class="jam-row">
+                                        <div><b>{{ DateHelper::formatIndonesianDate($d->tanggal) }}</b></div>
+                                        <div class="status {{ $status == 'Terlambat' ? 'text-danger' : 'text-success' }}">
+                                            <b>{{ $status }}</b>
+                                        </div>
+                                        <div class="lateness {{ $status == 'Terlambat' ? 'text-warning' : 'text-success' }}">
+                                            ({{ $lateness }})
+                                        </div>
                                     </div>
-                                    <div class="lateness {{ $status == 'Terlambat' ? 'text-warning' : 'text-info' }}">
-                                        ({{ $lateness }})
+                                    <div class="jam-row">
+                                        <div class="jam-in mb-1">
+                                            <span class="badge {{ $status == 'Terlambat' ? 'badge-danger' : 'badge-success' }}" style="width: 70px;">{{ $d->jam_masuk }}</span>
+                                        </div>
+                                        <div class="jam-out">
+                                            <span class="badge {{ $d->jam_pulang != null ? 'badge-success' : "badge-danger" }}" style="width: 70px;">{{ $d->jam_pulang != null ? $d->jam_pulang : "No Scan" }}</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="jam-row">
-                                <div class="jam-in mb-1">
-                                        <span class="badge badge-success" style="width: 70px;">{{ $d->jam_masuk }}</span>
-                                    </div>
-                                    <div class="jam-out">
-                                        <span class="badge badge-danger" style="width: 70px;">{{ $d->jam_pulang != null ? $d->jam_pulang : "No Scan" }}</span>
-                                    </div>
-                                </div>
                             </div>
-                        </div>
-                    </li>
+                        </li>
                 </ul>
                 @endforeach
 

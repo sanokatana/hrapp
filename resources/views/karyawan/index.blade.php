@@ -682,6 +682,11 @@ use App\Helpers\DateHelper;
                             </select>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-12 mt-2">
+                            <input type="date" value="" class="form-control" name="start_shift" id="start_shift" placeholder="">
+                        </div>
+                    </div>
                     <div class="row mt-3">
                         <div class="col-12">
                             <div class="form-group">

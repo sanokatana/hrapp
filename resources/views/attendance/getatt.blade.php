@@ -9,13 +9,13 @@ use App\Helpers\DateHelper;
     <td style="vertical-align: middle;">{{ $d['nama_dept'] }}</td>
     <td style="vertical-align: middle;">{{ DateHelper::formatIndonesianDate($d['tanggal']) }}</td>
     <td style="vertical-align: middle;">
-        {!! $d['jam_masuk'] !== null ? $d['jam_masuk'] : '<span class="badge bg-danger" style="color: white;">No Data</span>' !!}
+        {!! $d['jam_masuk'] !== '' ? $d['jam_masuk'] : '<span class="badge bg-danger" style="color: white;">No Data</span>' !!}
     </td>
     <td style="vertical-align: middle;">
-        {!! $d['jam_pulang'] !== null ? $d['jam_pulang'] : '<span class="badge bg-danger" style="color: white;">No Data</span>' !!}
+        {!! $d['jam_pulang'] !== '' ? $d['jam_pulang'] : '<span class="badge bg-danger" style="color: white;">No Data</span>' !!}
     </td>
     <td style="vertical-align: middle;">
-        @if ($d['jam_masuk'] === null)
+        @if ($d['jam_masuk'] === '')
         <div class="row">
             <span class="badge bg-danger text-yellow-fg" style="color: white;">No Data</span>
             <span class="badge bg-danger-lt" style="color: white;">

@@ -26,6 +26,8 @@ class AttendanceController extends Controller
         // Get the number of days in the selected month
         $daysInMonth = Carbon::create($filterYear, $filterMonth)->daysInMonth;
 
+        $totalWorkdays = $this->getTotalWorkdays($filterYear, $filterMonth);
+
         // Get karyawan data with filters, excluding "Security" department
         $karyawanQuery = DB::table('karyawan')
             ->whereNotIn('kode_dept', function ($query) {
@@ -128,28 +130,46 @@ class AttendanceController extends Controller
                     'attendance' => []
                 ];
 
+                // Get the employee's shift pattern ID and start shift date
+                $shiftPatternId = DB::table('karyawan')
+                    ->where('nip', $k->nip)
+                    ->value('shift_pattern_id');
+
+                $startShift = Carbon::parse(DB::table('karyawan')
+                    ->where('nip', $k->nip)
+                    ->value('start_shift'));
+
+                // Calculate cycle length from shift_pattern_cycle table
+                $cycleLength = DB::table('shift_pattern_cycle')
+                    ->where('pattern_id', $shiftPatternId)
+                    ->count();
+
                 for ($i = 1; $i <= $daysInMonth; $i++) {
                     $date = Carbon::create($filterYear, $filterMonth, $i);
                     $dateString = $date->toDateString();
+                    $daysFromStart = $date->diffInDays($startShift);
                     $dayOfWeek = Carbon::parse($dateString)->dayOfWeekIso;
 
-                    // Get the employee's shift pattern ID
-                    $shiftPatternId = DB::table('karyawan')
-                        ->where('nik', $k->nik)
-                        ->value('shift_pattern_id');
-
                     if ($shiftPatternId) {
-                        // Find the corresponding shift ID for the current cycle day
-                        $shiftId = DB::table('shift_pattern_cycle')
-                            ->where('pattern_id', $shiftPatternId)
-                            ->where('cycle_day', $dayOfWeek)
-                            ->value('shift_id');
+
+                        if ($cycleLength == 7) {
+                            $shiftId = DB::table('shift_pattern_cycle')
+                                ->where('pattern_id', $shiftPatternId)
+                                ->where('cycle_day', $dayOfWeek)
+                                ->value('shift_id');
+                        } else {
+                            $cyclePosition = $daysFromStart % $cycleLength;
+                            $shiftId = DB::table('shift_pattern_cycle')
+                                ->where('pattern_id', $shiftPatternId)
+                                ->where('cycle_day', $cyclePosition + 1)
+                                ->value('shift_id');
+                        }
 
                         if ($shiftId) {
                             // Fetch the early_time and latest_time from the shifts table
                             $shiftTimes = DB::table('shift')
                                 ->where('id', $shiftId)
-                                ->select('early_time', 'latest_time', 'start_time','status')
+                                ->select('early_time', 'latest_time', 'start_time', 'status')
                                 ->first();
 
                             $morning_start = strtotime($shiftTimes->early_time);
@@ -161,6 +181,7 @@ class AttendanceController extends Controller
                             $morning_start = strtotime('05:00:00');
                             $work_start = strtotime('08:00:00');
                             $afternoon_start = strtotime('13:00:00');
+                            $status_work = 'P';
                         }
                     } else {
                         // Default values if no shift pattern is found
@@ -204,7 +225,7 @@ class AttendanceController extends Controller
                         $totalJumlahCuti++;
                     } elseif ($status === 'D') {
                         $totalJumlahDinas++;
-                    } elseif ($status === 'M') {
+                    } elseif ($status === 'MK') {
                         $totalJumlahMangkir++;
                     } else {
                         if (!$date->isWeekend() && !$liburNasional->contains($dateString)) {
@@ -220,7 +241,7 @@ class AttendanceController extends Controller
 
                 $row['jumlah_telat'] = $jumlahTelat;
                 $row['menit_telat'] = $menitTelat;
-                $row['presentase'] = round(($totalTidakHadir / 23) * 100);
+                $row['presentase'] = round(($totalTidakHadir / $totalWorkdays) * 100);
                 $row['totalP'] = $totalHadir;
                 $row['totalT'] = $totalTidakHadir;
                 $row['totalOff'] = $totalJumlahOff;
@@ -267,6 +288,22 @@ class AttendanceController extends Controller
         return view('attendance.attendance', $data);
     }
 
+    private function getTotalWorkdays($year, $month)
+    {
+        $startOfMonth = Carbon::create($year, $month, 1);
+        $endOfMonth = $startOfMonth->copy()->endOfMonth();
+        $totalWorkdays = 0;
+
+        while ($startOfMonth->lte($endOfMonth)) {
+            if (!$startOfMonth->isWeekend()) {
+                $totalWorkdays++;
+            }
+            $startOfMonth->addDay();
+        }
+
+        return $totalWorkdays;
+    }
+
     // Helper function to determine attendance status
     private function getAttendanceStatus($date, $attendance, $isCuti, $isIzin, $work_start, $morning_start, $afternoon_start, $status_work)
     {
@@ -285,7 +322,7 @@ class AttendanceController extends Controller
                 } elseif ($keputusan == 'Ijin') {
                     return 'I';
                 } elseif ($keputusan == 'Mangkir') {
-                    return 'M';
+                    return 'MK';
                 } elseif ($keputusan == 'Tugas Luar') {
                     return 'D';
                 } elseif ($keputusan == 'Potong Cuti') {
@@ -372,6 +409,9 @@ class AttendanceController extends Controller
                 case 'P':
                     $classes[] = ''; // No specific class for present on weekends
                     break;
+                case 'M':
+                    $classes[] = 'kerja-malem'; // No specific class for present on weekends
+                    break;
                 case 'LN':
                     $classes[] = 'dark-yellow';
                     break;
@@ -396,10 +436,13 @@ class AttendanceController extends Controller
                 case 'I':
                     $classes[] = 'izin';
                     break;
+                case 'M':
+                    $classes[] = 'kerja-malem'; // No specific class for present on weekends
+                    break;
                 case 'S':
                     $classes[] = 'sakit';
                     break;
-                case 'M':
+                case 'MK':
                     $classes[] = 'mangkir';
                     break;
                 case 'D':
@@ -559,12 +602,12 @@ class AttendanceController extends Controller
                         'nip' => $nip,
                         'nama_lengkap' => $record->nama_lengkap,
                         'nama_dept' => $record->nama_dept,
-                        'jam_masuk' => null,
-                        'jam_pulang' => null,
+                        'jam_masuk' => '',
+                        'jam_pulang' => '',
                     ];
                 }
 
-                if (is_null($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
+                if (empty($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
                     $processedPresensi[$key]['jam_pulang'] = $record->jam_in;
                 }
             } else {
@@ -576,17 +619,17 @@ class AttendanceController extends Controller
                         'nip' => $nip,
                         'nama_lengkap' => $record->nama_lengkap,
                         'nama_dept' => $record->nama_dept,
-                        'jam_masuk' => null,
-                        'jam_pulang' => null,
+                        'jam_masuk' => '',
+                        'jam_pulang' => '',
                     ];
                 }
 
                 if ($time >= $morning_start && $time < $afternoon_start) {
-                    if (is_null($processedPresensi[$key]['jam_masuk']) || $time < strtotime($processedPresensi[$key]['jam_masuk'])) {
+                    if (empty($processedPresensi[$key]['jam_masuk']) || $time < strtotime($processedPresensi[$key]['jam_masuk'])) {
                         $processedPresensi[$key]['jam_masuk'] = $record->jam_in;
                     }
                 } elseif ($time >= $afternoon_start) {
-                    if (is_null($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
+                    if (empty($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
                         $processedPresensi[$key]['jam_pulang'] = $record->jam_in;
                     }
                 }
@@ -696,12 +739,12 @@ class AttendanceController extends Controller
                         'nip' => $nip,
                         'nama_lengkap' => $record->nama_lengkap,
                         'nama_dept' => $record->nama_dept,
-                        'jam_masuk' => null,
-                        'jam_pulang' => null,
+                        'jam_masuk' => '',
+                        'jam_pulang' => '',
                     ];
                 }
 
-                if (is_null($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
+                if (empty($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
                     $processedPresensi[$key]['jam_pulang'] = $record->jam_in;
                 }
             } else {
@@ -713,17 +756,17 @@ class AttendanceController extends Controller
                         'nip' => $nip,
                         'nama_lengkap' => $record->nama_lengkap,
                         'nama_dept' => $record->nama_dept,
-                        'jam_masuk' => null,
-                        'jam_pulang' => null,
+                        'jam_masuk' => '',
+                        'jam_pulang' => '',
                     ];
                 }
 
                 if ($time >= $morning_start && $time < $afternoon_start) {
-                    if (is_null($processedPresensi[$key]['jam_masuk']) || $time < strtotime($processedPresensi[$key]['jam_masuk'])) {
+                    if (empty($processedPresensi[$key]['jam_masuk']) || $time < strtotime($processedPresensi[$key]['jam_masuk'])) {
                         $processedPresensi[$key]['jam_masuk'] = $record->jam_in;
                     }
                 } elseif ($time >= $afternoon_start) {
-                    if (is_null($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
+                    if (empty($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
                         $processedPresensi[$key]['jam_pulang'] = $record->jam_in;
                     }
                 }

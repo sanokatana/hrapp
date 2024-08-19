@@ -259,6 +259,7 @@ class KaryawanController extends Controller
 
         // Update the shift pattern ID
         $karyawan->shift_pattern_id = $request->shift_pattern_id;
+        $karyawan->start_Shift = $request->start_Shift;
         $karyawan->save();
 
         return redirect()->back()->with('success', 'Shift updated successfully!');

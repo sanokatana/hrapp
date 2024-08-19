@@ -15,8 +15,8 @@ use App\Helpers\DateHelper;
 <ul class="listview image-listview rounded-custom">
     @php
         $jam_masuk_time = strtotime($d->jam_masuk);
-        $threshold_time = strtotime("08:00:00");
-        $lateness_threshold = strtotime("08:01:00"); // Lateness threshold at 08:00:30
+        $threshold_time = $d->jam_kerja;
+        $lateness_threshold = $d->jam_kerja; // Lateness threshold at 08:00:30
 
         // Calculate lateness
         if ($jam_masuk_time <= $lateness_threshold) {
