@@ -64,22 +64,19 @@ class UserController extends Controller
 
     public function update($nik, Request $request)
     {
-        $request->validate([
-            'nik' => 'required|string|max:255',
-            'nama_lengkap' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255',
-            'level' => 'required|string|max:255',
-            'new_password' => 'nullable|string|min:8|confirmed',
-        ]);
-
         $user = User::where('nik', $nik)->firstOrFail();
-        $user->nik = $request->nik;
-        $user->name = $request->nama_lengkap;
-        $user->email = $request->email;
-        $user->level = $request->level;
 
+        // Update the user's level
+        $user->level = $request->input('level');
+
+        // Check if a new password is provided and if it matches the confirmation
         if ($request->filled('new_password')) {
-            $user->password = Hash::make($request->new_password);
+            if ($request->input('new_password') === $request->input('new_password_confirmation')) {
+                // Hash the new password and update
+                $user->password = Hash::make($request->input('new_password'));
+            } else {
+                return Redirect::back()->with(['danger' => 'Password confirmation does not match the new password.']);
+            }
         }
 
         try {
@@ -89,6 +86,7 @@ class UserController extends Controller
             return Redirect::back()->with(['danger' => 'Data Gagal Di Update']);
         }
     }
+
 
     public function getEmployeeByNik(Request $request)
     {

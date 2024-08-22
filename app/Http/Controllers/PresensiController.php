@@ -26,74 +26,35 @@ class PresensiController extends Controller
     public function store(Request $request)
     {
         $nik = Auth::guard('karyawan')->user()->nik;
+        $nip = Auth::guard('karyawan')->user()->nip;
         $tgl_presensi = date("Y-m-d");
         $jam = date("H:i:s");
 
-        // Fetch the office location configuration
-        $lok_kantor = DB::table('konfigurasi_lokasi')->where('id', 1)->first();
-
-        // Access the correct property 'lokasi_kantor'
-        $lok = explode(',', $lok_kantor->lokasi_kantor);
-
-        $latitudekantor = $lok[0];
-        $longitudekantor = $lok[1];
-
         $lokasi = $request->lokasi;
-        $lokasiuser = explode(",", $lokasi);
-        $latitudeuser = $lokasiuser[0];
-        $longitudeuser = $lokasiuser[1];
-
-        $jarak = $this->distance($latitudekantor, $longitudekantor, $latitudeuser, $longitudeuser);
-        $radius = round($jarak["meters"]);
-
-        $cek = DB::table('presensi')->where('tgl_presensi', $tgl_presensi)->where('nik', $nik)->count();
-
-        if ($cek > 0) {
-            $ket = "out";
-        } else {
-            $ket = "in";
-        }
 
         $image = $request->image;
         $folderPath = "public/uploads/absensi/";
-        $formatName = $nik . "-" . $tgl_presensi . "-" . $ket;
+        $formatName = $nik . "-" . $tgl_presensi . "-in";  // Always setting "in"
         $image_parts = explode(";base64", $image);
         $image_base64 = base64_decode($image_parts[1]);
         $fileName = $formatName . ".png";
         $file = $folderPath . $fileName;
 
-        if ($radius > $lok_kantor->radius) {
-            echo "error|Maaf Anda Berada Diluar Radius, Jarak Anda" . $radius . " meter dari kantor|radius";
+        $data = [
+            'nip' => $nip,
+            'nik' => $nik,
+            'tgl_presensi' => $tgl_presensi,
+            'jam_in' => $jam,
+            'foto_in' => $fileName,
+            'lokasi_in' => $lokasi
+        ];
+
+        $simpan = DB::table('presensi')->insert($data);
+        if ($simpan) {
+            echo "success|Terima Kasih, Selamat Bekerja|in";
+            Storage::put($file, $image_base64);
         } else {
-            if ($cek > 0) {
-                $data_pulang = [
-                    'jam_out' => $jam,
-                    'foto_out' => $fileName,
-                    'lokasi_out' => $lokasi
-                ];
-                $update = DB::table('presensi')->where('tgl_presensi', $tgl_presensi)->where('nik', $nik)->update($data_pulang);
-                if ($update) {
-                    echo "success|Terima Kasih, Hati Hati Di Jalan|out";
-                    Storage::put($file, $image_base64);
-                } else {
-                    echo "error|Maaf Gagal Absen Hubungi Tim IT|out";
-                }
-            } else {
-                $data = [
-                    'nik' => $nik,
-                    'tgl_presensi' => $tgl_presensi,
-                    'jam_in' => $jam,
-                    'foto_in' => $fileName,
-                    'lokasi_in' => $lokasi
-                ];
-                $simpan = DB::table('presensi')->insert($data);
-                if ($simpan) {
-                    echo "success|Terima Kasih, Selamat Berkerja|in";
-                    Storage::put($file, $image_base64);
-                } else {
-                    echo "error|Maaf Gagal Absen Hubungi Tim IT|in";
-                }
-            }
+            echo "error|Maaf Gagal Absen Hubungi Tim IT|in";
         }
     }
 

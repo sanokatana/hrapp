@@ -76,10 +76,8 @@
 
 @push('myscript')
 <script>
-
     var notifikasi_in = document.getElementById('notifikasi_in');
     var notifikasi_out = document.getElementById('notifikasi_out');
-    var radius_sound = document.getElementById('radius_sound');
 
     Webcam.set({
         height:480,
@@ -96,22 +94,15 @@
     }
 
     function successCallback(position){
-        lokasi.value = position.coords.latitude+ "," + position.coords.longitude;
+        lokasi.value = position.coords.latitude + "," + position.coords.longitude;
         var map = L.map('map').setView([position.coords.latitude, position.coords.longitude], 16);
-        var lokasi_kantor = "{{ $lok_kantor->lokasi_kantor }}";
-        var radius = "{{ $lok_kantor->radius }}";
-        var lok = lokasi_kantor.split(",");
+
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
-        var marker = L.marker([position.coords.latitude, position.coords.longitude]).addTo(map);
-        var circle = L.circle([lok[0], lok[1]], {
-            color: 'red',
-            fillColor: '#f03',
-            fillOpacity: 0.5,
-            radius: radius
-        }).addTo(map);
+
+        L.marker([position.coords.latitude, position.coords.longitude]).addTo(map);
     }
 
     function errorCallback(){
@@ -123,15 +114,15 @@
         });
         var lokasi = $("#lokasi").val();
         $.ajax({
-            type:'POST',
-            url:'/presensi/store',
-            data:{
-                _token:"{{ csrf_token() }}",
-                image:image,
-                lokasi:lokasi
+            type: 'POST',
+            url: '/presensi/store',
+            data: {
+                _token: "{{ csrf_token() }}",
+                image: image,
+                lokasi: lokasi
             },
-            cache:false,
-            success:function(respond){
+            cache: false,
+            success: function(respond){
                 var status = respond.split("|");
                 if(status[0] == "success"){
                     if(status[2] == "in"){
@@ -140,23 +131,21 @@
                         notifikasi_out.play();
                     }
                     Swal.fire({
-                    title: 'Berhasil !',
-                    text: status[1],
-                    icon: 'success',
+                        title: 'Berhasil !',
+                        text: status[1],
+                        icon: 'success',
                     })
                     setTimeout("location.href='/dashboard'", 3000);
-                }else {
-                    if(status[2] == "radius"){
-                        radius_sound.play();
-                    }
+                } else {
                     Swal.fire({
-                    title: 'Error !',
-                    text: status[1],
-                    icon: 'error',
+                        title: 'Error !',
+                        text: status[1],
+                        icon: 'error',
                     })
                 }
             }
         });
     });
 </script>
+
 @endpush

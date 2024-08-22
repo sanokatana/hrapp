@@ -1,4 +1,4 @@
-<form action="/user/{{ $user->nik }}/update" method="POST" id="formUser" enctype="multipart/form-data">
+<form action="/data/user/{{ $user->nik }}/update" method="POST" id="formUser" enctype="multipart/form-data">
     @csrf
     <div class="row">
         <div class="col-12">
@@ -14,7 +14,7 @@
                         <path d="M7 16l10 0" />
                     </svg>
                 </span>
-                <input type="text" value="{{ $user->nik }}" class="form-control" name="nik" id="nik" placeholder="10101">
+                <input type="text" value="{{ $user->nik }}" class="form-control" name="nik" id="nik" placeholder="10101" readonly>
             </div>
         </div>
         <div class="col-12">
@@ -27,7 +27,7 @@
                         <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
                     </svg>
                 </span>
-                <input type="text" value="{{ $user->name }}" class="form-control" name="nama" id="nama" placeholder="John Doe">
+                <input type="text" value="{{ $user->name }}" class="form-control" name="nama" id="nama" placeholder="John Doe" readonly>
             </div>
         </div>
     </div>
@@ -42,7 +42,7 @@
                         <path d="M3 7l9 6l9 -6" />
                     </svg>
                 </span>
-                <input type="text" value="{{ $user->email }}" class="form-control" name="email" id="email" placeholder="@ciptaharmoni.com">
+                <input type="text" value="{{ $user->email }}" class="form-control" name="email" id="email" placeholder="@ciptaharmoni.com" readonly>
             </div>
         </div>
     </div>

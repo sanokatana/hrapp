@@ -151,7 +151,7 @@ use App\Helpers\DateHelper;
                     </div>
                     <div class="item-menu text-center">
                         <div class="menu-icon">
-                            <a href="" class="green" style="font-size: 40px;">
+                            <a href="/presensi/create" class="green" style="font-size: 40px;">
                                 <ion-icon name="camera-outline"></ion-icon>
                             </a>
                         </div>

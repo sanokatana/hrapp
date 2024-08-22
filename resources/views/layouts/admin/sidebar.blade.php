@@ -250,12 +250,14 @@
                                 <a class="dropdown-item {{request()->is(['approval/cutiapproval']) ? 'active' : ''}}" href="/approval/cutiapproval">
                                     Approval Cuti
                                 </a>
+                                @if($userLevel !== 'Management' && $userLevel !== 'Admin')
                                 <a class="dropdown-item {{request()->is(['approval/izinapprovalhrd']) ? 'active' : ''}}" href="/approval/izinapprovalhrd">
                                     Approval Izin HR
                                 </a>
                                 <a class="dropdown-item {{request()->is(['approval/cutiapprovalhrd']) ? 'active' : ''}}" href="/approval/cutiapprovalhrd">
                                     Approval Cuti HR
                                 </a>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -322,7 +324,7 @@
                     </div>
                 </li>
                 @endif
-                @if($userLevel !== 'Management' && $userLevel !== 'Admin')
+                @if($userLevel !== 'Admin')
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
                         <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
