@@ -13,23 +13,23 @@ class PengajuanCutiController extends Controller
 {
     public function buatcuti()
     {
-        $nik = auth()->user()->nik;
-        $currentEmployee = DB::table('karyawan')->where('nik', $nik)->first();
+        $nip = auth()->user()->nip;
+        $currentEmployee = DB::table('karyawan')->where('nip', $nip)->first();
         $kode_dept = $currentEmployee->kode_dept;
         $employees = DB::table('karyawan')
             ->where('kode_dept', $kode_dept)
-            ->where('nik', '!=', $nik)
+            ->where('nip', '!=', $nip)
             ->get();
 
         $cuti = DB::table('cuti')
-            ->where('nik', $nik)
+            ->where('nip', $nip)
             ->where('status', 1)
             ->first();
 
         $periode = $cuti ? $cuti->tahun : '';
         $periode_awal = $cuti ? $cuti->periode_awal : '';
         $periode_akhir = $cuti ? $cuti->periode_akhir : '';
-        $cutiGet = Cuti::where('nik', $nik)
+        $cutiGet = Cuti::where('nip', $nip)
             ->where('tahun', $periode)
             ->first();
 
@@ -42,6 +42,7 @@ class PengajuanCutiController extends Controller
     public function storecuti(Request $request)
     {
         $nik = Auth::guard('karyawan')->user()->nik;
+        $nip = Auth::guard('karyawan')->user()->nip;
         $periode = $request->periode;
         $sisa_cuti = $request->sisa_cuti;
         $tgl_cuti = $request->tgl_cuti;
@@ -54,6 +55,7 @@ class PengajuanCutiController extends Controller
 
         $data = [
             'nik' => $nik,
+            'nip' => $nip,
             'periode' => $periode,
             'sisa_cuti' => $sisa_cuti,
             'tgl_cuti' => $tgl_cuti,
@@ -75,7 +77,7 @@ class PengajuanCutiController extends Controller
             if ($simpan) {
                 // Update the sisa_cuti in the cuti table
                 $cuti = DB::table('cuti')
-                    ->where('nik', $nik)
+                    ->where('nip', $nip)
                     ->where('tahun', $periode)
                     ->first();
 
@@ -83,7 +85,7 @@ class PengajuanCutiController extends Controller
                     $new_sisa_cuti = $cuti->sisa_cuti - $jml_hari;
 
                     DB::table('cuti')
-                        ->where('nik', $nik)
+                        ->where('nip', $nip)
                         ->where('tahun', $periode)
                         ->update(['sisa_cuti' => $new_sisa_cuti]);
                 }
@@ -108,10 +110,10 @@ class PengajuanCutiController extends Controller
 
     public function getSisaCuti(Request $request)
     {
-        $nik = Auth::guard('karyawan')->user()->nik;
+        $nip = Auth::guard('karyawan')->user()->nip;
         $periode = $request->periode;
 
-        $cuti = Cuti::where('nik', $nik)
+        $cuti = Cuti::where('nip', $nip)
             ->where('tahun', $periode)
             ->first();
 
@@ -136,10 +138,10 @@ class PengajuanCutiController extends Controller
     public function buatcutikhusus()
     {
         $tipecuti = DB::table('tipe_cuti')->get();
-        $nik = auth()->user()->nik;
-        $currentEmployee = DB::table('karyawan')->where('nik', $nik)->first();
+        $nip = auth()->user()->nip;
+        $currentEmployee = DB::table('karyawan')->where('nip', $nip)->first();
         $cuti = DB::table('cuti')
-            ->where('nik', $nik)
+            ->where('nip', $nip)
             ->where('status', 1)
             ->first();
 
@@ -152,6 +154,7 @@ class PengajuanCutiController extends Controller
     public function storecutikhusus(Request $request)
     {
         $nik = Auth::guard('karyawan')->user()->nik;
+        $nip = Auth::guard('karyawan')->user()->nip;
         $tgl_cuti = $request->tgl_cuti;
         $tgl_cuti_sampai = $request->tgl_cuti_sampai;
         $jml_hari = $request->jml_hari;
@@ -161,6 +164,7 @@ class PengajuanCutiController extends Controller
 
         $data = [
             'nik' => $nik,
+            'nip' => $nip,
             'tgl_cuti' => $tgl_cuti,
             'tgl_cuti_sampai' => $tgl_cuti_sampai,
             'jml_hari' => $jml_hari,

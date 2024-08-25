@@ -26,30 +26,52 @@ class PresensiController extends Controller
     public function store(Request $request)
     {
         $nik = Auth::guard('karyawan')->user()->nik;
+        $base = Auth::guard('karyawan')->user()->base_poh;
         $nip = Auth::guard('karyawan')->user()->nip;
-        $tgl_presensi = date("Y-m-d");
-        $jam = date("H:i:s");
+        $tgl_presensi = date("Y-m-d"); // Extract the date part for checking existing records
+        $scan_date = date("Y-m-d H:i:s"); // Current date and time
 
-        $lokasi = $request->lokasi;
+        // Retrieve the specific field from the lok_kantor object
+        $lok_kantor = DB::table('konfigurasi_lokasi')
+                    ->where('nama_kantor', $base)
+                    ->first();
+
+        if (!$lok_kantor) {
+            echo "error|Lokasi kantor tidak ditemukan|in";
+            return;
+        }
+
+        $sn = $lok_kantor->no_mesin;
+
+        // Check if an attendance record exists for today
+        $existingRecord = DB::connection('mysql2')->table('att_log')
+            ->whereDate('scan_date', $tgl_presensi)
+            ->where('pin', $nip)
+            ->exists();
+
+        // Set inoutmode based on whether an entry exists
+        $inoutmode = $existingRecord ? 2 : 1;
 
         $image = $request->image;
         $folderPath = "public/uploads/absensi/";
-        $formatName = $nik . "-" . $tgl_presensi . "-in";  // Always setting "in"
+        $formatName = $nip . "-" . $tgl_presensi . "-in";  // Always setting "in"
         $image_parts = explode(";base64", $image);
         $image_base64 = base64_decode($image_parts[1]);
         $fileName = $formatName . ".png";
         $file = $folderPath . $fileName;
 
         $data = [
-            'nip' => $nip,
-            'nik' => $nik,
-            'tgl_presensi' => $tgl_presensi,
-            'jam_in' => $jam,
-            'foto_in' => $fileName,
-            'lokasi_in' => $lokasi
+            'sn' => $sn, // Use the specific field value here
+            'scan_date' => $scan_date,
+            'pin' => $nip,
+            'verifymode' => 1,
+            'inoutmode' => $inoutmode,
+            'reserved' => 0,
+            'work_code' => 0,
+            'att_id' => '0',
         ];
 
-        $simpan = DB::table('presensi')->insert($data);
+        $simpan = DB::connection('mysql2')->table('att_log')->insert($data);
         if ($simpan) {
             echo "success|Terima Kasih, Selamat Bekerja|in";
             Storage::put($file, $image_base64);
@@ -57,6 +79,8 @@ class PresensiController extends Controller
             echo "error|Maaf Gagal Absen Hubungi Tim IT|in";
         }
     }
+
+
 
 
     //Menghitung Jarak
@@ -77,21 +101,21 @@ class PresensiController extends Controller
     public function editprofile()
     {
 
-        $nik = Auth::guard('karyawan')->user()->nik;
-        $karyawan = DB::table('karyawan')->where('nik', $nik)->first();
+        $nip = Auth::guard('karyawan')->user()->nip;
+        $karyawan = DB::table('karyawan')->where('nip', $nip)->first();
         return view('presensi.editprofile', compact('karyawan'));
     }
 
     public function getSisaCutiProfile(Request $request)
     {
-        $nik = Auth::guard('karyawan')->user()->nik;
+        $nip = Auth::guard('karyawan')->user()->nip;
         $cuti = DB::table('cuti')
-            ->where('nik', $nik)
+            ->where('nip', $nip)
             ->where('status', 1)
             ->first();
 
         $periode = $cuti ? $cuti->tahun : '';
-        $cutiGet = Cuti::where('nik', $nik)
+        $cutiGet = Cuti::where('nip', $nip)
             ->where('tahun', $periode)
             ->first();
 
@@ -104,13 +128,13 @@ class PresensiController extends Controller
 
     public function updateprofile(Request $request)
     {
-        $nik = Auth::guard('karyawan')->user()->nik;
+        $nip = Auth::guard('karyawan')->user()->nip;
         $nama_lengkap = $request->nama_lengkap;
         $no_hp = $request->no_hp;
         $password = Hash::make($request->password);;
-        $karyawan = DB::table('karyawan')->where('nik', $nik)->first();
+        $karyawan = DB::table('karyawan')->where('nip', $nip)->first();
         if ($request->hasFile('foto')) {
-            $foto = $nik . "." . $request->file('foto')->getClientOriginalExtension();
+            $foto = $nip . "." . $request->file('foto')->getClientOriginalExtension();
         } else {
             $foto = $karyawan->foto;
         }
@@ -130,7 +154,7 @@ class PresensiController extends Controller
             ];
         }
 
-        $update = DB::table('karyawan')->where('nik', $nik)->update($data);
+        $update = DB::table('karyawan')->where('nip', $nip)->update($data);
         if ($update) {
             if ($request->hasFile('foto')) {
                 $folderPath = "public/uploads/karyawan/";
@@ -154,13 +178,12 @@ class PresensiController extends Controller
         $hariini = date("Y-m-d");
         $bulanini = $request->bulan;
         $tahunini = $request->tahun;
-        $nik = Auth::guard('karyawan')->user()->nik;
         $nip = Auth::guard('karyawan')->user()->nip;
 
         // Join karyawan and jabatan tables to get nama_jabatan
         $namaUser = DB::table('karyawan')
             ->leftJoin('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-            ->where('karyawan.nik', $nik)
+            ->where('karyawan.nip', $nip)
             ->select('karyawan.*', 'jabatan.nama_jabatan')
             ->first();
 
@@ -171,13 +194,13 @@ class PresensiController extends Controller
         $namaUser->first_name = $firstName;
         $namaUser->last_name = $lastName;
 
-        $presensihariini = DB::table('presensi')->where('nik', $nik)
+        $presensihariini = DB::table('presensi')->where('nip', $nip)
             ->where('tgl_presensi', $hariini)
             ->first();
 
         // Fetch approved izin data for the current month
         $izin = DB::table('pengajuan_izin')
-            ->select('nik', 'tgl_izin', 'tgl_izin_akhir', 'status', 'keputusan', 'pukul')
+            ->select('nip', 'tgl_izin', 'tgl_izin_akhir', 'status', 'keputusan', 'pukul')
             ->where('status_approved', 1)
             ->where('status_approved_hrd', 1)
             ->whereRaw('MONTH(tgl_izin) = ?', [$bulanini])
@@ -188,27 +211,27 @@ class PresensiController extends Controller
     DATE(tgl_presensi) as tanggal,
     MIN(jam_in) as jam_masuk,
     MAX(jam_in) as jam_pulang,
-    nik
+    nip
     FROM presensi
-    WHERE nik = ?
+    WHERE nip = ?
         AND MONTH(tgl_presensi) = ?
         AND YEAR(tgl_presensi) = ?
-    GROUP BY DATE(tgl_presensi), nik) as sub"))
+    GROUP BY DATE(tgl_presensi), nip) as sub"))
             ->leftJoin('presensi as p', function ($join) {
                 $join->on('sub.tanggal', '=', DB::raw('DATE(p.tgl_presensi)'))
-                    ->on('sub.nik', '=', 'p.nik')
+                    ->on('sub.nip', '=', 'p.nip')
                     ->whereRaw('p.jam_in = sub.jam_masuk OR p.jam_in = sub.jam_pulang');
             })
             ->select('sub.tanggal', 'sub.jam_masuk', 'sub.jam_pulang', DB::raw('MAX(p.foto_in) as foto_in'), DB::raw('MAX(p.foto_out) as foto_out'))
             ->groupBy('sub.tanggal', 'sub.jam_masuk', 'sub.jam_pulang')
             ->orderBy('sub.tanggal', 'asc')
-            ->setBindings([$nik, $bulanini, $tahunini])
+            ->setBindings([$nip, $bulanini, $tahunini])
             ->get();
 
         // Process the presensi data to adjust for izin
-        $processedHistoribulanini = $historibulanini->map(function ($item) use ($izin, $nik, $nip) {
+        $processedHistoribulanini = $historibulanini->map(function ($item) use ($izin, $nip) {
             $date = Carbon::parse($item->tanggal);
-            $isIzin = $this->checkIzin($izin, $nik, $date);
+            $isIzin = $this->checkIzin($izin, $nip, $date);
 
             $shiftPatternId = DB::table('karyawan')
                 ->where('nip', $nip)
@@ -296,13 +319,13 @@ class PresensiController extends Controller
         return view('presensi.gethistori', compact('processedHistoribulanini'));
     }
 
-    private function checkIzin($izin, $nik, $date)
+    private function checkIzin($izin, $nip, $date)
     {
         foreach ($izin as $i) {
             $start = Carbon::parse($i->tgl_izin);
             $end = Carbon::parse($i->tgl_izin_akhir);
 
-            if ($i->nik == $nik && $date->between($start, $end)) {
+            if ($i->nip == $nip && $date->between($start, $end)) {
                 return $i; // Return the full object, not just true
             }
         }
@@ -312,8 +335,8 @@ class PresensiController extends Controller
     public function izin()
     {
         $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        $nik = Auth::guard('karyawan')->user()->nik;
-        $dataizin = DB::table('pengajuan_izin')->where('nik', $nik)->get();
+        $nip = Auth::guard('karyawan')->user()->nip;
+        $dataizin = DB::table('pengajuan_izin')->where('nip', $nip)->get();
         return view('izin.izin', compact('dataizin', 'namabulan'));
     }
 
@@ -321,12 +344,12 @@ class PresensiController extends Controller
     {
         $bulan = $request->bulan;
         $tahun = $request->tahun;
-        $nik = Auth::guard('karyawan')->user()->nik;
+        $nip = Auth::guard('karyawan')->user()->nip;
 
         $historiizin = DB::table('pengajuan_izin')
             ->whereRaw('MONTH(tgl_izin)="' . $bulan . '"')
             ->whereRaw('YEAR(tgl_izin)="' . $tahun . '"')
-            ->where('nik', $nik)
+            ->where('nip', $nip)
             ->orderBy('tgl_izin')
             ->get();
 
@@ -336,13 +359,13 @@ class PresensiController extends Controller
     {
         $bulan = $request->bulan;
         $tahun = $request->tahun;
-        $nik = Auth::guard('karyawan')->user()->nik;
+        $nip = Auth::guard('karyawan')->user()->nip;
 
         $historicuti = DB::table('pengajuan_cuti')
             ->leftJoin('tipe_cuti', 'pengajuan_cuti.tipe', '=', 'tipe_cuti.id_tipe_cuti')
             ->whereRaw('MONTH(pengajuan_cuti.tgl_cuti) = ?', [$bulan])
             ->whereRaw('YEAR(pengajuan_cuti.tgl_cuti) = ?', [$tahun])
-            ->where('pengajuan_cuti.nik', $nik)
+            ->where('pengajuan_cuti.nip', $nip)
             ->select('pengajuan_cuti.*', 'tipe_cuti.tipe_cuti')
             ->orderBy('pengajuan_cuti.tgl_cuti')
             ->get();
@@ -359,6 +382,7 @@ class PresensiController extends Controller
     public function storeizin(Request $request)
     {
         $nik = Auth::guard('karyawan')->user()->nik;
+        $nip = Auth::guard('karyawan')->user()->nip;
         $tgl_izin = $request->tgl_izin;
         $tgl_izin_akhir = $request->tgl_izin_akhir;
         $jml_hari = $request->jml_hari;
@@ -369,13 +393,14 @@ class PresensiController extends Controller
 
         if ($request->hasFile('foto')) {
             $extension = $request->file('foto')->getClientOriginalExtension();
-            $foto = "Surat_" . $nik . "_" . $currentDate->format('d_m_Y') . "." . $extension;
+            $foto = "Surat_" . $nip . "_" . $currentDate->format('d_m_Y') . "." . $extension;
         } else {
             $foto = "No_Document";
         }
 
         $data = [
             'nik' => $nik,
+            'nip' => $nip,
             'tgl_izin' => $tgl_izin,
             'tgl_izin_akhir' => $tgl_izin_akhir,
             'jml_hari' => $jml_hari,
@@ -495,7 +520,6 @@ class PresensiController extends Controller
 
     public function notifikasi(Request $request)
     {
-        $nik = Auth::guard('karyawan')->user()->nik;
         $nip = Auth::guard('karyawan')->user()->nip;
         $bulanini = date("m");
         $tahunini = date("Y");
@@ -505,26 +529,26 @@ class PresensiController extends Controller
     DATE(tgl_presensi) as tanggal,
     MIN(jam_in) as jam_masuk,
     MAX(jam_in) as jam_pulang,
-    nik
+    nip
     FROM presensi
-    WHERE nik = ?
+    WHERE nip = ?
         AND MONTH(tgl_presensi) = ?
         AND YEAR(tgl_presensi) = ?
-    GROUP BY DATE(tgl_presensi), nik) as sub"))
+    GROUP BY DATE(tgl_presensi), nip) as sub"))
             ->leftJoin('presensi as p', function ($join) {
                 $join->on('sub.tanggal', '=', DB::raw('DATE(p.tgl_presensi)'))
-                    ->on('sub.nik', '=', 'p.nik')
+                    ->on('sub.nip', '=', 'p.nip')
                     ->whereRaw('p.jam_in = sub.jam_masuk OR p.jam_in = sub.jam_pulang');
             })
             ->select('sub.tanggal', 'sub.jam_masuk', 'sub.jam_pulang', DB::raw('MAX(p.foto_in) as foto_in'), DB::raw('MAX(p.foto_out) as foto_out'))
             ->groupBy('sub.tanggal', 'sub.jam_masuk', 'sub.jam_pulang')
             ->orderBy('sub.tanggal', 'asc')
-            ->setBindings([$nik, $bulanini, $tahunini])
+            ->setBindings([$nip, $bulanini, $tahunini])
             ->get();
 
         // Fetch approved izin data for the current month
         $izin = DB::table('pengajuan_izin')
-            ->select('nik', 'tgl_izin', 'tgl_izin_akhir', 'status', 'keputusan', 'pukul')
+            ->select('nip', 'tgl_izin', 'tgl_izin_akhir', 'status', 'keputusan', 'pukul')
             ->where('status_approved', 1)
             ->where('status_approved_hrd', 1)
             ->whereRaw('MONTH(tgl_izin) = ?', [$bulanini])
@@ -551,7 +575,7 @@ class PresensiController extends Controller
         foreach ($dates as $dateString) {
             $date = Carbon::parse($dateString);
             $hasPresensi = $historibulanini->contains('tanggal', $dateString);
-            $isIzin = $this->checkIzin($izin, $nik, $date);
+            $isIzin = $this->checkIzin($izin, $nip, $date);
 
             $shiftPatternId = DB::table('karyawan')
                 ->where('nip', $nip)

@@ -14,6 +14,7 @@ class PengajuanCuti extends Model
     // Define fillable attributes
     protected $fillable = [
         'nik',
+        'nip',
         'periode',
         'sisa_cuti',
         'tgl_cuti',

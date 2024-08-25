@@ -172,18 +172,11 @@ use App\Helpers\DateHelper;
                     <div class="card-body">
                         <div class="presencecontent">
                             <div class="iconpresence">
-                                @if ($presensihariini != null && $presensihariini->foto_in != null)
-                                @php
-                                $path = Storage::url('/uploads/absensi/'.$presensihariini->foto_in);
-                                @endphp
-                                <img src="{{ url($path) }}" alt="" class="imaged w48">
-                                @else
                                 <ion-icon name="finger-print-outline"></ion-icon>
-                                @endif
                             </div>
                             <div class="presencedetail">
                                 <h4 class="presencetitle">Masuk</h4>
-                                <span>{{ $presensihariini != null ? $presensihariini->jam_in : 'Belum Absen'}}</span>
+                                <span>{{ $arrival ? \Carbon\Carbon::parse($arrival->scan_date)->format('H:i') : 'Belum Absen' }}</span>
                             </div>
                         </div>
                     </div>
@@ -194,27 +187,18 @@ use App\Helpers\DateHelper;
                     <div class="card-body">
                         <div class="presencecontent">
                             <div class="iconpresence">
-                                @if ($presensihariini != null && $presensihariini->foto_out != null)
-                                @php
-                                $path = Storage::url('/uploads/absensi/'.$presensihariini->foto_out);
-                                @endphp
-                                <img src="{{ url($path) }}" alt="" class="imaged w48">
-                                @else
                                 <ion-icon name="finger-print-outline"></ion-icon>
-                                @endif
                             </div>
                             <div class="presencedetail">
                                 <h4 class="presencetitle">Pulang</h4>
-                                <span>{{ $presensihariini != null && $presensihariini->jam_out != null ? $presensihariini->jam_out : 'Belum Absen'}}</span>
+                                <span>{{ $departure ? \Carbon\Carbon::parse($departure->scan_date)->format('H:i') : 'Belum Absen' }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
-
     <div id="rekappresensi">
         <h3>Rekap Presensi Bulan {{ $namabulan[$bulanini]}} Tahun {{$tahunini}}</h3>
         <div class="row">

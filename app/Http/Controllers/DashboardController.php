@@ -14,13 +14,14 @@ class DashboardController extends Controller
         $hariini = date("Y-m-d");
         $bulanini = date("m") * 1;
         $tahunini = date("Y");
-        $nik = Auth::guard('karyawan')->user()->nik;
         $nip = Auth::guard('karyawan')->user()->nip;
+        $tgl_presensi = date("Y-m-d"); // Extract the date part for checking existing records
+        $scan_date = date("Y-m-d H:i:s"); // Current date and time
 
         // Join karyawan and jabatan tables to get nama_jabatan
         $namaUser = DB::table('karyawan')
             ->leftJoin('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-            ->where('karyawan.nik', $nik)
+            ->where('karyawan.nip', $nip)
             ->select('karyawan.*', 'jabatan.nama_jabatan')
             ->first();
 
@@ -41,13 +42,24 @@ class DashboardController extends Controller
             $namaUser->nama_jabatan;
         }
 
-        $presensihariini = DB::table('presensi')->where('nik', $nik)
-            ->where('tgl_presensi', $hariini)
+        $arrival = DB::connection('mysql2')->table('att_log')
+            ->where('pin', $nip)
+            ->whereDate('scan_date', $tgl_presensi)
+            ->whereTime('scan_date', '>=', '05:00:00')
+            ->whereTime('scan_date', '<=', '13:00:00')
+            ->orderBy('scan_date', 'asc')
+            ->first();
+
+        $departure = DB::connection('mysql2')->table('att_log')
+            ->where('pin', $nip)
+            ->whereDate('scan_date', $tgl_presensi)
+            ->whereTime('scan_date', '>', '13:00:00')
+            ->orderBy('scan_date', 'desc')
             ->first();
 
         // Fetch approved izin data for the current month
         $izin = DB::table('pengajuan_izin')
-            ->select('nik', 'tgl_izin', 'tgl_izin_akhir', 'status', 'keputusan', 'pukul')
+            ->select('nip', 'tgl_izin', 'tgl_izin_akhir', 'status', 'keputusan', 'pukul')
             ->where('status_approved', 1)
             ->where('status_approved_hrd', 1)
             ->whereRaw('MONTH(tgl_izin) = ?', [$bulanini])
@@ -58,29 +70,29 @@ class DashboardController extends Controller
         DATE(tgl_presensi) as tanggal,
         MIN(jam_in) as jam_masuk,
         MAX(jam_in) as jam_pulang,
-        nik
+        nip
         FROM presensi
-        WHERE nik = ?
+        WHERE nip = ?
             AND MONTH(tgl_presensi) = ?
             AND YEAR(tgl_presensi) = ?
-        GROUP BY DATE(tgl_presensi), nik) as sub"))
+        GROUP BY DATE(tgl_presensi), nip) as sub"))
             ->leftJoin('presensi as p', function ($join) {
                 $join->on('sub.tanggal', '=', DB::raw('DATE(p.tgl_presensi)'))
-                    ->on('sub.nik', '=', 'p.nik')
+                    ->on('sub.nip', '=', 'p.nip')
                     ->whereRaw('p.jam_in = sub.jam_masuk OR p.jam_in = sub.jam_pulang');
             })
             ->select('sub.tanggal', 'sub.jam_masuk', 'sub.jam_pulang', DB::raw('MAX(p.foto_in) as foto_in'), DB::raw('MAX(p.foto_out) as foto_out'))
             ->groupBy('sub.tanggal', 'sub.jam_masuk', 'sub.jam_pulang')
             ->orderBy('sub.tanggal', 'asc')
-            ->setBindings([$nik, $bulanini, $tahunini])
+            ->setBindings([$nip, $bulanini, $tahunini])
             ->get();
 
         // Calculate total notifications
-        $totalNotif = $this->calculateNotifications($historibulanini, $izin, $bulanini, $tahunini, $nik, $nip);
+        $totalNotif = $this->calculateNotifications($historibulanini, $izin, $bulanini, $tahunini, $nip);
 
 
         // Process the presensi data to adjust for izin
-        $processedHistoribulanini = $historibulanini->map(function ($item) use ($izin, $nik, $nip) {
+        $processedHistoribulanini = $historibulanini->map(function ($item) use ($izin, $nip) {
             $shiftPatternId = DB::table('karyawan')
                 ->where('nip', $nip)
                 ->value('shift_pattern_id');
@@ -136,7 +148,7 @@ class DashboardController extends Controller
                 $work_start = strtotime('08:00:00');
                 $afternoon_start = strtotime('13:00:00');
             }
-            $isIzin = $this->checkIzin($izin, $nik, $date);
+            $isIzin = $this->checkIzin($izin, $nip, $date);
             $item->jam_kerja = $work_start;
             $jam_masuk_time = strtotime($item->jam_masuk);
             $jam_pulang_time = strtotime($item->jam_pulang);
@@ -185,7 +197,7 @@ class DashboardController extends Controller
         $historiizin = DB::table('pengajuan_izin')
             ->whereRaw('MONTH(tgl_izin)="' . $bulanini . '"')
             ->whereRaw('YEAR(tgl_izin)="' . $tahunini . '"')
-            ->where('nik', $nik)
+            ->where('nip', $nip)
             ->orderBy('tgl_izin')
             ->get();
 
@@ -193,14 +205,14 @@ class DashboardController extends Controller
             ->leftJoin('tipe_cuti', 'pengajuan_cuti.tipe', '=', 'tipe_cuti.id_tipe_cuti')
             ->whereRaw('MONTH(pengajuan_cuti.tgl_cuti) = ?', [$bulanini])
             ->whereRaw('YEAR(pengajuan_cuti.tgl_cuti) = ?', [$tahunini])
-            ->where('pengajuan_cuti.nik', $nik)
+            ->where('pengajuan_cuti.nip', $nip)
             ->select('pengajuan_cuti.*', 'tipe_cuti.tipe_cuti')
             ->orderBy('pengajuan_cuti.tgl_cuti')
             ->get();
 
         $rekapizin = DB::table('pengajuan_izin')
             ->selectRaw('IFNULL(SUM(IF(status != "s", 1, 0)), 0) as jmlizin, IFNULL(SUM(IF(status="s", 1, 0)), 0) as jmlsakit')
-            ->where('nik', $nik)
+            ->where('nip', $nip)
             ->whereRaw('MONTH(tgl_izin) = ?', [$bulanini])
             ->whereRaw('YEAR(tgl_izin) = ?', [$tahunini])
             ->first();
@@ -208,20 +220,20 @@ class DashboardController extends Controller
 
         $rekapcuti = DB::table('pengajuan_cuti')
             ->selectRaw('count(id) as jmlcuti')
-            ->where('nik', $nik)
+            ->where('nip', $nip)
             ->whereRaw('MONTH(tgl_cuti)="' . $bulanini . '"')
             ->whereRaw('YEAR(tgl_cuti)="' . $tahunini . '"')
             ->first();
 
         $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        return view('dashboard.dashboard', compact('presensihariini', 'processedHistoribulanini', 'namabulan', 'bulanini', 'tahunini', 'namaUser', 'rekappresensi', 'historiizin', 'historicuti', 'rekapizin', 'rekapcuti', 'totalNotif'));
+        return view('dashboard.dashboard', compact('arrival', 'departure', 'processedHistoribulanini', 'namabulan', 'bulanini', 'tahunini', 'namaUser', 'rekappresensi', 'historiizin', 'historicuti', 'rekapizin', 'rekapcuti', 'totalNotif'));
     }
 
     // =============================================== DASHBOARD NOTIF CONTROLLER =============================================== //
     // =============================================== DASHBOARD NOTIF CONTROLLER =============================================== //
     // =============================================== DASHBOARD NOTIF CONTROLLER =============================================== //
 
-    private function calculateNotifications($historibulanini, $izin, $bulanini, $tahunini, $nik, $nip)
+    private function calculateNotifications($historibulanini, $izin, $bulanini, $tahunini, $nip)
     {
         // Initialize notifications array
         $notifications = [];
@@ -244,7 +256,7 @@ class DashboardController extends Controller
             $date = Carbon::parse($dateString); // Convert the string to a Carbon instance
 
             $hasPresensi = $historibulanini->contains('tanggal', $dateString);
-            $isIzin = $this->checkIzin($izin, $nik, $date);
+            $isIzin = $this->checkIzin($izin, $nip, $date);
 
             $shiftPatternId = DB::table('karyawan')
                 ->where('nip', $nip)
@@ -455,10 +467,10 @@ class DashboardController extends Controller
     }
 
 
-    private function checkIzin($izin, $nik, $date)
+    private function checkIzin($izin, $nip, $date)
     {
         foreach ($izin as $item) {
-            if ($item->nik == $nik && $date->between(Carbon::parse($item->tgl_izin), Carbon::parse($item->tgl_izin_akhir))) {
+            if ($item->nip == $nip && $date->between(Carbon::parse($item->tgl_izin), Carbon::parse($item->tgl_izin_akhir))) {
                 return $item;
             }
         }
