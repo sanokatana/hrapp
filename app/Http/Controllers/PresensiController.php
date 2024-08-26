@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 
@@ -383,6 +384,7 @@ class PresensiController extends Controller
     {
         $nik = Auth::guard('karyawan')->user()->nik;
         $nip = Auth::guard('karyawan')->user()->nip;
+        $nama_lengkap = Auth::guard('karyawan')->user()->nama_lengkap;
         $tgl_izin = $request->tgl_izin;
         $tgl_izin_akhir = $request->tgl_izin_akhir;
         $jml_hari = $request->jml_hari;
@@ -418,6 +420,33 @@ class PresensiController extends Controller
                 $folderPath = "public/uploads/pengajuan_izin/";
                 $request->file('foto')->storeAs($folderPath, $foto);
             }
+
+            // Get the current karyawan's jabatan
+            $jabatanId = Auth::guard('karyawan')->user()->jabatan;
+
+            // Query the jabatan_atasan (supervisor's jabatan) from the jabatan table
+            $atasanJabatan = DB::table('jabatan')->where('id', $jabatanId)->first();
+
+            if ($atasanJabatan && $atasanJabatan->jabatan_atasan) {
+                $atasanJabatanId = $atasanJabatan->jabatan_atasan;
+
+                // Find the karyawan with the supervisor's jabatan
+                $atasan = DB::table('karyawan')->where('jabatan', $atasanJabatanId)->first();
+
+                if ($atasan && $atasan->email) {
+                    // Prepare email content
+                    $emailContent = "Pengajuan Izin Baru Dari {$nama_lengkap} tanggal {$currentDate->toDateTimeString()}";
+
+                    // Send the email using Mail::html
+                    Mail::html($emailContent, function ($message) use ($atasan) {
+                        $message->to($atasan->email)
+                                ->subject('Pengajuan Izin Baru');
+                    });
+                }
+            }
+
+
+
             return redirect('/presensi/izin')->with(['success' => 'Data Berhasil Di Simpan']);
         } else {
             return redirect('/presensi/izin')->with(['error' => 'Data Gagal Di Simpan']);

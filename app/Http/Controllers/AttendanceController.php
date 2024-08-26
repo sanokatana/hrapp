@@ -793,4 +793,6 @@ class AttendanceController extends Controller
 
         return view("attendance.getatt", compact('presensi'));
     }
+
+
 }

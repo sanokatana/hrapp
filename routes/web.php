@@ -9,6 +9,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\KonfigurasiController;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\PengajuanCutiController;
 use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\ShiftController;
@@ -214,7 +215,5 @@ Route::middleware(['auth:user'])->group(function (){
     Route::get('/shiftpatt/{id}/cycles', [ShiftController::class, 'getCycles']);
     Route::post('/shiftpatt/{id}/cycles', [ShiftController::class, 'saveCycles']);
     Route::post('/delete-cycle/{id}', [ShiftController::class, 'deleteCycle']);
-
-
 
 });
