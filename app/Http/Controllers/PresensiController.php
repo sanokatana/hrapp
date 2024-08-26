@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cuti;
 use App\Models\Pengajuanizin;
 use Carbon\Carbon;
+use App\Helpers\DateHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -34,8 +35,8 @@ class PresensiController extends Controller
 
         // Retrieve the specific field from the lok_kantor object
         $lok_kantor = DB::table('konfigurasi_lokasi')
-                    ->where('nama_kantor', $base)
-                    ->first();
+            ->where('nama_kantor', $base)
+            ->first();
 
         if (!$lok_kantor) {
             echo "error|Lokasi kantor tidak ditemukan|in";
@@ -385,6 +386,7 @@ class PresensiController extends Controller
         $nik = Auth::guard('karyawan')->user()->nik;
         $nip = Auth::guard('karyawan')->user()->nip;
         $nama_lengkap = Auth::guard('karyawan')->user()->nama_lengkap;
+        $email_karyawan = Auth::guard('karyawan')->user()->email;
         $tgl_izin = $request->tgl_izin;
         $tgl_izin_akhir = $request->tgl_izin_akhir;
         $jml_hari = $request->jml_hari;
@@ -421,31 +423,46 @@ class PresensiController extends Controller
                 $request->file('foto')->storeAs($folderPath, $foto);
             }
 
-            // Get the current karyawan's jabatan
-            $jabatanId = Auth::guard('karyawan')->user()->jabatan;
-
-            // Query the jabatan_atasan (supervisor's jabatan) from the jabatan table
-            $atasanJabatan = DB::table('jabatan')->where('id', $jabatanId)->first();
+            // Fetch the atasan details
+            $atasanJabatan = DB::table('jabatan')->where('id', Auth::guard('karyawan')->user()->jabatan)->first();
 
             if ($atasanJabatan && $atasanJabatan->jabatan_atasan) {
                 $atasanJabatanId = $atasanJabatan->jabatan_atasan;
-
-                // Find the karyawan with the supervisor's jabatan
                 $atasan = DB::table('karyawan')->where('jabatan', $atasanJabatanId)->first();
 
                 if ($atasan && $atasan->email) {
-                    // Prepare email content
-                    $emailContent = "Pengajuan Izin Baru Dari {$nama_lengkap} tanggal {$currentDate->toDateTimeString()}";
+                    // Prepare the email content
+                    $emailContent = "
+                        Pengajuan Absensi Karyawan<br><br>
+                        Nama : {$nama_lengkap}<br>
+                        Tanggal : {$currentDate->toDateString()}<br>
+                        Pukul : {$currentDate->format('H:i')}<br>
+                        NIK : {$nik}<br>
+                        NIP : {$nip}<br>
+                        Tanggal Izin : ". DateHelper::formatIndonesianDate($tgl_izin). "<br>
+                        Tanggal Izin Sampai : ". DateHelper::formatIndonesianDate($tgl_izin_akhir). "<br>
+                        Jumlah Hari : {$jml_hari}<br>
+                        Status : " . DateHelper::getStatusText($status) . "<br>
+                        Pukul : {$pukul}<br>
+                        Keterangan : {$keterangan}<br><br>
+
+                        Mohon Cek Di hrms.ciptaharmoni.com/panel<br><br>
+
+                        Terima Kasih
+                    ";
 
                     // Send the email using Mail::html
-                    Mail::html($emailContent, function ($message) use ($atasan) {
+                    Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan) {
                         $message->to($atasan->email)
-                                ->subject('Pengajuan Izin Baru');
+                            ->subject("Pengajuan Izin Baru Dari {$nama_lengkap}")
+                            ->cc(['chandrazahran@gmail.com', $email_karyawan])
+                            ->priority(1)  // Set email priority
+                            ->getHeaders()
+                            ->addTextHeader('Importance', 'high')  // Mark as important
+                            ->addTextHeader('X-Priority', '1');  // 1 is the highest priority
                     });
                 }
             }
-
-
 
             return redirect('/presensi/izin')->with(['success' => 'Data Berhasil Di Simpan']);
         } else {

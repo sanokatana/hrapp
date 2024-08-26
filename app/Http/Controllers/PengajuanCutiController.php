@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Cuti;
 use App\Models\PengajuanCuti;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Helpers\DateHelper;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 
 class PengajuanCutiController extends Controller
@@ -43,6 +46,8 @@ class PengajuanCutiController extends Controller
     {
         $nik = Auth::guard('karyawan')->user()->nik;
         $nip = Auth::guard('karyawan')->user()->nip;
+        $nama_lengkap = Auth::guard('karyawan')->user()->nama_lengkap;
+        $email_karyawan = Auth::guard('karyawan')->user()->email;
         $periode = $request->periode;
         $sisa_cuti = $request->sisa_cuti;
         $tgl_cuti = $request->tgl_cuti;
@@ -51,6 +56,7 @@ class PengajuanCutiController extends Controller
         $sisa_cuti_setelah = $request->sisa_cuti_setelah;
         $kar_ganti = $request->kar_ganti;
         $note = $request->note;
+        $currentDate = Carbon::now();
         $jenis = "Cuti Tahunan";
 
         $data = [
@@ -88,6 +94,50 @@ class PengajuanCutiController extends Controller
                         ->where('nip', $nip)
                         ->where('tahun', $periode)
                         ->update(['sisa_cuti' => $new_sisa_cuti]);
+                }
+
+                // Fetch the atasan details
+                $atasanJabatan = DB::table('jabatan')->where('id', Auth::guard('karyawan')->user()->jabatan)->first();
+
+                if ($atasanJabatan && $atasanJabatan->jabatan_atasan) {
+                    $atasanJabatanId = $atasanJabatan->jabatan_atasan;
+                    $atasan = DB::table('karyawan')->where('jabatan', $atasanJabatanId)->first();
+
+                    if ($atasan && $atasan->email) {
+
+                    $emailContent = "
+                            Pengajuan Cuti Karyawan<br><br>
+                            Nama : {$nama_lengkap}<br>
+                            Tanggal : ". DateHelper::formatIndonesianDate($currentDate->toDateString()). "<br>
+                            Pukul : {$currentDate->format('H:i')}<br>
+                            NIK : {$nik}<br>
+                            NIP : {$nip}<br>
+                            Periode : {$periode}<br>
+                            Sisa Cuti : {$sisa_cuti}<br>
+                            Tanggal Cuti : ". DateHelper::formatIndonesianDate($tgl_cuti). "<br>
+                            Tanggal Cuti Sampai : ". DateHelper::formatIndonesianDate($tgl_cuti_sampai). "<br>
+                            Jumlah Hari : {$jml_hari}<br>
+                            Sisa Cuti Setelah : {$sisa_cuti_setelah}<br>
+                            Karyawan Ganti : {$kar_ganti}<br>
+                            Note : {$note}<br>
+                            Jenis : {$jenis}<br><br>
+
+                            Mohon Cek Di hrms.ciptaharmoni.com/panel<br><br>
+
+                            Terima Kasih
+                        ";
+
+                        // Send the email using Mail::html
+                        Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan) {
+                            $message->to($atasan->email)
+                                ->subject("Pengajuan Cuti Baru Dari {$nama_lengkap}")
+                                ->cc(['chandrazahran@gmail.com', $email_karyawan])
+                                ->priority(1)  // Set email priority
+                                ->getHeaders()
+                                ->addTextHeader('Importance', 'high')  // Mark as important
+                                ->addTextHeader('X-Priority', '1');  // 1 is the highest priority
+                        });
+                    }
                 }
 
                 // Commit the transaction
@@ -155,6 +205,8 @@ class PengajuanCutiController extends Controller
     {
         $nik = Auth::guard('karyawan')->user()->nik;
         $nip = Auth::guard('karyawan')->user()->nip;
+        $nama_lengkap = Auth::guard('karyawan')->user()->nama_lengkap;
+        $email_karyawan = Auth::guard('karyawan')->user()->email;
         $tgl_cuti = $request->tgl_cuti;
         $tgl_cuti_sampai = $request->tgl_cuti_sampai;
         $jml_hari = $request->jml_hari;
