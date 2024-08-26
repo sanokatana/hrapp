@@ -29,7 +29,7 @@ class TimeAttendanceController extends Controller
             ->whereNotIn('kode_dept', function ($query) {
                 $query->select('kode_dept')
                     ->from('department')
-                    ->where('nama_dept', '=', 'Security');
+                    ->where('grade', '=', 'NS');
             });
 
         if ($filterNamaLengkap) {

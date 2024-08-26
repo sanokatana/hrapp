@@ -2,6 +2,8 @@
 @section('content')
 @php
 use App\Helpers\DateHelper;
+$user = Auth::guard('karyawan')->user();
+$userDept = $user ? $user->kode_dept : null;
 @endphp
 @if ($totalNotif >= 1)
 <script>
@@ -149,6 +151,7 @@ use App\Helpers\DateHelper;
                             Training
                         </div>
                     </div>
+                    @if($userDept === 'IT')
                     <div class="item-menu text-center">
                         <div class="menu-icon">
                             <a href="/presensi/create" class="green" style="font-size: 40px;">
@@ -159,6 +162,7 @@ use App\Helpers\DateHelper;
                             Absen
                         </div>
                     </div>
+                    @endif
                 </div>
             </div>
         </div>

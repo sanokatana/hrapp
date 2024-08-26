@@ -20,7 +20,6 @@ class AttendanceController extends Controller
 
         // Get the departments excluding "Security"
         $departments = DB::table('department')
-            ->where('nama_dept', '!=', 'Security')
             ->get();
 
         // Get the number of days in the selected month
@@ -33,7 +32,7 @@ class AttendanceController extends Controller
             ->whereNotIn('kode_dept', function ($query) {
                 $query->select('kode_dept')
                     ->from('department')
-                    ->where('nama_dept', '=', 'Security');
+                    ->where('grade', '=', 'NS');
             });
 
         if ($filterNamaLengkap) {
