@@ -191,6 +191,8 @@ Route::middleware(['auth:user'])->group(function (){
     Route::get('/attendance/get_att', [AttendanceController::class,'get_att']);
     Route::get('/attendance/daymonitor', [AttendanceController::class,'daymonitor']);
     Route::get('/attendance/showdaymonitor', [AttendanceController::class,'showdaymonitor']);
+    Route::get('/attendance/database', [AttendanceController::class,'database']);
+    Route::post('/attendance/databaseupdate', [AttendanceController::class,'databaseupdate']);
 
     //Time Attendance
     Route::get('/timeatt/table',[TimeAttendanceController::class,'index']);

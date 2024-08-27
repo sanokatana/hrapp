@@ -292,6 +292,9 @@
                                 <a class="dropdown-item {{request()->is(['attendance/table']) ? 'active' : ''}}" href="/attendance/table">
                                     Attendance Table
                                 </a>
+                                <a class="dropdown-item {{request()->is(['attendance/database']) ? 'active' : ''}}" href="/attendance/database">
+                                    Update Database
+                                </a>
                             </div>
                         </div>
                     </div>
