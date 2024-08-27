@@ -213,7 +213,7 @@ use App\Helpers\DateHelper;
                             <div class="tab-pane active show" id="tabs-home-7" role="tabpanel">
                                 <div class="container-xl">
                                     <div class="row row-cards">
-                                        <div class="col-md-6 col-xl-3">
+                                        <div class="col-md-6 col-xl-6">
                                             <div class="card" style="height: 28rem">
                                                 <div class="card-header">
                                                     <h3 class="card-title">Hadir Hari Ini Staff</h3>
@@ -272,7 +272,7 @@ use App\Helpers\DateHelper;
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-6 col-xl-3">
+                                        <div class="col-md-6 col-xl-6">
                                             <div class="card" style="height: 28rem">
                                                 <div class="card-header">
                                                     <h3 class="card-title">Leaderboard Minute On Time</h3>
@@ -302,7 +302,7 @@ use App\Helpers\DateHelper;
                                             </div>
                                         </div>
 
-                                        <div class="col-md-6 col-xl-3">
+                                        <div class="col-md-6 col-xl-6">
                                             <div class="card" style="height: 28rem">
                                                 <div class="card-header">
                                                     <h3 class="card-title">Leaderboard Minute Telat</h3>
@@ -331,7 +331,7 @@ use App\Helpers\DateHelper;
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-6 col-xl-3">
+                                        <div class="col-md-6 col-xl-6">
                                             <div class="card" style="height: 28rem">
                                                 <div class="card-header">
                                                     <h3 class="card-title">Leaderboard Total Telat</h3>
@@ -366,7 +366,7 @@ use App\Helpers\DateHelper;
                             <div class="tab-pane" id="tabs-profile-7" role="tabpanel">
                                 <div class="container-xl">
                                     <div class="row row-cards">
-                                        <div class="col-md-6 col-xl-3">
+                                        <div class="col-md-6 col-xl-6">
                                             <div class="card" style="height: 28rem">
                                                 <div class="card-header">
                                                     <h3 class="card-title">Hadir Hari Ini Non Staff</h3>
@@ -425,7 +425,7 @@ use App\Helpers\DateHelper;
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-6 col-xl-3">
+                                        <div class="col-md-6 col-xl-6">
                                             <div class="card" style="height: 28rem">
                                                 <div class="card-header">
                                                     <h3 class="card-title">Leaderboard Minute On Time</h3>
@@ -455,7 +455,7 @@ use App\Helpers\DateHelper;
                                             </div>
                                         </div>
 
-                                        <div class="col-md-6 col-xl-3">
+                                        <div class="col-md-6 col-xl-6">
                                             <div class="card" style="height: 28rem">
                                                 <div class="card-header">
                                                     <h3 class="card-title">Leaderboard Minute Telat</h3>
@@ -484,7 +484,7 @@ use App\Helpers\DateHelper;
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-6 col-xl-3">
+                                        <div class="col-md-6 col-xl-6">
                                             <div class="card" style="height: 28rem">
                                                 <div class="card-header">
                                                     <h3 class="card-title">Leaderboard Total Telat</h3>

@@ -19,10 +19,12 @@ class KonfigurasiController extends Controller
         $nama_kantor = $request->nama_kantor;
         $lokasi_kantor = $request->lokasi_kantor;
         $radius = $request->radius;
+        $no_mesin = $request->no_mesin;
         $data = [
             'nama_kantor' => $nama_kantor,
             'lokasi_kantor' => $lokasi_kantor,
-            'radius'=> $radius
+            'radius'=> $radius,
+            'no_mesin' => $no_mesin
         ];
 
         $simpan = DB::table('konfigurasi_lokasi')
@@ -43,10 +45,12 @@ class KonfigurasiController extends Controller
         $nama_kantor = $request->nama_kantor;
         $lokasi_kantor = $request->lokasi_kantor;
         $radius = $request->radius;
+        $no_mesin = $request->no_mesin;
         $data = [
             'nama_kantor'=>$nama_kantor,
             'lokasi_kantor' => $lokasi_kantor,
-            'radius'=> $radius
+            'radius'=> $radius,
+            'no_mesin' => $no_mesin
         ];
 
         $update = DB::table('konfigurasi_lokasi')->where('id',$id)->update($data);

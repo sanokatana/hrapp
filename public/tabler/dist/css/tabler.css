@@ -19217,6 +19217,7 @@ Navbar nav
     display: flex;
     flex-direction: column;
     justify-content: center;
+    margin-bottom: 10px;
 }
 
 /**

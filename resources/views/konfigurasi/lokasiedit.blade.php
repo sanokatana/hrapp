@@ -48,6 +48,17 @@
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="form-label">Nomer Mesin</div>
+            <div class="input-icon mb-3">
+                <span class="input-icon-addon">
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-device-laptop"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 19l18 0" /><path d="M5 6m0 1a1 1 0 0 1 1 -1h12a1 1 0 0 1 1 1v8a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1z" /></svg>
+                </span>
+                <input type="text" value="{{ $lokasi->no_mesin}}" class="form-control" name="no_mesin" id="no_mesin" placeholder="FIO">
+            </div>
+        </div>
+    </div>
     <div class="row mt-3">
         <div class="col-12">
             <div class="form-group">

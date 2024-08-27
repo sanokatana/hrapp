@@ -150,7 +150,6 @@ class AttendanceController extends Controller
                     $dayOfWeek = Carbon::parse($dateString)->dayOfWeekIso;
 
                     if ($shiftPatternId) {
-
                         if ($cycleLength == 7) {
                             $shiftId = DB::table('shift_pattern_cycle')
                                 ->where('pattern_id', $shiftPatternId)
@@ -165,28 +164,51 @@ class AttendanceController extends Controller
                         }
 
                         if ($shiftId) {
-                            // Fetch the early_time and latest_time from the shifts table
+                            // Fetch the early_time, start_time, latest_time, and status from the shifts table
                             $shiftTimes = DB::table('shift')
                                 ->where('id', $shiftId)
                                 ->select('early_time', 'latest_time', 'start_time', 'status')
                                 ->first();
 
-                            $morning_start = strtotime($shiftTimes->early_time);
-                            $work_start = strtotime($shiftTimes->start_time);
-                            $afternoon_start = strtotime($shiftTimes->latest_time);
-                            $status_work = $shiftTimes->status;
+                            if ($shiftTimes) {
+                                // Check if 'early_time', 'start_time', and 'latest_time' are not null
+                                $morning_start = $shiftTimes->early_time ? strtotime($shiftTimes->early_time) : null;
+                                $work_start = $shiftTimes->start_time ? strtotime($shiftTimes->start_time) : null;
+                                $afternoon_start = $shiftTimes->latest_time ? strtotime($shiftTimes->latest_time) : null;
+                                $status_work = $shiftTimes->status;
+                            } else {
+                                // Handle missing shift times by setting to null
+                                $morning_start = null;
+                                $work_start = null;
+                                $afternoon_start = null;
+                                $status_work = null;
+                            }
                         } else {
-                            // Default values if no shift is found
-                            $morning_start = strtotime('05:00:00');
-                            $work_start = strtotime('08:00:00');
-                            $afternoon_start = strtotime('13:00:00');
-                            $status_work = 'P';
+                            // Handle missing shift pattern for the day
+                            $morning_start = null;
+                            $work_start = null;
+                            $afternoon_start = null;
+                            $status_work = null;
                         }
                     } else {
-                        // Default values if no shift pattern is found
+                        // Handle missing shift pattern ID
+                        $morning_start = null;
+                        $work_start = null;
+                        $afternoon_start = null;
+                        $status_work = null;
+                    }
+
+                    // Set default values if no shift times are available
+                    if ($morning_start === null) {
                         $morning_start = strtotime('06:00:00');
+                    }
+                    if ($work_start === null) {
                         $work_start = strtotime('08:00:00');
+                    }
+                    if ($afternoon_start === null) {
                         $afternoon_start = strtotime('13:00:00');
+                    }
+                    if ($status_work === null) {
                         $status_work = 'P';
                     }
 
@@ -356,7 +378,14 @@ class AttendanceController extends Controller
         }
 
 
-        if ($attendance) {
+        if ($status_work == 'OFF' && $attendance) {
+            $jam_in = Carbon::parse($attendance->earliest_jam_in);
+            if ($jam_in->gte(Carbon::parse($morning_start)) && $jam_in->lt(Carbon::parse($afternoon_start))) {
+                return $jam_in->gt(Carbon::parse($work_start)) ? 'T' : 'P';
+            } else {
+                return 'T';
+            }
+        } else if ($attendance){
             $jam_in = Carbon::parse($attendance->earliest_jam_in);
             if ($jam_in->gte(Carbon::parse($morning_start)) && $jam_in->lt(Carbon::parse($afternoon_start))) {
                 return $jam_in->gt(Carbon::parse($work_start)) ? 'T' : $status_work;
@@ -577,16 +606,31 @@ class AttendanceController extends Controller
                         ->select('early_time', 'latest_time')
                         ->first();
 
-                    $morning_start = strtotime($shiftTimes->early_time);
-                    $afternoon_start = strtotime($shiftTimes->latest_time);
+                    if ($shiftTimes) {
+                        // Check if 'early_time' and 'latest_time' are not null
+                        $morning_start = $shiftTimes->early_time ? strtotime($shiftTimes->early_time) : null;
+                        $afternoon_start = $shiftTimes->latest_time ? strtotime($shiftTimes->latest_time) : null;
+                    } else {
+                        // Handle missing shift times by setting to null
+                        $morning_start = null;
+                        $afternoon_start = null;
+                    }
                 } else {
-                    // Default values if no shift is found
-                    $morning_start = strtotime('06:00:00');
-                    $afternoon_start = strtotime('13:00:00');
+                    // Handle missing shift pattern for the day
+                    $morning_start = null;
+                    $afternoon_start = null;
                 }
             } else {
-                // Default values if no shift pattern is found
+                // Handle missing shift pattern ID
+                $morning_start = null;
+                $afternoon_start = null;
+            }
+
+            // Set default values if no shift times are available
+            if ($morning_start === null) {
                 $morning_start = strtotime('06:00:00');
+            }
+            if ($afternoon_start === null) {
                 $afternoon_start = strtotime('13:00:00');
             }
 
@@ -657,6 +701,7 @@ class AttendanceController extends Controller
     }
 
 
+
     public function daymonitor()
     {
         return view('attendance.daymonitor');
@@ -695,7 +740,6 @@ class AttendanceController extends Controller
             // Determine the current day of the week (1 = Monday, 7 = Sunday)
             $dayOfWeek = Carbon::parse($tanggal)->dayOfWeekIso;
 
-            // Get the employee's shift pattern ID
             $shiftPatternId = DB::table('karyawan')
                 ->where('nip', $nip)
                 ->value('shift_pattern_id');
@@ -714,16 +758,31 @@ class AttendanceController extends Controller
                         ->select('early_time', 'latest_time')
                         ->first();
 
-                    $morning_start = strtotime($shiftTimes->early_time);
-                    $afternoon_start = strtotime($shiftTimes->latest_time);
+                    if ($shiftTimes) {
+                        // Check if 'early_time' and 'latest_time' are not null
+                        $morning_start = $shiftTimes->early_time ? strtotime($shiftTimes->early_time) : null;
+                        $afternoon_start = $shiftTimes->latest_time ? strtotime($shiftTimes->latest_time) : null;
+                    } else {
+                        // Handle missing shift times by setting to null
+                        $morning_start = null;
+                        $afternoon_start = null;
+                    }
                 } else {
-                    // Default values if no shift is found
-                    $morning_start = strtotime('06:00:00');
-                    $afternoon_start = strtotime('13:00:00');
+                    // Handle missing shift pattern for the day
+                    $morning_start = null;
+                    $afternoon_start = null;
                 }
             } else {
-                // Default values if no shift pattern is found
-                $morning_start = strtotime('06:00:00');
+                // Handle missing shift pattern ID
+                $morning_start = null;
+                $afternoon_start = null;
+            }
+
+            // Set default values if no shift times are available
+            if ($morning_start === null) {
+                $morning_start = strtotime('05:00:00');
+            }
+            if ($afternoon_start === null) {
                 $afternoon_start = strtotime('13:00:00');
             }
 
