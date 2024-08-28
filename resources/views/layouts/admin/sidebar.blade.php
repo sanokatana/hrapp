@@ -427,31 +427,25 @@
 </aside>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-    const sidebarToggle = document.getElementById('sidebar-toggle');
-    const sidebar = document.getElementById('sidebar');
-    const pageWrapper = document.querySelector('.page-wrapper');
-    const logoImage = document.querySelector('.navbar-brand img');
-    const dropdownMenus = document.querySelectorAll('.dropdown-menu');
-    const header = document.querySelector('header.navbar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const logoImage = document.querySelector('.navbar-brand img');
+        const dropdownMenus = document.querySelectorAll('.dropdown-menu');
 
-    // Function to update styles based on sidebar state
-    function updateStyles(isCollapsed) {
-        if (isCollapsed) {
-            dropdownMenus.forEach(menu => menu.classList.remove('show')); // Hide all dropdown menus
-            pageWrapper.style.marginLeft = '4rem'; // Adjust margin when collapsed
-            header.style.marginLeft = '5rem'; // Adjust header margin when collapsed
-            logoImage.style.width = '40px'; // Adjust logo width when collapsed
-            logoImage.style.height = '40px'; // Adjust logo height when collapsed
-        } else {
-            pageWrapper.style.marginLeft = '15rem'; // Default margin
-            header.style.marginLeft = '15rem'; // Default header margin
-            logoImage.style.width = '70px'; // Default logo width
-            logoImage.style.height = '60px'; // Default logo height
+        // Function to update styles based on sidebar state
+        function updateStyles(isCollapsed) {
+            if (isCollapsed) {
+                dropdownMenus.forEach(menu => menu.classList.remove('show')); // Hide all dropdown menus
+                logoImage.style.width = '40px'; // Adjust logo width when collapsed
+                logoImage.style.height = '40px'; // Adjust logo height when collapsed
+            } else {
+                logoImage.style.width = '70px'; // Default logo width
+                logoImage.style.height = '60px'; // Default logo height
+            }
         }
-    }
 
-    // Check local storage for sidebar state
-    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        // Check local storage for sidebar state
+        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
         if (isCollapsed) {
             sidebar.classList.add('collapsed');
         }

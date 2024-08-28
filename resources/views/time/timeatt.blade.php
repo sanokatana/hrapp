@@ -43,7 +43,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-12">
+                            <div class="col-12 table-responsive">
                                 <table class="table table-striped table-hover">
                                     <thead>
                                         <tr style="text-align:center;">

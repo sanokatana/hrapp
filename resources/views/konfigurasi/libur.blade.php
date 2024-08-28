@@ -61,7 +61,7 @@ use App\Helpers\DateHelper;
                             </div>
                         </div>
                         <div class="row mt-4">
-                            <div class="col-12">
+                            <div class="col-12 table-responsive">
                                 <table class="table table-vcenter card-table table-striped">
                                     <thead>
                                         <tr>

@@ -60,6 +60,7 @@ use App\Helpers\DateHelper;
                     <div class="card-body">
                         <div class="row">
                             <div class="col-12">
+                                <div class="form-group"></div>
                                 <a href="#" class="btn btn-primary" id="btnTambahKaryawan">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -77,22 +78,22 @@ use App\Helpers\DateHelper;
                             <div class="col-12">
                                 <form action="/karyawan" method="GET">
                                     <div class="row">
-                                        <div class="col-6">
+                                        <div class="col-6 col-sm-6 col-md-4 col-lg-6">
                                             <div class="form-group">
                                                 <input type="text" name="nama_karyawan" id="nama_karyawan" class="form-control" placeholder="Nama Karyawan" value="{{ request('nama_karyawan') }}">
                                             </div>
                                         </div>
-                                        <div class="col-4">
+                                        <div class="col-4 col-sm-4 col-md-6 col-lg-4">
                                             <div class="form-group mb-3">
                                                 <select name="kode_dept" id="kode_dept" class="form-select">
                                                     <option value="">Department</option>
                                                     @foreach ($department as $d)
-                                                    <option {{ request('kode_dept') == $d->kode_dept ? 'selected' : '' }} value="{{ $d->kode_dept }}">{{ $d->nama_dept }}</option>
+                                                        <option {{ request('kode_dept') == $d->kode_dept ? 'selected' : '' }} value="{{ $d->kode_dept }}">{{ $d->nama_dept }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-2">
+                                        <div class="col-2 col-sm-2 col-md-2 col-lg-2">
                                             <div class="form-group">
                                                 <button class="btn btn-primary w-100">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-search">
