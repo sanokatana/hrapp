@@ -74,8 +74,10 @@
                                             <input type="checkbox" name="remember" class="form-check-input" />
                                             <span class="form-check-label">Remember me on this device</span>
                                         </label>
-                                        <span class="form-label-label">
-                                            <a href="./forgot-password.html">I forgot password</a>
+                                    </div>
+                                    <div>
+                                    <span class="form-label-label" >
+                                            <a href="/" style="color: #dabc17 !important;">Dashboard Karyawan</a>
                                         </span>
                                     </div>
                                     <div class="form-footer">

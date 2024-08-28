@@ -134,7 +134,7 @@
                     </div>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <a href="./settings.html" class="dropdown-item">Settings</a>
+                    <a href="#" class="dropdown-item">Settings</a>
                     <a href="/panel/proseslogoutadmin" class="dropdown-item">Logout</a>
                 </div>
             </div>

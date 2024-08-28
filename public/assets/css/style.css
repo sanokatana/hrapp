@@ -1294,6 +1294,11 @@ h6 .badge {
   color: #4f5050 !important;
 }
 
+.text-muted2 {
+    font-size: 15px;
+    color: #dabc17 !important;
+  }
+
 h1 {
   font-size: 34px;
   font-weight: 700;

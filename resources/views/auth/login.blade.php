@@ -69,6 +69,7 @@
                     </div>
                     <div class="form-group boxed mt-2">
                         <div><a href="page-forgot-password.html" class="text-muted">Forgot Password?</a></div>
+                        <div><a href="/panel" class="text-muted2">Admin Dashboard</a></div>
                     </div>
 
                     <div class="form-button-group">
