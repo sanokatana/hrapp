@@ -31,7 +31,7 @@
                                         <path d="M12 5l0 14" />
                                         <path d="M5 12l14 0" />
                                     </svg>
-                                    Upload Cuti
+                                    Upload Attendance
                                 </a>
                             </div>
                         </div>

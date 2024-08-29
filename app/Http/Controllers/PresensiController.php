@@ -21,7 +21,10 @@ class PresensiController extends Controller
         $hariini = date("Y-m-d");
         $nik = Auth::guard('karyawan')->user()->nik;
         $cek = DB::table('presensi')->where('tgl_presensi', $hariini)->where('nik', $nik)->count();
-        $lok_kantor = DB::table('konfigurasi_lokasi')->where('id', 1)->first();
+
+        // Retrieve all location configurations
+        $lok_kantor = DB::table('konfigurasi_lokasi')->get();
+
         return view('presensi.create', compact('cek', 'lok_kantor'));
     }
 
@@ -30,20 +33,25 @@ class PresensiController extends Controller
         $nik = Auth::guard('karyawan')->user()->nik;
         $base = Auth::guard('karyawan')->user()->base_poh;
         $nip = Auth::guard('karyawan')->user()->nip;
-        $tgl_presensi = date("Y-m-d"); // Extract the date part for checking existing records
-        $scan_date = date("Y-m-d H:i:s"); // Current date and time
+        $tgl_presensi = date("Y-m-d");
+        $scan_date = date("Y-m-d H:i:s");
 
-        // Retrieve the specific field from the lok_kantor object
-        $lok_kantor = DB::table('konfigurasi_lokasi')
-            ->where('nama_kantor', $base)
-            ->first();
+        // Retrieve the selected no_mesin value
+        $sn = $request->no_mesin;
 
-        if (!$lok_kantor) {
-            echo "error|Lokasi kantor tidak ditemukan|in";
-            return;
+        // If no_mesin is not selected, use base_poh
+        if (!$sn) {
+            $lok_kantor = DB::table('konfigurasi_lokasi')
+                ->where('nama_kantor', $base)
+                ->first();
+
+            if (!$lok_kantor) {
+                echo "error|Lokasi kantor tidak ditemukan|in";
+                return;
+            }
+
+            $sn = $lok_kantor->no_mesin; // Use no_mesin from the base_poh location
         }
-
-        $sn = $lok_kantor->no_mesin;
 
         // Check if an attendance record exists for today
         $existingRecord = DB::connection('mysql2')->table('att_log')
@@ -56,14 +64,14 @@ class PresensiController extends Controller
 
         $image = $request->image;
         $folderPath = "public/uploads/absensi/";
-        $formatName = $nip . "-" . $tgl_presensi . "-in";  // Always setting "in"
+        $formatName = $nip . "-" . $tgl_presensi . "-in";
         $image_parts = explode(";base64", $image);
         $image_base64 = base64_decode($image_parts[1]);
         $fileName = $formatName . ".png";
         $file = $folderPath . $fileName;
 
         $data = [
-            'sn' => $sn, // Use the specific field value here
+            'sn' => $sn,
             'scan_date' => $scan_date,
             'pin' => $nip,
             'verifymode' => 1,
@@ -81,9 +89,6 @@ class PresensiController extends Controller
             echo "error|Maaf Gagal Absen Hubungi Tim IT|in";
         }
     }
-
-
-
 
     //Menghitung Jarak
     function distance($lat1, $lon1, $lat2, $lon2)
@@ -439,8 +444,8 @@ class PresensiController extends Controller
                         Pukul : {$currentDate->format('H:i')}<br>
                         NIK : {$nik}<br>
                         NIP : {$nip}<br>
-                        Tanggal Izin : ". DateHelper::formatIndonesianDate($tgl_izin). "<br>
-                        Tanggal Izin Sampai : ". DateHelper::formatIndonesianDate($tgl_izin_akhir). "<br>
+                        Tanggal Izin : " . DateHelper::formatIndonesianDate($tgl_izin) . "<br>
+                        Tanggal Izin Sampai : " . DateHelper::formatIndonesianDate($tgl_izin_akhir) . "<br>
                         Jumlah Hari : {$jml_hari}<br>
                         Status : " . DateHelper::getStatusText($status) . "<br>
                         Pukul : {$pukul}<br>

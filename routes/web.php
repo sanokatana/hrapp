@@ -9,6 +9,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\KonfigurasiController;
+use App\Http\Controllers\LaporanController;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\PengajuanCutiController;
 use App\Http\Controllers\PresensiController;
@@ -94,6 +95,8 @@ Route::middleware(['auth:user'])->group(function (){
     Route::post('/karyawan/uploadKaryawan', [KaryawanController::class, 'uploadKaryawan']);
     Route::get('/karyawan/downloadTemplate', [KaryawanController::class, 'downloadTemplateKar']);
     Route::post('/karyawan/storeshift/{nik}', [KaryawanController::class, 'storeShift'])->name('karyawan.storeShift');
+    Route::get('/karyawan/export', [KaryawanController::class, 'export'])->name('export.karyawan');
+
 
     //User
     Route::get('/data/user', [UserController::class,'index']);
@@ -217,5 +220,8 @@ Route::middleware(['auth:user'])->group(function (){
     Route::get('/shiftpatt/{id}/cycles', [ShiftController::class, 'getCycles']);
     Route::post('/shiftpatt/{id}/cycles', [ShiftController::class, 'saveCycles']);
     Route::post('/delete-cycle/{id}', [ShiftController::class, 'deleteCycle']);
+
+    Route::get('/laporan/attendance', [LaporanController::class,'index']);
+    Route::get('/laporan/attendanceExport', [LaporanController::class,'exportData']);
 
 });

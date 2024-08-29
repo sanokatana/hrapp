@@ -329,7 +329,7 @@
                 @endif
                 @if($userLevel !== 'Admin')
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle {{request()->is(['laporan/attendance']) ? 'show' : ''}}" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
                         <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-report">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -346,20 +346,17 @@
                             Laporan
                         </span>
                     </a>
-                    <div class="dropdown-menu">
+                    <div class="dropdown-menu {{request()->is(['laporan/attendance']) ? 'show' : ''}}">
                         <div class="dropdown-menu-columns">
                             <div class="dropdown-menu-column">
-                                <a class="dropdown-item" href="#">
-                                    Presensi
+                                <a class="dropdown-item {{request()->is(['laporan/attendance']) ? 'active' : ''}}" href="/laporan/attendance">
+                                    Attendance Table
                                 </a>
                                 <a class="dropdown-item" href="#">
-                                    Rekap Presensi
+                                    Time Table
                                 </a>
                                 <a class="dropdown-item" href="#">
                                     Izin
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    Sakit
                                 </a>
                                 <a class="dropdown-item" href="#">
                                     Cuti

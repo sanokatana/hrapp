@@ -537,6 +537,13 @@ class DashboardController extends Controller
 
         $historihariNonNS = DB::table('presensi')
             ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
+            ->join(DB::raw('(SELECT nip, MIN(jam_in) as min_jam_in
+                                FROM presensi
+                                WHERE DATE(tgl_presensi) = "' . $hariini . '"
+                                AND jam_in BETWEEN "05:00:00" AND "13:00:00"
+                                GROUP BY nip) as min_presensi'),
+                    'presensi.nip', '=', 'min_presensi.nip')
+            ->where('presensi.jam_in', '=', DB::raw('min_presensi.min_jam_in'))
             ->whereDate('presensi.tgl_presensi', $hariini)
             ->whereBetween('presensi.jam_in', ['05:00:00', '13:00:00'])
             ->where('karyawan.grade', '!=', 'NS')

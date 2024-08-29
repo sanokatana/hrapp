@@ -72,6 +72,9 @@ use App\Helpers\DateHelper;
                                 <a href="#" class="btn btn-primary" id="btnUploadCSV">
                                     Upload CSV
                                 </a>
+                                <a href="/karyawan/export" class="btn btn-primary">
+                                    Export CSV
+                                </a>
                             </div>
                         </div>
                         <div class="row mt-2">

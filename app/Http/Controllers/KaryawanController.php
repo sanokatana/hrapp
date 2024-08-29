@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\KaryawanExport;
 
 class KaryawanController extends Controller
 {
@@ -181,6 +183,8 @@ class KaryawanController extends Controller
                         'DOB' => $dob,
                         'kode_dept' => $mappedData['kode_dept'],
                         'grade' => $mappedData['grade'],
+                        'shift_pattern_id' => $mappedData['shift_pattern_id'],
+                        'start_shift' => $mappedData['start_shift'],
                         'employee_status' => $mappedData['employee_status'],
                         'base_poh' => $mappedData['base_poh'],
                         'nama_pt' => $mappedData['nama_pt'],
@@ -263,6 +267,11 @@ class KaryawanController extends Controller
         $karyawan->save();
 
         return redirect()->back()->with('success', 'Shift updated successfully!');
+    }
+
+    public function export()
+    {
+        return Excel::download(new KaryawanExport, 'karyawan.xlsx');
     }
 
 }
