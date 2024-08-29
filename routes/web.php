@@ -224,4 +224,7 @@ Route::middleware(['auth:user'])->group(function (){
     Route::get('/laporan/attendance', [LaporanController::class,'index']);
     Route::get('/laporan/attendanceExport', [LaporanController::class,'exportData']);
 
+    Route::get('/laporan/time', [LaporanController::class,'timeindex']);
+    Route::get('/laporan/timeExport', [LaporanController::class,'exportTime']);
+
 });

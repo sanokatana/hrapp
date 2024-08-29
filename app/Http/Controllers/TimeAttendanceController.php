@@ -105,9 +105,88 @@ class TimeAttendanceController extends Controller
                     'attendance' => []
                 ];
 
+                // Get the employee's shift pattern ID and start shift date
+                $shiftPatternId = DB::table('karyawan')
+                    ->where('nip', $k->nip)
+                    ->value('shift_pattern_id');
+
+                $startShift = Carbon::parse(DB::table('karyawan')
+                    ->where('nip', $k->nip)
+                    ->value('start_shift'));
+
+                // Calculate cycle length from shift_pattern_cycle table
+                $cycleLength = DB::table('shift_pattern_cycle')
+                    ->where('pattern_id', $shiftPatternId)
+                    ->count();
+
                 for ($i = 1; $i <= $daysInMonth; $i++) {
                     $date = Carbon::create($filterYear, $filterMonth, $i);
                     $dateString = $date->toDateString();
+                    $daysFromStart = $date->diffInDays($startShift);
+                    $dayOfWeek = Carbon::parse($dateString)->dayOfWeekIso;
+
+                    if ($shiftPatternId) {
+                        if ($cycleLength == 7) {
+                            $shiftId = DB::table('shift_pattern_cycle')
+                                ->where('pattern_id', $shiftPatternId)
+                                ->where('cycle_day', $dayOfWeek)
+                                ->value('shift_id');
+                        } else {
+                            $cyclePosition = $daysFromStart % $cycleLength;
+                            $shiftId = DB::table('shift_pattern_cycle')
+                                ->where('pattern_id', $shiftPatternId)
+                                ->where('cycle_day', $cyclePosition + 1)
+                                ->value('shift_id');
+                        }
+
+                        if ($shiftId) {
+                            // Fetch the early_time, start_time, latest_time, and status from the shifts table
+                            $shiftTimes = DB::table('shift')
+                                ->where('id', $shiftId)
+                                ->select('early_time', 'latest_time', 'start_time', 'status')
+                                ->first();
+
+                            if ($shiftTimes) {
+                                // Check if 'early_time', 'start_time', and 'latest_time' are not null
+                                $morning_start = $shiftTimes->early_time ? strtotime($shiftTimes->early_time) : null;
+                                $work_start = $shiftTimes->start_time ? strtotime($shiftTimes->start_time) : null;
+                                $afternoon_start = $shiftTimes->latest_time ? strtotime($shiftTimes->latest_time) : null;
+                                $status_work = $shiftTimes->status;
+                            } else {
+                                // Handle missing shift times by setting to null
+                                $morning_start = null;
+                                $work_start = null;
+                                $afternoon_start = null;
+                                $status_work = null;
+                            }
+                        } else {
+                            // Handle missing shift pattern for the day
+                            $morning_start = null;
+                            $work_start = null;
+                            $afternoon_start = null;
+                            $status_work = null;
+                        }
+                    } else {
+                        // Handle missing shift pattern ID
+                        $morning_start = null;
+                        $work_start = null;
+                        $afternoon_start = null;
+                        $status_work = null;
+                    }
+
+                    // Set default values if no shift times are available
+                    if ($morning_start === null) {
+                        $morning_start = strtotime('06:00:00');
+                    }
+                    if ($work_start === null) {
+                        $work_start = strtotime('08:00:00');
+                    }
+                    if ($afternoon_start === null) {
+                        $afternoon_start = strtotime('13:00:00');
+                    }
+                    if ($status_work === null) {
+                        $status_work = 'P';
+                    }
 
                     // Check if the date is a weekend or national holiday
                     $isWeekend = $date->isWeekend();
@@ -133,17 +212,18 @@ class TimeAttendanceController extends Controller
                     if ($isIzin) {
                         $status = $isIzin->status;
                         $keputusan = $isIzin->keputusan;
+                        $pukul = $isIzin->pukul;
 
                         if ($status == 'Tmk') {
                             $totalHours = 8;
                         } elseif ($status == 'Dt' && $keputusan == 'Terlambat') {
-                            $jamMasuk = '08:00:00';
+                            $jamMasuk = $pukul;
                         } elseif ($status == 'Pa' && $keputusan == 'Pulang Awal') {
-                            $jamPulang = '17:00:00';
+                            $jamPulang = $pukul;
                         } elseif ($status == 'Tam') {
-                            $jamMasuk = '08:00:00';
+                            $jamMasuk = $pukul;
                         } elseif ($status == 'Tap') {
-                            $jamPulang = '17:00:00';
+                            $jamPulang = $pukul;
                         }
                     }
 
@@ -273,8 +353,86 @@ class TimeAttendanceController extends Controller
             $nama_dept = $record->nama_dept;
             $nik = $record->nik; // Get the nik from the record
             $time = strtotime($record->jam_in);
-            $morning_start = strtotime('06:00:00');
-            $afternoon_start = strtotime('13:00:00');
+
+            // Get the employee's shift pattern ID and start shift date
+            $shiftPatternId = DB::table('karyawan')
+                ->where('nip', $nip)
+                ->value('shift_pattern_id');
+
+            $startShift = Carbon::parse(DB::table('karyawan')
+                ->where('nip', $nip)
+                ->value('start_shift'));
+
+            // Calculate cycle length from shift_pattern_cycle table
+            $cycleLength = DB::table('shift_pattern_cycle')
+                ->where('pattern_id', $shiftPatternId)
+                ->count();
+
+            $date = Carbon::parse($tanggal);
+            $daysFromStart = $date->diffInDays($startShift);
+            $dayOfWeek = $date->dayOfWeekIso;
+
+            // Determine the shiftId based on shift pattern
+            if ($shiftPatternId) {
+                if ($cycleLength == 7) {
+                    $shiftId = DB::table('shift_pattern_cycle')
+                        ->where('pattern_id', $shiftPatternId)
+                        ->where('cycle_day', $dayOfWeek)
+                        ->value('shift_id');
+                } else {
+                    $cyclePosition = $daysFromStart % $cycleLength;
+                    $shiftId = DB::table('shift_pattern_cycle')
+                        ->where('pattern_id', $shiftPatternId)
+                        ->where('cycle_day', $cyclePosition + 1)
+                        ->value('shift_id');
+                }
+
+                if ($shiftId) {
+                    $shiftTimes = DB::table('shift')
+                        ->where('id', $shiftId)
+                        ->select('early_time', 'latest_time', 'start_time', 'status')
+                        ->first();
+
+                    if ($shiftTimes) {
+                        $morning_start = $shiftTimes->early_time ? strtotime($shiftTimes->early_time) : strtotime('06:00:00');
+                        $work_start = $shiftTimes->start_time ? strtotime($shiftTimes->start_time) : strtotime('08:00:00');
+                        $afternoon_start = $shiftTimes->latest_time ? strtotime($shiftTimes->latest_time) : strtotime('13:00:00');
+                        $status_work = $shiftTimes->status ?? 'P';
+                    } else {
+                        // Handle missing shift pattern ID
+                        $morning_start = null;
+                        $work_start = null;
+                        $afternoon_start = null;
+                        $status_work = null;
+                    }
+                } else {
+                    // Handle missing shift pattern ID
+                    $morning_start = null;
+                    $work_start = null;
+                    $afternoon_start = null;
+                    $status_work = null;
+                }
+            } else {
+                // Handle missing shift pattern ID
+                $morning_start = null;
+                $work_start = null;
+                $afternoon_start = null;
+                $status_work = null;
+            }
+
+            // Set default values if no shift times are available
+            if ($morning_start === null) {
+                $morning_start = strtotime('06:00:00');
+            }
+            if ($work_start === null) {
+                $work_start = strtotime('08:00:00');
+            }
+            if ($afternoon_start === null) {
+                $afternoon_start = strtotime('13:00:00');
+            }
+            if ($status_work === null) {
+                $status_work = 'P';
+            }
 
             $key = $tanggal . '_' . $nip;
 
@@ -284,18 +442,18 @@ class TimeAttendanceController extends Controller
                     'nip' => $nip,
                     'nama_lengkap' => $record->nama_lengkap,
                     'nama_dept' => $record->nama_dept,
-                    'jam_masuk' => null,
-                    'jam_pulang' => null,
+                    'jam_masuk' => '',
+                    'jam_pulang' => '',
                     'total_jam_kerja' => 0,
                 ];
             }
 
             if ($time >= $morning_start && $time < $afternoon_start) {
-                if (is_null($processedPresensi[$key]['jam_masuk']) || $time < strtotime($processedPresensi[$key]['jam_masuk'])) {
+                if (empty($processedPresensi[$key]['jam_masuk']) || $time < strtotime($processedPresensi[$key]['jam_masuk'])) {
                     $processedPresensi[$key]['jam_masuk'] = $record->jam_in;
                 }
             } elseif ($time >= $afternoon_start) {
-                if (is_null($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
+                if (empty($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
                     $processedPresensi[$key]['jam_pulang'] = $record->jam_in;
                 }
             }
@@ -305,26 +463,27 @@ class TimeAttendanceController extends Controller
             if ($isIzin) {
                 $status = $isIzin->status;
                 $keputusan = $isIzin->keputusan;
+                $pukul = $isIzin->pukul;
 
                 if ($status == 'Tmk') {
-                    $processedPresensi[$key]['jam_masuk'] = '08:00:00';
-                    $processedPresensi[$key]['jam_pulang'] = '17:00:00';
+                    $processedPresensi[$key]['jam_masuk'] = $morning_start;
+                    $processedPresensi[$key]['jam_pulang'] = $afternoon_start;
                 }
 
                 if ($status == 'Dt' && $keputusan == 'Terlambat') {
-                    $processedPresensi[$key]['jam_masuk'] = '08:00:00';
+                    $processedPresensi[$key]['jam_masuk'] = $pukul;
                 }
 
                 if ($status == 'Pa' && $keputusan == 'Pulang Awal') {
-                    $processedPresensi[$key]['jam_pulang'] = '17:00:00';
+                    $processedPresensi[$key]['jam_pulang'] = $pukul;
                 }
 
                 if ($status == 'Tam' && !$processedPresensi[$key]['jam_masuk']) {
-                    $processedPresensi[$key]['jam_masuk'] = '08:00:00';
+                    $processedPresensi[$key]['jam_masuk'] = $pukul;
                 }
 
                 if ($status == 'Tap' && !$processedPresensi[$key]['jam_pulang']) {
-                    $processedPresensi[$key]['jam_pulang'] = '17:00:00';
+                    $processedPresensi[$key]['jam_pulang'] = $pukul;
                 }
             }
 
@@ -358,8 +517,8 @@ class TimeAttendanceController extends Controller
                     $processedPresensi[$key]['nama_lengkap'] = $nama_lengkap;
                     $processedPresensi[$key]['nip'] = $nip;
                     $processedPresensi[$key]['nama_dept'] = $nama_dept;
-                    $processedPresensi[$key]['jam_masuk'] = '08:00:00';
-                    $processedPresensi[$key]['jam_pulang'] = '17:00:00';
+                    $processedPresensi[$key]['jam_masuk'] = $morning_start;
+                    $processedPresensi[$key]['jam_pulang'] = $afternoon_start;
                     $processedPresensi[$key]['total_jam_kerja'] = 8; // Add 8 hours for Tmk status
                 }
 
@@ -397,7 +556,7 @@ class TimeAttendanceController extends Controller
 
         // Fetch approved izin data for the relevant date
         $izin = DB::table('pengajuan_izin')
-            ->select('pengajuan_izin.nik', 'pengajuan_izin.tgl_izin', 'pengajuan_izin.tgl_izin_akhir', 'pengajuan_izin.status', 'pengajuan_izin.keputusan', 'pengajuan_izin.pukul', 'karyawan.nip', 'karyawan.nama_lengkap', 'department.nama_dept')
+            ->select('pengajuan_izin.nik', 'pengajuan_izin.pukul', 'pengajuan_izin.tgl_izin', 'pengajuan_izin.tgl_izin_akhir', 'pengajuan_izin.status', 'pengajuan_izin.keputusan', 'pengajuan_izin.pukul', 'karyawan.nip', 'karyawan.nama_lengkap', 'department.nama_dept')
             ->join('karyawan', 'pengajuan_izin.nik', '=', 'karyawan.nik')
             ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept')
             ->where('status_approved', 1)
@@ -417,8 +576,85 @@ class TimeAttendanceController extends Controller
             $nip = $record->nip;
             $nik = $record->nik;
             $time = strtotime($record->jam_in);
-            $morning_start = strtotime('06:00:00');
-            $afternoon_start = strtotime('13:00:00');
+            // Get the employee's shift pattern ID and start shift date
+            $shiftPatternId = DB::table('karyawan')
+                ->where('nip', $nip)
+                ->value('shift_pattern_id');
+
+            $startShift = Carbon::parse(DB::table('karyawan')
+                ->where('nip', $nip)
+                ->value('start_shift'));
+
+            // Calculate cycle length from shift_pattern_cycle table
+            $cycleLength = DB::table('shift_pattern_cycle')
+                ->where('pattern_id', $shiftPatternId)
+                ->count();
+
+            $date = Carbon::parse($tanggal);
+            $daysFromStart = $date->diffInDays($startShift);
+            $dayOfWeek = $date->dayOfWeekIso;
+
+            // Determine the shiftId based on shift pattern
+            if ($shiftPatternId) {
+                if ($cycleLength == 7) {
+                    $shiftId = DB::table('shift_pattern_cycle')
+                        ->where('pattern_id', $shiftPatternId)
+                        ->where('cycle_day', $dayOfWeek)
+                        ->value('shift_id');
+                } else {
+                    $cyclePosition = $daysFromStart % $cycleLength;
+                    $shiftId = DB::table('shift_pattern_cycle')
+                        ->where('pattern_id', $shiftPatternId)
+                        ->where('cycle_day', $cyclePosition + 1)
+                        ->value('shift_id');
+                }
+
+                if ($shiftId) {
+                    $shiftTimes = DB::table('shift')
+                        ->where('id', $shiftId)
+                        ->select('early_time', 'latest_time', 'start_time', 'status')
+                        ->first();
+
+                    if ($shiftTimes) {
+                        $morning_start = $shiftTimes->early_time ? strtotime($shiftTimes->early_time) : strtotime('06:00:00');
+                        $work_start = $shiftTimes->start_time ? strtotime($shiftTimes->start_time) : strtotime('08:00:00');
+                        $afternoon_start = $shiftTimes->latest_time ? strtotime($shiftTimes->latest_time) : strtotime('13:00:00');
+                        $status_work = $shiftTimes->status ?? 'P';
+                    } else {
+                        // Handle missing shift pattern ID
+                        $morning_start = null;
+                        $work_start = null;
+                        $afternoon_start = null;
+                        $status_work = null;
+                    }
+                } else {
+                    // Handle missing shift pattern ID
+                    $morning_start = null;
+                    $work_start = null;
+                    $afternoon_start = null;
+                    $status_work = null;
+                }
+            } else {
+                // Handle missing shift pattern ID
+                $morning_start = null;
+                $work_start = null;
+                $afternoon_start = null;
+                $status_work = null;
+            }
+
+            // Set default values if no shift times are available
+            if ($morning_start === null) {
+                $morning_start = strtotime('06:00:00');
+            }
+            if ($work_start === null) {
+                $work_start = strtotime('08:00:00');
+            }
+            if ($afternoon_start === null) {
+                $afternoon_start = strtotime('13:00:00');
+            }
+            if ($status_work === null) {
+                $status_work = 'P';
+            }
 
             $key = $tanggal . '_' . $nip;
 
@@ -429,18 +665,18 @@ class TimeAttendanceController extends Controller
                     'nik' => $nik,
                     'nama_lengkap' => $record->nama_lengkap,
                     'nama_dept' => $record->nama_dept,
-                    'jam_masuk' => null,
-                    'jam_pulang' => null,
+                    'jam_masuk' => '',
+                    'jam_pulang' => '',
                     'total_jam_kerja' => 0,
                 ];
             }
 
             if ($time >= $morning_start && $time < $afternoon_start) {
-                if (is_null($processedPresensi[$key]['jam_masuk']) || $time < strtotime($processedPresensi[$key]['jam_masuk'])) {
+                if (empty($processedPresensi[$key]['jam_masuk']) || $time < strtotime($processedPresensi[$key]['jam_masuk'])) {
                     $processedPresensi[$key]['jam_masuk'] = $record->jam_in;
                 }
             } elseif ($time >= $afternoon_start) {
-                if (is_null($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
+                if (empty($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
                     $processedPresensi[$key]['jam_pulang'] = $record->jam_in;
                 }
             }
@@ -465,6 +701,7 @@ class TimeAttendanceController extends Controller
         foreach ($izin as $record) {
             $nik = $record->nik;
             $nip = $record->nip;
+            $pukul = $record->pukul;
             $nama_lengkap = $record->nama_lengkap;
             $nama_dept = $record->nama_dept;
             $tanggalMulai = Carbon::parse($record->tgl_izin);
@@ -491,25 +728,25 @@ class TimeAttendanceController extends Controller
                     $keputusan = $record->keputusan;
 
                     if ($status == 'Tmk') {
-                        $processedPresensi[$key]['jam_masuk'] = '08:00:00';
-                        $processedPresensi[$key]['jam_pulang'] = '17:00:00';
-                        $processedPresensi[$key]['total_jam_kerja'] = 8; // Add 8 hours for Tmk status
+                        $processedPresensi[$key]['jam_masuk'] = $morning_start;
+                        $processedPresensi[$key]['jam_pulang'] = $afternoon_start;
+                        $processedPresensi[$key]['total_jam_kerja'] = $afternoon_start - $morning_start; // Add 8 hours for Tmk status
                     }
 
                     if ($status == 'Dt' && $keputusan == 'Terlambat') {
-                        $processedPresensi[$key]['jam_masuk'] = '08:00:00';
+                        $processedPresensi[$key]['jam_masuk'] = $pukul;
                     }
 
                     if ($status == 'Pa' && $keputusan == 'Pulang Awal') {
-                        $processedPresensi[$key]['jam_pulang'] = '17:00:00';
+                        $processedPresensi[$key]['jam_pulang'] = $pukul;
                     }
 
                     if ($status == 'Tam' && !$processedPresensi[$key]['jam_masuk']) {
-                        $processedPresensi[$key]['jam_masuk'] = '08:00:00';
+                        $processedPresensi[$key]['jam_masuk'] = $pukul;
                     }
 
                     if ($status == 'Tap' && !$processedPresensi[$key]['jam_pulang']) {
-                        $processedPresensi[$key]['jam_pulang'] = '17:00:00';
+                        $processedPresensi[$key]['jam_pulang'] = $pukul;
                     }
                 }
 
