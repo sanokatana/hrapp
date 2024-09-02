@@ -240,24 +240,17 @@ use App\Helpers\DateHelper;
                                             <td>{{ $d->keputusan}}</td>
                                             <td>
                                                 @if ($d->status_approved_hrd == 0)
-                                                <a href="#" class="badge bg-primary btnApprove" style="width:100px; justify-content:space-between" data-id="{{ $d->id }}">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" style="margin:0;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-checkbox">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M9 11l3 3l8 -8" />
-                                                        <path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" />
-                                                    </svg>
+                                                <a href="#" class="badge bg-primary btnApprove" style="width:90px; justify-content:space-between" data-id="{{ $d->id }}">
                                                     Approve
                                                 </a>
                                                 @else
-                                                <a href="#" class="badge bg-danger btnBatalApprove" style="width:100px" id="btnBatalApprove" data-id="{{ $d->id }}">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" style="margin:0;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-checkbox">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M9 11l3 3l8 -8" />
-                                                        <path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" />
-                                                    </svg>
+                                                <a href="#" class="badge bg-danger btnBatalApprove" style="width:90px" id="btnBatalApprove" data-id="{{ $d->id }}">
                                                     Batalkan
                                                 </a>
                                                 @endif
+                                                <a href="#" class="badge bg-info btnPrint mt-1" style="width:90px" id="btnPrint" data-id="{{ $d->id }}">
+                                                    Print
+                                                </a>
                                             </td>
                                         </tr>
                                         @endforeach
@@ -319,7 +312,7 @@ use App\Helpers\DateHelper;
                                 <input placeholder="Jadwal Off Yang Akan Di Ambil" class="form-control" type="text" onfocus="(this.type='date')" onblur="(this.type='text')" id="tgl_jadwal_off" name="tgl_jadwal_off" />
                             </div>
                             <div class="form-group" id="potongContainer" style="display: none;">
-                            <select name="keputusan_potong" id="keputusan_potong" class="form-select">
+                                <select name="keputusan_potong" id="keputusan_potong" class="form-select">
                                     <option value="">Tipe Potong Cuti</option>
                                     <option value="Sakit">Sakit</option>
                                     <option value="Potong Cuti">Potong Cuti</option>
@@ -327,9 +320,9 @@ use App\Helpers\DateHelper;
                                     <option value="Lain-lain">Lain-lain</option>
                                 </select>
                                 <div class="form-group" id="potongContainer2" style="display: none;">
-                                <input placeholder="Tanggal Potong" class="form-control mt-3" type="text" onfocus="(this.type='date')" onblur="(this.type='text')" id="tgl_potong" name="tgl_potong" />
-                                <input placeholder="Tanggal Potong Sampai" class="form-control mt-3" type="text" onfocus="(this.type='date')" onblur="(this.type='text')" id="tgl_potong_sampai" name="tgl_potong_sampai" />
-                                <input placeholder="Berapa Hari Potong Cuti" class="form-control mt-3" type="number" id="potongcuti" name="potongcuti" />
+                                    <input placeholder="Tanggal Potong" class="form-control mt-3" type="text" onfocus="(this.type='date')" onblur="(this.type='text')" id="tgl_potong" name="tgl_potong" />
+                                    <input placeholder="Tanggal Potong Sampai" class="form-control mt-3" type="text" onfocus="(this.type='date')" onblur="(this.type='text')" id="tgl_potong_sampai" name="tgl_potong_sampai" />
+                                    <input placeholder="Berapa Hari Potong Cuti" class="form-control mt-3" type="number" id="potongcuti" name="potongcuti" />
                                 </div>
                             </div>
                             <div class="form-group" id="lainContainer" style="display: none;">
@@ -540,8 +533,201 @@ use App\Helpers\DateHelper;
                 }
             });
         });
+
+        $(document).on('click', '.btnPrint', async function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+
+            try {
+                // Fetch form data
+                const response = await $.ajax({
+                    url: '/approval/printIzin',
+                    type: 'GET',
+                    data: {
+                        id: id
+                    },
+                    dataType: 'json'
+                });
+
+                if (response.error) {
+                    throw new Error(response.error);
+                }
+
+                // Fetch the PDF template
+                const pdfTemplateResponse = await fetch('{{ route("pdf.template") }}');
+                if (!pdfTemplateResponse.ok) {
+                    throw new Error('Failed to fetch the PDF template.');
+                }
+                const pdfTemplateBytes = await pdfTemplateResponse.arrayBuffer();
+
+                // Load the PDF with pdf-lib
+                const {
+                    PDFDocument
+                } = PDFLib;
+                const pdfDoc = await PDFDocument.load(pdfTemplateBytes);
+
+                // Get the form fields
+                const form = pdfDoc.getForm();
+
+                // Set form values from the data
+                const nameField = form.getTextField('nama_lengkap'); // Replace with actual field name
+                nameField.setText(response.nama_lengkap);
+
+                const departmentField = form.getTextField('bagian'); // Replace with actual field name
+                departmentField.setText(response.bagian);
+
+                const tglField = form.getTextField('tanggal'); // Replace with actual field name
+                tglField.setText(response.tanggal);
+
+                const checkboxes = [{
+                        field: 'status',
+                        value: 'Tmk'
+                    },
+                    {
+                        field: 'status1',
+                        value: 'Dt'
+                    },
+                    {
+                        field: 'status2',
+                        value: 'Pa'
+                    },
+                    {
+                        field: 'status3',
+                        value: 'Tam'
+                    },
+                    {
+                        field: 'status4',
+                        value: 'Tap'
+                    },
+                    {
+                        field: 'status5',
+                        value: 'Tjo'
+                    },
+                    // Add other status fields if needed
+                ];
+
+                checkboxes.forEach(({
+                    field,
+                    value
+                }) => {
+                    const checkboxField = form.getCheckBox(field); // Replace with actual checkbox field names
+                    if (response.status === value) {
+                        checkboxField.check();
+                    } else {
+                        checkboxField.uncheck();
+                    }
+                });
+
+                const checkboxesKep = [{
+                        field: 'ket',
+                        value: 'Terlambat'
+                    },
+                    {
+                        field: 'ket1',
+                        value: 'Pulang Awal'
+                    },
+                    {
+                        field: 'ket2',
+                        value: 'Ijin'
+                    },
+                    {
+                        field: 'ket3',
+                        value: 'Mangkir'
+                    },
+                    {
+                        field: 'ket4',
+                        value: 'Sakit'
+                    },
+                    {
+                        field: 'ket5',
+                        value: 'Lain-lain'
+                    },
+                    {
+                        field: 'ket6',
+                        value: 'Tugas Luar'
+                    },
+                    {
+                        field: 'ket7',
+                        value: 'Potong Cuti'
+                    },
+                    {
+                        field: 'ket8',
+                        value: 'Tukar Jadwal Off'
+                    },
+                    // Add other status fields if needed
+                ];
+
+                let isMatched = false;
+                checkboxesKep.forEach(({
+                    field,
+                    value
+                }) => {
+                    const checkboxFieldKep = form.getCheckBox(field); // Replace with actual checkbox field names
+                    if (response.keputusan === value) {
+                        checkboxFieldKep.check();
+                        isMatched = true;
+                    } else {
+                        checkboxFieldKep.uncheck();
+                    }
+                });
+
+                if (!isMatched) {
+                    const lainLainField = form.getCheckBox('ket5'); // Replace with actual field name for 'Lain-lain'
+                    lainLainField.check();
+                }
+
+                const keteranganField = form.getTextField('alesan'); // Replace with actual field name for the first field
+                const keteranganFieldCont = form.getTextField('alesan1'); // Replace with actual field name for the continuation field
+
+                let maxLength = 51; // The maximum number of characters allowed in the first field
+
+                // Function to split the text by word boundary
+                function splitTextByWords(text, maxLength) {
+                    if (text.length <= maxLength) {
+                        return [text, '']; // If text fits within the limit, no splitting is needed
+                    }
+
+                    let lastSpaceIndex = text.lastIndexOf(' ', maxLength); // Find the last space within the limit
+                    if (lastSpaceIndex === -1) {
+                        // If no space is found, break at the maximum length
+                        lastSpaceIndex = maxLength;
+                    }
+
+                    const firstPart = text.substring(0, lastSpaceIndex).trim(); // Get the first part
+                    const remainingText = text.substring(lastSpaceIndex).trim(); // Get the remaining part
+
+                    return [firstPart, remainingText];
+                }
+
+                // Use the function to split the text
+                const [firstPart, secondPart] = splitTextByWords(response.keterangan, maxLength);
+
+                // Set text fields
+                keteranganField.setText(firstPart);
+                if (secondPart) {
+                    keteranganFieldCont.setText(secondPart);
+                }
+
+                // Serialize the PDF document to bytes
+                const pdfBytes = await pdfDoc.save();
+
+                // Create a blob from the PDF bytes
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+
+                // Create a URL for the blob
+                const blobUrl = window.URL.createObjectURL(blob);
+
+                // Open the PDF in a new tab
+                window.open(blobUrl, '_blank');
+            } catch (error) {
+                console.error('Error generating the PDF:', error);
+                Swal.fire(
+                    'Error!',
+                    'Failed to generate the PDF.',
+                    'error'
+                );
+            }
+        });
     });
 </script>
 @endpush
-
-

@@ -17,7 +17,14 @@ class KaryawanExport implements FromCollection, WithHeadings, WithColumnFormatti
      */
     public function collection()
     {
-        return Karyawan::all(); // Adjust this to specify the data you want to export
+        // Modify the data before exporting
+        $karyawans = Karyawan::all();
+
+        return $karyawans->map(function ($karyawan) {
+            $karyawan->nik_ktp = "'" . $karyawan->nik_ktp; // Prefix with a single quote to treat as text
+            $karyawan->family_card = "'" . $karyawan->family_card; // Prefix with a single quote to treat as text
+            return $karyawan;
+        });
     }
 
     /**
@@ -106,9 +113,9 @@ class KaryawanExport implements FromCollection, WithHeadings, WithColumnFormatti
     {
         return [
             'G' => NumberFormat::FORMAT_NUMBER, // Format 'No HP' as a number
-            'AD' => NumberFormat::FORMAT_NUMBER, // Format 'NIK KTP' as a number
+            'AD' => NumberFormat::FORMAT_TEXT, // Format 'NIK KTP' as text
             'AP' => NumberFormat::FORMAT_NUMBER, // Format 'Rek No' as a number
-            'AK' => NumberFormat::FORMAT_NUMBER, // Format 'Family Card' as a number
+            'AK' => NumberFormat::FORMAT_TEXT, // Format 'Family Card' as a number
             'AZ' => NumberFormat::FORMAT_NUMBER, // Format 'FD Anak1 NIK' as a number
             'AV' => NumberFormat::FORMAT_NUMBER, // Format 'FD SI' as a number
             'BD' => NumberFormat::FORMAT_NUMBER, // Format 'FD Anak2 NIK' as a number

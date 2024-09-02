@@ -11,6 +11,7 @@ use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\KonfigurasiController;
 use App\Http\Controllers\LaporanController;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Response;
 use App\Http\Controllers\PengajuanCutiController;
 use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\ShiftController;
@@ -134,6 +135,15 @@ Route::middleware(['auth:user'])->group(function (){
     //Approval
 
     Route::get('/approval/izinapproval', [ApprovalController::class,'izinapproval']);
+    Route::get('/approval/printIzin', [ApprovalController::class,'printIzin'])->name('izin.print');
+    Route::get('/pdf-template', function () {
+        $filePath = storage_path('app/public/uploads/templates/form_absen.pdf');
+        if (!file_exists($filePath)) {
+            abort(404, 'File not found');
+        }
+
+        return Response::file($filePath);
+    })->name('pdf.template');
     Route::post('/approval/approveizin', [ApprovalController::class, 'approveizin']);
     Route::post('/approval/batalapprove/{id}', [ApprovalController::class, 'batalapprove']);
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\DateHelper;
 use App\Models\Karyawan;
 use App\Models\PengajuanCuti;
 use App\Models\Pengajuanizin;
@@ -10,7 +11,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Support\Facades\Storage;
+use mikehaertl\pdftk\Pdf;
+
 
 class ApprovalController extends Controller
 {
@@ -65,79 +71,79 @@ class ApprovalController extends Controller
     public function approveizinhrd(Request $request)
     {
         $id = $request->id_izin_form;
-    $status_approved_hrd = $request->status_approved_hrd;
-    $keputusan = $request->keputusan;
-    $currentDate = Carbon::now();
+        $status_approved_hrd = $request->status_approved_hrd;
+        $keputusan = $request->keputusan;
+        $currentDate = Carbon::now();
 
-    if ($keputusan === 'Potong Cuti') {
-        $potongcuti = $request->potongcuti;
-        $tgl_potong = Carbon::parse($request->tgl_potong);
-        $tgl_potong_sampai = Carbon::parse($request->tgl_potong_sampai);
-        $keputusan_potong = $request->keputusan_potong;
+        if ($keputusan === 'Potong Cuti') {
+            $potongcuti = $request->potongcuti;
+            $tgl_potong = Carbon::parse($request->tgl_potong);
+            $tgl_potong_sampai = Carbon::parse($request->tgl_potong_sampai);
+            $keputusan_potong = $request->keputusan_potong;
 
-        $izin = DB::table('pengajuan_izin')->where('id', $id)->first();
-        $tgl_izin = Carbon::parse($izin->tgl_izin);
-        $tgl_izin_akhir = Carbon::parse($izin->tgl_izin_akhir);
+            $izin = DB::table('pengajuan_izin')->where('id', $id)->first();
+            $tgl_izin = Carbon::parse($izin->tgl_izin);
+            $tgl_izin_akhir = Carbon::parse($izin->tgl_izin_akhir);
 
-        if ($keputusan_potong !== 'Potong Cuti') {
-            // Adjust tgl_izin and tgl_izin_akhir based on tgl_potong and tgl_potong_sampai
-            if (Carbon::parse($tgl_potong)->eq(Carbon::parse($tgl_izin))) {
-                // Cut at the start of the leave period
-                $new_tgl_izin = $tgl_potong_sampai->copy()->addDay();
-                DB::table('pengajuan_izin')
-                    ->where('id', $id)
-                    ->update([
-                        'tgl_izin' => $new_tgl_izin,
-                        'tgl_izin_akhir' => $tgl_izin_akhir,
-                        'jml_hari' => $izin->jml_hari - $potongcuti,
-                        'status_approved_hrd' => $status_approved_hrd,
-                        'tgl_status_approved_hrd' => $currentDate,
-                        'keputusan' => $keputusan_potong,
-                        'tgl_jadwal_off' => null,
-                    ]);
-            } elseif (Carbon::parse($tgl_potong_sampai)->eq(Carbon::parse($tgl_izin_akhir))) {
-                // Cut at the end of the leave period
-                $new_tgl_izin_akhir = $tgl_potong->copy()->subDay();
-                DB::table('pengajuan_izin')
-                    ->where('id', $id)
-                    ->update([
-                        'tgl_izin' => $tgl_izin,
-                        'tgl_izin_akhir' => $new_tgl_izin_akhir,
-                        'jml_hari' => $izin->jml_hari - $potongcuti,
-                        'status_approved_hrd' => $status_approved_hrd,
-                        'tgl_status_approved_hrd' => $currentDate,
-                        'keputusan' => $keputusan_potong,
-                        'tgl_jadwal_off' => null,
-                    ]);
+            if ($keputusan_potong !== 'Potong Cuti') {
+                // Adjust tgl_izin and tgl_izin_akhir based on tgl_potong and tgl_potong_sampai
+                if (Carbon::parse($tgl_potong)->eq(Carbon::parse($tgl_izin))) {
+                    // Cut at the start of the leave period
+                    $new_tgl_izin = $tgl_potong_sampai->copy()->addDay();
+                    DB::table('pengajuan_izin')
+                        ->where('id', $id)
+                        ->update([
+                            'tgl_izin' => $new_tgl_izin,
+                            'tgl_izin_akhir' => $tgl_izin_akhir,
+                            'jml_hari' => $izin->jml_hari - $potongcuti,
+                            'status_approved_hrd' => $status_approved_hrd,
+                            'tgl_status_approved_hrd' => $currentDate,
+                            'keputusan' => $keputusan_potong,
+                            'tgl_jadwal_off' => null,
+                        ]);
+                } elseif (Carbon::parse($tgl_potong_sampai)->eq(Carbon::parse($tgl_izin_akhir))) {
+                    // Cut at the end of the leave period
+                    $new_tgl_izin_akhir = $tgl_potong->copy()->subDay();
+                    DB::table('pengajuan_izin')
+                        ->where('id', $id)
+                        ->update([
+                            'tgl_izin' => $tgl_izin,
+                            'tgl_izin_akhir' => $new_tgl_izin_akhir,
+                            'jml_hari' => $izin->jml_hari - $potongcuti,
+                            'status_approved_hrd' => $status_approved_hrd,
+                            'tgl_status_approved_hrd' => $currentDate,
+                            'keputusan' => $keputusan_potong,
+                            'tgl_jadwal_off' => null,
+                        ]);
+                } else {
+                    // Handle cases where tgl_potong is within the leave period but not at the start or end
+                    DB::table('pengajuan_izin')
+                        ->where('id', $id)
+                        ->update([
+                            'status_approved_hrd' => $status_approved_hrd,
+                            'tgl_status_approved_hrd' => $currentDate,
+                            'keputusan' => $keputusan_potong,
+                            'tgl_jadwal_off' => null,
+                        ]);
+                }
+
+                // Insert the new record for the cut days
+                DB::table('pengajuan_izin')->insert([
+                    'nik' => $izin->nik,
+                    'tgl_izin' => $tgl_potong,
+                    'tgl_izin_akhir' => $tgl_potong_sampai,
+                    'jml_hari' => $potongcuti,
+                    'foto' => 'No Document',
+                    'tgl_create' => $currentDate,
+                    'status' => 'Tmk',
+                    'keterangan' => $izin->keterangan,
+                    'keputusan' => 'Potong Cuti',
+                    'status_approved' => 0,
+                    'status_approved_hrd' => 0,
+                ]);
+
+                return redirect('/approval/izinapprovalhrd')->with(['success' => 'Data Berhasil Di Update']);
             } else {
-                // Handle cases where tgl_potong is within the leave period but not at the start or end
-                DB::table('pengajuan_izin')
-                    ->where('id', $id)
-                    ->update([
-                        'status_approved_hrd' => $status_approved_hrd,
-                        'tgl_status_approved_hrd' => $currentDate,
-                        'keputusan' => $keputusan_potong,
-                        'tgl_jadwal_off' => null,
-                    ]);
-            }
-
-            // Insert the new record for the cut days
-            DB::table('pengajuan_izin')->insert([
-                'nik' => $izin->nik,
-                'tgl_izin' => $tgl_potong,
-                'tgl_izin_akhir' => $tgl_potong_sampai,
-                'jml_hari' => $potongcuti,
-                'foto' => 'No Document',
-                'tgl_create' => $currentDate,
-                'status' => 'Tmk',
-                'keterangan' => $izin->keterangan,
-                'keputusan' => 'Potong Cuti',
-                'status_approved' => 0,
-                'status_approved_hrd' => 0,
-            ]);
-
-            return redirect('/approval/izinapprovalhrd')->with(['success' => 'Data Berhasil Di Update']);
-        }   else {
                 // Update pengajuan_izin table
                 $update = DB::table('pengajuan_izin')
                     ->where('id', $id)
@@ -151,7 +157,7 @@ class ApprovalController extends Controller
                 if ($update) {
                     // Find the employee's nik
 
-                    if ($keputusan_potong === 'Potong Cuti'){
+                    if ($keputusan_potong === 'Potong Cuti') {
                         $jml_hari = DB::table('pengajuan_izin')->where('id', $id)->value('jml_hari');
                         $nik = DB::table('pengajuan_izin')->where('id', $id)->value('nik');
 
@@ -494,6 +500,42 @@ class ApprovalController extends Controller
         return view('approval.izinapproval', compact('izinapproval'));
     }
 
+    // In YourController.php
+    public function printIzin(Request $request)
+    {
+        $id = $request->input('id');
+
+        // Fetch the data for the selected `pengajuan izin`
+        $izin = Pengajuanizin::find($id);
+
+        if (!$izin) {
+            return response()->json(['error' => 'Data not found'], 404);
+        }
+
+        // Fetch the employee data
+        $karyawan = Karyawan::where('nip', $izin->nip)->first();
+
+        if (!$karyawan) {
+            return response()->json(['error' => 'Employee not found'], 404);
+        }
+
+        $tglForm = ($izin->tgl_izin == $izin->tgl_izin_akhir)
+                ? DateHelper::formatIndonesianDate($izin->tgl_izin)
+                : DateHelper::formatIndonesianDate($izin->tgl_izin) . ' - ' . DateHelper::formatIndonesianDate($izin->tgl_izin_akhir);
+
+        // Prepare data to return
+        $data = [
+            'nama_lengkap' => $karyawan->nama_lengkap,
+            'bagian' => $karyawan->kode_dept,
+            'tanggal' => $tglForm,
+            'status' => $izin->status,
+            'keterangan' => $izin->keterangan,
+            'keputusan' => $izin->keputusan,
+            // Add other fields as necessary
+        ];
+
+        return response()->json($data);
+    }
 
 
     public function approveizin(Request $request)

@@ -18,6 +18,8 @@ class DashboardController extends Controller
         $tgl_presensi = date("Y-m-d"); // Extract the date part for checking existing records
         $scan_date = date("Y-m-d H:i:s"); // Current date and time
 
+
+
         // Join karyawan and jabatan tables to get nama_jabatan
         $namaUser = DB::table('karyawan')
             ->leftJoin('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
@@ -42,18 +44,76 @@ class DashboardController extends Controller
             $namaUser->nama_jabatan;
         }
 
+        $shiftPatternId = DB::table('karyawan')
+            ->where('nip', $nip)
+            ->value('shift_pattern_id');
+
+        $startShift = Carbon::parse(DB::table('karyawan')
+            ->where('nip', $nip)
+            ->value('start_shift'));
+
+        // Calculate cycle length from shift_pattern_cycle table
+        $cycleLength = DB::table('shift_pattern_cycle')
+            ->where('pattern_id', $shiftPatternId)
+            ->count();
+        $date = Carbon::parse();
+
+        $dateString = $date->toDateString();
+        $daysFromStart = $date->diffInDays($startShift);
+        $dayOfWeek = Carbon::parse($dateString)->dayOfWeekIso;
+
+        if ($shiftPatternId) {
+
+            if ($cycleLength == 7) {
+                $shiftId = DB::table('shift_pattern_cycle')
+                    ->where('pattern_id', $shiftPatternId)
+                    ->where('cycle_day', $dayOfWeek)
+                    ->value('shift_id');
+            } else {
+                $cyclePosition = $daysFromStart % $cycleLength;
+                $shiftId = DB::table('shift_pattern_cycle')
+                    ->where('pattern_id', $shiftPatternId)
+                    ->where('cycle_day', $cyclePosition + 1)
+                    ->value('shift_id');
+            }
+
+            if ($shiftId) {
+                // Fetch the early_time and latest_time from the shifts table
+                $shiftTimes = DB::table('shift')
+                    ->where('id', $shiftId)
+                    ->select('early_time', 'latest_time', 'start_time', 'status')
+                    ->first();
+
+                $morning_start = strtotime($shiftTimes->early_time);
+                $work_start = strtotime($shiftTimes->start_time);
+                $afternoon_start = strtotime($shiftTimes->latest_time);
+            } else {
+                // Default values if no shift is found
+                $morning_start = strtotime('05:00:00');
+                $work_start = strtotime('08:00:00');
+                $afternoon_start = strtotime('13:00:00');
+            }
+        } else {
+            // Default values if no shift pattern is found
+            $morning_start = strtotime('06:00:00');
+            $work_start = strtotime('08:00:00');
+            $afternoon_start = strtotime('13:00:00');
+        }
+
+        // Fetch the arrival time dynamically based on the shift
         $arrival = DB::connection('mysql2')->table('att_log')
             ->where('pin', $nip)
             ->whereDate('scan_date', $tgl_presensi)
-            ->whereTime('scan_date', '>=', '05:00:00')
-            ->whereTime('scan_date', '<=', '13:00:00')
+            ->whereTime('scan_date', '>=', date('H:i:s', $morning_start)) // Use $morning_start dynamically
+            ->whereTime('scan_date', '<=', date('H:i:s', $afternoon_start)) // Use $work_start dynamically
             ->orderBy('scan_date', 'asc')
             ->first();
 
+        // Fetch the departure time dynamically based on the shift
         $departure = DB::connection('mysql2')->table('att_log')
             ->where('pin', $nip)
             ->whereDate('scan_date', $tgl_presensi)
-            ->whereTime('scan_date', '>', '13:00:00')
+            ->whereTime('scan_date', '>', date('H:i:s', $afternoon_start)) // Use $afternoon_start dynamically
             ->orderBy('scan_date', 'desc')
             ->first();
 
@@ -66,26 +126,21 @@ class DashboardController extends Controller
             ->whereRaw('YEAR(tgl_izin) = ?', [$tahunini])
             ->get();
 
-        $historibulanini = DB::table(DB::raw("(SELECT
-        DATE(tgl_presensi) as tanggal,
-        MIN(jam_in) as jam_masuk,
-        MAX(jam_in) as jam_pulang,
-        nip
-        FROM presensi
-        WHERE nip = ?
-            AND MONTH(tgl_presensi) = ?
-            AND YEAR(tgl_presensi) = ?
-        GROUP BY DATE(tgl_presensi), nip) as sub"))
-            ->leftJoin('presensi as p', function ($join) {
-                $join->on('sub.tanggal', '=', DB::raw('DATE(p.tgl_presensi)'))
-                    ->on('sub.nip', '=', 'p.nip')
-                    ->whereRaw('p.jam_in = sub.jam_masuk OR p.jam_in = sub.jam_pulang');
-            })
-            ->select('sub.tanggal', 'sub.jam_masuk', 'sub.jam_pulang', DB::raw('MAX(p.foto_in) as foto_in'), DB::raw('MAX(p.foto_out) as foto_out'))
-            ->groupBy('sub.tanggal', 'sub.jam_masuk', 'sub.jam_pulang')
+        $historibulanini = DB::connection('mysql2')->table(DB::raw("(SELECT
+            DATE(scan_date) as tanggal,
+            TIME(MIN(scan_date)) as jam_masuk,
+            TIME(MAX(scan_date)) as jam_pulang,
+            pin
+            FROM att_log
+            WHERE pin = ?
+            AND MONTH(scan_date) = ?
+            AND YEAR(scan_date) = ?
+            GROUP BY DATE(scan_date), pin) as sub"))
+            ->select('sub.tanggal', 'sub.jam_masuk', 'sub.jam_pulang')
             ->orderBy('sub.tanggal', 'asc')
             ->setBindings([$nip, $bulanini, $tahunini])
             ->get();
+
 
         // Calculate total notifications
         $totalNotif = $this->calculateNotifications($historibulanini, $izin, $bulanini, $tahunini, $nip);
@@ -180,7 +235,54 @@ class DashboardController extends Controller
 
         // Calculate lateness based on adjusted jam_masuk times
         $rekappresensi = $processedHistoribulanini->reduce(function ($carry, $item) {
-            $lateness_threshold = strtotime('08:01:00');
+            $nip = Auth::guard('karyawan')->user()->nip;
+            $shiftPatternId = DB::table('karyawan')
+            ->where('nip', $nip)
+            ->value('shift_pattern_id');
+
+            $startShift = Carbon::parse(DB::table('karyawan')
+                ->where('nip', $nip)
+                ->value('start_shift'));
+
+            // Calculate cycle length from shift_pattern_cycle table
+            $cycleLength = DB::table('shift_pattern_cycle')
+                ->where('pattern_id', $shiftPatternId)
+                ->count();
+            $date = Carbon::parse();
+
+            $dateString = $date->toDateString();
+            $daysFromStart = $date->diffInDays($startShift);
+            $dayOfWeek = Carbon::parse($dateString)->dayOfWeekIso;
+
+            if ($shiftPatternId) {
+
+                if ($cycleLength == 7) {
+                    $shiftId = DB::table('shift_pattern_cycle')
+                        ->where('pattern_id', $shiftPatternId)
+                        ->where('cycle_day', $dayOfWeek)
+                        ->value('shift_id');
+                } else {
+                    $cyclePosition = $daysFromStart % $cycleLength;
+                    $shiftId = DB::table('shift_pattern_cycle')
+                        ->where('pattern_id', $shiftPatternId)
+                        ->where('cycle_day', $cyclePosition + 1)
+                        ->value('shift_id');
+                }
+
+                if ($shiftId) {
+                    // Fetch the early_time and latest_time from the shifts table
+                    $shiftTimes = DB::table('shift')
+                        ->where('id', $shiftId)
+                        ->select('early_time', 'latest_time', 'start_time', 'status')
+                        ->first();
+                    $work_start = strtotime($shiftTimes->start_time);
+                } else {
+                    $work_start = strtotime('08:00:00');
+                }
+            } else {
+                $work_start = strtotime('08:00:00');
+            }
+            $lateness_threshold = strtotime('+1 minute', $work_start);
             $jam_masuk_time = strtotime($item->jam_masuk);
 
             // Increment total days and lateness count based on adjusted jam_masuk
@@ -537,12 +639,16 @@ class DashboardController extends Controller
 
         $historihariNonNS = DB::table('presensi')
             ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
-            ->join(DB::raw('(SELECT nip, MIN(jam_in) as min_jam_in
+            ->join(
+                DB::raw('(SELECT nip, MIN(jam_in) as min_jam_in
                                 FROM presensi
                                 WHERE DATE(tgl_presensi) = "' . $hariini . '"
                                 AND jam_in BETWEEN "05:00:00" AND "13:00:00"
                                 GROUP BY nip) as min_presensi'),
-                    'presensi.nip', '=', 'min_presensi.nip')
+                'presensi.nip',
+                '=',
+                'min_presensi.nip'
+            )
             ->where('presensi.jam_in', '=', DB::raw('min_presensi.min_jam_in'))
             ->whereDate('presensi.tgl_presensi', $hariini)
             ->whereBetween('presensi.jam_in', ['05:00:00', '13:00:00'])
