@@ -77,7 +77,7 @@ Route::middleware(['auth:karyawan'])->group(function(){
 
     //Cuti Khusus
     Route::get('/presensi/buatcutikhusus', [PengajuanCutiController::class,'buatcutikhusus']);
-    Route::post('/presensi/storecutikhusus', [PengajuanCutiController::class, 'storecutikhusus'])->name('storecutikhusus');
+    Route::post('/presensi/storecutikhusus', [PengajuanCutiController::class, 'storecutikhusus']);
 
     Route::get('/notifikasi', [PresensiController::class,'notifikasi']);
 
@@ -135,17 +135,19 @@ Route::middleware(['auth:user'])->group(function (){
     //Approval
 
     Route::get('/approval/izinapproval', [ApprovalController::class,'izinapproval']);
+    Route::post('/approval/approveizin', [ApprovalController::class, 'approveizin']);
+    Route::post('/approval/batalapprove/{id}', [ApprovalController::class, 'batalapprove']);
+
+    //Approval Print
     Route::get('/approval/printIzin', [ApprovalController::class,'printIzin'])->name('izin.print');
-    Route::get('/pdf-template', function () {
+    Route::get('/pdfIzin-template', function () {
         $filePath = storage_path('app/public/uploads/templates/form_absen.pdf');
         if (!file_exists($filePath)) {
             abort(404, 'File not found');
         }
 
         return Response::file($filePath);
-    })->name('pdf.template');
-    Route::post('/approval/approveizin', [ApprovalController::class, 'approveizin']);
-    Route::post('/approval/batalapprove/{id}', [ApprovalController::class, 'batalapprove']);
+    })->name('pdfIzin.template');
 
     //Approval HRD
     Route::get('/approval/izinapprovalhrd', [ApprovalController::class,'izinapprovalhrd']);
@@ -156,6 +158,16 @@ Route::middleware(['auth:user'])->group(function (){
     Route::get('/approval/cutiapproval', [ApprovalController::class,'cutiapproval']);
     Route::post('/approval/approvecuti', [ApprovalController::class, 'approvecuti']);
     Route::post('/approval/batalapprovecuti/{id}', [ApprovalController::class, 'batalapprovecuti']);
+
+    Route::get('/approval/printCuti', [ApprovalController::class,'printCuti'])->name('cuti.print');
+    Route::get('/pdfCuti-template', function () {
+        $filePath = storage_path('app/public/uploads/templates/cuti_form.pdf');
+        if (!file_exists($filePath)) {
+            abort(404, 'File not found');
+        }
+
+        return Response::file($filePath);
+    })->name('pdfCuti.template');
 
     //Approval Cuti HRD
     Route::get('/approval/cutiapprovalhrd', [ApprovalController::class,'cutiapprovalhrd']);

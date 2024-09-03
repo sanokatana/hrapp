@@ -61,6 +61,7 @@ class CutiController extends Controller
     public function store(Request $request)
     {
         $nik = $request->nik;
+        $nip = DB::table('karyawan')->where('nik', $nik)->value('nip');
         $tahun = $request->tahun;
         $sisa_cuti = $request->sisa_cuti;
         $periode_akhir = $request->periode_akhir;
@@ -74,6 +75,7 @@ class CutiController extends Controller
 
             $data = [
                 'nik' => $nik,
+                'nip' => $nip,
                 'tahun' => $tahun,
                 'sisa_cuti' => $sisa_cuti,
                 'periode_awal' => $periode_awal,
@@ -184,7 +186,7 @@ class CutiController extends Controller
         $searchTerm = $request->nama_lengkap;
         $employee = DB::table('karyawan')
             ->where('nama_lengkap', 'like', '%'.$searchTerm.'%')
-            ->get(['nip', 'nama_lengkap']);
+            ->get(['nik', 'nama_lengkap']);
         return response()->json($employee);
     }
 

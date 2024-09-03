@@ -30,7 +30,7 @@
 @section('content')
 <div class="row" style="margin-top: 70px;" id="page1">
     <div class="col">
-        <form method="POST" action="{{ route('storecutikhusus') }}" id="formcutiPage" enctype="multipart/form-data">
+        <form method="POST" action="/presensi/storecutikhusus" id="formcutiPage" enctype="multipart/form-data">
             @csrf
             <div class="form-group basic">
                 <select name="id_tipe_cuti" id="id_tipe_cuti" class="custom-select">

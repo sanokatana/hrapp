@@ -537,6 +537,50 @@ class ApprovalController extends Controller
         return response()->json($data);
     }
 
+    public function printCuti(Request $request)
+    {
+        $id = $request->input('id');
+
+        // Fetch the data for the selected `pengajuan izin`
+        $cuti = PengajuanCuti::find($id);
+
+        if (!$cuti) {
+            return response()->json(['error' => 'Data not found'], 404);
+        }
+
+        // Fetch the employee data
+        $karyawan = Karyawan::where('nip', $cuti->nip)->first();
+
+        $jabatan = DB::table('jabatan')->where('id', $karyawan->jabatan)->first();
+
+        if (!$karyawan) {
+            return response()->json(['error' => 'Employee not found'], 404);
+        }
+
+        $tglForm = ($cuti->tgl_cuti == $cuti->tgl_cuti_akhir)
+                ? DateHelper::formatIndonesianDate($cuti->tgl_cuti)
+                : DateHelper::formatIndonesianDate($cuti->tgl_cuti) . ' - ' . DateHelper::formatIndonesianDate($cuti->tgl_cuti_sampai);
+
+        $tglMulai = DateHelper::formatIndonesianDate($karyawan->tgl_masuk);
+
+        // Prepare data to return
+        $data = [
+            'nama_lengkap' => $karyawan->nama_lengkap ?? '',
+            'jabatan' => $jabatan->nama_jabatan ?? '',
+            'mulai' => $tglMulai ?? '',
+            'periode' => $cuti->periode ?? '',
+            'tanggal' => $tglForm ?? '',
+            'sisa_cuti' => $cuti->sisa_cuti !== null ? (string) $cuti->sisa_cuti : '', // Convert null to ''
+            'jml_hari' => $cuti->jml_hari !== null ? (string) $cuti->jml_hari : '',   // Convert null to ''
+            'sisa_setelah' => $cuti->sisa_cuti_setelah !== null ? (string) $cuti->sisa_cuti_setelah : '', // Convert null to ''
+            'kar_ganti' => $cuti->kar_ganti ?? '',
+            'note' => $cuti->note ?? '',
+            // Add other fields as necessary
+        ];
+
+
+        return response()->json($data);
+    }
 
     public function approveizin(Request $request)
     {

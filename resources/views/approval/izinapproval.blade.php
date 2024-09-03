@@ -452,7 +452,9 @@ use App\Helpers\DateHelper;
                 }
 
                 // Fetch the PDF template
-                const pdfTemplateResponse = await fetch('{{ route("pdf.template") }}');
+                const pdfTemplateResponse = await fetch('{{ route("pdfIzin.template") }}',{
+                    cache: 'no-cache'
+                });
                 if (!pdfTemplateResponse.ok) {
                     throw new Error('Failed to fetch the PDF template.');
                 }

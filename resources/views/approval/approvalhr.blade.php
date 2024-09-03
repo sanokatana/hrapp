@@ -240,7 +240,7 @@ use App\Helpers\DateHelper;
                                             <td>{{ $d->keputusan}}</td>
                                             <td>
                                                 @if ($d->status_approved_hrd == 0)
-                                                <a href="#" class="badge bg-primary btnApprove" style="width:90px; justify-content:space-between" data-id="{{ $d->id }}">
+                                                <a href="#" class="badge bg-success btnApprove" style="width:90px; justify-content:space-between" data-id="{{ $d->id }}">
                                                     Approve
                                                 </a>
                                                 @else
@@ -554,7 +554,9 @@ use App\Helpers\DateHelper;
                 }
 
                 // Fetch the PDF template
-                const pdfTemplateResponse = await fetch('{{ route("pdf.template") }}');
+                const pdfTemplateResponse = await fetch('{{ route("pdfIzin.template") }}',{
+                    cache: 'no-cache'
+                });
                 if (!pdfTemplateResponse.ok) {
                     throw new Error('Failed to fetch the PDF template.');
                 }

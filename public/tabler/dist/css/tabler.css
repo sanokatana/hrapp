@@ -20159,6 +20159,10 @@ Navbar vertical
     margin-bottom: auto;
 }
 
+.page-center {
+    justify-content: center;
+}
+
 .page-wrapper {
     flex: 1;
     display: flex;

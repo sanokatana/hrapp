@@ -227,16 +227,17 @@ use App\Helpers\DateHelper;
                                             </td>
                                             <td>
                                                 @if ($d->status_approved_hrd == 0)
-                                                <a href="#" class="badge bg-primary btnApprove" style="width:100px; justify-content:space-between" data-id="{{ $d->id }}" data-nik="{{ $d->nik}}" data-periode="{{ $d->periode }}">
-
+                                                <a href="#" class="badge bg-success btnApprove" style="width:90px; justify-content:space-between" data-id="{{ $d->id }}" data-nik="{{ $d->nik}}" data-periode="{{ $d->periode }}">
                                                     Approve
                                                 </a>
                                                 @else
-                                                <a href="#" class="badge bg-danger btnBatalApprove" style="width:100px" id="btnBatalApprove" data-id="{{ $d->id }}">
-
+                                                <a href="#" class="badge bg-danger btnBatalApprove" style="width:90px" id="btnBatalApprove" data-id="{{ $d->id }}">
                                                     Batalkan
                                                 </a>
                                                 @endif
+                                                <a href="#" class="badge bg-info btnPrint mt-1" style="width:90px" id="btnPrint" data-id="{{ $d->id }}">
+                                                    Print
+                                                </a>
                                             </td>
                                         </tr>
                                         @endforeach
@@ -397,6 +398,125 @@ use App\Helpers\DateHelper;
                     });
                 }
             });
+        });
+
+        $(document).on('click', '.btnPrint', async function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+
+            try {
+                // Fetch form data
+                const response = await $.ajax({
+                    url: '/approval/printCuti',
+                    type: 'GET',
+                    data: {
+                        id: id
+                    },
+                    dataType: 'json'
+                });
+
+                if (response.error) {
+                    throw new Error(response.error);
+                }
+
+                // Fetch the PDF template
+                const pdfTemplateResponse = await fetch('{{ route("pdfCuti.template") }}', {
+                    cache: 'no-cache'
+                });
+                if (!pdfTemplateResponse.ok) {
+                    throw new Error('Failed to fetch the PDF template.');
+                }
+                const pdfTemplateBytes = await pdfTemplateResponse.arrayBuffer();
+
+                // Load the PDF with pdf-lib
+                const {
+                    PDFDocument
+                } = PDFLib;
+                const pdfDoc = await PDFDocument.load(pdfTemplateBytes);
+
+                // Get the form fields
+                const form = pdfDoc.getForm();
+
+                // Set form values from the data
+                const nameField = form.getTextField('nama_lengkap'); // Replace with actual field name
+                nameField.setText(response.nama_lengkap);
+
+                const jabatanField = form.getTextField('jabatan'); // Replace with actual field name
+                jabatanField.setText(response.jabatan);
+
+                const mulaiField = form.getTextField('mulai_kerja'); // Replace with actual field name
+                mulaiField.setText(response.mulai);
+
+                const periodeField = form.getTextField('periode'); // Replace with actual field name
+                periodeField.setText(response.periode);
+
+                const sisaCutiField = form.getTextField('sisa_hak'); // Replace with actual field name
+                sisaCutiField.setText(response.sisa_cuti);
+
+                const jmlField = form.getTextField('jml_hari'); // Replace with actual field name
+                jmlField.setText(response.jml_hari);
+
+                const sisaSetelahField = form.getTextField('sisa_cuti'); // Replace with actual field name
+                sisaSetelahField.setText(response.sisa_setelah);
+
+                const karField = form.getTextField('karyawan_ganti'); // Replace with actual field name
+                karField.setText(response.kar_ganti);
+
+                const tglField = form.getTextField('tgl_cuti'); // Replace with actual field name
+                tglField.setText(response.tanggal);
+
+
+                const noteField = form.getTextField('note'); // Replace with actual field name for the first field
+                const noteFieldCont = form.getTextField('note1'); // Replace with actual field name for the continuation field
+
+                let maxLength = 90; // The maximum number of characters allowed in the first field
+
+                // Function to split the text by word boundary
+                function splitTextByWords(text, maxLength) {
+                    if (text.length <= maxLength) {
+                        return [text, '']; // If text fits within the limit, no splitting is needed
+                    }
+
+                    let lastSpaceIndex = text.lastIndexOf(' ', maxLength); // Find the last space within the limit
+                    if (lastSpaceIndex === -1) {
+                        // If no space is found, break at the maximum length
+                        lastSpaceIndex = maxLength;
+                    }
+
+                    const firstPart = text.substring(0, lastSpaceIndex).trim(); // Get the first part
+                    const remainingText = text.substring(lastSpaceIndex).trim(); // Get the remaining part
+
+                    return [firstPart, remainingText];
+                }
+
+                // Use the function to split the text
+                const [firstPart, secondPart] = splitTextByWords(response.note, maxLength);
+
+                // Set text fields
+                noteField.setText(firstPart);
+                if (secondPart) {
+                    noteFieldCont.setText(secondPart);
+                }
+
+                // Serialize the PDF document to bytes
+                const pdfBytes = await pdfDoc.save();
+
+                // Create a blob from the PDF bytes
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+
+                // Create a URL for the blob
+                const blobUrl = window.URL.createObjectURL(blob);
+
+                // Open the PDF in a new tab
+                window.open(blobUrl, '_blank');
+            } catch (error) {
+                console.error('Error generating the PDF:', error);
+                Swal.fire(
+                    'Error!',
+                    'Failed to generate the PDF.',
+                    'error'
+                );
+            }
         });
     });
 </script>
