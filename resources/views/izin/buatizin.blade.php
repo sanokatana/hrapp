@@ -54,7 +54,7 @@
                 </select>
             </div>
             <div class="form-group" id="pukulContainer" style="display: none;">
-                <label for="tipe" class="col-form-label">Pukul</label>
+                <label for="tipe" class="col-form-label">Pukul Waktu Terlambat</label>
                 <input type="time" name="pukul" id="pukul" class="form-control" placeholder="Pukul Datang Terlambat">
             </div>
             <div class="form-group">
