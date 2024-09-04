@@ -69,6 +69,10 @@ Route::middleware(['auth:karyawan'])->group(function(){
     Route::get('/presensi/buatizin', [PresensiController::class,'buatizin']);
     Route::post('/presensi/storeizin', [PresensiController::class,'storeizin']);
 
+    // In web.php or your routes file
+Route::get('/presensi/checkFile', [PresensiController::class, 'getFolder']);
+
+
     //Cuti
     Route::get('/presensi/cuti', [PengajuanCutiController::class,'cuti']);
     Route::get('/presensi/buatcuti', [PengajuanCutiController::class,'buatcuti']);

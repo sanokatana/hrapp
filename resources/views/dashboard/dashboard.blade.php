@@ -123,7 +123,7 @@ $userDept = $user ? $user->kode_dept : null;
                     </div>
                     <div class="item-menu text-center">
                         <div class="menu-icon">
-                            <a href="" class="orange" style="font-size: 40px;">
+                            <a href="/presensi/checkFile" class="orange" style="font-size: 40px;">
                                 <ion-icon name="folder-outline"></ion-icon>
                             </a>
                         </div>

@@ -79,7 +79,7 @@
                 <textarea name="keterangan" id="keterangan" rows="3" class="form-control"></textarea>
             </div>
             <div class="custom-file-upload" id="fileUpload1">
-                <input type="file" name="foto" id="fileuploadInput" accept=".png, .jpg, .jpeg">
+                <input type="file" name="foto[]" id="fileuploadInput" accept=".png, .jpg, .jpeg" multiple>
                 <label for="fileuploadInput">
                     <span>
                         <strong>
@@ -161,6 +161,21 @@
                 $("#hidden_jml_hari").val(jml_hari);
                 $("#hidden_status").val(status);
                 $("#hidden_pukul").val(pukul);
+            }
+        });
+
+        $("#fileuploadInput").change(function(event) {
+            var files = event.target.files;
+            var fileNames = Array.from(files).map(file => file.name);
+
+            // Display the file names using SweetAlert
+            if (fileNames.length > 0) {
+                Swal.fire({
+                    title: 'Selected Files',
+                    text: fileNames.join("\n"),
+                    icon: 'info',
+                    confirmButtonText: 'OK'
+                });
             }
         });
 

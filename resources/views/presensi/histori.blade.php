@@ -11,18 +11,22 @@
     <div class="right"></div>
 </div>
 <style>
+    :root {
+        --viewport-height: 100vh; /* Default value */
+    }
+
     .rounded-custom {
         border-radius: 10px;
         border: 1px solid #092c9f;
         margin-bottom: 4px;
-
         /* Customize the radius as needed */
     }
 
-    .scrollable-container {
-        max-height: 60vh;
-        /* Adjust the max-height as needed */
-        overflow-y: auto;
+    #showHistori {
+        max-height: calc(var(--viewport-height) - 232px); /* Adjust 70px according to the size of your bottom nav bar */
+        overflow-y: auto; /* Enable vertical scrolling */
+        padding: 10px; /* Optional: Add padding if needed */
+        box-sizing: border-box; /* Ensure padding doesn't affect height calculation */
     }
 </style>
 <!-- * App Header -->
@@ -35,7 +39,8 @@
                 <div class="form-group">
                     <select name="bulan" id="bulan" class="form-control" style="text-align:center">
                         <option value="">Bulan</option>
-                        @for ($i=1; $i<=12; $i++) <option value="{{ $i }}" {{ date("m") == $i ? 'selected' : ''}}>{{ $namabulan[$i]}}</option>
+                        @for ($i=1; $i<=12; $i++)
+                            <option value="{{ $i }}" {{ date("m") == $i ? 'selected' : ''}}>{{ $namabulan[$i]}}</option>
                         @endfor
                     </select>
                 </div>
@@ -59,7 +64,7 @@
             <div class="col-12">
                 <div class="form-group">
                     <button class="btn btn-primary btn-block" id="getData">
-                        <ion-icon name="search-outline"></ion-icon>Search
+                        <ion-icon name="search-outline"></ion-icon> Search
                     </button>
                 </div>
             </div>
@@ -67,7 +72,7 @@
     </div>
 </div>
 <div class="row">
-    <div class="col" id="showHistori" style="max-height: 65vh; overflow-y: auto;">
+    <div class="col" id="showHistori">
         <!-- Content will be loaded here via AJAX -->
     </div>
 </div>
@@ -75,6 +80,16 @@
 
 @push('myscript')
 <script>
+    function updateViewportHeight() {
+        document.documentElement.style.setProperty('--viewport-height', `${window.innerHeight}px`);
+    }
+
+    // Update viewport height on initial load
+    updateViewportHeight();
+
+    // Update viewport height on resize
+    window.addEventListener('resize', updateViewportHeight);
+
     $(function(){
         $("#getData").click(function(e){
             var bulan = $("#bulan").val();

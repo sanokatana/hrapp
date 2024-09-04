@@ -16,6 +16,7 @@
     <meta name="keywords" content="bootstrap 4, mobile template, cordova, phonegap, mobile, html" />
     <link rel="icon" type="image/png" href="{{ asset('assets/img/favicon.png')}}" sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/favicon.png">
+    <link rel="stylesheet" href="{{ asset('assets/css/inc/bootstrap/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css')}}">
     <link rel="manifest" href="__manifest.json">
     <style>

@@ -131,7 +131,7 @@ class PengajuanCutiController extends Controller
                         Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan) {
                             $message->to($atasan->email)
                                 ->subject("Pengajuan Cuti Baru Dari {$nama_lengkap}")
-                                ->cc(['chandrazahran@gmail.com', $email_karyawan])
+                                ->cc(['hr@ciptaharmoni.com', $email_karyawan])
                                 ->priority(1);  // Set email priority to high
 
                             // Set additional headers for importance
@@ -201,106 +201,6 @@ class PengajuanCutiController extends Controller
         return view('izin.buatcutikhusus', compact('tipecuti', 'periode'));
     }
 
-
-    // public function storecutikhusus(Request $request)
-    // {
-    //     $nik = Auth::guard('karyawan')->user()->nik;
-    //     $nip = Auth::guard('karyawan')->user()->nip;
-    //     $nama_lengkap = Auth::guard('karyawan')->user()->nama_lengkap;
-    //     $email_karyawan = Auth::guard('karyawan')->user()->email;
-    //     $tgl_cuti = $request->tgl_cuti;
-    //     $tgl_cuti_sampai = $request->tgl_cuti_sampai;
-    //     $jml_hari = $request->jml_hari;
-    //     $id_tipe_cuti = $request->id_tipe_cuti;
-    //     $note = $request->note;
-    //     $currentDate = Carbon::now();
-    //     $jenis = "Cuti Khusus";
-
-    //     $data = [
-    //         'nik' => $nik,
-    //         'nip' => $nip,
-    //         'tgl_cuti' => $tgl_cuti,
-    //         'tgl_cuti_sampai' => $tgl_cuti_sampai,
-    //         'jml_hari' => $jml_hari,
-    //         'note' => $note,
-    //         'jenis' => $jenis,
-    //         'tipe' => $id_tipe_cuti,
-    //     ];
-
-    //     // Start a transaction
-    //     DB::beginTransaction();
-
-    //     try {
-    //         // Save the leave application
-    //         $simpan = PengajuanCuti::create($data);
-
-    //         if ($simpan) {
-
-    //             // Fetch the atasan details
-    //             $atasanJabatan = DB::table('jabatan')->where('id', Auth::guard('karyawan')->user()->jabatan)->first();
-    //             $tipe = DB::table('tipe_cuti')->where('id_tipe_cuti', $id_tipe_cuti)->first();
-
-    //             if ($atasanJabatan && $atasanJabatan->jabatan_atasan) {
-    //                 $atasanJabatanId = $atasanJabatan->jabatan_atasan;
-    //                 $atasan = DB::table('karyawan')->where('jabatan', $atasanJabatanId)->first();
-
-    //                 if ($atasan && $atasan->email) {
-
-    //                     $emailContent = "
-    //                         Pengajuan Cuti Karyawan<br><br>
-    //                         Nama : {$nama_lengkap}<br>
-    //                         Tanggal : ". DateHelper::formatIndonesianDate($currentDate->toDateString()). "<br>
-    //                         Pukul : {$currentDate->format('H:i')}<br>
-    //                         NIK : {$nik}<br>
-    //                         NIP : {$nip}<br>
-    //                         Tanggal Cuti : ". DateHelper::formatIndonesianDate($tgl_cuti). "<br>
-    //                         Tanggal Cuti Sampai : ". DateHelper::formatIndonesianDate($tgl_cuti_sampai). "<br>
-    //                         Jumlah Hari : {$jml_hari}<br>
-    //                         Note : {$note}<br>
-    //                         Tipe : {$tipe->tipe_cuti}<br>
-    //                         Jenis : {$jenis}<br><br>
-
-    //                         Mohon Cek Di hrms.ciptaharmoni.com/panel<br><br>
-
-    //                         Terima Kasih
-    //                     ";
-
-    //                     // Send the email using Mail::html
-    //                     Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan) {
-    //                         $message->to($atasan->email)
-    //                             ->subject("Pengajuan Cuti Baru Dari {$nama_lengkap}")
-    //                             ->cc(['chandrazahran@gmail.com', $email_karyawan])
-    //                             ->priority(1);  // Set email priority to high
-
-    //                         // Set additional headers for importance
-    //                         $message->getHeaders()->addTextHeader('Importance', 'high');  // Mark as important
-    //                         $message->getHeaders()->addTextHeader('X-Priority', '1');  // 1 is the highest priority
-    //                     });
-
-    //                 }
-    //             }
-
-
-    //             // Commit the transaction
-    //             DB::commit();
-
-    //             return redirect('/presensi/izin')->with(['success' => 'Pengajuan Cuti Berhasil Di Simpan']);
-    //         } else {
-    //             // Rollback the transaction
-    //             DB::rollBack();
-
-    //             return redirect('/presensi/izin')->with(['error' => 'Pengajuan Cuti Gagal Di Simpan']);
-    //         }
-    //     } catch (\Exception $e) {
-    //         // Rollback the transaction
-    //         DB::rollBack();
-    //         Log::error('Error in storecutikhusus: ' . $e->getMessage());
-
-    //         return redirect('/presensi/izin')->with(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
-    //     }
-    // }
-
-
     public function storecutikhusus(Request $request)
     {
         $nik = Auth::guard('karyawan')->user()->nik;
@@ -366,7 +266,7 @@ class PengajuanCutiController extends Controller
                         Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan) {
                             $message->to($atasan->email)
                                 ->subject("Pengajuan Cuti Baru Dari {$nama_lengkap}")
-                                ->cc(['chandrazahran@gmail.com', $email_karyawan])
+                                ->cc(['hr@ciptaharmoni.com', $email_karyawan])
                                 ->priority(1);
 
                             $message->getHeaders()->addTextHeader('Importance', 'high');

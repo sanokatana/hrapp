@@ -374,6 +374,35 @@ class PresensiController extends Controller
         return view('izin.getizincuti', compact('historicuti', 'tahun', 'bulan'));
     }
 
+    public function getFolder()
+    {
+        $user = Auth::guard('karyawan')->user();
+        $nip = $user->nip;
+        $nama_lengkap = $user->nama_lengkap;
+        $folderPath = "public/uploads/karyawan/{$nip}.{$nama_lengkap}/";
+
+        // Check if the folder exists, if not, create it
+        if (!Storage::exists($folderPath)) {
+            Storage::makeDirectory($folderPath);
+        }
+
+        // Get the list of files in the directory
+        $files = Storage::files($folderPath);
+
+        // Convert files to URLs
+        $fileUrls = array_map(function($file) {
+            return Storage::url($file);
+        }, $files);
+
+        // Pass data to the view
+        return view('presensi.files', [
+            'files' => $fileUrls,
+            'folderPath' => $folderPath,
+            'nama_lengkap' => $nama_lengkap
+        ]);
+    }
+
+
 
     public function buatizin()
     {
@@ -393,10 +422,21 @@ class PresensiController extends Controller
         $keterangan = $request->keterangan;
         $pukul = $request->pukul;
         $currentDate = Carbon::now();
+        $folderPath = "public/uploads/karyawan/{$nip}.{$nama_lengkap}/";
 
+        if (!Storage::exists($folderPath)) {
+            Storage::makeDirectory($folderPath);
+        }
+
+        $filePaths = [];
         if ($request->hasFile('foto')) {
-            $extension = $request->file('foto')->getClientOriginalExtension();
-            $foto = "Surat_" . $nip . "_" . $currentDate->format('d_m_Y') . "." . $extension;
+            foreach ($request->file('foto') as $file) {
+                $extension = $file->getClientOriginalExtension();
+                $fileName = "Surat_" . $nip . "_" . $currentDate->format('d_m_Y') . "_" . uniqid() . "." . $extension;
+                $file->storeAs($folderPath, $fileName);
+                $filePaths[] = $fileName;
+            }
+            $foto = implode(',', $filePaths); // Store file names as a comma-separated string
         } else {
             $foto = "No_Document";
         }
@@ -417,11 +457,6 @@ class PresensiController extends Controller
         $simpan = Pengajuanizin::create($data);
 
         if ($simpan) {
-            if ($request->hasFile('foto')) {
-                $folderPath = "public/uploads/pengajuan_izin/";
-                $request->file('foto')->storeAs($folderPath, $foto);
-            }
-
             // Fetch the atasan details
             $atasanJabatan = DB::table('jabatan')->where('id', Auth::guard('karyawan')->user()->jabatan)->first();
 
@@ -452,7 +487,7 @@ class PresensiController extends Controller
 
                     // Send the email using Mail::html
                     Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan) {
-                        $message->to($atasan->email)
+                        $message->to('chandrazahranindo@gmail.com')
                             ->subject("Pengajuan Izin Baru Dari {$nama_lengkap}")
                             ->cc(['chandrazahran@gmail.com', $email_karyawan])
                             ->priority(1)  // Set email priority
@@ -468,6 +503,7 @@ class PresensiController extends Controller
             return redirect('/presensi/izin')->with(['error' => 'Data Gagal Di Simpan']);
         }
     }
+
 
     public function monitoring()
     {
