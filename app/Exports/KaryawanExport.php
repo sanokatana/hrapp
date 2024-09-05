@@ -85,9 +85,10 @@ class KaryawanExport implements FromQuery, WithHeadings, WithColumnFormatting
                 'karyawan.em_name',
                 'karyawan.em_telp',
                 'karyawan.em_relation',
-                'karyawan.em_alamat'
+                'karyawan.em_alamat',
+                'karyawan.status_kar'
             ])
-            ->orderBy('karyawan.nik'); // Ensure the query results are ordered
+            ->orderBy('karyawan.id'); // Ensure the query results are ordered
 
     }
 
@@ -164,7 +165,8 @@ class KaryawanExport implements FromQuery, WithHeadings, WithColumnFormatting
             'EM Name',
             'EM Telp',
             'EM Relation',
-            'EM Alamat'
+            'EM Alamat',
+            'Status Karyawan'
         ];
     }
 

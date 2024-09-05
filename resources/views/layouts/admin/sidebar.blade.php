@@ -389,6 +389,9 @@
                                 <a class="dropdown-item {{request()->is(['konfigurasi/lokasikantor']) ? 'active' : ''}}" href="/konfigurasi/lokasikantor">
                                     Lokasi Kantor
                                 </a>
+                                <a class="dropdown-item {{request()->is(['konfigurasi/lokasikantor']) ? 'active' : ''}}" href="/konfigurasi/lokasikantor">
+                                    Libur Karyawan
+                                </a>
                             </div>
                         </div>
                     </div>

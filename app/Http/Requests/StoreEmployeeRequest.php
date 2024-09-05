@@ -15,7 +15,7 @@ class StoreEmployeeRequest extends FormRequest
     {
         return [
             'nik' => 'nullable|string|max:100',
-            'nip' => 'required|string|max:100',
+            'nip' => 'nullable|string|max:100',
             'nama_lengkap' => 'required|string|max:255',
             'tgl_masuk' => 'nullable|date',
             'email' => 'nullable|string|max:255',
@@ -29,8 +29,8 @@ class StoreEmployeeRequest extends FormRequest
             'marital_status' => 'nullable|string|max:50',
             'birthplace' => 'nullable|string|max:100',
             'religion' => 'nullable|string|max:50',
-            'kode_dept' => 'required|string|max:50',
-            'jabatan' => 'required|string|max:50',
+            'kode_dept' => 'nullable|string|max:50',
+            'jabatan' => 'nullable|string|max:50',
             'address' => 'nullable|string',
             'address_rt' => 'nullable|string|max:10',
             'address_rw' => 'nullable|string|max:10',
@@ -76,6 +76,7 @@ class StoreEmployeeRequest extends FormRequest
             'em_telp' => 'nullable|string|max:255',
             'em_relation' => 'nullable|string|max:100',
             'em_alamat' => 'nullable|string',
+            'status_kar' => 'required|in:Aktif,Non-Aktif',
             // Add the rest of your rules here...
         ];
     }

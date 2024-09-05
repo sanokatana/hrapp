@@ -26,6 +26,7 @@ class TimeAttendanceController extends Controller
 
         // Get karyawan data with filters, excluding "Security" department
         $karyawanQuery = DB::table('karyawan')
+            ->where('status_kar', 'Aktif') // Add this condition to filter by status_kar
             ->whereNotIn('kode_dept', function ($query) {
                 $query->select('kode_dept')
                     ->from('department')

@@ -237,8 +237,8 @@ class DashboardController extends Controller
         $rekappresensi = $processedHistoribulanini->reduce(function ($carry, $item) {
             $nip = Auth::guard('karyawan')->user()->nip;
             $shiftPatternId = DB::table('karyawan')
-            ->where('nip', $nip)
-            ->value('shift_pattern_id');
+                ->where('nip', $nip)
+                ->value('shift_pattern_id');
 
             $startShift = Carbon::parse(DB::table('karyawan')
                 ->where('nip', $nip)
@@ -617,6 +617,7 @@ class DashboardController extends Controller
 
         $rekapkaryawan = DB::table('karyawan')
             ->selectRaw('COUNT(karyawan.nip) as jmlkar')
+            ->where('status_kar', 'Aktif')
             ->first();
 
         $jmlnoatt = DB::table('karyawan')
@@ -624,21 +625,24 @@ class DashboardController extends Controller
                 $join->on('karyawan.nip', '=', 'presensi.nip')
                     ->where('presensi.tgl_presensi', '=', $hariini);
             })
+            ->where('status_kar', 'Aktif')
             ->whereNull('presensi.nip')
             ->count();
 
         // Get historical attendance data for NS and non-NS employees
         $historihariNS = DB::table('presensi')
             ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
+            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
             ->whereDate('presensi.tgl_presensi', $hariini)
             ->whereBetween('presensi.jam_in', ['05:00:00', '13:00:00'])
             ->where('karyawan.grade', 'NS')
             ->orderBy('presensi.jam_in', 'desc')
-            ->select('presensi.*', 'karyawan.nama_lengkap')
+            ->select('presensi.*', 'karyawan.nama_lengkap', 'karyawan.kode_dept' , 'jabatan.nama_jabatan')
             ->get();
 
         $historihariNonNS = DB::table('presensi')
             ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
+            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
             ->join(
                 DB::raw('(SELECT nip, MIN(jam_in) as min_jam_in
                                 FROM presensi
@@ -654,7 +658,7 @@ class DashboardController extends Controller
             ->whereBetween('presensi.jam_in', ['05:00:00', '13:00:00'])
             ->where('karyawan.grade', '!=', 'NS')
             ->orderBy('presensi.jam_in', 'desc')
-            ->select('presensi.*', 'karyawan.nama_lengkap')
+            ->select('presensi.*', 'karyawan.nama_lengkap', 'karyawan.kode_dept' , 'jabatan.nama_jabatan')
             ->get();
 
         // Get the leaderboard for lateness for NS and non-NS employees
@@ -668,9 +672,10 @@ class DashboardController extends Controller
         $leaderboardTelatNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
             ->mergeBindings($subquery)
             ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
+            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
             ->where('karyawan.grade', 'NS')
-            ->select('sub.nip', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN sub.earliest_jam_in > "08:00:00" THEN (HOUR(sub.earliest_jam_in) * 60 + MINUTE(sub.earliest_jam_in)) - (8 * 60) ELSE 0 END) as total_late_minutes'))
-            ->groupBy('sub.nip', 'karyawan.nama_lengkap')
+            ->select('sub.nip', 'karyawan.kode_dept' , 'jabatan.nama_jabatan', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN sub.earliest_jam_in > "08:00:00" THEN (HOUR(sub.earliest_jam_in) * 60 + MINUTE(sub.earliest_jam_in)) - (8 * 60) ELSE 0 END) as total_late_minutes'))
+            ->groupBy('sub.nip', 'karyawan.nama_lengkap' , 'karyawan.kode_dept' , 'jabatan.nama_jabatan')
             ->orderBy('total_late_minutes', 'desc')
             ->limit(10)
             ->get();
@@ -678,9 +683,10 @@ class DashboardController extends Controller
         $leaderboardTelatNonNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
             ->mergeBindings($subquery)
             ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
+            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
             ->where('karyawan.grade', '!=', 'NS')
-            ->select('sub.nip', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN sub.earliest_jam_in > "08:00:00" THEN (HOUR(sub.earliest_jam_in) * 60 + MINUTE(sub.earliest_jam_in)) - (8 * 60) ELSE 0 END) as total_late_minutes'))
-            ->groupBy('sub.nip', 'karyawan.nama_lengkap')
+            ->select('sub.nip', 'karyawan.kode_dept' , 'jabatan.nama_jabatan', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN sub.earliest_jam_in > "08:00:00" THEN (HOUR(sub.earliest_jam_in) * 60 + MINUTE(sub.earliest_jam_in)) - (8 * 60) ELSE 0 END) as total_late_minutes'))
+            ->groupBy('sub.nip', 'karyawan.nama_lengkap', 'karyawan.kode_dept' , 'jabatan.nama_jabatan')
             ->orderBy('total_late_minutes', 'desc')
             ->limit(10)
             ->get();
@@ -690,21 +696,23 @@ class DashboardController extends Controller
         $totalLatenessNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
             ->mergeBindings($subquery)
             ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
+            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
             ->where('karyawan.grade', 'NS')
             ->where('sub.earliest_jam_in', '>', '08:00:00')  // Only count entries where they
-            ->select('karyawan.nama_lengkap', DB::raw('COUNT(sub.nip) as total_late_count'))
-            ->groupBy('sub.nip', 'karyawan.nama_lengkap')
+            ->select('karyawan.nama_lengkap', 'karyawan.kode_dept' , 'jabatan.nama_jabatan', DB::raw('COUNT(sub.nip) as total_late_count'))
+            ->groupBy('sub.nip', 'karyawan.nama_lengkap', 'karyawan.kode_dept' , 'jabatan.nama_jabatan')
             ->orderBy('total_late_count', 'desc')
             ->limit(10)
             ->get();
 
         $totalLatenessNonNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
             ->mergeBindings($subquery)
-            ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
+            ->join('karyawan','sub.nip', '=', 'karyawan.nip')
+            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
             ->where('karyawan.grade', '!=', 'NS')
             ->where('sub.earliest_jam_in', '>', '08:00:00')  // Only count entries where they
-            ->select('karyawan.nama_lengkap', DB::raw('COUNT(sub.nip) as total_late_count'))
-            ->groupBy('sub.nip', 'karyawan.nama_lengkap')
+            ->select('karyawan.nama_lengkap', 'karyawan.kode_dept' , 'jabatan.nama_jabatan', DB::raw('COUNT(sub.nip) as total_late_count'))
+            ->groupBy('sub.nip', 'karyawan.nama_lengkap', 'karyawan.kode_dept' , 'jabatan.nama_jabatan')
             ->orderBy('total_late_count', 'desc')
             ->limit(10)
             ->get();
@@ -712,28 +720,81 @@ class DashboardController extends Controller
 
         // Leaderboard for on-time performance for NS and non-NS employees
         $leaderboardOnTimeNS = DB::table('presensi')
-            ->select('presensi.nip', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN presensi.jam_in < "08:00:00" THEN (8 * 60) - (HOUR(presensi.jam_in) * 60 + MINUTE(presensi.jam_in)) ELSE 0 END) as total_on_time'))
+            ->select('presensi.nip', 'karyawan.kode_dept' , 'jabatan.nama_jabatan', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN presensi.jam_in < "08:00:00" THEN (8 * 60) - (HOUR(presensi.jam_in) * 60 + MINUTE(presensi.jam_in)) ELSE 0 END) as total_on_time'))
             ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
+            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
             ->whereRaw('MONTH(presensi.tgl_presensi) = ?', [$bulanini])
             ->whereRaw('YEAR(presensi.tgl_presensi) = ?', [$tahunini])
             ->where('karyawan.grade', 'NS')
             ->where('presensi.jam_in', '<', '08:00:00')
-            ->groupBy('presensi.nip', 'karyawan.nama_lengkap')
+            ->groupBy('presensi.nip', 'karyawan.nama_lengkap', 'karyawan.kode_dept' , 'jabatan.nama_jabatan')
             ->orderBy('total_on_time', 'desc')
             ->limit(10)
             ->get();
 
         $leaderboardOnTimeNonNS = DB::table('presensi')
-            ->select('presensi.nip', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN presensi.jam_in < "08:00:00" THEN (8 * 60) - (HOUR(presensi.jam_in) * 60 + MINUTE(presensi.jam_in)) ELSE 0 END) as total_on_time'))
+            ->select('presensi.nip','karyawan.kode_dept' , 'jabatan.nama_jabatan', 'karyawan.nama_lengkap', DB::raw('SUM(CASE WHEN presensi.jam_in < "08:00:00" THEN (8 * 60) - (HOUR(presensi.jam_in) * 60 + MINUTE(presensi.jam_in)) ELSE 0 END) as total_on_time'))
             ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
+            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
             ->whereRaw('MONTH(presensi.tgl_presensi) = ?', [$bulanini])
             ->whereRaw('YEAR(presensi.tgl_presensi) = ?', [$tahunini])
             ->where('karyawan.grade', '!=', 'NS')
             ->where('presensi.jam_in', '<', '08:00:00')
-            ->groupBy('presensi.nip', 'karyawan.nama_lengkap')
+            ->groupBy('presensi.nip', 'karyawan.nama_lengkap', 'karyawan.kode_dept' , 'jabatan.nama_jabatan')
             ->orderBy('total_on_time', 'desc')
             ->limit(10)
             ->get();
+
+        $KarIzinNow = DB::table('pengajuan_izin')
+            ->join('karyawan', 'pengajuan_izin.nip', '=', 'karyawan.nip')
+            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
+            ->where(function ($query) use ($hariini) {
+                $query->where('tgl_izin', '<=', $hariini)
+                    ->where('tgl_izin_akhir', '>=', $hariini);
+            })
+            ->where('karyawan.grade', '!=', 'NS')
+            ->select('karyawan.nama_lengkap', 'pengajuan_izin.tgl_izin', 'pengajuan_izin.tgl_izin_akhir', 'pengajuan_izin.status', 'pengajuan_izin.pukul', 'karyawan.kode_dept' , 'jabatan.nama_jabatan')
+            ->get();
+
+
+        // Fetch employees who are on cuti today
+        $KarCutiNow = DB::table('pengajuan_cuti')
+            ->join('karyawan', 'pengajuan_cuti.nip', '=', 'karyawan.nip')
+            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
+            ->leftJoin('tipe_cuti', 'pengajuan_cuti.tipe', '=', 'tipe_cuti.id_tipe_cuti') // Join with tipe_cuti table
+            ->where(function ($query) use ($hariini) {
+                $query->where('tgl_cuti', '<=', $hariini)
+                    ->where('tgl_cuti_sampai', '>=', $hariini);
+            })
+            ->where('karyawan.grade', '!=', 'NS')
+            ->select('karyawan.nama_lengkap', 'pengajuan_cuti.tgl_cuti', 'pengajuan_cuti.tgl_cuti_sampai', 'pengajuan_cuti.jenis', 'jabatan.nama_jabatan', 'pengajuan_cuti.tipe', 'tipe_cuti.tipe_cuti', 'karyawan.kode_dept') // Select the necessary fields
+            ->get();
+
+        $KarIzinNowNS = DB::table('pengajuan_izin')
+        ->join('karyawan', 'pengajuan_izin.nip', '=', 'karyawan.nip')
+        ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
+        ->where(function ($query) use ($hariini) {
+            $query->where('tgl_izin', '<=', $hariini)
+                ->where('tgl_izin_akhir', '>=', $hariini);
+        })
+        ->where('karyawan.grade', 'NS')
+        ->select('karyawan.nama_lengkap', 'pengajuan_izin.tgl_izin', 'pengajuan_izin.tgl_izin_akhir', 'pengajuan_izin.status', 'pengajuan_izin.pukul', 'karyawan.kode_dept' , 'jabatan.nama_jabatan')
+        ->get();
+
+
+        // Fetch employees who are on cuti today
+        $KarCutiNowNS = DB::table('pengajuan_cuti')
+            ->join('karyawan', 'pengajuan_cuti.nip', '=', 'karyawan.nip')
+            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
+            ->leftJoin('tipe_cuti', 'pengajuan_cuti.tipe', '=', 'tipe_cuti.id_tipe_cuti') // Join with tipe_cuti table
+            ->where(function ($query) use ($hariini) {
+                $query->where('tgl_cuti', '<=', $hariini)
+                    ->where('tgl_cuti_sampai', '>=', $hariini);
+            })
+            ->where('karyawan.grade', 'NS')
+            ->select('karyawan.nama_lengkap', 'pengajuan_cuti.tgl_cuti', 'pengajuan_cuti.tgl_cuti_sampai', 'pengajuan_cuti.jenis', 'jabatan.nama_jabatan', 'pengajuan_cuti.tipe', 'tipe_cuti.tipe_cuti', 'karyawan.kode_dept') // Select the necessary fields
+            ->get();
+
 
         return view('dashboard.dashboardadmin', compact(
             'rekapizin',
@@ -745,6 +806,10 @@ class DashboardController extends Controller
             'historihariNonNS',
             'leaderboardTelatNS',
             'leaderboardTelatNonNS',
+            'KarIzinNow',
+            'KarCutiNow',
+            'KarIzinNowNS',
+            'KarCutiNowNS',
             'totalLatenessNS',
             'totalLatenessNonNS',
             'leaderboardOnTimeNS',

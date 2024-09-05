@@ -1,4 +1,4 @@
-<form action="/karyawan/{{ $karyawan->nik }}/update" method="POST" id="formKaryawan" enctype="multipart/form-data">
+<form action="/karyawan/{{ $karyawan->id }}/update" method="POST" id="formKaryawan" enctype="multipart/form-data">
     @csrf
     <div class="row">
         <div class="col-3">
@@ -144,6 +144,14 @@
         <div class="col-3 mt-2">
             <div class="form-label">Religion</div>
             <input type="text" value="{{ $karyawan->religion }}" class="form-control" name="religion" id="religion" placeholder="Religion">
+        </div>
+        <div class="col-3 mt-2">
+            <div class="form-label">Status Karyawan</div>
+            <select name="status_kar" id="status_kar" class="form-select">
+                <option value="">Pilih Status</option>
+                <option value="Aktif" {{ $karyawan->status_kar == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                <option value="Non-Aktif" {{ $karyawan->status_kar == 'Non-Aktif' ? 'selected' : '' }}>Non-Aktif</option>
+            </select>
         </div>
     </div>
     <div class="row mt-3">

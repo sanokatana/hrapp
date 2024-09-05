@@ -31,11 +31,13 @@ class AttendanceController extends Controller
 
         // Get karyawan data with filters, excluding "Security" department
         $karyawanQuery = DB::table('karyawan')
+            ->where('status_kar', 'Aktif') // Add this condition to filter by status_kar
             ->whereNotIn('kode_dept', function ($query) {
                 $query->select('kode_dept')
                     ->from('department')
                     ->where('grade', '=', 'NS');
             });
+
 
         if ($filterNamaLengkap) {
             $karyawanQuery->where('nama_lengkap', 'like', '%' . $filterNamaLengkap . '%');
@@ -395,7 +397,7 @@ class AttendanceController extends Controller
             } else {
                 return 'T';
             }
-        } else if ($attendance){
+        } else if ($attendance) {
             $jam_in = Carbon::parse($attendance->earliest_jam_in);
             if ($jam_in->gte(Carbon::parse($morning_start)) && $jam_in->lt(Carbon::parse($afternoon_start))) {
                 return $jam_in->gt(Carbon::parse($work_start)) ? 'T' : $status_work;

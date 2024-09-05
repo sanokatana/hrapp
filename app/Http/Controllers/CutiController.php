@@ -155,6 +155,7 @@ class CutiController extends Controller
             // Insert a new record
             DB::table('cuti')->insert([
                 'nik' => $record->nik,
+                'nip' => $record->nip,
                 'tahun' => $newPeriode,
                 'periode_awal' => $newPeriodeAwal,
                 'periode_akhir' => $newPeriodeAkhir,

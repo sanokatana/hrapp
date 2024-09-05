@@ -31,7 +31,7 @@ use App\Helpers\DateHelper;
                         <div class="row align-items-center">
                             <div class="col-auto">
                                 <span class="bg-secondary text-white avatar"><!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-check">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-check">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                         <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
                                         <path d="M6 21v-2a4 4 0 0 1 4 -4h4" />
@@ -57,8 +57,8 @@ use App\Helpers\DateHelper;
                     <div class="card-body">
                         <div class="row align-items-center">
                             <div class="col-auto">
-                                <span class="bg-success text-white avatar"><!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-check">
+                                <span class="bg-primary text-white avatar"><!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-check">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                         <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
                                         <path d="M6 21v-2a4 4 0 0 1 4 -4h4" />
@@ -85,7 +85,7 @@ use App\Helpers\DateHelper;
                         <div class="row align-items-center">
                             <div class="col-auto">
                                 <span class="bg-danger text-white avatar"><!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-minus">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-minus">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                         <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
                                         <path d="M6 21v-2a4 4 0 0 1 4 -4h4c.348 0 .686 .045 1.009 .128" />
@@ -111,7 +111,7 @@ use App\Helpers\DateHelper;
                         <div class="row align-items-center">
                             <div class="col-auto">
                                 <span class="bg-warning text-white avatar">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-files">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-files">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                         <path d="M15 3v4a1 1 0 0 0 1 1h4" />
                                         <path d="M18 17h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h4l5 5v7a2 2 0 0 1 -2 2z" />
@@ -137,7 +137,7 @@ use App\Helpers\DateHelper;
                         <div class="row align-items-center">
                             <div class="col-auto">
                                 <span class="bg-info text-white avatar"><!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-files">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-files">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                         <path d="M15 3v4a1 1 0 0 0 1 1h4" />
                                         <path d="M18 17h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h4l5 5v7a2 2 0 0 1 -2 2z" />
@@ -163,7 +163,7 @@ use App\Helpers\DateHelper;
                         <div class="row align-items-center">
                             <div class="col-auto">
                                 <span class="bg-success text-white avatar"><!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-files">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-files">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                         <path d="M15 3v4a1 1 0 0 0 1 1h4" />
                                         <path d="M18 17h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h4l5 5v7a2 2 0 0 1 -2 2z" />
@@ -239,9 +239,9 @@ use App\Helpers\DateHelper;
                                                             }
                                                             @endphp
 
-                                                            <div class="col-auto">
-                                                                <span class="avatar">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-fingerprint">
+                                                            <div class="col-auto" style="align-content: center">
+                                                                <span class="avatar" style="align-content: center">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-fingerprint">
                                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                                         <path d="M18.9 7a8 8 0 0 1 1.1 5v1a6 6 0 0 0 .8 3" />
                                                                         <path d="M8 11a4 4 0 0 1 8 0v1a10 10 0 0 0 2 6" />
@@ -253,7 +253,8 @@ use App\Helpers\DateHelper;
                                                             </div>
                                                             <div class="col">
                                                                 <div class="text-truncate">
-                                                                    <div>{{ $d->nama_lengkap }}</div>
+                                                                    <div><strong>{{ $d->nama_lengkap }} - {{ $d->kode_dept }}</strong></div>
+                                                                    <div>{{ $d->nama_jabatan }}</div>
                                                                     <div><b>{{ DateHelper::formatIndonesianDate($d->tgl_presensi) }}</b></div>
                                                                     <span class="{{ $status == 'Terlambat' ? 'text-danger' : 'text-success' }}">
                                                                         {{ $status }}
@@ -281,13 +282,14 @@ use App\Helpers\DateHelper;
                                                     <div class="divide-y">
                                                         @foreach ($leaderboardOnTimeNonNS as $person)
                                                         <div class="row">
-                                                            <div class="col-auto">
+                                                            <div class="col-auto" style="align-content: center">
                                                                 <span class="avatar">{{ strtoupper(substr($person->nama_lengkap, 0, 2)) }}</span>
                                                             </div>
                                                             <div class="col">
                                                                 <div class="text-truncate">
-                                                                    <strong>{{ $person->nama_lengkap }}</strong>
+                                                                    <strong>{{ $person->nama_lengkap }} - {{ $person->kode_dept }}</strong>
                                                                 </div>
+                                                                <div>{{ $person->nama_jabatan }}</div>
                                                                 <div class="text-secondary">
                                                                     {{ intdiv($person->total_on_time, 60) }} Jam {{ $person->total_on_time % 60 }} Menit
                                                                 </div>
@@ -311,13 +313,14 @@ use App\Helpers\DateHelper;
                                                     <div class="divide-y">
                                                         @foreach ($leaderboardTelatNonNS as $person)
                                                         <div class="row">
-                                                            <div class="col-auto">
+                                                            <div class="col-auto" style="align-content: center">
                                                                 <span class="avatar">{{ strtoupper(substr($person->nama_lengkap, 0, 2)) }}</span>
                                                             </div>
                                                             <div class="col">
                                                                 <div class="text-truncate">
-                                                                    <strong>{{ $person->nama_lengkap }}</strong>
+                                                                    <strong>{{ $person->nama_lengkap }} - {{ $person->kode_dept }}</strong>
                                                                 </div>
+                                                                <div>{{ $person->nama_jabatan }}</div>
                                                                 <div class="text-secondary">
                                                                     {{ intdiv($person->total_late_minutes, 60) }} Jam {{ $person->total_late_minutes % 60 }} Menit
                                                                 </div>
@@ -340,19 +343,93 @@ use App\Helpers\DateHelper;
                                                     <div class="divide-y">
                                                         @foreach ($totalLatenessNonNS as $person)
                                                         <div class="row">
-                                                            <div class="col-auto">
+                                                            <div class="col-auto" style="align-content: center">
                                                                 <span class="avatar">{{ strtoupper(substr($person->nama_lengkap, 0, 2)) }}</span>
                                                             </div>
                                                             <div class="col">
                                                                 <div class="text-truncate">
-                                                                    <strong>{{ $person->nama_lengkap }}</strong>
+                                                                    <strong>{{ $person->nama_lengkap }} - {{ $person->kode_dept }}</strong>
                                                                 </div>
+                                                                <div>{{ $person->nama_jabatan }}</div>
                                                                 <div class="text-secondary">
                                                                     {{ $person->total_late_count }}
                                                                 </div>
                                                             </div>
                                                             <div class="col-auto align-self-center">
                                                                 <div class="status status-primary">{{ $loop->iteration }}</div>
+                                                            </div>
+                                                        </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-xl-6">
+                                            <div class="card" style="height: 28rem">
+                                                <div class="card-header">
+                                                    <h3 class="card-title">Karyawan Izin</h3>
+                                                </div>
+                                                <div class="card-body card-body-scrollable card-body-scrollable-shadow">
+                                                    <div class="divide-y">
+                                                        @foreach ($KarIzinNow as $d)
+                                                        <div class="row">
+                                                            <div class="col-auto" style="align-content: center">
+                                                                <span class="avatar">{{ strtoupper(substr($d->nama_lengkap, 0, 2)) }}</span>
+                                                            </div>
+                                                            <div class="col">
+                                                                <div class="text-truncate">
+                                                                    <div><strong>{{ $d->nama_lengkap }} - {{ $d->kode_dept }}</strong></div>
+                                                                    <div>{{ $d->nama_jabatan }}</div>
+                                                                    <div>
+                                                                        <b>
+                                                                            @if ($d->tgl_izin == $d->tgl_izin_akhir)
+                                                                            {{ DateHelper::formatIndonesianDate($d->tgl_izin) }}
+                                                                            @else
+                                                                            {{ DateHelper::formatIndonesianDate($d->tgl_izin) }} - {{ DateHelper::formatIndonesianDate($d->tgl_izin_akhir) }}
+                                                                            @endif
+                                                                        </b>
+                                                                    </div>
+                                                                    <div>{{ DateHelper::getStatusText($d->status) }} - {{ $d->pukul}}</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-xl-6">
+                                            <div class="card" style="height: 28rem">
+                                                <div class="card-header">
+                                                    <h3 class="card-title">Karyawan Cuti</h3>
+                                                </div>
+                                                <div class="card-body card-body-scrollable card-body-scrollable-shadow">
+                                                    <div class="divide-y">
+                                                        @foreach ($KarCutiNow as $d)
+                                                        <div class="row">
+                                                            <div class="col-auto" style="align-content: center">
+                                                                <span class="avatar">{{ strtoupper(substr($d->nama_lengkap, 0, 2)) }}</span>
+                                                            </div>
+                                                            <div class="col">
+                                                                <div class="text-truncate">
+                                                                    <div>{{ $d->nama_lengkap }} - {{ $d->kode_dept }} ({{ $d->nama_jabatan }})</div>
+                                                                    <div>
+                                                                        <b>
+                                                                            @if ($d->tgl_cuti == $d->tgl_cuti_sampai)
+                                                                            {{ DateHelper::formatIndonesianDate($d->tgl_cuti) }}
+                                                                            @else
+                                                                            {{ DateHelper::formatIndonesianDate($d->tgl_cuti) }} - {{ DateHelper::formatIndonesianDate($d->tgl_cuti_sampai) }}
+                                                                            @endif
+                                                                        </b>
+                                                                    </div>
+                                                                    <div>
+                                                                        @if ($d->jenis === 'Cuti Tahunan')
+                                                                        Cuti Tahunan
+                                                                        @else
+                                                                        {{ $d->tipe_cuti }}
+                                                                        @endif
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                         @endforeach
@@ -392,9 +469,9 @@ use App\Helpers\DateHelper;
                                                             }
                                                             @endphp
 
-                                                            <div class="col-auto">
+                                                            <div class="col-auto" style="align-content: center">
                                                                 <span class="avatar">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-fingerprint">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-fingerprint">
                                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                                         <path d="M18.9 7a8 8 0 0 1 1.1 5v1a6 6 0 0 0 .8 3" />
                                                                         <path d="M8 11a4 4 0 0 1 8 0v1a10 10 0 0 0 2 6" />
@@ -406,7 +483,8 @@ use App\Helpers\DateHelper;
                                                             </div>
                                                             <div class="col">
                                                                 <div class="text-truncate">
-                                                                    <div>{{ $d->nama_lengkap }}</div>
+                                                                    <div><strong>{{ $d->nama_lengkap }} - {{ $d->kode_dept }}</strong></div>
+                                                                    <div>{{ $d->nama_jabatan }}</div>
                                                                     <div><b>{{ DateHelper::formatIndonesianDate($d->tgl_presensi) }}</b></div>
                                                                     <span class="{{ $status == 'Terlambat' ? 'text-danger' : 'text-success' }}">
                                                                         {{ $status }}
@@ -434,13 +512,14 @@ use App\Helpers\DateHelper;
                                                     <div class="divide-y">
                                                         @foreach ($leaderboardOnTimeNS as $person)
                                                         <div class="row">
-                                                            <div class="col-auto">
+                                                            <div class="col-auto" style="align-content: center">
                                                                 <span class="avatar">{{ strtoupper(substr($person->nama_lengkap, 0, 2)) }}</span>
                                                             </div>
                                                             <div class="col">
                                                                 <div class="text-truncate">
-                                                                    <strong>{{ $person->nama_lengkap }}</strong>
+                                                                    <strong>{{ $person->nama_lengkap }} - {{ $person->kode_dept }}</strong>
                                                                 </div>
+                                                                <div>{{ $person->nama_jabatan }}</div>
                                                                 <div class="text-secondary">
                                                                     {{ intdiv($person->total_on_time, 60) }} Jam {{ $person->total_on_time % 60 }} Menit
                                                                 </div>
@@ -464,13 +543,14 @@ use App\Helpers\DateHelper;
                                                     <div class="divide-y">
                                                         @foreach ($leaderboardTelatNS as $person)
                                                         <div class="row">
-                                                            <div class="col-auto">
+                                                            <div class="col-auto" style="align-content: center">
                                                                 <span class="avatar">{{ strtoupper(substr($person->nama_lengkap, 0, 2)) }}</span>
                                                             </div>
                                                             <div class="col">
                                                                 <div class="text-truncate">
-                                                                    <strong>{{ $person->nama_lengkap }}</strong>
+                                                                    <strong>{{ $person->nama_lengkap }} - {{ $person->kode_dept }}</strong>
                                                                 </div>
+                                                                <div>{{ $person->nama_jabatan }}</div>
                                                                 <div class="text-secondary">
                                                                     {{ intdiv($person->total_late_minutes, 60) }} Jam {{ $person->total_late_minutes % 60 }} Menit
                                                                 </div>
@@ -493,19 +573,93 @@ use App\Helpers\DateHelper;
                                                     <div class="divide-y">
                                                         @foreach ($totalLatenessNS as $person)
                                                         <div class="row">
-                                                            <div class="col-auto">
+                                                            <div class="col-auto" style="align-content: center">
                                                                 <span class="avatar">{{ strtoupper(substr($person->nama_lengkap, 0, 2)) }}</span>
                                                             </div>
                                                             <div class="col">
                                                                 <div class="text-truncate">
-                                                                    <strong>{{ $person->nama_lengkap }}</strong>
+                                                                    <strong>{{ $person->nama_lengkap }} - {{ $person->kode_dept }}</strong>
                                                                 </div>
+                                                                <div>{{ $person->nama_jabatan }}</div>
                                                                 <div class="text-secondary">
                                                                     {{ $person->total_late_count }}
                                                                 </div>
                                                             </div>
                                                             <div class="col-auto align-self-center">
                                                                 <div class="status status-primary">{{ $loop->iteration }}</div>
+                                                            </div>
+                                                        </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-xl-6">
+                                            <div class="card" style="height: 28rem">
+                                                <div class="card-header">
+                                                    <h3 class="card-title">Karyawan Izin</h3>
+                                                </div>
+                                                <div class="card-body card-body-scrollable card-body-scrollable-shadow">
+                                                    <div class="divide-y">
+                                                        @foreach ($KarIzinNowNS as $d)
+                                                        <div class="row">
+                                                            <div class="col-auto" style="align-content: center">
+                                                                <span class="avatar">{{ strtoupper(substr($d->nama_lengkap, 0, 2)) }}</span>
+                                                            </div>
+                                                            <div class="col">
+                                                                <div class="text-truncate">
+                                                                    <div><strong>{{ $d->nama_lengkap }} - {{ $d->kode_dept }}</strong></div>
+                                                                    <div>{{ $d->nama_jabatan }}</div>
+                                                                    <div>
+                                                                        <b>
+                                                                            @if ($d->tgl_izin == $d->tgl_izin_akhir)
+                                                                            {{ DateHelper::formatIndonesianDate($d->tgl_izin) }}
+                                                                            @else
+                                                                            {{ DateHelper::formatIndonesianDate($d->tgl_izin) }} - {{ DateHelper::formatIndonesianDate($d->tgl_izin_akhir) }}
+                                                                            @endif
+                                                                        </b>
+                                                                    </div>
+                                                                    <div>{{ DateHelper::getStatusText($d->status) }} - {{ $d->pukul}}</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-xl-6">
+                                            <div class="card" style="height: 28rem">
+                                                <div class="card-header">
+                                                    <h3 class="card-title">Karyawan Cuti</h3>
+                                                </div>
+                                                <div class="card-body card-body-scrollable card-body-scrollable-shadow">
+                                                    <div class="divide-y">
+                                                        @foreach ($KarCutiNowNS as $d)
+                                                        <div class="row">
+                                                            <div class="col-auto" style="align-content: center">
+                                                                <span class="avatar">{{ strtoupper(substr($d->nama_lengkap, 0, 2)) }}</span>
+                                                            </div>
+                                                            <div class="col">
+                                                                <div class="text-truncate">
+                                                                    <div>{{ $d->nama_lengkap }} - {{ $d->kode_dept }} ({{ $d->nama_jabatan }})</div>
+                                                                    <div>
+                                                                        <b>
+                                                                            @if ($d->tgl_cuti == $d->tgl_cuti_sampai)
+                                                                            {{ DateHelper::formatIndonesianDate($d->tgl_cuti) }}
+                                                                            @else
+                                                                            {{ DateHelper::formatIndonesianDate($d->tgl_cuti) }} - {{ DateHelper::formatIndonesianDate($d->tgl_cuti_sampai) }}
+                                                                            @endif
+                                                                        </b>
+                                                                    </div>
+                                                                    <div>
+                                                                        @if ($d->jenis === 'Cuti Tahunan')
+                                                                        Cuti Tahunan
+                                                                        @else
+                                                                        {{ $d->tipe_cuti }}
+                                                                        @endif
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                         @endforeach

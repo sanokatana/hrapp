@@ -127,6 +127,7 @@ use App\Helpers\DateHelper;
                                             <th>No. Hp</th>
                                             <th>Tanggal Masuk</th>
                                             <th>Work Period</th>
+                                            <th>Status</th>
                                             <th>Foto</th>
                                             <th>Aksi</th>
                                         </tr>
@@ -158,6 +159,7 @@ use App\Helpers\DateHelper;
                                                 echo $work_period->y . ' Tahun ' . $work_period->m . ' Bulan';
                                                 @endphp
                                             </td>
+                                            <td>{{ $d->status_kar}}</td>
                                             <td>
                                                 @if (empty($d->foto))
                                                 <img src="{{ asset('assets/img/nophoto.jpg')}}" class="avatar" alt="">
@@ -170,7 +172,7 @@ use App\Helpers\DateHelper;
                                                 <div class="form-group">
                                                     <!-- Edit Button -->
                                                     <div class="mb-1">
-                                                        <a href="#" class="edit btn btn-info btn-sm" nik="{{ $d->nik }}">
+                                                        <a href="#" class="edit btn btn-info btn-sm" id="{{ $d->id }}">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-edit">
                                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                                 <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
@@ -377,6 +379,14 @@ use App\Helpers\DateHelper;
                             <div class="form-label">Religion</div>
                             <input type="text" value="" class="form-control" name="religion" id="religion" placeholder="Religion">
                         </div>
+                        <div class="col-3 mt-2">
+                            <div class="form-label">Status Karyawan</div>
+                            <select name="status_kar" id="status_kar" class="form-select">
+                                <option value="">Pilih Status</option>
+                                <option value="Aktif">Aktif</option>
+                                <option value="Non-Aktif">Non-Aktif</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="row mt-3">
                         <h5 class="modal-title"><u>Department Details</u></h5>
@@ -394,7 +404,7 @@ use App\Helpers\DateHelper;
                             <select name="jabatan" id="jabatan" class="form-select">
                                 <option value="">Pilih</option>
                                 @foreach ($jabatan as $d)
-                                <option {{ Request('id') == $d->id ? 'selected' : '' }} value="{{ $d->id }}">{{ $d->nama_jabatan }}</option>
+                                <option {{ Request('id') == $d->id ? 'selected' : '' }} value="{{ $d->id }}">{{ $d->id }} - {{ $d->nama_jabatan }} - {{ $d->site }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -718,14 +728,14 @@ use App\Helpers\DateHelper;
         });
 
         $('.edit').click(function() {
-            var nik = $(this).attr('nik');
+            var id = $(this).attr('id');
             $.ajax({
                 type: 'POST',
                 url: '/karyawan/edit',
                 cache: false,
                 data: {
                     _token: "{{ csrf_token();}}",
-                    nik: nik
+                    id: id
                 },
                 success: function(respond) {
                     $('#loadeditform').html(respond);
@@ -766,54 +776,53 @@ use App\Helpers\DateHelper;
             });
         });
 
-        $('#formKaryawan').submit(function() {
-            var nik = $('#nik').val();
-            var nama_lengkap = $('#nama_lengkap').val();
-            var jabatan = $('#jabatan').val();
-            var no_hp = $('#no_Hp').val();
-            var kode_dept = $("formKaryawan").find('#kode_dept').val();
-            if (nik == "") {
-                Swal.fire({
-                    title: 'Warning!',
-                    text: 'NIK Harus Diisi',
-                    icon: 'warning',
-                    confirmButtonText: 'Ok'
-                }).then(() => {
-                    $('#nik').focus();
-                });
-                return false;
-            } else if (nama_lengkap == "") {
-                Swal.fire({
-                    title: 'Warning!',
-                    text: 'Nama Lengkap Harus Diisi',
-                    icon: 'warning',
-                    confirmButtonText: 'Ok'
-                }).then(() => {
-                    $('#nama_lengkap').focus();
-                });
-                return false;
-            } else if (jabatan == "") {
-                Swal.fire({
-                    title: 'Warning!',
-                    text: 'Jabatan Harus Diisi',
-                    icon: 'warning',
-                    confirmButtonText: 'Ok'
-                }).then(() => {
-                    $('#jabatan').focus();
-                });
-                return false;
-            } else if (kode_dept == "") {
-                Swal.fire({
-                    title: 'Warning!',
-                    text: 'Department Harus Diisi',
-                    icon: 'warning',
-                    confirmButtonText: 'Ok'
-                }).then(() => {
-                    $('#kode_dept').focus();
-                });
-                return false;
-            }
-        });
+        // $('#formKaryawan').submit(function() {
+        //     var nik = $('#nik').val();
+        //     var nama_lengkap = $('#nama_lengkap').val();
+        //     var jabatan = $('#jabatan').val();
+        //     var kode_dept = $("formKaryawan").find('#kode_dept').val();
+        //     if (nik == "") {
+        //         Swal.fire({
+        //             title: 'Warning!',
+        //             text: 'NIK Harus Diisi',
+        //             icon: 'warning',
+        //             confirmButtonText: 'Ok'
+        //         }).then(() => {
+        //             $('#nik').focus();
+        //         });
+        //         return false;
+        //     } else if (nama_lengkap == "") {
+        //         Swal.fire({
+        //             title: 'Warning!',
+        //             text: 'Nama Lengkap Harus Diisi',
+        //             icon: 'warning',
+        //             confirmButtonText: 'Ok'
+        //         }).then(() => {
+        //             $('#nama_lengkap').focus();
+        //         });
+        //         return false;
+        //     } else if (jabatan == "") {
+        //         Swal.fire({
+        //             title: 'Warning!',
+        //             text: 'Jabatan Harus Diisi',
+        //             icon: 'warning',
+        //             confirmButtonText: 'Ok'
+        //         }).then(() => {
+        //             $('#jabatan').focus();
+        //         });
+        //         return false;
+        //     } else if (kode_dept == "") {
+        //         Swal.fire({
+        //             title: 'Warning!',
+        //             text: 'Department Harus Diisi',
+        //             icon: 'warning',
+        //             confirmButtonText: 'Ok'
+        //         }).then(() => {
+        //             $('#kode_dept').focus();
+        //         });
+        //         return false;
+        //     }
+        // });
     });
 </script>
 @endpush

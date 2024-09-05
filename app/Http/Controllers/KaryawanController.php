@@ -23,10 +23,9 @@ class KaryawanController extends Controller
     {
         $query = Karyawan::query();
         $query->select('karyawan.*', 'department.nama_dept', 'jabatan.nama_jabatan');
-        $query->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
-        $query->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id');
+        $query->leftJoin('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
+        $query->leftJoin('jabatan', 'karyawan.jabatan', '=', 'jabatan.id');
         $query->orderBy('karyawan.tgl_masuk', 'asc');
-
 
         if (!empty($request->nama_karyawan)) {
             $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama_karyawan . '%');
@@ -43,7 +42,6 @@ class KaryawanController extends Controller
         $location = DB::table('konfigurasi_lokasi')->get();
         return view("karyawan.index", compact('karyawan', 'department', 'jabatan', 'location', 'shift'));
     }
-
 
     public function store(StoreEmployeeRequest $request)
     {
@@ -74,17 +72,17 @@ class KaryawanController extends Controller
     public function edit(Request $request)
     {
 
-        $nik = $request->nik;
+        $id = $request->id;
         $department = DB::table('department')->get();
         $jabatan = DB::table('jabatan')->get();
         $location = DB::table('konfigurasi_lokasi')->get();
         $karyawan = DB::table('karyawan')
-            ->where('nik', $nik)
+            ->where('id', $id)
             ->first();
         return view('karyawan.edit', compact('department', 'karyawan', 'jabatan', 'location'));
     }
 
-    public function update($nik, StoreEmployeeRequest $request)
+    public function update($id, StoreEmployeeRequest $request)
     {
         $data = $request->validated();
         $old_foto = $request->old_foto;
@@ -96,7 +94,7 @@ class KaryawanController extends Controller
         }
 
         try {
-            $update = DB::table('karyawan')->where('nik', $nik)->update($data);
+            $update = DB::table('karyawan')->where('id', $id)->update($data);
             if ($update) {
                 if ($request->hasFile('foto')) {
                     $folderPath = 'public/uploads/karyawan/';
@@ -237,6 +235,7 @@ class KaryawanController extends Controller
                         'em_telp' => $mappedData['em_telp'],
                         'em_relation' => $mappedData['em_relation'],
                         'em_alamat' => $mappedData['em_alamat'],
+                        'status_kar' => $mappedData['status_kar'],
                     ];
                 }
             }
