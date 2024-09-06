@@ -223,14 +223,15 @@ use App\Helpers\DateHelper;
                                                         @foreach ($historihariNonNS as $d)
                                                         <div class="row">
                                                             @php
-                                                            // Extract hours and minutes from the jam_in time
+                                                            // Extract hours and minutes from the jam_in time and shift's start_time
                                                             $jam_in_time = strtotime($d->jam_in);
+                                                            $start_time = strtotime($d->start_time);
                                                             $lateness = '';
 
                                                             // Calculate lateness
-                                                            if ($jam_in_time > strtotime("08:00:00")) {
-                                                            $hours_diff = floor(($jam_in_time - strtotime("08:00:00")) / 3600);
-                                                            $minutes_diff = floor((($jam_in_time - strtotime("08:00:00")) % 3600) / 60);
+                                                            if ($jam_in_time > $start_time) {
+                                                            $hours_diff = floor(($jam_in_time - $start_time) / 3600);
+                                                            $minutes_diff = floor((($jam_in_time - $start_time) % 3600) / 60);
                                                             $lateness = ($hours_diff > 0 ? $hours_diff . " Jam " : "") . ($minutes_diff > 0 ? $minutes_diff . " Menit" : "");
                                                             $status = "Terlambat";
                                                             } else {
@@ -268,7 +269,6 @@ use App\Helpers\DateHelper;
                                                             </div>
                                                         </div>
                                                         @endforeach
-
                                                     </div>
                                                 </div>
                                             </div>
@@ -291,7 +291,7 @@ use App\Helpers\DateHelper;
                                                                 </div>
                                                                 <div>{{ $person->nama_jabatan }}</div>
                                                                 <div class="text-secondary">
-                                                                    {{ intdiv($person->total_on_time, 60) }} Jam {{ $person->total_on_time % 60 }} Menit
+                                                                {{ $person->total_on_time  }} Menit
                                                                 </div>
                                                             </div>
                                                             <div class="col-auto align-self-center">
@@ -322,7 +322,7 @@ use App\Helpers\DateHelper;
                                                                 </div>
                                                                 <div>{{ $person->nama_jabatan }}</div>
                                                                 <div class="text-secondary">
-                                                                    {{ intdiv($person->total_late_minutes, 60) }} Jam {{ $person->total_late_minutes % 60 }} Menit
+                                                                 {{ $person->total_late_minutes  }} Menit
                                                                 </div>
                                                             </div>
                                                             <div class="col-auto align-self-center">
@@ -455,12 +455,13 @@ use App\Helpers\DateHelper;
                                                             @php
                                                             // Extract hours and minutes from the jam_in time
                                                             $jam_in_time = strtotime($d->jam_in);
+                                                            $start_time = strtotime($d->start_time);
                                                             $lateness = '';
 
                                                             // Calculate lateness
-                                                            if ($jam_in_time > strtotime("08:00:00")) {
-                                                            $hours_diff = floor(($jam_in_time - strtotime("08:00:00")) / 3600);
-                                                            $minutes_diff = floor((($jam_in_time - strtotime("08:00:00")) % 3600) / 60);
+                                                            if ($jam_in_time > $start_time) {
+                                                            $hours_diff = floor(($jam_in_time - $start_time) / 3600);
+                                                            $minutes_diff = floor((($jam_in_time - $start_time) % 3600) / 60);
                                                             $lateness = ($hours_diff > 0 ? $hours_diff . " Jam " : "") . ($minutes_diff > 0 ? $minutes_diff . " Menit" : "");
                                                             $status = "Terlambat";
                                                             } else {
@@ -521,7 +522,7 @@ use App\Helpers\DateHelper;
                                                                 </div>
                                                                 <div>{{ $person->nama_jabatan }}</div>
                                                                 <div class="text-secondary">
-                                                                    {{ intdiv($person->total_on_time, 60) }} Jam {{ $person->total_on_time % 60 }} Menit
+                                                                {{ $person->total_on_time  }} Menit
                                                                 </div>
                                                             </div>
                                                             <div class="col-auto align-self-center">
@@ -552,7 +553,7 @@ use App\Helpers\DateHelper;
                                                                 </div>
                                                                 <div>{{ $person->nama_jabatan }}</div>
                                                                 <div class="text-secondary">
-                                                                    {{ intdiv($person->total_late_minutes, 60) }} Jam {{ $person->total_late_minutes % 60 }} Menit
+                                                                {{ $person->total_late_minutes  }} Menit
                                                                 </div>
                                                             </div>
                                                             <div class="col-auto align-self-center">
