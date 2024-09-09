@@ -18,6 +18,7 @@
     <link href="{{ asset('tabler/dist/css/tabler.css?1692870487')}}" rel="stylesheet" />
     <link href="{{ asset('tabler/dist/css/tabler-flags.min.css?1692870487')}}" rel="stylesheet" />
     <link href="{{ asset('tabler/dist/css/tabler-payments.min.css?1692870487')}}" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/favicon.png')}}" sizes="32x32">
     <link href="{{ asset('tabler/dist/css/tabler-vendors.min.css?1692870487')}}" rel="stylesheet" />
     <link href="{{ asset('tabler/dist/css/demo.min.css?1692870487')}}" rel="stylesheet" />
     <link href="{{ asset('jquery-ui/themes/base/jquery-ui.css')}}" rel="stylesheet" />

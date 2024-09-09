@@ -70,17 +70,17 @@ class DateHelper
             case 'S':
                 return 'Sakit';
             case 'Tmk':
-                return 'Tidak masuk kerja';
+                return 'Tidak Masuk Kerja';
             case 'Dt':
-                return 'Datang terlambat';
+                return 'Datang Terlambat';
             case 'Pa':
-                return 'Pulang awal';
+                return 'Pulang Awal';
             case 'Tam':
-                return 'Tidak masuk aben';
+                return 'Tidak Absen Masuk';
             case 'Tap':
-                return 'Tidak absen pulang';
+                return 'Tidak Absen Pulang';
             case 'Tjo':
-                return 'Tukar Jadwal';
+                return 'Tukar Jadwal Off';
             case 'Off':
                 return 'Off';
             default:

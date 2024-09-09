@@ -630,45 +630,64 @@ class DashboardController extends Controller
             ->count();
 
         // Get historical attendance data for NS employees
-        $historihariNS = DB::table('presensi')
-            ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
-            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-            ->join('shift_pattern_cycle', function ($join) {
+        $historihariNS = DB::connection('mysql2')
+            ->table('db_absen.att_log as presensi')
+            ->join('hrmschl.karyawan', 'presensi.pin', '=', 'karyawan.nip') // Use 'pin' from 'att_log'
+            ->join('hrmschl.jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+            ->join('hrmschl.shift_pattern_cycle', function ($join) {
                 $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
                     ->on(DB::raw('
-                        CASE
-                            WHEN DAYOFWEEK(presensi.tgl_presensi) = 1 THEN 7
-                            ELSE DAYOFWEEK(presensi.tgl_presensi) - 1
-                        END
-                    '), '=', 'shift_pattern_cycle.cycle_day');
+                CASE
+                    WHEN DAYOFWEEK(DATE(presensi.scan_date)) = 1 THEN 7
+                    ELSE DAYOFWEEK(DATE(presensi.scan_date)) - 1
+                END
+            '), '=', 'shift_pattern_cycle.cycle_day');
             })
-            ->join('shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
-            ->whereDate('presensi.tgl_presensi', $hariini) // Use $hariini variable
+            ->join('hrmschl.shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
+            ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini)
             ->where('karyawan.grade', 'NS')
-            ->whereBetween('presensi.jam_in', [DB::raw('shift.early_time'), DB::raw('shift.latest_time')])
-            ->orderBy('presensi.jam_in', 'desc')
-            ->select('presensi.*', 'karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan', 'shift.start_time')
+            ->whereBetween(DB::raw('TIME(presensi.scan_date)'), [DB::raw('shift.early_time'), DB::raw('shift.latest_time')])
+            ->orderBy(DB::raw('TIME(presensi.scan_date)'), 'desc')
+            ->select(
+                'presensi.*',
+                'karyawan.nama_lengkap',
+                'karyawan.kode_dept',
+                'jabatan.nama_jabatan',
+                'shift.start_time',
+                DB::raw('DATE(presensi.scan_date) as tgl_presensi'),
+                DB::raw('TIME(presensi.scan_date) as jam_in')
+            )
             ->get();
 
 
-        $historihariNonNS = DB::table('presensi')
-            ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
-            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-            ->join('shift_pattern_cycle', function ($join) {
+        $historihariNonNS = DB::connection('mysql2')
+            ->table('db_absen.att_log as presensi')
+            ->join('hrmschl.karyawan', 'presensi.pin', '=', 'karyawan.nip') // Use 'pin' from 'att_log'
+            ->join('hrmschl.jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+            ->join('hrmschl.shift_pattern_cycle', function ($join) {
                 $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
                     ->on(DB::raw('
-                         CASE
-                             WHEN DAYOFWEEK(presensi.tgl_presensi) = 1 THEN 7
-                             ELSE DAYOFWEEK(presensi.tgl_presensi) - 1
-                         END
-                     '), '=', 'shift_pattern_cycle.cycle_day');
+                CASE
+                    WHEN DAYOFWEEK(DATE(presensi.scan_date)) = 1 THEN 7
+                    ELSE DAYOFWEEK(DATE(presensi.scan_date)) - 1
+                END
+            '), '=', 'shift_pattern_cycle.cycle_day');
             })
-            ->join('shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
-            ->whereDate('presensi.tgl_presensi', $hariini)
+            ->join('hrmschl.shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
+            ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini)
             ->where('karyawan.grade', '!=', 'NS')
-            ->orderBy('presensi.jam_in', 'DESC')
-            ->select('presensi.*', 'karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan', 'shift.start_time')
+            ->orderBy(DB::raw('TIME(presensi.scan_date)'), 'DESC')
+            ->select(
+                'presensi.*',
+                'karyawan.nama_lengkap',
+                'karyawan.kode_dept',
+                'jabatan.nama_jabatan',
+                'shift.start_time',
+                DB::raw('DATE(presensi.scan_date) as tgl_presensi'),
+                DB::raw('TIME(presensi.scan_date) as jam_in')
+            )
             ->get();
+
 
         // Subquery for lateness calculations
         // Subquery to get the earliest jam_in for each employee per day
