@@ -272,4 +272,142 @@ class KonfigurasiController extends Controller
             return Redirect::back()->with(['warning' => 'Libur Nasional Gagal Di Hapus']);
         }
     }
+
+    public function liburkar()
+    {
+        $liburkars = DB::table('libur_kar')
+            ->leftJoin('karyawan', function ($join) {
+                $join->on('libur_kar.nip', '=', 'karyawan.nip')
+                    ->orOn('libur_kar.nik', '=', 'karyawan.nik');
+            })
+            ->select('libur_kar.*', 'karyawan.nama_lengkap')
+            ->get();
+
+        return view('konfigurasi.liburkar', compact('liburkars'));
+    }
+
+    public function liburkarstore(Request $request)
+    {
+        $nik = $request->nik;
+        $nip = DB::table('karyawan')->where('nik', $nik)->value('nip');
+        $bulan = $request->bulan;
+
+        try {
+            $data = [
+                'nik' => $nik,
+                'nip' => $nip,
+                'month' => $bulan,
+            ];
+            DB::table('libur_kar')->insert($data);
+            return Redirect::back()->with(['success' => 'Data Berhasil Di Simpan']);
+        } catch (\Throwable $th) {
+            return Redirect::back()->with(['warning' => 'Data Gagal Di Simpan']);
+        }
+    }
+
+    public function shiftupdate(Request $request)
+    {
+        $id = $request->id; // Retrieve the id from the request
+        $nik = $request->nik;
+        $nip = DB::table('karyawan')->where('nik', $nik)->value('nip');
+        $bulan = $request->bulan;
+
+        try {
+            $data = [
+                'nik' => $nik,
+                'nip' => $nip,
+                'month' => $bulan,
+            ];
+            DB::table('shift')
+                ->where('id', $id)
+                ->update($data);
+            return Redirect::back()->with(['success' => 'Data Berhasil Di Update']);
+        } catch (\Throwable $th) {
+            return Redirect::back()->with(['warning' => 'Data Gagal Di Update']);
+        }
+    }
+
+    public function liburkaredit(Request $request)
+    {
+        $id = $request->id;
+        $liburkar = DB::table('libur_kar')->where('id', $id)->first();
+        return view('konfigurasi.liburkaredit', compact('liburkar'));
+    }
+
+    public function getDays($id)
+    {
+        $days = DB::table('libur_kar_day')
+            ->where('libur_id', $id)
+            ->get();
+
+        return response()->json(['days' => $days]);
+    }
+
+    public function saveOrUpdateDays(Request $request, $liburId)
+    {
+        // Validate the incoming request
+        $request->validate([
+            'tanggal.*' => 'required|date',
+        ]);
+
+        $tanggal = $request->input('tanggal', []);
+
+        // Check if there is existing data for the current libur_kar ID
+        $existingDays = DB::table('libur_kar_day')->where('libur_id', $liburId)->get();
+
+        if ($existingDays->isEmpty()) {
+            // Insert new days if no existing data
+            foreach ($tanggal as $date) {
+                DB::table('libur_kar_day')->insert([
+                    'libur_id' => $liburId,
+                    'tanggal' => $date,
+                ]);
+            }
+        } else {
+            // Update existing days
+            foreach ($tanggal as $date) {
+                $dateExists = $existingDays->where('tanggal', $date)->first();
+
+                if (!$dateExists) {
+                    // Add new date if it does not exist
+                    DB::table('libur_kar_day')->insert([
+                        'libur_id' => $liburId,
+                        'tanggal' => $date,
+                    ]);
+                }
+            }
+
+            // Delete days that are no longer present
+            $existingDates = $existingDays->pluck('tanggal');
+            $datesToDelete = $existingDates->diff($tanggal);
+
+            foreach ($datesToDelete as $date) {
+                DB::table('libur_kar_day')->where('libur_id', $liburId)->where('tanggal', $date)->delete();
+            }
+        }
+
+        return response()->json(['status' => 'success']);
+    }
+
+    public function liburkardelete($id)
+    {
+        $delete = DB::table('libur_kar')->where('id', $id)->delete();
+        if ($delete) {
+            return Redirect::back()->with(['success' => 'Data Berhasil Di Hapus']);
+        } else {
+            return Redirect::back()->with(['warning' => 'Data Gagal Di Hapus']);
+        }
+    }
+
+    // Method to delete a specific day
+    public function deleteDay($id)
+    {
+        $delete = DB::table('libur_kar_day')->where('id', $id)->delete();
+        if ($delete) {
+            return Redirect::back()->with(['success' => 'Data Berhasil Di Hapus']);
+        } else {
+            return Redirect::back()->with(['warning' => 'Data Gagal Di Hapus']);
+        }
+    }
+
 }

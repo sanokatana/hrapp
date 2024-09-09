@@ -1,7 +1,8 @@
 @php
 use App\Helpers\DateHelper;
 @endphp
-@foreach ($presensi as $d)
+
+@foreach ($presensi->sortByDesc('tanggal') as $d)
 <tr style="text-align: center;">
     <td style="vertical-align: middle;">{{ $loop->iteration }}</td>
     <td style="vertical-align: middle;">{{ $d['nip'] }}</td>
@@ -18,13 +19,11 @@ use App\Helpers\DateHelper;
         @if ($d['jam_masuk'] === '')
         <div class="row">
             <span class="badge bg-danger text-yellow-fg" style="color: white;">No Data</span>
-            <span class="badge bg-danger-lt" style="color: white;">
-                0
-            </span>
+            <span class="badge bg-danger-lt" style="color: white;">0</span>
         </div>
-        @elseif (strtotime($d['jam_masuk']) > strtotime('08:00:00'))
+        @elseif (strtotime($d['jam_masuk']) > $d['shift_start_time'])
         @php
-        $delayInSeconds = strtotime($d['jam_masuk']) - strtotime('08:00:00');
+        $delayInSeconds = strtotime($d['jam_masuk']) - $d['shift_start_time'];
         $delayHours = floor($delayInSeconds / 3600);
         $delayMinutes = floor(($delayInSeconds % 3600) / 60);
         @endphp
@@ -37,9 +36,7 @@ use App\Helpers\DateHelper;
         @else
         <div class="row">
             <span class="badge bg-green text-yellow-fg" style="color: white;">Tepat Waktu</span>
-            <span class="badge bg-green-lt" style="color: white;">
-                On Time
-            </span>
+            <span class="badge bg-green-lt" style="color: white;">On Time</span>
         </div>
         @endif
     </td>

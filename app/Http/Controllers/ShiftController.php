@@ -211,8 +211,6 @@ class ShiftController extends Controller
         return response()->json(['success' => true]);
     }
 
-
-
     public function deleteCycle($id)
     {
         $delete = DB::table('shift_pattern_cycle')->where('id', $id)->delete();

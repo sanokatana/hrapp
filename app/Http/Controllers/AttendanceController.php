@@ -72,6 +72,7 @@ class AttendanceController extends Controller
                 return Carbon::parse($date)->format('Y-m-d');
             });
 
+
         // Get approved leave data for the selected month
         $cuti = DB::table('pengajuan_cuti')
             ->select('nik', 'tgl_cuti', 'tgl_cuti_sampai')
@@ -97,6 +98,15 @@ class AttendanceController extends Controller
                     ->whereYear('tgl_izin_akhir', $filterYear);
             })
             ->get();
+
+        $liburKaryawan = DB::table('libur_kar')
+        ->whereMonth('month', $filterMonth)
+        ->whereYear('month', $filterYear)
+        ->pluck('id', 'nik');
+
+        $liburKarDays = DB::table('libur_kar_day')
+            ->whereIn('libur_id', $liburKaryawan)
+            ->pluck('tanggal', 'libur_id');
 
         // Process presensi and cuti data to format for display
         $attendanceData = [];
@@ -136,6 +146,20 @@ class AttendanceController extends Controller
                     'nama_lengkap' => $k->nama_lengkap,
                     'attendance' => []
                 ];
+
+                $liburKaryawanId = DB::table('libur_kar')
+                    ->where('month', $filterMonth)
+                    ->where('nik', $k->nik)
+                    ->value('id'); // Get the ID of the libur_kar row for the current karyawan
+
+                $liburKarDays = collect(); // Default empty collection for dates
+
+                if ($liburKaryawanId) {
+                    // Fetch all the leave dates for the specific employee
+                    $liburKarDays = DB::table('libur_kar_day')
+                        ->where('libur_id', $liburKaryawanId)
+                        ->pluck('tanggal');
+                }
 
                 // Get the employee's shift pattern ID and start shift date
                 $shiftPatternId = DB::table('karyawan')
@@ -229,6 +253,10 @@ class AttendanceController extends Controller
                     // Check if the date is a national holiday
                     if ($liburNasional->contains($dateString)) {
                         $status = 'LN'; // Mark as national holiday
+                    }
+
+                    if ($liburKarDays->contains($dateString)) {
+                        $status = 'L'; // Mark as employee leave day
                     }
 
                     // Calculate late minutes if attendance exists and status is 'T'
@@ -350,19 +378,7 @@ class AttendanceController extends Controller
             $pukul = $isIzin->pukul;
 
             if ($status == 'Tmk') {
-                if ($keputusan == 'Sakit') {
-                    return 'S';
-                } elseif ($keputusan == 'Ijin') {
-                    return 'I';
-                } elseif ($keputusan == 'Mangkir') {
-                    return 'MK';
-                } elseif ($keputusan == 'Tugas Luar') {
-                    return 'D';
-                } elseif ($keputusan == 'Potong Cuti') {
-                    return 'C';
-                } elseif ($keputusan == 'Tukar Jadwal Off') {
-                    return 'OFF'; // Handle Tukar Jadwal Off
-                }
+                return $keputusan == 'Sakit' ? 'S' : ($keputusan == 'Ijin' ? 'I' : ($keputusan == 'Mangkir' ? 'MK' : ($keputusan == 'Tugas Luar' ? 'D' : 'C')));
             }
 
             if ($status == 'Dt' && $attendance) {
@@ -377,7 +393,6 @@ class AttendanceController extends Controller
             }
 
             if ($status == 'Tam') {
-                // If no attendance between 6 AM and 1 PM
                 $jam_in = $attendance ? Carbon::parse($attendance->earliest_jam_in) : null;
                 if (!$jam_in || $jam_in->lt(Carbon::parse($morning_start)) || $jam_in->gte(Carbon::parse($afternoon_start))) {
                     return $status_work;
@@ -389,25 +404,41 @@ class AttendanceController extends Controller
             }
         }
 
-
         if ($status_work == 'OFF' && $attendance) {
             $jam_in = Carbon::parse($attendance->earliest_jam_in);
-            if ($jam_in->gte(Carbon::parse($morning_start)) && $jam_in->lt(Carbon::parse($afternoon_start))) {
-                return $jam_in->gt(Carbon::parse($work_start)) ? 'T' : 'P';
+            if ($jam_in->lt(Carbon::parse($morning_start))) {
+                $latest_jam_in_after_morning = Carbon::parse($attendance->latest_jam_in_after_morning ?? $jam_in);
+                if ($latest_jam_in_after_morning->gte(Carbon::parse($morning_start))) {
+                    return $latest_jam_in_after_morning->gt(Carbon::parse($work_start)) ? 'T' : 'P';
+                } else {
+                    return 'T'; // No valid attendance after morning_start
+                }
             } else {
-                return 'T';
+                return $jam_in->gte(Carbon::parse($morning_start)) && $jam_in->lt(Carbon::parse($afternoon_start))
+                    ? ($jam_in->gt(Carbon::parse($work_start)) ? 'T' : 'P')
+                    : 'T';
             }
         } else if ($attendance) {
             $jam_in = Carbon::parse($attendance->earliest_jam_in);
-            if ($jam_in->gte(Carbon::parse($morning_start)) && $jam_in->lt(Carbon::parse($afternoon_start))) {
-                return $jam_in->gt(Carbon::parse($work_start)) ? 'T' : $status_work;
+            if ($jam_in->lt(Carbon::parse($morning_start))) {
+                $latest_jam_in_after_morning = Carbon::parse($attendance->latest_jam_in_after_morning ?? $jam_in);
+                if ($latest_jam_in_after_morning->gte(Carbon::parse($morning_start))) {
+                    return $latest_jam_in_after_morning->gt(Carbon::parse($work_start)) ? 'T' : 'P';
+                } else if ($date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY){
+                    return 'L'; // No valid attendance after morning_start
+                } else {
+                    return ''; // No valid attendance after morning_start
+                }
             } else {
-                return 'T';
+                return $jam_in->gte(Carbon::parse($morning_start)) && $jam_in->lt(Carbon::parse($afternoon_start))
+                    ? ($jam_in->gt(Carbon::parse($work_start)) ? 'T' : $status_work)
+                    : 'T';
             }
         } else {
             return $date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY ? 'L' : '';
         }
     }
+
 
 
     // Helper function to determine if the date falls within a leave period
@@ -469,6 +500,9 @@ class AttendanceController extends Controller
                     break;
                 case 'LN':
                     $classes[] = 'dark-yellow';
+                    break;
+                case 'L':
+                    $classes[] = 'weekend';
                     break;
                 case 'C':
                     $classes[] = 'cuti';
@@ -578,7 +612,8 @@ class AttendanceController extends Controller
             $query->where('presensi.nip', $nip);
         }
 
-        $query->orderBy('tgl_presensi', 'desc');
+        $query->orderBy('tgl_presensi', 'asc')
+            ->orderBy('jam_in', 'asc'); // Ensure proper ordering
         $presensi = $query->get();
 
         // Fetch approved izin data for the relevant dates and NIPs
@@ -594,7 +629,8 @@ class AttendanceController extends Controller
             $tanggal = $record->tanggal;
             $nip = $record->nip;
             $nik = $record->nik;
-            $time = strtotime($record->jam_in);
+            $jam_in = $record->jam_in;
+            $time = strtotime($jam_in);
 
             // Determine the current day of the week (1 = Monday, 7 = Sunday)
             $dayOfWeek = Carbon::parse($tanggal)->dayOfWeekIso;
@@ -615,42 +651,35 @@ class AttendanceController extends Controller
                     // Fetch the early_time and latest_time from the shifts table
                     $shiftTimes = DB::table('shift')
                         ->where('id', $shiftId)
-                        ->select('early_time', 'latest_time')
+                        ->select('early_time', 'latest_time', 'start_time')
                         ->first();
 
                     if ($shiftTimes) {
-                        // Check if 'early_time' and 'latest_time' are not null
-                        $morning_start = $shiftTimes->early_time ? strtotime($shiftTimes->early_time) : null;
-                        $afternoon_start = $shiftTimes->latest_time ? strtotime($shiftTimes->latest_time) : null;
+                        $morning_start = $shiftTimes->early_time ? strtotime($shiftTimes->early_time) : strtotime('06:00:00');
+                        $afternoon_start = $shiftTimes->latest_time ? strtotime($shiftTimes->latest_time) : strtotime('13:00:00');
+                        $shift_start_time = $shiftTimes->start_time ? strtotime($shiftTimes->start_time) : strtotime('08:00:00'); // Default to 08:00:00 if not set
                     } else {
-                        // Handle missing shift times by setting to null
-                        $morning_start = null;
-                        $afternoon_start = null;
+                        $morning_start = strtotime('06:00:00');
+                        $afternoon_start = strtotime('13:00:00');
+                        $shift_start_time = strtotime('08:00:00'); // Default shift start time
                     }
                 } else {
-                    // Handle missing shift pattern for the day
-                    $morning_start = null;
-                    $afternoon_start = null;
+                    $morning_start = strtotime('06:00:00');
+                    $afternoon_start = strtotime('13:00:00');
+                    $shift_start_time = strtotime('08:00:00'); // Default shift start time
                 }
             } else {
-                // Handle missing shift pattern ID
-                $morning_start = null;
-                $afternoon_start = null;
-            }
-
-            // Set default values if no shift times are available
-            if ($morning_start === null) {
                 $morning_start = strtotime('06:00:00');
-            }
-            if ($afternoon_start === null) {
                 $afternoon_start = strtotime('13:00:00');
+                $shift_start_time = strtotime('08:00:00'); // Default shift start time
             }
 
-            // Process presensi records based on the shift times
+            // Check if this time should be attributed to the previous day
             if ($time < $morning_start) {
                 $prev_tanggal = Carbon::parse($tanggal)->subDay()->toDateString();
                 $key = $prev_tanggal . '_' . $nip;
 
+                // Initialize the entry for the previous day if not already present
                 if (!isset($processedPresensi[$key])) {
                     $processedPresensi[$key] = [
                         'tanggal' => $prev_tanggal,
@@ -659,12 +688,13 @@ class AttendanceController extends Controller
                         'nama_dept' => $record->nama_dept,
                         'jam_masuk' => '',
                         'jam_pulang' => '',
+                        'shift_start_time' => $shift_start_time, // Add shift start time here
                     ];
                 }
 
-                if (empty($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
-                    $processedPresensi[$key]['jam_pulang'] = $record->jam_in;
-                }
+                // Always overwrite jam_pulang for the previous day if the new jam_in is later
+                $processedPresensi[$key]['jam_pulang'] = $jam_in;
+
             } else {
                 $key = $tanggal . '_' . $nip;
 
@@ -676,17 +706,18 @@ class AttendanceController extends Controller
                         'nama_dept' => $record->nama_dept,
                         'jam_masuk' => '',
                         'jam_pulang' => '',
+                        'shift_start_time' => $shift_start_time, // Add shift start time here
                     ];
                 }
 
                 if ($time >= $morning_start && $time < $afternoon_start) {
+                    // Only set jam_masuk if it’s earlier than the existing value or if it's empty
                     if (empty($processedPresensi[$key]['jam_masuk']) || $time < strtotime($processedPresensi[$key]['jam_masuk'])) {
-                        $processedPresensi[$key]['jam_masuk'] = $record->jam_in;
+                        $processedPresensi[$key]['jam_masuk'] = $jam_in;
                     }
                 } elseif ($time >= $afternoon_start) {
-                    if (empty($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
-                        $processedPresensi[$key]['jam_pulang'] = $record->jam_in;
-                    }
+                    // Always overwrite jam_pulang if the new jam_in is later
+                    $processedPresensi[$key]['jam_pulang'] = $jam_in;
                 }
             }
 
@@ -712,8 +743,6 @@ class AttendanceController extends Controller
         return view("attendance.getatt", compact('presensi'));
     }
 
-
-
     public function daymonitor()
     {
         return view('attendance.daymonitor');
@@ -723,16 +752,18 @@ class AttendanceController extends Controller
     {
         $tanggal = $request->tanggal;
 
+        // Define the next day for fetching the data
+        $nextDay = Carbon::parse($tanggal)->addDay()->toDateString();
+
         $query = DB::table('presensi')
             ->selectRaw('DATE(tgl_presensi) as tanggal, presensi.nip, presensi.nik, nama_lengkap, nama_dept, jam_in')
             ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
-            ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
+            ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept')
+            ->whereDate('tgl_presensi', $tanggal)
+            ->orderBy('tgl_presensi', 'asc')
+            ->orWhereDate('tgl_presensi', $nextDay) // Include records for the next day
+            ->orderBy('nama_dept', 'asc');
 
-        if ($tanggal) {
-            $query->whereDate('tgl_presensi', $tanggal);
-        }
-
-        $query->orderBy('nama_dept', 'asc');
         $presensi = $query->get();
 
         // Fetch approved izin data for the relevant dates and NIPs
@@ -747,8 +778,9 @@ class AttendanceController extends Controller
         foreach ($presensi as $record) {
             $tanggal = $record->tanggal;
             $nip = $record->nip;
-            $nik = $record->nik; // Get the nik from the record
+            $nik = $record->nik;
             $time = strtotime($record->jam_in);
+
             // Determine the current day of the week (1 = Monday, 7 = Sunday)
             $dayOfWeek = Carbon::parse($tanggal)->dayOfWeekIso;
 
@@ -767,27 +799,27 @@ class AttendanceController extends Controller
                     // Fetch the early_time and latest_time from the shifts table
                     $shiftTimes = DB::table('shift')
                         ->where('id', $shiftId)
-                        ->select('early_time', 'latest_time')
+                        ->select('early_time', 'latest_time', 'start_time')
                         ->first();
 
                     if ($shiftTimes) {
-                        // Check if 'early_time' and 'latest_time' are not null
                         $morning_start = $shiftTimes->early_time ? strtotime($shiftTimes->early_time) : null;
                         $afternoon_start = $shiftTimes->latest_time ? strtotime($shiftTimes->latest_time) : null;
+                        $shift_start_time = $shiftTimes->start_time ? strtotime($shiftTimes->start_time) : null; // Default to 08:00:00 if not set
                     } else {
-                        // Handle missing shift times by setting to null
                         $morning_start = null;
                         $afternoon_start = null;
+                        $shift_start_time = null;
                     }
                 } else {
-                    // Handle missing shift pattern for the day
                     $morning_start = null;
                     $afternoon_start = null;
+                    $shift_start_time = null;
                 }
             } else {
-                // Handle missing shift pattern ID
                 $morning_start = null;
                 $afternoon_start = null;
+                $shift_start_time = null;
             }
 
             // Set default values if no shift times are available
@@ -797,29 +829,34 @@ class AttendanceController extends Controller
             if ($afternoon_start === null) {
                 $afternoon_start = strtotime('13:00:00');
             }
+            if ($shift_start_time === null) {
+                $shift_start_time = strtotime('08:00:00');
+            }
 
-            // If the time is before 6 AM, it should be considered as the previous day's jam_pulang
-            if ($time < $morning_start) {
+            $key = $tanggal . '_' . $nip;
+
+            // If the time is before the morning start time, it should be considered as the previous day's jam_pulang
+            if ($tanggal == $nextDay && $time < $morning_start) {
                 $prev_tanggal = Carbon::parse($tanggal)->subDay()->toDateString();
-                $key = $prev_tanggal . '_' . $nip;
+                $prev_key = $prev_tanggal . '_' . $nip;
 
-                if (!isset($processedPresensi[$key])) {
-                    $processedPresensi[$key] = [
+                if (!isset($processedPresensi[$prev_key])) {
+                    $processedPresensi[$prev_key] = [
                         'tanggal' => $prev_tanggal,
                         'nip' => $nip,
                         'nama_lengkap' => $record->nama_lengkap,
                         'nama_dept' => $record->nama_dept,
                         'jam_masuk' => '',
                         'jam_pulang' => '',
+                        'shift_start_time' => $shift_start_time, // Add shift start time here
                     ];
                 }
 
-                if (empty($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
-                    $processedPresensi[$key]['jam_pulang'] = $record->jam_in;
+                // Overwrite jam_pulang if the new jam_in is later
+                if (empty($processedPresensi[$prev_key]['jam_pulang']) || $time > strtotime($processedPresensi[$prev_key]['jam_pulang'])) {
+                    $processedPresensi[$prev_key]['jam_pulang'] = $record->jam_in;
                 }
             } else {
-                $key = $tanggal . '_' . $nip;
-
                 if (!isset($processedPresensi[$key])) {
                     $processedPresensi[$key] = [
                         'tanggal' => $tanggal,
@@ -828,14 +865,17 @@ class AttendanceController extends Controller
                         'nama_dept' => $record->nama_dept,
                         'jam_masuk' => '',
                         'jam_pulang' => '',
+                        'shift_start_time' => $shift_start_time, // Add shift start time here
                     ];
                 }
 
                 if ($time >= $morning_start && $time < $afternoon_start) {
+                    // Set the earliest jam_in as jam_masuk
                     if (empty($processedPresensi[$key]['jam_masuk']) || $time < strtotime($processedPresensi[$key]['jam_masuk'])) {
                         $processedPresensi[$key]['jam_masuk'] = $record->jam_in;
                     }
                 } elseif ($time >= $afternoon_start) {
+                    // Set the latest jam_in as jam_pulang
                     if (empty($processedPresensi[$key]['jam_pulang']) || $time > strtotime($processedPresensi[$key]['jam_pulang'])) {
                         $processedPresensi[$key]['jam_pulang'] = $record->jam_in;
                     }
@@ -864,7 +904,6 @@ class AttendanceController extends Controller
 
         return view("attendance.getatt", compact('presensi'));
     }
-
 
     public function database()
     {

@@ -689,7 +689,6 @@ class DashboardController extends Controller
             ->get();
 
 
-        // Subquery for lateness calculations
         // Subquery to get the earliest jam_in for each employee per day
         $subquery = DB::table('presensi')
             ->select(

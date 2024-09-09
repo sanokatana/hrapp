@@ -56,19 +56,19 @@ class Handler extends ExceptionHandler
      * @param  \Throwable  $exception
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function render($request, Throwable $exception)
-    {
-        // Handle 404 errors
-        if ($exception instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
-            return response()->view('errors.404', [], 404);
-        }
+    // public function render($request, Throwable $exception)
+    // {
+    //     // Handle 404 errors
+    //     if ($exception instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
+    //         return response()->view('errors.404', [], 404);
+    //     }
 
-        // Handle 500 errors
-        if ($exception instanceof \Illuminate\Database\QueryException) {
-            return response()->view('errors.500', [], 500);
-        }
+    //     // Handle 500 errors
+    //     if ($exception instanceof \Illuminate\Database\QueryException) {
+    //         return response()->view('errors.500', [], 500);
+    //     }
 
-        // Default handling for other exceptions
-        return parent::render($request, $exception);
-    }
+    //     // Default handling for other exceptions
+    //     return parent::render($request, $exception);
+    // }
 }

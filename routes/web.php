@@ -206,6 +206,18 @@ Route::middleware(['auth:user'])->group(function (){
     Route::post('/konfigurasi/libur-nasional/{tgl_libur}/update', [KonfigurasiController::class,'liburupdate']);
     Route::post('/konfigurasi/libur-nasional/{tgl_libur}/delete', [KonfigurasiController::class,'liburdelete']);
 
+    //Konfigurasi Libur Karyawan
+    Route::get('/konfigurasi/liburkar', [KonfigurasiController::class,'liburkar']);
+    Route::post('/konfigurasi/liburkar/store', [KonfigurasiController::class,'liburkarstore']);
+    Route::post('/konfigurasi/liburkar/edit', [KonfigurasiController::class,'liburkaredit']);
+    Route::post('/konfigurasi/liburkar/update', [KonfigurasiController::class,'liburkarupdate']);
+    Route::post('/konfigurasi/liburkar/{id}/delete', [KonfigurasiController::class,'liburkardelete']);
+    Route::get('/konfigurasi/liburkar/{id}/days', [KonfigurasiController::class, 'getDays']);
+    Route::post('/konfigurasi/liburkar/{liburId}/days/create', [KonfigurasiController::class, 'saveOrUpdateDays']);
+    Route::post('/konfigurasi/liburkar/{liburId}/days/update', [KonfigurasiController::class, 'saveOrUpdateDays']);
+    Route::post('/konfigurasi/liburkar/days/{id}', [KonfigurasiController::class, 'deleteDay']);
+
+
     //Cabang
     Route::get('/cabang', [CabangController::class,'index']);
     Route::post('/cabang/store', [CabangController::class,'store']);
