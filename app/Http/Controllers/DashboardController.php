@@ -18,8 +18,6 @@ class DashboardController extends Controller
         $tgl_presensi = date("Y-m-d"); // Extract the date part for checking existing records
         $scan_date = date("Y-m-d H:i:s"); // Current date and time
 
-
-
         // Join karyawan and jabatan tables to get nama_jabatan
         $namaUser = DB::table('karyawan')
             ->leftJoin('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
@@ -227,6 +225,10 @@ class DashboardController extends Controller
 
                 if ($status == 'Tap' && !$item->jam_pulang) {
                     $item->jam_pulang = $pukul;
+                }
+
+                if ($status == 'Dt') {
+                    $item->jam_masuk = $pukul;
                 }
             }
 

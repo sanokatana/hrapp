@@ -183,7 +183,7 @@
                 </li>
                 @if($userLevel !== 'Management' && $userLevel !== 'Admin')
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{request()->is(['karyawan', 'data/user']) ? 'show' : ''}}"
+                        <a class="nav-link dropdown-toggle {{request()->is(['karyawan', 'data/user', 'shift', 'shiftpatt']) ? 'show' : ''}}"
                             href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button"
                             aria-expanded="{{request()->is(['karyawan', 'data/user']) ? 'true' : 'false'}}">
                             <span
@@ -197,19 +197,41 @@
                                 </svg>
                             </span>
                             <span class="nav-link-title">
-                                Data Karyawan
+                                Employees
                             </span>
                         </a>
-                        <div class="dropdown-menu {{request()->is(['karyawan', 'data/user']) ? 'show' : ''}}">
+                        <div
+                            class="dropdown-menu {{request()->is(['karyawan', 'data/user', 'shift', 'shiftpatt']) ? 'show' : ''}}">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
                                     <a class="dropdown-item {{request()->is(['karyawan']) ? 'active' : ''}}"
                                         href="/karyawan">
                                         Karyawan
                                     </a>
+                                    <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown"
+                                        data-bs-auto-close="false" role="button" aria-expanded="">
+                                        Employee Shift
+                                    </a>
+                                    <div class="dropdown-menu {{request()->is(['shift', 'shiftpatt']) ? 'show' : ''}}">
+                                        <div class="dropdown-menu-columns">
+                                            <div class="dropdown-menu-column">
+                                                <a class="dropdown-item {{request()->is(['shift']) ? 'active' : ''}}"
+                                                    href="/shift">
+                                                    Shifts
+                                                </a>
+                                                <a class="dropdown-item {{request()->is(['shiftpatt']) ? 'active' : ''}}"
+                                                    href="/shiftpatt">
+                                                    Shift Pattern
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <a class="dropdown-item {{request()->is(['kontrak']) ? 'active' : ''}}" href="/kontrak">
+                                        Kontrak
+                                    </a>
                                     <a class="dropdown-item {{request()->is(['data/user']) ? 'active' : ''}}"
                                         href="/data/user">
-                                        User
+                                        User Application
                                     </a>
                                 </div>
                             </div>
@@ -368,9 +390,8 @@
                             class="dropdown-menu {{request()->is(['attendance/daymonitor', 'attendance/table', 'attendance/att_monitoring', 'timeatt/daymonitor', 'timeatt/att_monitoring', 'timeatt/table', 'attendance/database']) ? 'show' : ''}}">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
-                                    <a class="dropdown-item dropdown-toggle"
-                                        href="#" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button"
-                                        aria-expanded="">
+                                    <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown"
+                                        data-bs-auto-close="false" role="button" aria-expanded="">
                                         Shift
                                     </a>
                                     <div
@@ -388,8 +409,8 @@
                                             Attendance Table
                                         </a>
                                     </div>
-                                    <a class="dropdown-item dropdown-toggle"
-                                        href="#" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button"
+                                    <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown"
+                                        data-bs-auto-close="false" role="button"
                                         aria-expanded="{{request()->is(['timeatt/daymonitor', 'timeatt/att_monitoring', 'timeatt/table']) ? 'true' : 'false'}}">
                                         Time
                                     </a>
@@ -465,9 +486,120 @@
                         </div>
                     </li>
                 @endif
+                @if($userLevel !== 'Admin')
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{request()->is([]) ? 'show' : ''}}" href="#navbar-base"
+                            data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
+                            <span
+                                class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-briefcase">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path
+                                        d="M3 7m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
+                                    <path d="M8 7v-2a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2" />
+                                    <path d="M12 12l0 .01" />
+                                    <path d="M3 13a20 20 0 0 0 18 0" />
+                                </svg>
+                            </span>
+                            <span class="nav-link-title">
+                                Recruitements
+                            </span>
+                        </a>
+                        <div class="dropdown-menu {{request()->is([]) ? 'show' : ''}}">
+                            <div class="dropdown-menu-columns">
+                                <div class="dropdown-menu-column">
+                                    <a class="dropdown-item" href="#">
+                                        Dashboard
+                                    </a>
+                                    <a class="dropdown-item" href="#">
+                                        Recruitement Pipeline
+                                    </a>
+                                    <a class="dropdown-item" href="#">
+                                        Candidate
+                                    </a>
+                                    <a class="dropdown-item" href="#">
+                                        Recruitement
+                                    </a>
+                                    <a class="dropdown-item" href="#">
+                                        Stages
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                @endif
+                @if($userLevel !== 'Admin')
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{request()->is([]) ? 'show' : ''}}" href="#navbar-base"
+                            data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
+                            <span
+                                class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-receipt-2">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path
+                                        d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2" />
+                                    <path d="M14 8h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5m2 0v1.5m0 -9v1.5" />
+                                </svg>
+                            </span>
+                            <span class="nav-link-title">
+                                Payroll
+                            </span>
+                        </a>
+                        <div class="dropdown-menu {{request()->is([]) ? 'show' : ''}}">
+                            <div class="dropdown-menu-columns">
+                                <div class="dropdown-menu-column">
+                                    <a class="dropdown-item" href="#">
+                                        Dashboard
+                                    </a>
+                                    <a class="dropdown-item" href="#">
+                                        Allowance
+                                    </a>
+                                    <a class="dropdown-item" href="#">
+                                        Deducation
+                                    </a>
+                                    <a class="dropdown-item" href="#">
+                                        Payslip
+                                    </a>
+                                    <a class="dropdown-item" href="#">
+                                        Federal Tax
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                @endif
+                @if($userLevel !== 'Admin')
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{request()->is([]) ? 'show' : ''}}" href="#navbar-base"
+                            data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
+                            <span
+                                class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-graph"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 18v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" /><path d="M7 14l3 -3l2 2l3 -3l2 2" /></svg>
+                            </span>
+                            <span class="nav-link-title">
+                                Performance
+                            </span>
+                        </a>
+                        <div class="dropdown-menu {{request()->is([]) ? 'show' : ''}}">
+                            <div class="dropdown-menu-columns">
+                                <div class="dropdown-menu-column">
+                                    <a class="dropdown-item" href="#">
+                                        Dashboard
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                @endif
                 @if($userLevel !== 'Management' && $userLevel !== 'Admin')
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{request()->is(['konfigurasi/libur-nasional', 'konfigurasi/lokasikantor']) ? 'show' : ''}}"
+                        <a class="nav-link dropdown-toggle {{request()->is(['konfigurasi/libur-nasional', 'konfigurasi/liburkar', 'konfigurasi/lokasikantor']) ? 'show' : ''}}"
                             href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button"
                             aria-expanded="false">
                             <span
@@ -487,56 +619,20 @@
                             </span>
                         </a>
                         <div
-                            class="dropdown-menu {{request()->is(['konfigurasi/libur-nasional', 'konfigurasi/lokasikantor']) ? 'show' : ''}}">
+                            class="dropdown-menu {{request()->is(['konfigurasi/libur-nasional', 'konfigurasi/liburkar', 'konfigurasi/lokasikantor']) ? 'show' : ''}}">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
                                     <a class="dropdown-item {{request()->is(['konfigurasi/libur-nasional']) ? 'active' : ''}}"
                                         href="/konfigurasi/libur-nasional">
                                         Libur Nasional
                                     </a>
-                                    <a class="dropdown-item {{request()->is(['konfigurasi/lokasikantor']) ? 'active' : ''}}"
-                                        href="/konfigurasi/lokasikantor">
-                                        Lokasi Kantor
-                                    </a>
                                     <a class="dropdown-item {{request()->is(['konfigurasi/liburkar']) ? 'active' : ''}}"
                                         href="/konfigurasi/liburkar">
                                         Libur Karyawan
                                     </a>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                @endif
-                @if($userLevel !== 'Management' && $userLevel !== 'Admin')
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{request()->is(['shift', 'shiftpatt']) ? 'show' : ''}}"
-                            href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button"
-                            aria-expanded="{{request()->is(['shift', 'shiftpatt']) ? 'true' : 'false'}}">
-                            <span
-                                class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    class="icon icon-tabler icons-tabler-outline icon-tabler-clock-hour-1">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                                    <path d="M12 7v5" />
-                                    <path d="M12 12l2 -3" />
-                                </svg>
-                            </span>
-                            <span class="nav-link-title">
-                                Shift / Jam Kerja
-                            </span>
-                        </a>
-                        <div class="dropdown-menu {{request()->is(['shift', 'shiftpatt']) ? 'show' : ''}}">
-                            <div class="dropdown-menu-columns">
-                                <div class="dropdown-menu-column">
-                                    <a class="dropdown-item {{request()->is(['shift']) ? 'active' : ''}}" href="/shift">
-                                        Shifts
-                                    </a>
-                                    <a class="dropdown-item {{request()->is(['shiftpatt']) ? 'active' : ''}}"
-                                        href="/shiftpatt">
-                                        Shift Pattern
+                                    <a class="dropdown-item {{request()->is(['konfigurasi/lokasikantor']) ? 'active' : ''}}"
+                                        href="/konfigurasi/lokasikantor">
+                                        Lokasi Kantor
                                     </a>
                                 </div>
                             </div>

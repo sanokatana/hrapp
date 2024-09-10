@@ -259,14 +259,18 @@ class AttendanceController extends Controller
                         $status = 'L'; // Mark as employee leave day
                     }
 
-                    // Calculate late minutes if attendance exists and status is 'T'
+                    // Calculate late minutes if attendance exists and earliest_jam_in is greater than work_start
                     if ($attendance) {
                         $jam_in = Carbon::parse($attendance->earliest_jam_in);
-                        if ($status === 'T') {
-                            $menitTelat += $jam_in->diffInMinutes(Carbon::parse($work_start));
+                        $workStart = Carbon::parse($work_start);
+
+                        // Check if the attendance time is greater than work_start
+                        if ($jam_in->greaterThan($workStart)) {
+                            $menitTelat += $jam_in->diffInMinutes($workStart);
                             $jumlahTelat++;
                         }
                     }
+
 
                     if ($status === 'P') {
                         $totalHadir++;
@@ -384,11 +388,12 @@ class AttendanceController extends Controller
             if ($status == 'Dt' && $attendance) {
                 $jam_in = Carbon::parse($attendance->earliest_jam_in);
                 if ($jam_in->gte(Carbon::parse($morning_start)) && $jam_in->lt(Carbon::parse($afternoon_start))) {
-                    if ($pukul && abs($jam_in->diffInMinutes(Carbon::parse($pukul))) <= 5 && $keputusan == 'Terlambat') {
-                        return $status_work;
-                    } else {
-                        return $status_work;
-                    }
+                    // if ($pukul && abs($jam_in->diffInMinutes(Carbon::parse($pukul))) <= 5 && $keputusan == 'Terlambat') {
+                    //     return $status_work;
+                    // } else {
+                    //     return $status_work;
+                    // }
+                    return $status_work;
                 }
             }
 
