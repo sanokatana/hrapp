@@ -1,21 +1,21 @@
 @extends('layouts.presensi')
 @section('content')
 @php
-use App\Helpers\DateHelper;
-$user = Auth::guard('karyawan')->user();
-$userDept = $user ? $user->kode_dept : null;
+    use App\Helpers\DateHelper;
+    $user = Auth::guard('karyawan')->user();
+    $userDept = $user ? $user->kode_dept : null;
 @endphp
 @if ($totalNotif >= 1)
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        Swal.fire({
-            icon: 'info',
-            title: 'Anda ada notifikasi',
-            text: 'Anda memiliki {{ $totalNotif }} notifikasi',
-            confirmButtonText: 'OK'
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            Swal.fire({
+                icon: 'info',
+                title: 'Anda ada notifikasi',
+                text: 'Anda memiliki {{ $totalNotif }} notifikasi',
+                confirmButtonText: 'OK'
+            });
         });
-    });
-</script>
+    </script>
 @endif
 <style>
     .rounded-custom {
@@ -68,12 +68,12 @@ $userDept = $user ? $user->kode_dept : null;
     <div id="user-detail">
         <div class="avatar">
             @if (!empty($namaUser->foto))
-            @php
-            $path = Storage::url('uploads/karyawan/' . $namaUser->foto)
-            @endphp
-            <img src="{{ url($path) }}" alt="avatar" class="imaged w64" style="height:64px">
+                        @php
+                            $path = Storage::url('uploads/karyawan/' . $namaUser->foto)
+                        @endphp
+                        <img src="{{ url($path) }}" alt="avatar" class="imaged w64" style="height:64px">
             @else
-            <img src="{{ asset('assets/img/sample/avatar/avatar1.jpg') }}" alt="avatar" class="imaged w64 rounded">
+                <img src="{{ asset('assets/img/sample/avatar/avatar1.jpg') }}" alt="avatar" class="imaged w64 rounded">
             @endif
         </div>
         <div id="user-info">
@@ -81,8 +81,10 @@ $userDept = $user ? $user->kode_dept : null;
             <span id="user-role">{{ $namaUser->nama_jabatan }}</span>
         </div>
         <div class="avatar">
-            <span class="badge bg-danger" style="position:absolute; top:45px; right:29px; font-size:0.6rem; z-index:999">{{ $totalNotif }}</span>
-            <ion-icon name="notifications" style="position:absolute; z-index:999; left: 280px; height:64px; width:40px ; margin-left: 20px; margin-top: 5px ; color: white; vertical-align: middle;"></ion-icon>
+            <span class="badge bg-danger"
+                style="position:absolute; top:45px; right:29px; font-size:0.6rem; z-index:999">{{ $totalNotif }}</span>
+            <ion-icon name="notifications"
+                style="position:absolute; z-index:999; left: 280px; height:64px; width:40px ; margin-left: 20px; margin-top: 5px ; color: white; vertical-align: middle;"></ion-icon>
         </div>
     </div>
 </div>
@@ -152,16 +154,16 @@ $userDept = $user ? $user->kode_dept : null;
                         </div>
                     </div>
                     @if($userDept === 'IT')
-                    <div class="item-menu text-center">
-                        <div class="menu-icon">
-                            <a href="/presensi/create" class="green" style="font-size: 40px;">
-                                <ion-icon name="camera-outline"></ion-icon>
-                            </a>
+                        <div class="item-menu text-center">
+                            <div class="menu-icon">
+                                <a href="/presensi/create" class="green" style="font-size: 40px;">
+                                    <ion-icon name="camera-outline"></ion-icon>
+                                </a>
+                            </div>
+                            <div class="menu-name">
+                                Absen
+                            </div>
                         </div>
-                        <div class="menu-name">
-                            Absen
-                        </div>
-                    </div>
                     @endif
                 </div>
             </div>
@@ -204,13 +206,15 @@ $userDept = $user ? $user->kode_dept : null;
         </div>
     </div>
     <div id="rekappresensi">
-        <h3>Rekap Presensi Bulan {{ $namabulan[$bulanini]}} Tahun {{$tahunini}}</h3>
+        <h3 style="text-align:center">Rekap Presensi Untuk {{ $namabulan[$bulanini]}} {{$tahunini}}</h3>
         <div class="row">
             <div class="col-3">
                 <div class="card">
                     <div class="card-body text-center" style="padding: 12px 12px !important; line-height:0.8rem">
-                        <span class="badge bg-danger" style="position:absolute; top:3px; right:5px; font-size:0.6rem; z-index:999">{{ $rekappresensi->jmlhadir}}</span>
-                        <ion-icon name="accessibility-outline" style="font-size: 1.6rem;" class="text-primary mb-1"></ion-icon>
+                        <span class="badge bg-danger"
+                            style="position:absolute; top:3px; right:5px; font-size:0.6rem; z-index:999">{{ $rekappresensi->jmlhadir}}</span>
+                        <ion-icon name="accessibility-outline" style="font-size: 1.6rem;"
+                            class="text-primary mb-1"></ion-icon>
                         <br>
                         <span style="font-size:0.8rem; font-weight:500">Hadir</span>
                     </div>
@@ -219,8 +223,10 @@ $userDept = $user ? $user->kode_dept : null;
             <div class="col-3">
                 <div class="card">
                     <div class="card-body text-center" style="padding: 12px 12px !important; line-height:0.8rem">
-                        <span class="badge bg-danger" style="position:absolute; top:3px; right:5px; font-size:0.6rem; z-index:999">{{ $rekappresensi->jmlterlambat}}</span>
-                        <ion-icon name="hourglass-outline" style="font-size: 1.6rem;" class="text-danger mb-1"></ion-icon>
+                        <span class="badge bg-danger"
+                            style="position:absolute; top:3px; right:5px; font-size:0.6rem; z-index:999">{{ $rekappresensi->jmlterlambat}}</span>
+                        <ion-icon name="hourglass-outline" style="font-size: 1.6rem;"
+                            class="text-danger mb-1"></ion-icon>
                         <br>
                         <span style="font-size:0.8rem; font-weight:500">Telat</span>
                     </div>
@@ -229,8 +235,10 @@ $userDept = $user ? $user->kode_dept : null;
             <div class="col-3">
                 <div class="card">
                     <div class="card-body text-center" style="padding: 12px 12px !important; line-height:0.8rem">
-                        <span class="badge bg-danger" style="position:absolute; top:3px; right:5px; font-size:0.6rem; z-index:999">{{ $rekapizin->jmlizin}}</span>
-                        <ion-icon name="newspaper-outline" style="font-size: 1.6rem;" class="text-success mb-1"></ion-icon>
+                        <span class="badge bg-danger"
+                            style="position:absolute; top:3px; right:5px; font-size:0.6rem; z-index:999">{{ $rekapizin->jmlizin}}</span>
+                        <ion-icon name="newspaper-outline" style="font-size: 1.6rem;"
+                            class="text-success mb-1"></ion-icon>
                         <br>
                         <span style="font-size:0.8rem; font-weight:500">Izin</span>
                     </div>
@@ -239,8 +247,10 @@ $userDept = $user ? $user->kode_dept : null;
             <div class="col-3">
                 <div class="card">
                     <div class="card-body text-center" style="padding: 12px 12px !important; line-height:0.8rem">
-                        <span class="badge bg-danger" style="position:absolute; top:3px; right:5px; font-size:0.6rem; z-index:999">{{ $rekapcuti->jmlcuti }}</span>
-                        <ion-icon name="document-attach-outline" style="font-size: 1.6rem;" class="text-warning mb-1"></ion-icon>
+                        <span class="badge bg-danger"
+                            style="position:absolute; top:3px; right:5px; font-size:0.6rem; z-index:999">{{ $rekapcuti->jmlcuti }}</span>
+                        <ion-icon name="document-attach-outline" style="font-size: 1.6rem;"
+                            class="text-warning mb-1"></ion-icon>
                         <br>
                         <span style="font-size:0.8rem; font-weight:500">Cuti</span>
                     </div>
@@ -273,153 +283,173 @@ $userDept = $user ? $user->kode_dept : null;
         <div class="tab-content mt-2" style="margin-bottom:100px;">
             <div class="tab-pane fade show active" id="home" role="tabpanel">
                 @foreach ($processedHistoribulanini as $d)
-                <ul class="listview image-listview rounded-custom">
-                    @php
-                    $jam_masuk_time = strtotime($d->jam_masuk);
-                    $threshold_time = $d->jam_kerja;
-                    $lateness_threshold = $d->jam_kerja;
+                                <ul class="listview image-listview rounded-custom">
+                                    @php
+                                        $jam_masuk_time = $d->jam_masuk ? strtotime($d->jam_masuk) : PHP_INT_MAX; // Use PHP_INT_MAX for null values
+                                        $threshold_time = $d->jam_kerja;
+                                        $lateness_threshold = $d->jam_kerja;
 
-                    // Calculate lateness
-                    if ($jam_masuk_time <= $lateness_threshold) {
-                        $lateness="Tepat Waktu" ;
-                        } else {
-                        $hours_diff=floor(($jam_masuk_time - $threshold_time) / 3600);
-                        $minutes_diff=floor((($jam_masuk_time - $threshold_time) % 3600) / 60);
-                        $lateness=($hours_diff> 0 ? $hours_diff . " Jam " : "") . ($minutes_diff > 0 ? $minutes_diff . " Menit" : "");
-                        }
+                                        // Calculate lateness and determine status
+                                        if ($d->jam_masuk === null) {
+                                            $status = "Tidak Absen";
+                                            $lateness = ""; // No lateness if jam_masuk is null
+                                        } elseif ($jam_masuk_time <= $lateness_threshold) {
+                                            $status = "On Time";
+                                            $lateness = "Tepat Waktu";
+                                        } else {
+                                            $hours_diff = floor(($jam_masuk_time - $threshold_time) / 3600);
+                                            $minutes_diff = floor((($jam_masuk_time - $threshold_time) % 3600) / 60);
+                                            $lateness = ($hours_diff > 0 ? $hours_diff . " Jam " : "") . ($minutes_diff > 0 ? $minutes_diff . " Menit" : "");
+                                            $status = "Terlambat";
+                                        }
+                                    @endphp
 
-                        // Determine status based on lateness
-                        $status = ($lateness == "Tepat Waktu") ? "On Time" : "Terlambat";
-                        @endphp
+                                    <li>
+                                        <div class="item">
+                                            <div class="icon-box bg-info">
+                                                <ion-icon name="finger-print-outline"></ion-icon>
+                                            </div>
 
-                        <li>
-                            <div class="item">
-                                <div class="icon-box bg-info">
-                                    <ion-icon name="finger-print-outline"></ion-icon>
-                                </div>
-
-                                <div class="in">
-                                    <div class="jam-row">
-                                        <div><b>{{ DateHelper::formatIndonesianDate($d->tanggal) }}</b></div>
-                                        <div class="status {{ $status == 'Terlambat' ? 'text-danger' : 'text-success' }}">
-                                            <b>{{ $status }}</b>
+                                            <div class="in">
+                                                <div class="jam-row">
+                                                    <div><b>{{ DateHelper::formatIndonesianDate($d->tanggal) }}</b></div>
+                                                    <div
+                                                        class="status {{ $status == 'Terlambat' ? 'text-danger' : ($status == 'Tidak Absen' ? 'text-danger' : 'text-success') }}">
+                                                        <b>{{ $status }}</b>
+                                                    </div>
+                                                    @if ($status != 'Tidak Absen')
+                                                        <div
+                                                            class="lateness {{ $status == 'Terlambat' ? 'text-warning' : 'text-success' }}">
+                                                            ({{ $lateness }})
+                                                        </div>
+                                                    @else
+                                                        <div
+                                                            class="lateness text-danger">
+                                                            Masuk
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                                <div class="jam-row">
+                                                    <div class="jam-in mb-1">
+                                                        <span
+                                                            class="badge {{ $status == 'Tidak Absen' ? 'badge-danger' : ($status == 'Terlambat' ? 'badge-danger' : 'badge-success') }}"
+                                                            style="width: 70px;">
+                                                            {{ $d->jam_masuk !== null ? $d->jam_masuk : "No Scan" }}
+                                                        </span>
+                                                    </div>
+                                                    <div class="jam-out">
+                                                        <span
+                                                            class="badge {{ $d->jam_pulang !== null ? 'badge-success' : 'badge-danger' }}"
+                                                            style="width: 70px;">
+                                                            {{ $d->jam_pulang !== null ? $d->jam_pulang : "No Scan" }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="lateness {{ $status == 'Terlambat' ? 'text-warning' : 'text-success' }}">
-                                            ({{ $lateness }})
-                                        </div>
-                                    </div>
-                                    <div class="jam-row">
-                                        <div class="jam-in mb-1">
-                                            <span class="badge {{ $status == 'Terlambat' ? 'badge-danger' : 'badge-success' }}" style="width: 70px;">{{ $d->jam_masuk }}</span>
-                                        </div>
-                                        <div class="jam-out">
-                                            <span class="badge {{ $d->jam_pulang != null ? 'badge-success' : "badge-danger" }}" style="width: 70px;">{{ $d->jam_pulang != null ? $d->jam_pulang : "No Scan" }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                </ul>
+                                    </li>
+                                </ul>
                 @endforeach
+
 
             </div>
 
             <div class="tab-pane fade" id="formView" role="tabpanel">
                 @foreach ($historiizin as $d)
-                @php
-                // Format the date for each izin entry
-                $izinFormattedDate = DateHelper::formatIndonesianDate($d->tgl_izin);
-                $izinFormattedDateAkhir = DateHelper::formatIndonesianDate($d->tgl_izin_akhir);
-                @endphp
-                <ul class="listview image-listview rounded-custom">
-                    <li>
-                        <div class="item">
-                            <div class="in">
-                                <div>
-                                    <b>{{ $izinFormattedDate }}</b><br>
-                                    @if ($d->tgl_izin_akhir)
-                                    <b class="text-muted">Sampai</b><br>
-                                    <b>{{ $izinFormattedDateAkhir }}</b><br>
-                                    @endif
-                                    <b style="color: red;">{{ DateHelper::getStatusText($d->status) }}</b><br>
-                                    <b class="text-info">{{ $d->keterangan }}</b>
-                                </div>
-                                <div class="status-row">
-                                    <div class="mb-1">
-                                        @if ($d->status_approved == 0)
-                                        <span class="badge bg-warning">Waiting Approval</span>
-                                        @elseif ($d->status_approved == 1)
-                                        <span class="badge bg-success">Form Approved</span>
-                                        @else
-                                        <span class="badge bg-danger">Form Declined</span>
-                                        @endif
-                                    </div>
-                                    <div>
-                                        @if ($d->status_approved_hrd == 0)
-                                        <span class="badge bg-warning">Waiting Approval</span>
-                                        @elseif ($d->status_approved_hrd == 1)
-                                        <span class="badge bg-success">Form Approved</span>
-                                        @else
-                                        <span class="badge bg-danger">Form Declined</span>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
+                                @php
+                                    // Format the date for each izin entry
+                                    $izinFormattedDate = DateHelper::formatIndonesianDate($d->tgl_izin);
+                                    $izinFormattedDateAkhir = DateHelper::formatIndonesianDate($d->tgl_izin_akhir);
+                                @endphp
+                                <ul class="listview image-listview rounded-custom">
+                                    <li>
+                                        <div class="item">
+                                            <div class="in">
+                                                <div>
+                                                    <b>{{ $izinFormattedDate }}</b><br>
+                                                    @if ($d->tgl_izin_akhir)
+                                                        <b class="text-muted">Sampai</b><br>
+                                                        <b>{{ $izinFormattedDateAkhir }}</b><br>
+                                                    @endif
+                                                    <b style="color: red;">{{ DateHelper::getStatusText($d->status) }}</b><br>
+                                                    <b class="text-info">{{ $d->keterangan }}</b>
+                                                </div>
+                                                <div class="status-row">
+                                                    <div class="mb-1">
+                                                        @if ($d->status_approved == 0)
+                                                            <span class="badge bg-warning">Waiting Approval</span>
+                                                        @elseif ($d->status_approved == 1)
+                                                            <span class="badge bg-success">Form Approved</span>
+                                                        @else
+                                                            <span class="badge bg-danger">Form Declined</span>
+                                                        @endif
+                                                    </div>
+                                                    <div>
+                                                        @if ($d->status_approved_hrd == 0)
+                                                            <span class="badge bg-warning">Waiting Approval</span>
+                                                        @elseif ($d->status_approved_hrd == 1)
+                                                            <span class="badge bg-success">Form Approved</span>
+                                                        @else
+                                                            <span class="badge bg-danger">Form Declined</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
                 @endforeach
             </div>
             <div class="tab-pane fade" id="cutiView" role="tabpanel">
                 @foreach ($historicuti as $d)
-                @php
-                // Format the date for each izin entry
-                $izinFormattedDate = DateHelper::formatIndonesianDate($d->tgl_cuti);
-                $izinFormattedDateAkhir = DateHelper::formatIndonesianDate($d->tgl_cuti_sampai);
-                @endphp
-                <ul class="listview image-listview rounded-custom">
-                    <li>
-                        <div class="item">
-                            <div class="in">
-                                <div>
-                                    <b>{{ $izinFormattedDate }}</b><br>
-                                    <b class="text-muted">Sampai</b><br>
-                                    @if ($d->tgl_cuti_sampai)
-                                    <b>{{ $izinFormattedDateAkhir }}</b><br>
-                                    @endif
-                                    <b style="color: red;">Cuti</b><br>
-                                    @if ($d->tipe_cuti)
-                                    <b class="text-info">{{ $d->tipe_cuti }}</b><br>
-                                    @else
-                                    <b class="text-info">Cuti Tahunan</b><br>
-                                    @endif
-                                    <b class="text-success">{{ $d->note }}</b>
-                                </div>
+                                @php
+                                    // Format the date for each izin entry
+                                    $izinFormattedDate = DateHelper::formatIndonesianDate($d->tgl_cuti);
+                                    $izinFormattedDateAkhir = DateHelper::formatIndonesianDate($d->tgl_cuti_sampai);
+                                @endphp
+                                <ul class="listview image-listview rounded-custom">
+                                    <li>
+                                        <div class="item">
+                                            <div class="in">
+                                                <div>
+                                                    <b>{{ $izinFormattedDate }}</b><br>
+                                                    <b class="text-muted">Sampai</b><br>
+                                                    @if ($d->tgl_cuti_sampai)
+                                                        <b>{{ $izinFormattedDateAkhir }}</b><br>
+                                                    @endif
+                                                    <b style="color: red;">Cuti</b><br>
+                                                    @if ($d->tipe_cuti)
+                                                        <b class="text-info">{{ $d->tipe_cuti }}</b><br>
+                                                    @else
+                                                        <b class="text-info">Cuti Tahunan</b><br>
+                                                    @endif
+                                                    <b class="text-success">{{ $d->note }}</b>
+                                                </div>
 
-                                <div class="status-row" style="text-align: right">
-                                    <div class="mb-1">
-                                        @if ($d->status_approved == 0)
-                                        <span class="badge bg-warning">Waiting Approval</span>
-                                        @elseif ($d->status_approved == 1)
-                                        <span class="badge bg-success">Form Approved</span>
-                                        @else
-                                        <span class="badge bg-danger">Form Declined</span>
-                                        @endif
-                                    </div>
-                                    <div>
-                                        @if ($d->status_approved_hrd == 0)
-                                        <span class="badge bg-warning">Waiting Approval</span>
-                                        @elseif ($d->status_approved_hrd == 1)
-                                        <span class="badge bg-success">Form Approved</span>
-                                        @else
-                                        <span class="badge bg-danger">Form Declined</span>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
+                                                <div class="status-row" style="text-align: right">
+                                                    <div class="mb-1">
+                                                        @if ($d->status_approved == 0)
+                                                            <span class="badge bg-warning">Waiting Approval</span>
+                                                        @elseif ($d->status_approved == 1)
+                                                            <span class="badge bg-success">Form Approved</span>
+                                                        @else
+                                                            <span class="badge bg-danger">Form Declined</span>
+                                                        @endif
+                                                    </div>
+                                                    <div>
+                                                        @if ($d->status_approved_hrd == 0)
+                                                            <span class="badge bg-warning">Waiting Approval</span>
+                                                        @elseif ($d->status_approved_hrd == 1)
+                                                            <span class="badge bg-success">Form Approved</span>
+                                                        @else
+                                                            <span class="badge bg-danger">Form Declined</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
                 @endforeach
             </div>
         </div>
@@ -427,36 +457,36 @@ $userDept = $user ? $user->kode_dept : null;
 </div>
 @endsection
 @push('myscript')
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const listMenuWrapper = document.querySelector('.list-menu-wrapper');
-        let isDown = false;
-        let startX;
-        let scrollLeft;
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const listMenuWrapper = document.querySelector('.list-menu-wrapper');
+            let isDown = false;
+            let startX;
+            let scrollLeft;
 
-        listMenuWrapper.addEventListener('mousedown', (e) => {
-            isDown = true;
-            listMenuWrapper.classList.add('active');
-            startX = e.pageX - listMenuWrapper.offsetLeft;
-            scrollLeft = listMenuWrapper.scrollLeft;
+            listMenuWrapper.addEventListener('mousedown', (e) => {
+                isDown = true;
+                listMenuWrapper.classList.add('active');
+                startX = e.pageX - listMenuWrapper.offsetLeft;
+                scrollLeft = listMenuWrapper.scrollLeft;
+            });
+            listMenuWrapper.addEventListener('mouseleave', () => {
+                isDown = false;
+                listMenuWrapper.classList.remove('active');
+            });
+            listMenuWrapper.addEventListener('mouseup', () => {
+                isDown = false;
+                listMenuWrapper.classList.remove('active');
+            });
+            listMenuWrapper.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - listMenuWrapper.offsetLeft;
+                const walk = (x - startX) * 3; //scroll-fast
+                listMenuWrapper.scrollLeft = scrollLeft - walk;
+            });
         });
-        listMenuWrapper.addEventListener('mouseleave', () => {
-            isDown = false;
-            listMenuWrapper.classList.remove('active');
-        });
-        listMenuWrapper.addEventListener('mouseup', () => {
-            isDown = false;
-            listMenuWrapper.classList.remove('active');
-        });
-        listMenuWrapper.addEventListener('mousemove', (e) => {
-            if (!isDown) return;
-            e.preventDefault();
-            const x = e.pageX - listMenuWrapper.offsetLeft;
-            const walk = (x - startX) * 3; //scroll-fast
-            listMenuWrapper.scrollLeft = scrollLeft - walk;
-        });
-    });
-</script>
+    </script>
 @endpush

@@ -211,6 +211,10 @@ class DashboardController extends Controller
                 $item->tanggal = $prev_date; // Adjust the date for early in time
             }
 
+            if ($jam_masuk_time > $afternoon_start) {
+                $item->jam_masuk = null; // If jam_pulang is before 1 PM, it should be null
+            }
+
             if ($jam_pulang_time < $afternoon_start) {
                 $item->jam_pulang = null; // If jam_pulang is before 1 PM, it should be null
             }

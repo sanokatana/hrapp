@@ -25,6 +25,7 @@ class Karyawan extends Authenticatable
         'shift_pattern_id',
         'start_shift',
         'grade',
+        'no_kontrak',
         'employee_status',
         'base_poh',
         'nama_pt',

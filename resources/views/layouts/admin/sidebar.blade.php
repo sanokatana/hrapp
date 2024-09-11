@@ -231,7 +231,7 @@
                                     </a>
                                     <a class="dropdown-item {{request()->is(['data/user']) ? 'active' : ''}}"
                                         href="/data/user">
-                                        User Application
+                                        Users
                                     </a>
                                 </div>
                             </div>

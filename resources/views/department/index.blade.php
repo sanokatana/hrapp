@@ -257,55 +257,6 @@
             }
             });
         });
-
-        $('#formKaryawan').submit(function() {
-            var nik = $('#nik').val();
-            var nama_lengkap = $('#nama_lengkap').val();
-            var jabatan = $('#jabatan').val();
-            var no_hp = $('#no_Hp').val();
-            var kode_dept = $("formKaryawan").find('#kode_dept').val();
-            if (nik == "") {
-                Swal.fire({
-                    title: 'Warning!',
-                    text: 'NIK Harus Diisi',
-                    icon: 'warning',
-                    confirmButtonText: 'Ok'
-                }).then(() => {
-                    $('#nik').focus();
-                });
-                return false;
-            } else if (nama_lengkap == "") {
-                Swal.fire({
-                    title: 'Warning!',
-                    text: 'Nama Lengkap Harus Diisi',
-                    icon: 'warning',
-                    confirmButtonText: 'Ok'
-                }).then(() => {
-                    $('#nama_lengkap').focus();
-                });
-                return false;
-            } else if (jabatan == "") {
-                Swal.fire({
-                    title: 'Warning!',
-                    text: 'Jabatan Harus Diisi',
-                    icon: 'warning',
-                    confirmButtonText: 'Ok'
-                }).then(() => {
-                    $('#jabatan').focus();
-                });
-                return false;
-            } else if (no_hp == "") {
-                Swal.fire({
-                    title: 'Warning!',
-                    text: 'Nomer HP Harus Diisi',
-                    icon: 'warning',
-                    confirmButtonText: 'Ok'
-                }).then(() => {
-                    $('#no_hp').focus();
-                });
-                return false;
-            }
-        });
     });
 </script>
 @endpush

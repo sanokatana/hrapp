@@ -16,6 +16,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\KaryawanExport;
+use App\Models\Contract;
 
 class KaryawanController extends Controller
 {
@@ -39,8 +40,9 @@ class KaryawanController extends Controller
         $shift = ShiftPattern::all(); // Assuming you have a Shift model and you want all shifts
         $department = DB::table('department')->get();
         $jabatan = DB::table('jabatan')->get();
+        $contract = Contract::all();
         $location = DB::table('konfigurasi_lokasi')->get();
-        return view("karyawan.index", compact('karyawan', 'department', 'jabatan', 'location', 'shift'));
+        return view("karyawan.index", compact('karyawan', 'department', 'jabatan', 'location', 'shift','contract'));
     }
 
     public function store(StoreEmployeeRequest $request)
@@ -71,16 +73,30 @@ class KaryawanController extends Controller
 
     public function edit(Request $request)
     {
-
         $id = $request->id;
+
+        // Fetch department, jabatan, and location
         $department = DB::table('department')->get();
         $jabatan = DB::table('jabatan')->get();
         $location = DB::table('konfigurasi_lokasi')->get();
+
+        // Fetch karyawan details
         $karyawan = DB::table('karyawan')
             ->where('id', $id)
             ->first();
-        return view('karyawan.edit', compact('department', 'karyawan', 'jabatan', 'location'));
+
+        if (!$karyawan) {
+            abort(404, 'Employee not found');
+        }
+
+        // Fetch contracts related to the karyawan's nik
+        $contract = DB::table('kontrak')
+            ->where('nik', $karyawan->nik)
+            ->get();
+
+        return view('karyawan.edit', compact('department', 'karyawan', 'jabatan', 'location', 'contract'));
     }
+
 
     public function update($id, StoreEmployeeRequest $request)
     {

@@ -4,6 +4,7 @@ use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CabangController;
+use App\Http\Controllers\ContractController;
 use App\Http\Controllers\CutiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
@@ -264,5 +265,14 @@ Route::middleware(['auth:user'])->group(function (){
 
     Route::get('/laporan/time', [LaporanController::class,'timeindex']);
     Route::get('/laporan/timeExport', [LaporanController::class,'exportTime']);
+
+
+    // routes/web.php
+    Route::get('/contracts', [ContractController::class, 'filterContracts']);
+    Route::get('/contract/type', [ContractController::class, 'getContractType']);
+    Route::get('/kontrak', [ContractController::class,'index']);
+    Route::post('/kontrak/store', [ContractController::class,'store']);
+    Route::post('/kontrak/edit', [ContractController::class,'edit']);
+    Route::post('/kontrak/view', [ContractController::class,'view']);
 
 });

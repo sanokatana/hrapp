@@ -342,9 +342,16 @@ use App\Helpers\DateHelper;
                             <input type="file" class="form-control" name="foto" id="foto" accept=".png, .jpg, .jpeg">
                         </div>
                         <!-- Additional Fields Start Here -->
-                        <div class="col-3 ">
+                        <div class="col-3">
                             <div class="form-label">Grade</div>
                             <input type="text" value="" class="form-control" name="grade" id="grade" placeholder="Grade">
+                        </div>
+                        <div class="col-3">
+                            <div class="form-label">Nomer Kontrak</div>
+                            <select name="no_kontrak" id="no_kontrak" class="form-select">
+                                <option value="">Pilih</option>
+                                <option value="">Create New Contract</option>
+                            </select>
                         </div>
                         <div class="col-3">
                             <div class="form-label">Employee Status</div>
@@ -359,7 +366,7 @@ use App\Helpers\DateHelper;
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-3">
+                        <div class="col-3 mt-2">
                             <div class="form-label">Nama PT</div>
                             <input type="text" value="" class="form-control" name="nama_pt" id="nama_pt" placeholder="Nama PT">
                         </div>
@@ -713,12 +720,184 @@ use App\Helpers\DateHelper;
         </div>
     </div>
 </div>
+<!-- CONTRACT -->
 
+<div class="modal modal-blur fade" id="modal-inputContract" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Contract</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/kontrak/store" method="POST" id="formContract">
+                    @csrf
+                    <div class="row">
+                    <div class="col-6">
+                            <div class="form-label">NIK</div>
+                            <div class="input-icon mb-3">
+                                <span class="input-icon-addon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-id">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v10a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" />
+                                        <path d="M9 10m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                        <path d="M15 8l2 0" />
+                                        <path d="M15 12l2 0" />
+                                        <path d="M7 16l10 0" />
+                                    </svg>
+                                </span>
+                                <input type="text" value="" class="form-control" name="nik" id="nik" placeholder="10101" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-label">No Kontrak</div>
+                            <div class="input-icon mb-3">
+                                <span class="input-icon-addon">
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-file"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /></svg>
+                                </span>
+                                <input type="text" value="" class="form-control" name="no_kontrak" id="no_kontrak" placeholder="No Kontrak">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-label">Contract Type</div>
+                            <select name="contract_type" id="contract_type" class="form-select">
+                                <option value="">Choose</option>
+                                <option value="PKWT">PKWT</option>
+                                <option value="PKWTT">PKWTT</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-label">Start Date</div>
+                            <div class="input-icon mb-3">
+                                <span class="input-icon-addon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-event">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
+                                        <path d="M16 3l0 4" />
+                                        <path d="M8 3l0 4" />
+                                        <path d="M4 11l16 0" />
+                                        <path d="M8 15h2v2h-2z" />
+                                    </svg>
+                                </span>
+                                <input type="date" value="" class="form-control" name="start_date" id="start_date" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-label">End Date</div>
+                            <div class="input-icon mb-3">
+                                <span class="input-icon-addon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-event">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
+                                        <path d="M16 3l0 4" />
+                                        <path d="M8 3l0 4" />
+                                        <path d="M4 11l16 0" />
+                                        <path d="M8 15h2v2h-2z" />
+                                    </svg>
+                                </span>
+                                <input type="date" value="" class="form-control" name="end_date" id="end_date" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-label">Position</div>
+                            <div class="input-icon mb-3">
+                                <span class="input-icon-addon">
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-versions"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 5m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /><path d="M7 7l0 10" /><path d="M4 8l0 8" /></svg>
+                                </span>
+                                <input type="text" value="" class="form-control" name="position" id="position" placeholder="Position">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-label">Salary</div>
+                            <div class="input-icon mb-3">
+                                <span class="input-icon-addon">
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-cash-banknote"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M3 6m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" /><path d="M18 12l.01 0" /><path d="M6 12l.01 0" /></svg>
+                                </span>
+                                <input type="text" value="" class="form-control" name="salary" id="salary" placeholder="Salary">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-label">Status</div>
+                            <select name="status" id="status" class="form-select">
+                                <option value="">Choose</option>
+                                <option value="Active">Active</option>
+                                <option value="Extended">Extended</option>
+                                <option value="Terminated">Terminated</option>
+                                <option value="Expired">Expired</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-label">Contract File</div>
+                            <div class="input-icon mb-3">
+                                <span class="input-icon-addon">
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-file-info"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M11 14h1v4h1" /><path d="M12 11h.01" /></svg>
+                                </span>
+                                <input type="text" value="" class="form-control" name="contract_file" id="contract_file" placeholder="File">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <button class="btn btn-primary w-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-plus">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                                        <path d="M16 19h6" />
+                                        <path d="M19 16v6" />
+                                        <path d="M6 21v-2a4 4 0 0 1 4 -4h4" />
+                                    </svg>
+                                    Simpan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('myscript')
 <script>
     $(function() {
+
+        $('#nik').on('input', function() {
+            var nik = $(this).val();
+
+            if (nik) {
+                $.ajax({
+                    url: '/contracts',
+                    method: 'GET',
+                    data: { nik: nik },
+                    success: function(response) {
+                        var $select = $('#no_kontrak');
+                        $select.empty();
+                        $select.append('<option value="">Pilih</option>');
+                        $select.append('<option value="">Create New Contract</option>');
+
+                        $.each(response, function(index, contract) {
+                            $select.append('<option value="' + contract.no_kontrak + '">' + contract.no_kontrak + '</option>');
+                        });
+                    },
+                    error: function(xhr) {
+                        console.error('Failed to fetch contracts:', xhr);
+                    }
+                });
+            } else {
+                $('#no_kontrak').empty().append('<option value="">Pilih</option><option value="">Create New Contract</option>');
+            }
+        });
+
         $('#btnTambahKaryawan').click(function() {
             $('#modal-inputkaryawan').modal("show");
         });
@@ -776,53 +955,119 @@ use App\Helpers\DateHelper;
             });
         });
 
-        // $('#formKaryawan').submit(function() {
-        //     var nik = $('#nik').val();
-        //     var nama_lengkap = $('#nama_lengkap').val();
-        //     var jabatan = $('#jabatan').val();
-        //     var kode_dept = $("formKaryawan").find('#kode_dept').val();
-        //     if (nik == "") {
-        //         Swal.fire({
-        //             title: 'Warning!',
-        //             text: 'NIK Harus Diisi',
-        //             icon: 'warning',
-        //             confirmButtonText: 'Ok'
-        //         }).then(() => {
-        //             $('#nik').focus();
-        //         });
-        //         return false;
-        //     } else if (nama_lengkap == "") {
-        //         Swal.fire({
-        //             title: 'Warning!',
-        //             text: 'Nama Lengkap Harus Diisi',
-        //             icon: 'warning',
-        //             confirmButtonText: 'Ok'
-        //         }).then(() => {
-        //             $('#nama_lengkap').focus();
-        //         });
-        //         return false;
-        //     } else if (jabatan == "") {
-        //         Swal.fire({
-        //             title: 'Warning!',
-        //             text: 'Jabatan Harus Diisi',
-        //             icon: 'warning',
-        //             confirmButtonText: 'Ok'
-        //         }).then(() => {
-        //             $('#jabatan').focus();
-        //         });
-        //         return false;
-        //     } else if (kode_dept == "") {
-        //         Swal.fire({
-        //             title: 'Warning!',
-        //             text: 'Department Harus Diisi',
-        //             icon: 'warning',
-        //             confirmButtonText: 'Ok'
-        //         }).then(() => {
-        //             $('#kode_dept').focus();
-        //         });
-        //         return false;
-        //     }
-        // });
+        $('#formKaryawan').submit(function() {
+            var nik = $('#nik').val();
+            var nama_lengkap = $('#nama_lengkap').val();
+            var jabatan = $('#jabatan').val();
+            var kode_dept = $("#formKaryawan").find('#kode_dept').val();
+            if (nik == "") {
+                Swal.fire({
+                    title: 'Warning!',
+                    text: 'NIK Harus Diisi',
+                    icon: 'warning',
+                    confirmButtonText: 'Ok'
+                }).then(() => {
+                    $('#nik').focus();
+                });
+                return false;
+            } else if (nama_lengkap == "") {
+                Swal.fire({
+                    title: 'Warning!',
+                    text: 'Nama Lengkap Harus Diisi',
+                    icon: 'warning',
+                    confirmButtonText: 'Ok'
+                }).then(() => {
+                    $('#nama_lengkap').focus();
+                });
+                return false;
+            } else if (jabatan == "") {
+                Swal.fire({
+                    title: 'Warning!',
+                    text: 'Jabatan Harus Diisi',
+                    icon: 'warning',
+                    confirmButtonText: 'Ok'
+                }).then(() => {
+                    $('#jabatan').focus();
+                });
+                return false;
+            } else if (kode_dept == "") {
+                Swal.fire({
+                    title: 'Warning!',
+                    text: 'Department Harus Diisi',
+                    icon: 'warning',
+                    confirmButtonText: 'Ok'
+                }).then(() => {
+                    $('#kode_dept').focus();
+                });
+                return false;
+            }
+        });
+
+        $('#no_kontrak').on('change', function() {
+            var noKontrak = $(this).val();
+
+            if (noKontrak) {
+                $.ajax({
+                    url: '/contract/type',
+                    method: 'GET',
+                    data: { no_kontrak: noKontrak },
+                    success: function(response) {
+                        // Assuming response contains the contract type
+                        $('#employee_status').val(response.contract_type);
+                    },
+                    error: function(xhr) {
+                        console.error('Failed to fetch contract type:', xhr);
+                    }
+                });
+            } else {
+                $('#employee_status').val('');
+            }
+
+            if (noKontrak === '') {
+                $('#modal-inputContract').modal('show');
+            }
+        });
+
+        $('#formContract').on('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function(response) {
+                    // Update the contract dropdown
+                    var nik = $('#nik').val();
+
+                    $.ajax({
+                        url: '/contracts',
+                        method: 'GET',
+                        data: { nik: nik },
+                        success: function(response) {
+                            var $select = $('#no_kontrak');
+                            $select.empty();
+                            $select.append('<option value="">Pilih</option>');
+                            $select.append('<option value="">Create New Contract</option>');
+
+                            $.each(response, function(index, contract) {
+                                $select.append('<option value="' + contract.no_kontrak + '">' + contract.no_kontrak + '</option>');
+                            });
+
+                            // Close the contract modal and show the formKaryawan modal
+                            $('#modal-inputContract').modal('hide');
+                            $('#modal-inputkaryawan').modal('show');
+                        },
+                        error: function(xhr) {
+                            console.error('Failed to fetch contracts:', xhr);
+                        }
+                    });
+                },
+                error: function(xhr) {
+                    console.error('Failed to create contract:', xhr);
+                }
+            });
+        });
     });
 </script>
+
 @endpush

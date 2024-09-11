@@ -113,8 +113,19 @@
             <input type="text" value="{{ $karyawan->grade }}" class="form-control" name="grade" id="grade" placeholder="Grade">
         </div>
         <div class="col-3">
+            <div class="form-label">Nomer Kontrak</div>
+            <select name="no_kontrak" id="no_kontrak" class="form-select">
+                @foreach ($contract as $d)
+                    <option {{ $karyawan->no_kontrak == $d->no_kontrak ? 'selected' : '' }} value="{{ $d->no_kontrak }}">{{ $d->no_kontrak }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-3">
             <div class="form-label">Employee Status</div>
-            <input type="text" value="{{ $karyawan->employee_status }}" class="form-control" name="employee_status" id="employee_status" placeholder="Employee Status">
+            <select name="employee_status" id="employee_status" class="form-select">
+                <option {{ $karyawan->employee_status == 'PWKT' ? 'selected' : '' }} value="PWKT">PKWT</option>
+                <option {{ $karyawan->employee_status == 'PWKTT' ? 'selected' : '' }} value="PKWTT">PKWTT</option>
+            </select>
         </div>
         <div class="col-3">
             <div class="form-label">Base POH</div>

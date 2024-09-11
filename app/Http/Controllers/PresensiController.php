@@ -297,6 +297,10 @@ class PresensiController extends Controller
                 $item->tanggal = $prev_date; // Adjust the date for early in time
             }
 
+            if ($jam_masuk_time > $afternoon_start) {
+                $item->jam_masuk = null; // If jam_pulang is before 1 PM, it should be null
+            }
+
             if ($jam_pulang_time < $afternoon_start) {
                 $item->jam_pulang = null; // If jam_pulang is before 1 PM, it should be null
             }
@@ -740,6 +744,11 @@ class PresensiController extends Controller
                 if ($jam_masuk_time < $morning_start) {
                     $prev_date = Carbon::parse($presensiData->tanggal)->subDay()->toDateString();
                     $presensiData->tanggal = $prev_date; // Adjust the date for early in time
+                }
+
+                if ($jam_masuk_time > $afternoon_start) {
+                    $presensiData->jam_masuk = null; // If jam_pulang is before 1 PM, it should be null
+                    $jam_masuk_time = null;
                 }
 
                 if ($jam_pulang_time < $afternoon_start) {
