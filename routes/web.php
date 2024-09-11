@@ -101,6 +101,9 @@ Route::middleware(['auth:user'])->group(function (){
     Route::post('/karyawan/uploadKaryawan', [KaryawanController::class, 'uploadKaryawan']);
     Route::get('/karyawan/downloadTemplate', [KaryawanController::class, 'downloadTemplateKar']);
     Route::post('/karyawan/storeshift/{nik}', [KaryawanController::class, 'storeShift'])->name('karyawan.storeShift');
+    // Add this route to your web.php file
+    Route::get('/karyawan/getshift/{nik}', [KaryawanController::class, 'getShift'])->name('karyawan.getshift');
+
     Route::get('/karyawan/export', [KaryawanController::class, 'export'])->name('export.karyawan');
 
 

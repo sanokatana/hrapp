@@ -17,6 +17,7 @@ use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\KaryawanExport;
 use App\Models\Contract;
+use Illuminate\Support\Facades\Auth;
 
 class KaryawanController extends Controller
 {
@@ -49,6 +50,8 @@ class KaryawanController extends Controller
     {
         $data = $request->validated();
         $data['password'] = Hash::make('chl12345');
+        $name = Auth::guard('user')->user()->name;
+        $data['created_by'] = $name;
 
         if ($request->hasFile('foto')) {
             $data['foto'] = $data['nik'] . '.' . $request->file('foto')->getClientOriginalExtension();
@@ -101,6 +104,10 @@ class KaryawanController extends Controller
     public function update($id, StoreEmployeeRequest $request)
     {
         $data = $request->validated();
+        $data['no_kontrak'] = $request->input('no_kontrak_edit');
+        $data['employee_status'] = $request->input('employee_status_edit');
+        $name = Auth::guard('user')->user()->name;
+        $data['updated_by'] = $name;
         $old_foto = $request->old_foto;
 
         if ($request->hasFile('foto')) {
@@ -278,11 +285,26 @@ class KaryawanController extends Controller
 
         // Update the shift pattern ID
         $karyawan->shift_pattern_id = $request->shift_pattern_id;
-        $karyawan->start_Shift = $request->start_Shift;
+        $karyawan->start_shift = $request->start_shift;
         $karyawan->save();
 
         return redirect()->back()->with('success', 'Shift updated successfully!');
     }
+
+    public function getShift($nik)
+    {
+        $karyawan = Karyawan::where('nik', $nik)->first();
+
+        if (!$karyawan) {
+            return response()->json(['error' => 'Karyawan not found.'], 404);
+        }
+
+        return response()->json([
+            'shift_pattern_id' => $karyawan->shift_pattern_id,
+            'start_shift' => $karyawan->start_shift,
+        ]);
+    }
+
 
     public function export()
     {

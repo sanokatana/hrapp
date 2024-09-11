@@ -1,4 +1,4 @@
-<form action="/karyawan/{{ $karyawan->id }}/update" method="POST" id="formKaryawan" enctype="multipart/form-data">
+<form action="/karyawan/{{ $karyawan->id }}/update" method="POST" id="formEditKaryawan" enctype="multipart/form-data">
     @csrf
     <div class="row">
         <div class="col-3">
@@ -114,7 +114,7 @@
         </div>
         <div class="col-3">
             <div class="form-label">Nomer Kontrak</div>
-            <select name="no_kontrak" id="no_kontrak" class="form-select">
+            <select name="no_kontrak_edit" id="no_kontrak_edit" class="form-select">
                 @foreach ($contract as $d)
                     <option {{ $karyawan->no_kontrak == $d->no_kontrak ? 'selected' : '' }} value="{{ $d->no_kontrak }}">{{ $d->no_kontrak }}</option>
                 @endforeach
@@ -122,9 +122,10 @@
         </div>
         <div class="col-3">
             <div class="form-label">Employee Status</div>
-            <select name="employee_status" id="employee_status" class="form-select">
-                <option {{ $karyawan->employee_status == 'PWKT' ? 'selected' : '' }} value="PWKT">PKWT</option>
-                <option {{ $karyawan->employee_status == 'PWKTT' ? 'selected' : '' }} value="PKWTT">PKWTT</option>
+            <select name="employee_status_edit" id="employee_status_edit" class="form-select">
+            <option {{ $karyawan->employee_status == '' ? 'selected' : '' }} value="">Choose</option>
+                <option {{ $karyawan->employee_status == 'PKWT' ? 'selected' : '' }} value="PKWT">PKWT</option>
+                <option {{ $karyawan->employee_status == 'PKWTT' ? 'selected' : '' }} value="PKWTT">PKWTT</option>
             </select>
         </div>
         <div class="col-3">

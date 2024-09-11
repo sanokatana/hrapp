@@ -918,10 +918,41 @@ use App\Helpers\DateHelper;
                 },
                 success: function(respond) {
                     $('#loadeditform').html(respond);
+                    initializeEventListeners(); // Reinitialize after content is loaded
                 }
             });
             $('#modal-editkaryawan').modal("show");
         });
+
+        function initializeEventListeners() {
+            if ($('#formEditKaryawan').length) {
+                console.log('Form Contract found');
+
+                $('#no_kontrak_edit').on('change', function() {
+                    var noKontrak = $(this).val();
+
+                    if (noKontrak) {
+                        $.ajax({
+                            url: '/contract/type',
+                            method: 'GET',
+                            data: { no_kontrak: noKontrak },
+                            success: function(response) {
+                                // Assuming response contains the contract type
+                                console.log('Received contract type:', response.contract_type);
+                                $('#employee_status_edit').val(response.contract_type);
+                            },
+                            error: function(xhr) {
+                                console.error('Failed to fetch contract type:', xhr);
+                            }
+                        });
+                    } else {
+                        $('#employee_status_edit').val('');
+                    }
+                });
+            } else {
+                console.log('Form Contract not found'); // Debugging
+            }
+        }
 
         $('.time').click(function() {
             var nik = $(this).data('nik');
@@ -933,8 +964,20 @@ use App\Helpers\DateHelper;
             // Update the selected shift pattern in the dropdown
             $('#shift_pattern_id').val(shiftPatternId);
 
-            // Show the modal
-            $('#modal-editshift').modal("show");
+            $.ajax({
+                url: '/karyawan/getshift/' + nik, // Adjust the URL based on your route
+                method: 'GET',
+                success: function(data) {
+                    // Set the start_shift value from the response
+                    $('#start_shift').val(data.start_shift);
+
+                    // Show the modal
+                    $('#modal-editshift').modal("show");
+                },
+                error: function() {
+                    alert('Failed to retrieve shift details.');
+                }
+            });
         });
 
         $(".delete-confirm").click(function(e) {

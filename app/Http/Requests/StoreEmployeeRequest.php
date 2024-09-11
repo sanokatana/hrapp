@@ -78,6 +78,8 @@ class StoreEmployeeRequest extends FormRequest
             'em_relation' => 'nullable|string|max:100',
             'em_alamat' => 'nullable|string',
             'status_kar' => 'required|in:Aktif,Non-Aktif',
+            'created_by' => 'nullable|string|max:100',
+            'updated_by' => 'nullable|string|max:100',
             // Add the rest of your rules here...
         ];
     }
