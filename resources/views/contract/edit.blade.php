@@ -1,4 +1,4 @@
-<form action="/kontrak/{{ $contract->id }}/store" method="POST" id="formContract">
+<form action="/kontrak/{{ $contract->id }}/update" method="POST" id="formEditContract">
     @csrf
     <div class="row">
         <div class="col-6">
@@ -138,7 +138,7 @@
                     </svg>
                 </span>
                 <input type="text" value="{{ 'Rp ' . number_format($contract->salary, 0, ',', '.') }}"
-                    class="form-control custom-disabled" name="salary" id="salary" placeholder="Salary">
+                    class="form-control" name="salaryedit" id="salaryedit" placeholder="Salary">
             </div>
         </div>
     </div>
@@ -170,6 +170,12 @@
                 <input type="text" value="{{$contract->contract_file}}" class="form-control custom-disabled"
                     name="contract_file" id="contract_file" placeholder="File">
             </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="form-label">Reasoning</div>
+            <input type="text" class="form-control" name="reasoning" id="reasoning" placeholder="Enter your reason">
         </div>
     </div>
     <div class="row mt-3">

@@ -362,6 +362,75 @@
 @push('myscript')
 <script>
     $(function() {
+
+        $('.edit').click(function() {
+            var id = $(this).attr('id');
+            $.ajax({
+                type: 'POST',
+                url: '/kontrak/edit',
+                cache: false,
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id: id
+                },
+                success: function(respond) {
+                    $('#loadedEdit').html(respond);
+                    console.log("Content loaded into #loadedEdit"); // Debugging
+                    initializeEventListeners(); // Reinitialize after content is loaded
+                }
+            });
+            $('#modal-editContract').modal("show");
+        });
+
+        function initializeEventListeners() {
+            if ($('#formEditContract').length) {
+                console.log('Form Contract found');
+
+                // Handle form submission
+                $('#formEditContract').on('submit', function(event) {
+                    var reasoning = $('#reasoning').val().trim();
+                    var salaryInput = $('#salaryedit');
+                    var salary = salaryInput.val().replace(/[^\d]/g, ''); // Remove all non-digit characters
+
+                    // Check if reasoning is empty
+                    if (reasoning === "") {
+                        event.preventDefault(); // Prevent form submission
+                        Swal.fire({
+                            title: 'Warning!',
+                            text: 'Reasoning Harus Diisi',
+                            icon: 'warning',
+                            confirmButtonText: 'Ok'
+                        }).then(() => {
+                            $('#reasoning').focus();
+                        });
+                    }
+                });
+
+                $('#salaryedit').on('input', function(e) {
+                    let value = e.target.value.replace(/[^\d]/g, ''); // Remove all non-digit characters
+
+                    if (value) {
+                        e.target.value = 'Rp ' + parseInt(value, 10).toLocaleString('id-ID');
+                    } else {
+                        e.target.value = ''; // Clear the input if there's no value
+                    }
+                });
+
+                // Initialize the input field correctly
+                $(document).ready(function() {
+                    let salaryInput = $('#salary');
+                    let initialValue = salaryInput.val().replace(/[^\d]/g, '');
+                    if (initialValue) {
+                        salaryInput.val('Rp ' + parseInt(initialValue, 10).toLocaleString('id-ID'));
+                    }
+                });
+            } else {
+                console.log('Form Contract not found'); // Debugging
+            }
+        }
+
+
+
         document.getElementById('salary').addEventListener('input', function (e) {
             // Remove any non-digit characters and format the number as currency
             let value = e.target.value.replace(/[^\d]/g, ''); // Remove all non-digit characters
@@ -445,23 +514,6 @@
             $('#modal-inputContract').modal("show");
         });
 
-        $('.edit').click(function() {
-            var id = $(this).attr('id');
-            $.ajax({
-                type: 'POST',
-                url: '/kontrak/edit',
-                cache: false,
-                data: {
-                    _token: "{{ csrf_token();}}",
-                    id: id
-                },
-                success: function(respond) {
-                    $('#loadedEdit').html(respond);
-                }
-            });
-            $('#modal-editContract').modal("show");
-        });
-
         $('.view').click(function() {
             var id = $(this).attr('id');
             $.ajax({
@@ -499,12 +551,12 @@
 
         $('#formContract').submit(function() {
             let salaryField = document.getElementById('salary');
-            // Remove 'Rp ' and any commas to convert to plain number
             salaryField.value = salaryField.value.replace(/[^\d]/g, '');
             var nik = $('#nik').val();
             var no_kontrak = $('#no_kontrak').val();
             var contract_type = $('#contract_type').val();
             var start_date = $('#start_date').val();
+            var reasoning = $('#reasoning').val();
             if (nik == "") {
                 Swal.fire({
                     title: 'Warning!',
@@ -543,6 +595,16 @@
                     confirmButtonText: 'Ok'
                 }).then(() => {
                     $('#start_date').focus();
+                });
+                return false;
+            } else if (reasoning == "") {
+                Swal.fire({
+                    title: 'Warning!',
+                    text: 'Reasoning Harus Diisi',
+                    icon: 'warning',
+                    confirmButtonText: 'Ok'
+                }).then(() => {
+                    $('#reasoning').focus();
                 });
                 return false;
             }
