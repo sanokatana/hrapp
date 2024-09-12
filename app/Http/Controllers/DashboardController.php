@@ -978,4 +978,10 @@ class DashboardController extends Controller
             'leaderboardOnTimeNonNS'
         ));
     }
+
+
+
+    public function dashboardcandidate(){
+        return view('dashboard.dashboardcandidate');
+    }
 }

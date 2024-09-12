@@ -18,7 +18,7 @@ class Authenticate extends Middleware
             if(request()->is("panel/*")) {
                 return route("loginadmin");
             } else {
-                return route('login');
+                return route('home');
             }
         }
     }

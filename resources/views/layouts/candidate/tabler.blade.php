@@ -37,16 +37,14 @@
     </style>
 </head>
 
-<body class="layout-fluid">
+<body>
     <script src="{{ asset('tabler/dist/js/demo-theme.min.js?1692870487')}}"></script>
     <div class="page">
-        <!-- Sidebar -->
-        @include('layouts.admin.sidebar')
         <!-- Navbar -->
-        @include('layouts.admin.header')
-        <div class="page-wrapper">
+        @include('layouts.candidate.header')
+      <div class="page-wrapper">
             @yield('content')
-            @include('layouts.admin.footer')
+            @include('layouts.candidate.footer')
         </div>
     </div>
     <!-- Libs JS -->

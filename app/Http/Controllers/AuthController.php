@@ -20,7 +20,32 @@ class AuthController extends Controller
         if(Auth::guard('karyawan')->attempt($credentials, $remember)){
             return redirect('/dashboard');
         } else {
-            return redirect('/')->with(['warning'=>'NIK/Email or Password is incorrect']);
+            return redirect('/karlogin')->with(['warning'=>'NIK/Email or Password is incorrect']);
+        }
+    }
+
+    public function proseslogincandidate(Request $request)
+    {
+        // Validate the incoming request for 'username' and 'password'
+        $request->validate([
+            'username' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        // Get the login credentials
+        $credentials = [
+            'username' => $request->input('username'),
+            'password' => $request->input('password'),
+        ];
+
+        // Determine if the user wants to be remembered
+        $remember = $request->has('remember');
+
+        // Attempt to log in the user using the 'karyawan' guard
+        if(Auth::guard('candidate')->attempt($credentials, $remember)){
+            return response()->json(['success' => true]);
+        } else {
+            return response()->json(['success' => false, 'message' => 'NIK/Email or Password is incorrect']);
         }
     }
 
@@ -29,7 +54,7 @@ class AuthController extends Controller
     public function proseslogout(){
         if(Auth::guard('karyawan')->check()){
             Auth::guard('karyawan')->logout();
-            return redirect('/');
+            return redirect('/karlogin');
         }
     }
 
@@ -37,6 +62,13 @@ class AuthController extends Controller
         if(Auth::guard('user')->check()){
             Auth::guard('user')->logout();
             return redirect('/panel');
+        }
+    }
+
+    public function proseslogoutcandidate(){
+        if(Auth::guard('candidate')->check()){
+            Auth::guard('candidate')->logout();
+            return redirect('/candidate');
         }
     }
 

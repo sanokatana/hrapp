@@ -23,11 +23,15 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard('karyawan')->check()) {
-                return redirect(RouteServiceProvider::HOME);
+                return redirect(RouteServiceProvider::HOMEKARYAWAN);
             }
 
             if (Auth::guard('user')->check()) {
                 return redirect(RouteServiceProvider::HOMEADMIN);
+            }
+
+            if (Auth::guard('candidate')->check()) {
+                return redirect(RouteServiceProvider::HOMECANDIDATE);
             }
         }
 

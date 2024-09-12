@@ -56,14 +56,6 @@ class LaporanController extends Controller
         }
         $karyawan = $karyawanQuery->get()->groupBy('kode_dept');
 
-        // Get the earliest and latest years from the presensi table
-        $years = DB::table('presensi')
-            ->selectRaw('MIN(YEAR(tgl_presensi)) as earliest_year, MAX(YEAR(tgl_presensi)) as latest_year')
-            ->first();
-
-        $earliestYear = $years->earliest_year;
-        $latestYear = $years->latest_year;
-
         // Get presensi data for the selected month
         $presensi = DB::table('presensi')
             ->select('nip', 'tgl_presensi', DB::raw('MIN(jam_in) as earliest_jam_in'))
@@ -107,6 +99,15 @@ class LaporanController extends Controller
             })
             ->get();
 
+        $liburKaryawan = DB::table('libur_kar')
+            ->whereMonth('month', $filterMonth)
+            ->whereYear('month', $filterYear)
+            ->pluck('id', 'nik');
+
+        $liburKarDays = DB::table('libur_kar_day')
+            ->whereIn('libur_id', $liburKaryawan)
+            ->pluck('tanggal', 'libur_id');
+
         // Process presensi and cuti data to format for display
         $attendanceData = [];
         foreach ($departments as $department) {
@@ -145,6 +146,20 @@ class LaporanController extends Controller
                     'nama_lengkap' => $k->nama_lengkap,
                     'attendance' => []
                 ];
+
+                $liburKaryawanId = DB::table('libur_kar')
+                    ->where('month', $filterMonth)
+                    ->where('nik', $k->nik)
+                    ->value('id'); // Get the ID of the libur_kar row for the current karyawan
+
+                $liburKarDays = collect(); // Default empty collection for dates
+
+                if ($liburKaryawanId) {
+                    // Fetch all the leave dates for the specific employee
+                    $liburKarDays = DB::table('libur_kar_day')
+                        ->where('libur_id', $liburKaryawanId)
+                        ->pluck('tanggal');
+                }
 
                 // Get the employee's shift pattern ID and start shift date
                 $shiftPatternId = DB::table('karyawan')
@@ -240,11 +255,17 @@ class LaporanController extends Controller
                         $status = 'LN'; // Mark as national holiday
                     }
 
-                    // Calculate late minutes if attendance exists and status is 'T'
+                    if ($liburKarDays->contains($dateString)) {
+                        $status = 'L'; // Mark as employee leave day
+                    }
+
                     if ($attendance) {
                         $jam_in = Carbon::parse($attendance->earliest_jam_in);
-                        if ($status === 'T') {
-                            $menitTelat += $jam_in->diffInMinutes(Carbon::parse($work_start));
+                        $workStart = Carbon::parse($work_start);
+
+                        // Check if the attendance time is greater than work_start
+                        if ($jam_in->greaterThan($workStart)) {
+                            $menitTelat += $jam_in->diffInMinutes($workStart);
                             $jumlahTelat++;
                         }
                     }
@@ -348,34 +369,22 @@ class LaporanController extends Controller
             $pukul = $isIzin->pukul;
 
             if ($status == 'Tmk') {
-                if ($keputusan == 'Sakit') {
-                    return 'S';
-                } elseif ($keputusan == 'Ijin') {
-                    return 'I';
-                } elseif ($keputusan == 'Mangkir') {
-                    return 'MK';
-                } elseif ($keputusan == 'Tugas Luar') {
-                    return 'D';
-                } elseif ($keputusan == 'Potong Cuti') {
-                    return 'C';
-                } elseif ($keputusan == 'Tukar Jadwal Off') {
-                    return 'OFF'; // Handle Tukar Jadwal Off
-                }
+                return $keputusan == 'Sakit' ? 'S' : ($keputusan == 'Ijin' ? 'I' : ($keputusan == 'Mangkir' ? 'MK' : ($keputusan == 'Tugas Luar' ? 'D' : 'C')));
             }
 
             if ($status == 'Dt' && $attendance) {
                 $jam_in = Carbon::parse($attendance->earliest_jam_in);
                 if ($jam_in->gte(Carbon::parse($morning_start)) && $jam_in->lt(Carbon::parse($afternoon_start))) {
-                    if ($pukul && abs($jam_in->diffInMinutes(Carbon::parse($pukul))) <= 5 && $keputusan == 'Terlambat') {
-                        return $status_work;
-                    } else {
-                        return $status_work;
-                    }
+                    // if ($pukul && abs($jam_in->diffInMinutes(Carbon::parse($pukul))) <= 5 && $keputusan == 'Terlambat') {
+                    //     return $status_work;
+                    // } else {
+                    //     return $status_work;
+                    // }
+                    return $status_work;
                 }
             }
 
             if ($status == 'Tam') {
-                // If no attendance between 6 AM and 1 PM
                 $jam_in = $attendance ? Carbon::parse($attendance->earliest_jam_in) : null;
                 if (!$jam_in || $jam_in->lt(Carbon::parse($morning_start)) || $jam_in->gte(Carbon::parse($afternoon_start))) {
                     return $status_work;
@@ -387,20 +396,35 @@ class LaporanController extends Controller
             }
         }
 
-
         if ($status_work == 'OFF' && $attendance) {
             $jam_in = Carbon::parse($attendance->earliest_jam_in);
-            if ($jam_in->gte(Carbon::parse($morning_start)) && $jam_in->lt(Carbon::parse($afternoon_start))) {
-                return $jam_in->gt(Carbon::parse($work_start)) ? 'T' : 'P';
+            if ($jam_in->lt(Carbon::parse($morning_start))) {
+                $latest_jam_in_after_morning = Carbon::parse($attendance->latest_jam_in_after_morning ?? $jam_in);
+                if ($latest_jam_in_after_morning->gte(Carbon::parse($morning_start))) {
+                    return $latest_jam_in_after_morning->gt(Carbon::parse($work_start)) ? 'T' : 'P';
+                } else {
+                    return 'T'; // No valid attendance after morning_start
+                }
             } else {
-                return 'T';
+                return $jam_in->gte(Carbon::parse($morning_start)) && $jam_in->lt(Carbon::parse($afternoon_start))
+                    ? ($jam_in->gt(Carbon::parse($work_start)) ? 'T' : 'P')
+                    : 'T';
             }
-        } else if ($attendance){
+        } else if ($attendance) {
             $jam_in = Carbon::parse($attendance->earliest_jam_in);
-            if ($jam_in->gte(Carbon::parse($morning_start)) && $jam_in->lt(Carbon::parse($afternoon_start))) {
-                return $jam_in->gt(Carbon::parse($work_start)) ? 'T' : $status_work;
+            if ($jam_in->lt(Carbon::parse($morning_start))) {
+                $latest_jam_in_after_morning = Carbon::parse($attendance->latest_jam_in_after_morning ?? $jam_in);
+                if ($latest_jam_in_after_morning->gte(Carbon::parse($morning_start))) {
+                    return $latest_jam_in_after_morning->gt(Carbon::parse($work_start)) ? 'T' : 'P';
+                } else if ($date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY){
+                    return 'L'; // No valid attendance after morning_start
+                } else {
+                    return ''; // No valid attendance after morning_start
+                }
             } else {
-                return 'T';
+                return $jam_in->gte(Carbon::parse($morning_start)) && $jam_in->lt(Carbon::parse($afternoon_start))
+                    ? ($jam_in->gt(Carbon::parse($work_start)) ? 'T' : $status_work)
+                    : 'T';
             }
         } else {
             return $date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY ? 'L' : '';
@@ -467,6 +491,9 @@ class LaporanController extends Controller
                     break;
                 case 'LN':
                     $classes[] = 'dark-yellow';
+                    break;
+                case 'L':
+                    $classes[] = 'weekend';
                     break;
                 case 'C':
                     $classes[] = 'cuti';

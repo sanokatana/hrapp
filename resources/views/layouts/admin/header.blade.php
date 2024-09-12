@@ -31,93 +31,114 @@
                         <span class="badge bg-red"></span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card">
+                        <!-- In your Blade view, for example, header.blade.php -->
+
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">Last updates</h3>
+                                <h3 class="card-title">Notification</h3>
                             </div>
-                            <div class="list-group list-group-flush list-group-hoverable">
+                            <div class="list-group list-group-flush list-group-hoverable" style="width: max-content;">
+
+                                <!-- Birthdays -->
+                                @forelse ($birthdays as $birthday)
                                 <div class="list-group-item">
                                     <div class="row align-items-center">
-                                        <div class="col-auto"><span class="status-dot status-dot-animated bg-red d-block"></span></div>
+                                        <div class="col-auto">
+                                            <span class="status-dot status-dot-animated bg-green d-block"></span>
+                                        </div>
                                         <div class="col text-truncate">
-                                            <a href="#" class="text-body d-block">Example 1</a>
+                                            <a href="#" class="text-body d-block">{{ $birthday->nama_lengkap }}</a>
                                             <div class="d-block text-secondary text-truncate mt-n1">
-                                                Change deprecated html tags to text decoration classes (#29604)
+                                                Happy Birthday! 🎉
                                             </div>
                                         </div>
                                         <div class="col-auto">
                                             <a href="#" class="list-group-item-actions">
-                                                <!-- Download SVG icon from http://tabler-icons.io/i/star -->
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon text-muted" width="24" height="24" viewBox="0 0 18 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
-                                                </svg>
+                                                <!-- Optional: Add an icon or action -->
                                             </a>
                                         </div>
                                     </div>
                                 </div>
+                                @empty
                                 <div class="list-group-item">
                                     <div class="row align-items-center">
-                                        <div class="col-auto"><span class="status-dot d-block"></span></div>
                                         <div class="col text-truncate">
-                                            <a href="#" class="text-body d-block">Example 2</a>
                                             <div class="d-block text-secondary text-truncate mt-n1">
-                                                justify-content:between ⇒ justify-content:space-between (#29734)
+                                                No birthdays today.
                                             </div>
                                         </div>
-                                        <div class="col-auto">
-                                            <a href="#" class="list-group-item-actions show">
-                                                <!-- Download SVG icon from http://tabler-icons.io/i/star -->
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon text-yellow" width="24" height="24" viewBox="0 0 18 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
-                                                </svg>
-                                            </a>
-                                        </div>
                                     </div>
                                 </div>
+                                @endforelse
+
+                                <!-- Leave Requests -->
+                                @forelse ($izinRequests as $request)
                                 <div class="list-group-item">
                                     <div class="row align-items-center">
-                                        <div class="col-auto"><span class="status-dot d-block"></span></div>
+                                        <div class="col-auto">
+                                            <span class="status-dot status-dot-animated bg-yellow d-block"></span>
+                                        </div>
                                         <div class="col text-truncate">
-                                            <a href="#" class="text-body d-block">Example 3</a>
+                                            <a href="#" class="text-body d-block">Leave Request from {{ $request->nama_lengkap }}</a>
                                             <div class="d-block text-secondary text-truncate mt-n1">
-                                                Update change-version.js (#29736)
+                                                Requested on {{ \Carbon\Carbon::parse($request->tgl_create)->format('d M Y') }}
                                             </div>
                                         </div>
                                         <div class="col-auto">
                                             <a href="#" class="list-group-item-actions">
-                                                <!-- Download SVG icon from http://tabler-icons.io/i/star -->
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon text-muted" width="24" height="24" viewBox="0 0 18 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
-                                                </svg>
+                                                <!-- Optional: Add an icon or action -->
                                             </a>
                                         </div>
                                     </div>
                                 </div>
+                                @empty
                                 <div class="list-group-item">
                                     <div class="row align-items-center">
-                                        <div class="col-auto"><span class="status-dot status-dot-animated bg-green d-block"></span></div>
                                         <div class="col text-truncate">
-                                            <a href="#" class="text-body d-block">Example 4</a>
                                             <div class="d-block text-secondary text-truncate mt-n1">
-                                                Regenerate package-lock.json (#29730)
+                                                No leave requests today.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforelse
+
+                                <!-- Leave Applications -->
+                                @forelse ($cutiApplications as $application)
+                                <div class="list-group-item">
+                                    <div class="row align-items-center">
+                                        <div class="col-auto">
+                                            <span class="status-dot status-dot-animated bg-yellow d-block"></span>
+                                        </div>
+                                        <div class="col text-truncate">
+                                            <a href="#" class="text-body d-block">Leave Application from {{ $application->nama_karyawan }}</a>
+                                            <div class="d-block text-secondary text-truncate mt-n1">
+                                                Applied on {{ $application->tgl_create->format('d M Y') }}
                                             </div>
                                         </div>
                                         <div class="col-auto">
                                             <a href="#" class="list-group-item-actions">
-                                                <!-- Download SVG icon from http://tabler-icons.io/i/star -->
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon text-muted" width="24" height="24" viewBox="0 0 18 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
-                                                </svg>
+                                                <!-- Optional: Add an icon or action -->
                                             </a>
                                         </div>
                                     </div>
                                 </div>
+                                @empty
+                                <div class="list-group-item">
+                                    <div class="row align-items-center">
+                                        <div class="col text-truncate">
+                                            <div class="d-block text-secondary text-truncate mt-n1">
+                                                No Cuti applications today.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforelse
+
                             </div>
                         </div>
+
+
                     </div>
                 </div>
             </div>

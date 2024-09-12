@@ -389,8 +389,11 @@
                 // Handle form submission
                 $('#formEditContract').on('submit', function(event) {
                     var reasoning = $('#reasoning').val().trim();
-                    var salaryInput = $('#salaryedit');
-                    var salary = salaryInput.val().replace(/[^\d]/g, ''); // Remove all non-digit characters
+                    // var salaryInput = $('#salaryedit');
+                    // var salary = salaryInput.val().replace(/[^\d]/g, ''); // Remove all non-digit characters
+
+                    let salaryField = document.getElementById('salaryedit');
+                    salaryField.value = salaryField.value.replace(/[^\d]/g, '');
 
                     // Check if reasoning is empty
                     if (reasoning === "") {

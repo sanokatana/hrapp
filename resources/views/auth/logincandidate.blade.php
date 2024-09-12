@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Admin Panel HRMS</title>
+    <title>Candidate Login</title>
     <!-- CSS files -->
     <link href="{{ asset('tabler/dist/css/tabler.min.css?1692870487')}}" rel="stylesheet" />
     <link href="{{ asset('tabler/dist/css/tabler-flags.min.css?1692870487')}}" rel="stylesheet" />
@@ -32,12 +32,12 @@
             <div class="row align-items-center g-4">
                 <div class="col-lg">
                     <div class="container-tight">
-                        <div class="text-center mb-4">
-                            <a href="." class="navbar-brand navbar-brand-autodark"><img src="{{ asset('tabler/static/illustrations/logo.png')}}" height="50" alt=""></a>
+                        <div class="text-center mb-2">
+                            <a href="." class="navbar-brand navbar-brand-autodark"><img src="{{ asset('assets/img/login/logo-pic.png')}}" height="250" alt=""></a>
                         </div>
                         <div class="card card-md">
                             <div class="card-body">
-                                <h2 class="h2 text-center mb-4">Login to your account</h2>
+                                <h2 class="h2 text-center mb-4">Login For Candidate</h2>
                                 @php
                                 $messageWarning = Session::get('warning');
                                 @endphp
@@ -46,11 +46,11 @@
                                     {{ $messageWarning }}
                                 </div>
                                 @endif
-                                <form id="loginForm" action="/prosesloginadmin" method="POST" autocomplete="off" novalidate>
+                                <form id="loginForm" action="/proseslogincandidate" method="POST" autocomplete="off" novalidate>
                                     @csrf
                                     <div class="mb-3">
-                                        <label class="form-label">NIK or Email address</label>
-                                        <input type="text" name="nik_or_email" class="form-control" placeholder="NIK or your@email.com" autocomplete="off">
+                                        <label class="form-label">Username</label>
+                                        <input type="text" name="username" class="form-control" placeholder="Your Username" autocomplete="off">
                                     </div>
                                     <div class="mb-2">
                                         <label class="form-label">
@@ -75,11 +75,6 @@
                                             <span class="form-check-label">Remember me on this device</span>
                                         </label>
                                     </div>
-                                    <div>
-                                    <span class="form-label-label" >
-                                            <a href="/karlogin" style="color: #dabc17 !important;">Dashboard Karyawan</a>
-                                        </span>
-                                    </div>
                                     <div class="form-footer">
                                         <button type="submit" class="btn btn-primary w-100">Sign in</button>
                                     </div>
@@ -87,9 +82,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-lg d-none d-lg-block">
-                    <img src="{{ asset('tabler/static/illustrations/login-page.png')}}" height="300" class="d-block mx-auto" alt="">
                 </div>
             </div>
         </div>
@@ -138,7 +130,7 @@
                 body: new FormData(form),
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-CSRF-TOKEN': '{{ csrf_token();}}'
                 }
             }).then(response => response.json());
 
@@ -152,7 +144,7 @@
                             showConfirmButton: false,
                             timer: 1500
                         }).then(() => {
-                            window.location.href = '/panel/dashboardadmin';
+                            window.location.href = '/candidate/dashboard';
                         });
                     } else {
                         Swal.fire({
