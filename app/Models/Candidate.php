@@ -11,7 +11,7 @@ class Candidate extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $table = "candidate";
+    protected $table = "candidates";
 
     /**
      * The attributes that are mass assignable.

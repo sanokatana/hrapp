@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
 use App\Http\Controllers\PengajuanCutiController;
 use App\Http\Controllers\PresensiController;
+use App\Http\Controllers\RecruitmentController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\TimeAttendanceController;
 use App\Http\Controllers\UserController;
@@ -299,4 +300,18 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::post('/kontrak/view', [ContractController::class, 'view']);
     Route::post('/kontrak/{id}/update', [ContractController::class, 'update']);
     Route::post('/kontrak/{id}/delete', [ContractController::class, 'delete']);
+
+
+    //Recruitment - Candidate
+    Route::get('/recruitment/candidate', [RecruitmentController::class, 'candidate']);
+
+    //Recruitment - Candidate
+    Route::get('/recruitment/jobs', [RecruitmentController::class, 'job_opening']);
+    Route::post('/recruitment/jobs/store', [RecruitmentController::class, 'job_opening_store']);
+
+    //Recruitment - Types
+    Route::get('/recruitment', [RecruitmentController::class, 'recruitment']);
+    Route::post('/recruitment/store', [RecruitmentController::class, 'recruitment_store']);
 });
+
+

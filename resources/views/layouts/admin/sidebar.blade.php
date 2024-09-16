@@ -488,7 +488,7 @@
                 @endif
                 @if($userLevel !== 'Admin')
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{request()->is([]) ? 'show' : ''}}" href="#navbar-base"
+                        <a class="nav-link dropdown-toggle {{request()->is(['recruitment/dashboard','recruitment/pipeline', 'recruitment/candidate', 'recruitment', 'recruitment/jobs']) ? 'show' : ''}}" href="#navbar-base"
                             data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
                             <span
                                 class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
@@ -508,22 +508,25 @@
                                 Recruitements
                             </span>
                         </a>
-                        <div class="dropdown-menu {{request()->is([]) ? 'show' : ''}}">
+                        <div class="dropdown-menu {{request()->is(['recruitment/dashboard','recruitment/pipeline', 'recruitment/candidate', 'recruitment', 'recruitment/jobs']) ? 'show' : ''}}">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
-                                    <a class="dropdown-item" href="#">
+                                    <a class="dropdown-item {{request()->is(['recruitment/dashboard']) ? 'active' : ''}}" href="/recruitment/dashboard">
                                         Dashboard
                                     </a>
-                                    <a class="dropdown-item" href="#">
+                                    <a class="dropdown-item {{request()->is(['recruitment/pipeline']) ? 'active' : ''}}" href="/recruitment/pipeline">
                                         Recruitement Pipeline
                                     </a>
-                                    <a class="dropdown-item" href="#">
+                                    <a class="dropdown-item {{request()->is(['recruitment/candidate']) ? 'active' : ''}}" href="/recruitment/candidate">
                                         Candidate
                                     </a>
-                                    <a class="dropdown-item" href="#">
+                                    <a class="dropdown-item {{request()->is(['recruitment']) ? 'active' : ''}}" href="/recruitment">
                                         Recruitement
                                     </a>
-                                    <a class="dropdown-item" href="#">
+                                    <a class="dropdown-item {{request()->is(['recruitment/jobs']) ? 'active' : ''}} " href="/recruitment/jobs">
+                                        Jobs
+                                    </a>
+                                    <a class="dropdown-item {{request()->is(['recruitment/stages']) ? 'active' : ''}}" href="/recruitment/stages">
                                         Stages
                                     </a>
                                 </div>
