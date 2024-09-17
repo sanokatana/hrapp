@@ -68,19 +68,18 @@
                                             <th>Sequence</th>
                                             <th>Type</th>
                                             <th>Recruitment Type</th>
-                                            <th>Status</th>
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($job as $d)
+                                        @foreach ($stage as $d)
                                         <tr>
                                             <td>{{ $d->id}}</td>
-                                            <td>{{ $d->title}}</td>
+                                            <td>{{ $d->name}}</td>
                                             <td>{{ $d->description}}</td>
+                                            <td>{{ $d->sequence}}</td>
+                                            <td>{{ $d->type}}</td>
                                             <td>{{ $d->recruitment_type_name}}</td>
-                                            <td>{{ $d->kode_dept}}</td>
-                                            <td>{{ $d->status}}</td>
                                             <td>
                                                 <div class="form-group">
                                                     <a href="#" class="edit btn btn-info btn-sm" id="{{ $d->id }}">
@@ -91,7 +90,7 @@
                                                             <path d="M16 5l3 3" />
                                                         </svg>
                                                     </a>
-                                                    <form action="/recruitment/job/{{$d->id}}/delete" method="POST">
+                                                    <form action="/recruitment/stages/{{$d->id}}/delete" method="POST">
                                                         @csrf
                                                         <a class="btn btn-danger btn-sm delete-confirm">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
@@ -119,24 +118,27 @@
         </div>
     </div>
 </div>
-<div class="modal modal-blur fade" id="modal-inputJob" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal modal-blur fade" id="modal-inputStage" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Add Candidate</h5>
+                <h5 class="modal-title">Add Stage</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="/recruitment/jobs/store" method="POST" id="formJob">
+                <form action="/recruitment/stages/store" method="POST" id="formStage">
                     @csrf
                     <div class="row">
                         <div class="col-12">
-                            <div class="form-label">Title</div>
+                            <div class="form-label">Name</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-signature"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 17c3.333 -3.333 5 -6 5 -8c0 -3 -1 -3 -2 -3s-2.032 1.085 -2 3c.034 2.048 1.658 4.877 2.5 6c1.5 2 2.5 2.5 3.5 1l2 -3c.333 2.667 1.333 4 3 4c.53 0 2.639 -2 3 -2c.517 0 1.517 .667 3 2" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-signature">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M3 17c3.333 -3.333 5 -6 5 -8c0 -3 -1 -3 -2 -3s-2.032 1.085 -2 3c.034 2.048 1.658 4.877 2.5 6c1.5 2 2.5 2.5 3.5 1l2 -3c.333 2.667 1.333 4 3 4c.53 0 2.639 -2 3 -2c.517 0 1.517 .667 3 2" />
+                                    </svg>
                                 </span>
-                                <input type="text" value="" class="form-control" name="title" id="title" placeholder="Officer">
+                                <input type="text" value="" class="form-control" name="name" id="name" placeholder="HR Interview">
                             </div>
                         </div>
                     </div>
@@ -145,9 +147,24 @@
                             <div class="form-label">Description</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-text-wrap-disabled"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 6l10 0" /><path d="M4 18l10 0" /><path d="M4 12h17l-3 -3m0 6l3 -3" /></svg>
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-letter-case-upper"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 19v-10.5a3.5 3.5 0 0 1 7 0v10.5" /><path d="M3 13h7" /><path d="M14 19v-10.5a3.5 3.5 0 0 1 7 0v10.5" /><path d="M14 13h7" /></svg>
                                 </span>
-                                <input type="text" value="" class="form-control" name="description" id="description" placeholder="Long/Lang">
+                                <input type="text" value="" class="form-control" name="description" id="description" placeholder="Description">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-label">Sequence</div>
+                            <div class="input-icon mb-3">
+                                <span class="input-icon-addon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-circle-number-0">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                                        <path d="M10 10v4a2 2 0 1 0 4 0v-4a2 2 0 1 0 -4 0z" />
+                                    </svg>
+                                </span>
+                                <input type="number" value="" class="form-control" name="sequence" id="sequence" placeholder="1-10">
                             </div>
                         </div>
                     </div>
@@ -166,25 +183,17 @@
                     </div>
                     <div class="row">
                         <div class="col-12">
-                            <div class="form-label">Department</div>
+                            <div class="form-label">Type</div>
                             <div class="input-icon mb-3">
-                            <select name="kode_dept" id="kode_dept" class="form-select">
-                                <option value="">Pilih</option>
-                                @foreach ($department as $d)
-                                <option {{ Request('kode_dept') == $d->kode_dept ? 'selected' : '' }} value="{{ $d->kode_dept }}">{{ $d->nama_dept }}</option>
-                                @endforeach
-                            </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="form-label">Status Job Opening</div>
-                            <div class="input-icon mb-3">
-                                <select name="status" id="status" class="form-select">
-                                    <option value="">Pilih Status</option>
-                                    <option value="Open">Open</option>
-                                    <option value="Closed">Closed</option>
+                                <select name="type" id="type" class="form-select">
+                                    <option value="">Pilih Type</option>
+                                    <option value="Initial">Initial</option>
+                                    <option value="Fill Form">Fill Form</option>
+                                    <option value="Form Filled">Form Filled</option>
+                                    <option value="Test Interview">Test Interview</option>
+                                    <option value="Management Interview">Management Interview</option>
+                                    <option value="Offering Letter">Offering Letter</option>
+                                    <option value="Contract Interview">Contract Interview</option>
                                 </select>
                             </div>
                         </div>
@@ -211,14 +220,14 @@
     </div>
 </div>
 <!-- Modal Edit -->
-<div class="modal modal-blur fade" id="modal-editJob" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal modal-blur fade" id="modal-editStage" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit Candidate</h5>
+                <h5 class="modal-title">Edit Stage</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="loadedJob">
+            <div class="modal-body" id="loadedStage">
 
             </div>
         </div>
@@ -230,24 +239,24 @@
 <script>
     $(function() {
         $('#btnAddStage').click(function() {
-            $('#modal-inputJob').modal("show");
+            $('#modal-inputStage').modal("show");
         });
 
         $('.edit').click(function() {
             var id = $(this).attr('id');
             $.ajax({
                 type: 'POST',
-                url: '/recruitment/candidate/edit',
+                url: '/recruitment/stages/edit',
                 cache: false,
                 data: {
                     _token: "{{ csrf_token();}}",
                     id: id
                 },
                 success: function(respond) {
-                    $('#loadedJob').html(respond);
+                    $('#loadedStage').html(respond);
                 }
             });
-            $('#modal-editJob').modal("show");
+            $('#modal-editStage').modal("show");
         });
 
         $(".delete-confirm").click(function(e) {
@@ -268,20 +277,20 @@
             });
         });
 
-        $('#formJob').submit(function() {
-            var title = $('#title').val();
+        $('#formStage').submit(function() {
+            var name = $('#name').val();
             var description = $('#description').val();
             var recruitment_type_id = $('#recruitment_type_id').val();
-            var kode_dept = $('#kode_dept').val();
-            var status = $('#status').val();
-            if (title == "") {
+            var sequence = $('#sequence').val();
+            var type = $('#type').val();
+            if (name == "") {
                 Swal.fire({
                     title: 'Warning!',
-                    text: 'Title Harus Diisi',
+                    text: 'Nama Harus Diisi',
                     icon: 'warning',
                     confirmButtonText: 'Ok'
                 }).then(() => {
-                    $('#title').focus();
+                    $('#name').focus();
                 });
                 return false;
             } else if (description == "") {
@@ -304,24 +313,24 @@
                     $('#recruitment_type_id').focus();
                 });
                 return false;
-            } else if (kode_dept == "") {
+            } else if (sequence == "") {
                 Swal.fire({
                     title: 'Warning!',
-                    text: 'Department Harus Diisi',
+                    text: 'Sequence Harus Diisi',
                     icon: 'warning',
                     confirmButtonText: 'Ok'
                 }).then(() => {
-                    $('#kode_dept').focus();
+                    $('#sequence').focus();
                 });
                 return false;
-            } else if (status == "") {
+            } else if (type == "") {
                 Swal.fire({
                     title: 'Warning!',
                     text: 'Status Harus Diisi',
                     icon: 'warning',
                     confirmButtonText: 'Ok'
                 }).then(() => {
-                    $('#status').focus();
+                    $('#type').focus();
                 });
                 return false;
             }

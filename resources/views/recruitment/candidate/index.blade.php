@@ -66,6 +66,8 @@
                                             <th>Candidate Name</th>
                                             <th>Username</th>
                                             <th>Email</th>
+                                            <th>Job Opening</th>
+                                            <th>Current Stage</th>
                                             <th>Status</th>
                                             <th>Aksi</th>
                                         </tr>
@@ -77,6 +79,8 @@
                                             <td>{{ $d->nama_candidate}}</td>
                                             <td>{{ $d->username}}</td>
                                             <td>{{ $d->email}}</td>
+                                            <td>{{ $d->job_opening_name}}</td>
+                                            <td>{{ $d->hiring_stages_name}}</td>
                                             <td>{{ $d->status}}</td>
                                             <td>
                                                 <div class="form-group">
@@ -131,13 +135,11 @@
                             <div class="form-label">Nama Candidate</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-building-community">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-minus">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M8 9l5 5v7h-5v-4m0 4h-5v-7l5 -5m1 1v-6a1 1 0 0 1 1 -1h10a1 1 0 0 1 1 1v17h-8" />
-                                        <path d="M13 7l0 .01" />
-                                        <path d="M17 7l0 .01" />
-                                        <path d="M17 11l0 .01" />
-                                        <path d="M17 15l0 .01" />
+                                        <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                                        <path d="M6 21v-2a4 4 0 0 1 4 -4h4c.348 0 .686 .045 1.009 .128" />
+                                        <path d="M16 19h6" />
                                     </svg>
                                 </span>
                                 <input type="text" value="" class="form-control" name="nama_candidate" id="nama_candidate" placeholder="John">
@@ -146,42 +148,92 @@
                     </div>
                     <div class="row">
                         <div class="col-12">
-                            <div class="form-label">Lokasi Kantor</div>
+                            <div class="form-label">Username</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-map-pin">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
-                                        <path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" />
+                                        <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                                        <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
                                     </svg>
                                 </span>
-                                <input type="text" value="" class="form-control" name="lokasi_kantor" id="lokasi_kantor" placeholder="Long/Lang">
+                                <input type="text" value="" class="form-control" name="username" id="username" placeholder="Username">
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-12">
-                            <div class="form-label">Radius Kantor</div>
+                            <div class="form-label">Email</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-map-pin">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-mail">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
-                                        <path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" />
+                                        <path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z" />
+                                        <path d="M3 7l9 6l9 -6" />
                                     </svg>
                                 </span>
-                                <input type="text" value="" class="form-control" name="radius" id="radius" placeholder="50">
+                                <input type="text" value="" class="form-control" name="email" id="email" placeholder="@gmail.com">
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-12">
-                            <div class="form-label">Nomer Mesin</div>
+                            <div class="form-label">Job Opening</div>
+                            <div class="input-icon mb-3">
+                                <select name="job_opening_id" id="job_opening_id" class="form-select">
+                                    <option value="">Pilih</option>
+                                    @foreach ($job as $d)
+                                    <option {{ Request('id') == $d->id ? 'selected' : '' }} value="{{ $d->id }}">{{ $d->title }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-label">Current Stage</div>
+                            <div class="input-icon mb-3">
+                                <select name="current_stage_id" id="current_stage_id" class="form-select">
+                                    <option value="">Pilih</option>
+                                    @foreach ($currentStage as $d)
+                                    <option {{ Request('id') == $d->id ? 'selected' : '' }} value="{{ $d->id }}">{{ $d->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-label">Status</div>
+                            <div class="input-icon mb-3">
+                                <select name="status" id="status" class="form-select">
+                                    <option value="">Pilih Status</option>
+                                    <option value="In Process">In Process</option>
+                                    <option value="Hired">Hired</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-label">Password</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-device-laptop"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 19l18 0" /><path d="M5 6m0 1a1 1 0 0 1 1 -1h12a1 1 0 0 1 1 1v8a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1z" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-password">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M12 10v4" />
+                                        <path d="M10 13l4 -2" />
+                                        <path d="M10 11l4 2" />
+                                        <path d="M5 10v4" />
+                                        <path d="M3 13l4 -2" />
+                                        <path d="M3 11l4 2" />
+                                        <path d="M19 10v4" />
+                                        <path d="M17 13l4 -2" />
+                                        <path d="M17 11l4 2" />
+                                    </svg>
                                 </span>
-                                <input type="text" value="" class="form-control" name="no_mesin" id="no_mesin" placeholder="FIO">
+                                <input type="text" value="" class="form-control" name="password" id="password" placeholder="password">
                             </div>
                         </div>
                     </div>

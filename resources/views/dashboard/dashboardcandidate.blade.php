@@ -22,14 +22,13 @@
     <div class="container-xl">
         <div class="row">
             <div class="card-body">
-                <ul class="steps steps-yellow steps-counter my-1">
-                    <li class="step-item">Fill Form</li>
-                    <li class="step-item">Form Filled</li>
-                    <li class="step-item active">Interview 1</li>
-                    <li class="step-item">Interview 2</li>
-                    <li class="step-item">Offering Letter</li>
-                    <li class="step-item">Contract Signage</li>
-                </ul>
+            <ul class="steps steps-yellow steps-counter my-1">
+                @foreach ($stages as $stage)
+                    <li class="step-item @if($stage->id == $candidate->current_stage_id) active @endif">
+                        {{ $stage->name }}
+                    </li>
+                @endforeach
+            </ul>
             </div>
         </div>
     </div>

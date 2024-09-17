@@ -982,6 +982,26 @@ class DashboardController extends Controller
 
 
     public function dashboardcandidate(){
-        return view('dashboard.dashboardcandidate');
+        $candidateId = Auth::guard('candidate')->user()->id;
+        $candidate = DB::table('candidates')
+        ->join('job_openings', 'candidates.job_opening_id', '=', 'job_openings.id')
+        ->join('hiring_stages', 'candidates.current_stage_id', '=', 'hiring_stages.id')
+        ->select(
+            'candidates.*',
+            'job_openings.title as job_title',
+            'job_openings.recruitment_type_id',
+            'hiring_stages.name as current_stage_name',
+            'hiring_stages.id as current_stage_id'
+        )
+        ->where('candidates.id', $candidateId)  // filter by the current candidate
+        ->first();
+
+        // Retrieve all stages related to this candidate's recruitment type
+        $stages = DB::table('hiring_stages')
+            ->where('recruitment_type_id', $candidate->recruitment_type_id)
+            ->orderBy('sequence', 'asc') // assuming there's a sequence column for ordering the stages
+            ->get();
+
+        return view('dashboard.dashboardcandidate', compact('candidate', 'stages'));
     }
 }

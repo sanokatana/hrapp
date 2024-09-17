@@ -21,6 +21,12 @@ class Candidate extends Authenticatable
     protected $fillable = [
         'username',
         'password',
+        'nama_candidate',
+        'username',
+        'email',
+        'job_opening_id',
+        'current_stage_id',
+        'status',
     ];
 
     /**

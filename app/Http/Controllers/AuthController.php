@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Hash;
 
@@ -41,15 +42,23 @@ class AuthController extends Controller
         // Determine if the user wants to be remembered
         $remember = $request->has('remember');
 
-        // Attempt to log in the user using the 'karyawan' guard
-        if(Auth::guard('candidate')->attempt($credentials, $remember)){
+        // Attempt to log in the user using the 'candidate' guard
+        if (Auth::guard('candidate')->attempt($credentials, $remember)) {
+            // Retrieve the logged-in candidate's data
+            $candidate = Auth::guard('candidate')->user();
+
+            // Check if the candidate's current_stage_id is 1, and if so, update it to 2
+            if ($candidate->current_stage_id == 1) {
+                DB::table('candidates')
+                    ->where('id', $candidate->id)
+                    ->update(['current_stage_id' => 2]);
+            }
+
             return response()->json(['success' => true]);
         } else {
-            return response()->json(['success' => false, 'message' => 'NIK/Email or Password is incorrect']);
+            return response()->json(['success' => false, 'message' => 'Username or Password is incorrect']);
         }
     }
-
-
 
     public function proseslogout(){
         if(Auth::guard('karyawan')->check()){

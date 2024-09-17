@@ -90,7 +90,7 @@
                                                             <path d="M16 5l3 3" />
                                                         </svg>
                                                     </a>
-                                                    <form action="/recruitment/job/{{$d->id}}/delete" method="POST">
+                                                    <form action="/recruitment/jobs/{{$d->id}}/delete" method="POST">
                                                         @csrf
                                                         <a class="btn btn-danger btn-sm delete-confirm">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
@@ -146,7 +146,7 @@
                                 <span class="input-icon-addon">
                                 <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-text-wrap-disabled"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 6l10 0" /><path d="M4 18l10 0" /><path d="M4 12h17l-3 -3m0 6l3 -3" /></svg>
                                 </span>
-                                <input type="text" value="" class="form-control" name="description" id="description" placeholder="Long/Lang">
+                                <input type="text" value="" class="form-control" name="description" id="description" placeholder="Description">
                             </div>
                         </div>
                     </div>
@@ -214,7 +214,7 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit Candidate</h5>
+                <h5 class="modal-title">Edit Job</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="loadedJob">
@@ -236,7 +236,7 @@
             var id = $(this).attr('id');
             $.ajax({
                 type: 'POST',
-                url: '/recruitment/candidate/edit',
+                url: '/recruitment/jobs/edit',
                 cache: false,
                 data: {
                     _token: "{{ csrf_token();}}",

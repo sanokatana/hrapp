@@ -488,7 +488,7 @@
                 @endif
                 @if($userLevel !== 'Admin')
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{request()->is(['recruitment/dashboard','recruitment/pipeline', 'recruitment/candidate', 'recruitment', 'recruitment/jobs']) ? 'show' : ''}}" href="#navbar-base"
+                        <a class="nav-link dropdown-toggle {{request()->is(['recruitment/dashboard','recruitment/pipeline', 'recruitment/candidate', 'recruitment', 'recruitment/jobs', 'recruitment/stages']) ? 'show' : ''}}" href="#navbar-base"
                             data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
                             <span
                                 class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
@@ -508,7 +508,7 @@
                                 Recruitements
                             </span>
                         </a>
-                        <div class="dropdown-menu {{request()->is(['recruitment/dashboard','recruitment/pipeline', 'recruitment/candidate', 'recruitment', 'recruitment/jobs']) ? 'show' : ''}}">
+                        <div class="dropdown-menu {{request()->is(['recruitment/dashboard','recruitment/pipeline', 'recruitment/candidate', 'recruitment', 'recruitment/jobs', 'recruitment/stages']) ? 'show' : ''}}">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
                                     <a class="dropdown-item {{request()->is(['recruitment/dashboard']) ? 'active' : ''}}" href="/recruitment/dashboard">

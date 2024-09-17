@@ -304,14 +304,36 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
 
     //Recruitment - Candidate
     Route::get('/recruitment/candidate', [RecruitmentController::class, 'candidate']);
+    Route::post('/recruitment/candidate/store', [RecruitmentController::class, 'candidate_store']);
+    Route::post('/recruitment/candidate/edit', [RecruitmentController::class, 'candidate_edit']);
+    Route::post('/recruitment/candidate/{id}/update', [RecruitmentController::class, 'candidate_update']);
+    Route::post('/recruitment/candidate/{id}/delete', [RecruitmentController::class, 'candidate_delete']);
+    Route::post('/recruitment/candidate/{id}/next', [RecruitmentController::class, 'candidate_next']);
+    Route::post('/recruitment/candidate/{id}/reject', [RecruitmentController::class, 'candidate_reject']);
 
     //Recruitment - Candidate
     Route::get('/recruitment/jobs', [RecruitmentController::class, 'job_opening']);
     Route::post('/recruitment/jobs/store', [RecruitmentController::class, 'job_opening_store']);
+    Route::post('/recruitment/jobs/edit', [RecruitmentController::class, 'job_opening_edit']);
+    Route::post('/recruitment/jobs/{id}/update', [RecruitmentController::class, 'job_opening_update']);
+    Route::post('/recruitment/jobs/{id}/delete', [RecruitmentController::class, 'job_opening_delete']);
 
     //Recruitment - Types
     Route::get('/recruitment', [RecruitmentController::class, 'recruitment']);
     Route::post('/recruitment/store', [RecruitmentController::class, 'recruitment_store']);
+    Route::post('/recruitment/edit', [RecruitmentController::class, 'recruitment_edit']);
+    Route::post('/recruitment/{id}/update', [RecruitmentController::class, 'recruitment_update']);
+    Route::post('/recruitment/{id}/delete', [RecruitmentController::class, 'recruitment_delete']);
+
+    //Recruitment - Stages
+    Route::get('/recruitment/stages', [RecruitmentController::class, 'stage']);
+    Route::post('/recruitment/stages/store', [RecruitmentController::class, 'stage_store']);
+    Route::post('/recruitment/stages/edit', [RecruitmentController::class, 'stage_edit']);
+    Route::post('/recruitment/stages/{id}/update', [RecruitmentController::class, 'stage_update']);
+    Route::post('/recruitment/stages/{id}/delete', [RecruitmentController::class, 'stage_delete']);
+
+    //Recruitment - Pipeline
+    Route::get('/recruitment/pipeline', [RecruitmentController::class, 'pipeline']);
 });
 
 
