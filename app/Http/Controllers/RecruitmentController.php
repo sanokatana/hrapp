@@ -123,11 +123,12 @@ class RecruitmentController extends Controller
     }
 
     // Reject the candidate
-    public function candidate_reject($id)
+    public function candidate_reject($id, Request $request)
     {
         $candidate = Candidate::findOrFail($id);
 
         // Set the status to rejected
+        $candidate->reject_reason = $request->input('reject_reason');
         $candidate->status = 'rejected';
 
         // Save changes
@@ -135,6 +136,21 @@ class RecruitmentController extends Controller
 
         // Redirect with a success message
         return redirect()->back()->with('danger', 'Candidate has been rejected.');
+    }
+
+
+    public function candidate_back($id)
+    {
+        $candidate = Candidate::findOrFail($id);
+
+        // Increment the current_stage_id to move to the next stage
+        $candidate->current_stage_id -= 1;
+
+        // Save changes
+        $candidate->save();
+
+        // Redirect with a success message
+        return redirect()->back()->with('success', 'Candidate has been moved back a stage.');
     }
 
 
@@ -403,6 +419,54 @@ class RecruitmentController extends Controller
                 'stagesWithCandidates' => $stagesWithCandidates
             ];
         }
+
         return view("recruitment.pipeline.index", compact('recruitmentData'));
     }
+
+
+    public function candidate_interview_get(Request $request)
+    {
+        $id = $request->id;
+        $candidate = Candidate::find($id);
+
+        $job_opening = DB::table('job_openings')->where('id', $candidate->job_opening_id)->first();
+
+        $stage = DB::table('hiring_stages')->where('recruitment_type_id', $job_opening->recruitment_type_id)->get();
+
+        // Get the candidate's kode_dept
+        $kodeDept = DB::table('job_openings')->where('id', $candidate->job_opening_id)->value('kode_dept');
+
+        // Fetch interviewers only from the same department or from 'Management'
+        $interviewer = DB::table('karyawan')->whereIn('kode_dept', [$kodeDept, 'Management'])->get();
+
+        return view("recruitment.pipeline.interview", compact('stage', 'interviewer', 'id'));
+    }
+
+    public function candidate_interview(Request $request)
+    {
+        $id = $request->id;
+        $interview_date = $request->interview_date;
+        $interview_time = $request->interview_time;
+        $notes = $request->notes;
+        $interviewer = $request->interviewer;
+        $stage_id = $request->stage_id;
+        $data = [
+            'candidate_id' => $id,
+            'interview_date' => $interview_date,
+            'interview_time' => $interview_time,
+            'notes' => $notes,
+            'interviewer' => $interviewer,
+            'stage_id' => $stage_id
+        ];
+
+        $simpan = DB::table('interviews')
+            ->insert($data);
+        if ($simpan) {
+            DB::table('candidates')->where('id', $id)->update(['current_stage_id' => $stage_id]);
+            return Redirect::back()->with(['success' => 'Interview Berhasil Di Simpan']);
+        } else {
+            return Redirect::back()->with(['warning' => 'Interview Gagal Di Simpan']);
+        }
+    }
+
 }

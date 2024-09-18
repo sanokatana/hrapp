@@ -517,9 +517,19 @@
                                     <a class="dropdown-item {{request()->is(['recruitment/pipeline']) ? 'active' : ''}}" href="/recruitment/pipeline">
                                         Recruitement Pipeline
                                     </a>
-                                    <a class="dropdown-item {{request()->is(['recruitment/candidate']) ? 'active' : ''}}" href="/recruitment/candidate">
+                                    <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown"
+                                        data-bs-auto-close="false" role="button" aria-expanded="">
                                         Candidate
                                     </a>
+                                    <div
+                                        class="dropdown-menu {{request()->is(['recruitment/candidate/data', 'recruitment/candidate']) ? 'show' : ''}}">
+                                        <a class="dropdown-item {{request()->is(['recruitment/candidate']) ? 'active' : ''}}" href="/recruitment/candidate">
+                                            Candidate
+                                        </a>
+                                        <a class="dropdown-item {{request()->is(['recruitment/candidate/data']) ? 'active' : ''}}" href="/recruitment/candidate/data">
+                                            Candidate Data
+                                        </a>
+                                    </div>
                                     <a class="dropdown-item {{request()->is(['recruitment']) ? 'active' : ''}}" href="/recruitment">
                                         Recruitement
                                     </a>

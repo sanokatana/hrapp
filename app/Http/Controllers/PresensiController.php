@@ -214,7 +214,7 @@ class PresensiController extends Controller
             ->whereRaw('YEAR(tgl_izin) = ?', [$tahunini])
             ->get();
 
-            $historibulanini = DB::connection('mysql2')->table(DB::raw("(SELECT
+        $historibulanini = DB::connection('mysql2')->table(DB::raw("(SELECT
             DATE(scan_date) as tanggal,
             TIME(MIN(scan_date)) as jam_masuk,
             TIME(MAX(scan_date)) as jam_pulang,
@@ -394,7 +394,7 @@ class PresensiController extends Controller
         $files = Storage::files($folderPath);
 
         // Convert files to URLs
-        $fileUrls = array_map(function($file) {
+        $fileUrls = array_map(function ($file) {
             return Storage::url($file);
         }, $files);
 
@@ -610,23 +610,17 @@ class PresensiController extends Controller
         $tahunini = date("Y");
 
         // Get historical presensi data
-        $historibulanini = DB::table(DB::raw("(SELECT
-    DATE(tgl_presensi) as tanggal,
-    MIN(jam_in) as jam_masuk,
-    MAX(jam_in) as jam_pulang,
-    nip
-    FROM presensi
-    WHERE nip = ?
-        AND MONTH(tgl_presensi) = ?
-        AND YEAR(tgl_presensi) = ?
-    GROUP BY DATE(tgl_presensi), nip) as sub"))
-            ->leftJoin('presensi as p', function ($join) {
-                $join->on('sub.tanggal', '=', DB::raw('DATE(p.tgl_presensi)'))
-                    ->on('sub.nip', '=', 'p.nip')
-                    ->whereRaw('p.jam_in = sub.jam_masuk OR p.jam_in = sub.jam_pulang');
-            })
-            ->select('sub.tanggal', 'sub.jam_masuk', 'sub.jam_pulang', DB::raw('MAX(p.foto_in) as foto_in'), DB::raw('MAX(p.foto_out) as foto_out'))
-            ->groupBy('sub.tanggal', 'sub.jam_masuk', 'sub.jam_pulang')
+        $historibulanini = DB::connection('mysql2')->table(DB::raw("(SELECT
+            DATE(scan_date) as tanggal,
+            TIME(MIN(scan_date)) as jam_masuk,
+            TIME(MAX(scan_date)) as jam_pulang,
+            pin
+            FROM att_log
+            WHERE pin = ?
+            AND MONTH(scan_date) = ?
+            AND YEAR(scan_date) = ?
+            GROUP BY DATE(scan_date), pin) as sub"))
+            ->select('sub.tanggal', 'sub.jam_masuk', 'sub.jam_pulang')
             ->orderBy('sub.tanggal', 'asc')
             ->setBindings([$nip, $bulanini, $tahunini])
             ->get();

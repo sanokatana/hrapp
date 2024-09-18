@@ -4,6 +4,7 @@ use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CabangController;
+use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\CutiController;
 use App\Http\Controllers\DashboardController;
@@ -65,6 +66,8 @@ Route::middleware(['auth:candidate'])->group(function () {
 
     Route::get('/candidate/dashboard', [DashboardController::class, 'dashboardcandidate']);
     Route::get('/candidate/proseslogout', [AuthController::class, 'proseslogoutcandidate']);
+
+    Route::get('/candidate/data', [CandidateController::class, 'candidate_data']);
 
 });
 
@@ -310,6 +313,10 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::post('/recruitment/candidate/{id}/delete', [RecruitmentController::class, 'candidate_delete']);
     Route::post('/recruitment/candidate/{id}/next', [RecruitmentController::class, 'candidate_next']);
     Route::post('/recruitment/candidate/{id}/reject', [RecruitmentController::class, 'candidate_reject']);
+    Route::post('/recruitment/candidate/{id}/back', [RecruitmentController::class, 'candidate_back']);
+    Route::post('/recruitment/candidate/{id}/interview', [RecruitmentController::class, 'candidate_interview']);
+    Route::post('/recruitment/candidate/interview/get', [RecruitmentController::class, 'candidate_interview_get']);
+
 
     //Recruitment - Candidate
     Route::get('/recruitment/jobs', [RecruitmentController::class, 'job_opening']);
