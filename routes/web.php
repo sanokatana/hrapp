@@ -68,6 +68,8 @@ Route::middleware(['auth:candidate'])->group(function () {
     Route::get('/candidate/proseslogout', [AuthController::class, 'proseslogoutcandidate']);
 
     Route::get('/candidate/data', [CandidateController::class, 'candidate_data']);
+    Route::post('/candidate/data/store', [CandidateController::class, 'candidate_store']);
+
 
 });
 
