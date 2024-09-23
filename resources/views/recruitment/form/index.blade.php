@@ -520,13 +520,13 @@
                                         </thead>
                                         <tbody id="pekerjaan_table_body">
                                             <tr>
-                                                <td><input class="form-control" type="text" name="perusahaan[]"></td>
-                                                <td><input class="form-control" type="text" name="alamat[]"></td>
-                                                <td><input class="form-control" type="text" name="jabatan[]"></td>
-                                                <td><input class="form-control" type="date" name="dari[]"></td>
-                                                <td><input class="form-control" type="date" name="sampai[]"></td>
-                                                <td><input class="form-control" type="text" name="keterangan[]"></td>
-                                                <td><input class="form-control" type="text" name="alasan[]"></td>
+                                                <td><input class="form-control" type="text" name="pekerjaan_1_perusahaan"></td>
+                                                <td><input class="form-control" type="text" name="pekerjaan_1_alamat"></td>
+                                                <td><input class="form-control" type="text" name="pekerjaan_1_jabatan"></td>
+                                                <td><input class="form-control" type="date" name="pekerjaan_1_dari"></td>
+                                                <td><input class="form-control" type="date" name="pekerjaan_1_sampai"></td>
+                                                <td><input class="form-control" type="text" name="pekerjaan_1_keterangan"></td>
+                                                <td><input class="form-control" type="text" name="pekerjaan_1_alasan"></td>
                                                 <td><button type="button" class="btn btn-sm btn-success" id="add_pekerjaan_btn">+</button></td>
                                             </tr>
                                         </tbody>
@@ -568,39 +568,39 @@
                                         <tbody>
                                             <tr>
                                                 <td>Engineering</td>
-                                                <td><input class="form-control" type="text" name="engineering_no"></td>
+                                                <td><input class="form-control" type="number" name="engineering_no"></td>
                                                 <td>Accounting</td>
-                                                <td><input class="form-control" type="text" name="accounting_no"></td>
+                                                <td><input class="form-control" type="number" name="accounting_no"></td>
                                             </tr>
                                             <tr>
                                                 <td>Geologist</td>
-                                                <td><input class="form-control" type="text" name="geologist_no"></td>
+                                                <td><input class="form-control" type="number" name="geologist_no"></td>
                                                 <td>Administration</td>
-                                                <td><input class="form-control" type="text" name="administration_no"></td>
+                                                <td><input class="form-control" type="number" name="administration_no"></td>
                                             </tr>
                                             <tr>
                                                 <td>Agronomist</td>
-                                                <td><input class="form-control" type="text" name="agronomist_no"></td>
+                                                <td><input class="form-control" type="number" name="agronomist_no"></td>
                                                 <td>General Affair</td>
-                                                <td><input class="form-control" type="text" name="ga_no"></td>
+                                                <td><input class="form-control" type="number" name="ga_no"></td>
                                             </tr>
                                             <tr>
                                                 <td>Consultant/Riset</td>
-                                                <td><input class="form-control" type="text" name="consultant_no"></td>
+                                                <td><input class="form-control" type="number" name="consultant_no"></td>
                                                 <td>Personnel</td>
-                                                <td><input class="form-control" type="text" name="personnel_no"></td>
+                                                <td><input class="form-control" type="number" name="personnel_no"></td>
                                             </tr>
                                             <tr>
                                                 <td>Cashier</td>
-                                                <td><input class="form-control" type="text" name="cashier_no"></td>
+                                                <td><input class="form-control" type="number" name="cashier_no"></td>
                                                 <td>Finance</td>
-                                                <td><input class="form-control" type="text" name="finance_no"></td>
+                                                <td><input class="form-control" type="number" name="finance_no"></td>
                                             </tr>
                                             <tr>
                                                 <td>Humas</td>
-                                                <td><input class="form-control" type="text" name="humas_no"></td>
+                                                <td><input class="form-control" type="number" name="humas_no"></td>
                                                 <td>Driver</td>
-                                                <td><input class="form-control" type="text" name="driver_no"></td>
+                                                <td><input class="form-control" type="number" name="driver_no"></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -687,7 +687,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-5 col-form-label">1. Apakah Saudara bersedia menjalani masa percobaan</label>
                                 <div class="col-md-7">
-                                    <select class="form-select" name="masa_percobaan    ">
+                                    <select class="form-select" name="masa_percobaan">
                                         <option value="Ya">Ya</option>
                                         <option value="Tidak">Tidak</option>
                                     </select>
@@ -714,13 +714,13 @@
                             <!-- File Upload Section -->
                             <div class="row mb-4">
                                 <div class="col-4">
-                                    <input class="form-control" type="file" id="slip_gaji1" name="gambaran_posisi">
+                                    <input class="form-control" type="file" id="slip_gaji1" name="slip1">
                                 </div>
                                 <div class="col-4">
-                                    <input class="form-control" type="file" id="slip_gaji2" name="gambaran_posisi">
+                                    <input class="form-control" type="file" id="slip_gaji2" name="slip2">
                                 </div>
                                 <div class="col-4">
-                                    <input class="form-control" type="file" id="slip_gaji3" name="gambaran_posisi">
+                                    <input class="form-control" type="file" id="slip_gaji3" name="slip3">
                                 </div>
                             </div>
 
@@ -738,7 +738,7 @@
                                             <!-- Gaji Pokok -->
                                             <tr>
                                                 <td>Gaji Pokok</td>
-                                                <td><input class="form-control" type="text" name="gaji_pokok"></td>
+                                                <td><input class="form-control" type="number" name="gaji_pokok"></td>
                                             </tr>
                                             <!-- Tunjangan -->
                                             <tr>
@@ -746,48 +746,48 @@
                                             </tr>
                                             <tr>
                                                 <td><input type="text" class="form-control" name="tunjangan1"></td>
-                                                <td><input class="form-control" type="text" name="nilai_tunjangan1"></td>
+                                                <td><input class="form-control" type="number" name="nilai_tunjangan1"></td>
                                             </tr>
                                             <tr>
                                                 <td><input type="text" class="form-control" name="tunjangan2"></td>
-                                                <td><input class="form-control" type="text" name="nilai_tunjangan2"></td>
+                                                <td><input class="form-control" type="number" name="nilai_tunjangan2"></td>
                                             </tr>
                                             <tr>
                                                 <td><input type="text" class="form-control" name="tunjangan3"></td>
-                                                <td><input class="form-control" type="text" name="nilai_tunjangan3"></td>
+                                                <td><input class="form-control" type="number" name="nilai_tunjangan3"></td>
                                             </tr>
                                             <tr>
                                                 <td><input type="text" class="form-control" name="tunjangan4"></td>
-                                                <td><input class="form-control" type="text" name="nilai_tunjangan4"></td>
+                                                <td><input class="form-control" type="number" name="nilai_tunjangan4"></td>
                                             </tr>
                                             <tr>
                                                 <td><input type="text" class="form-control" name="tunjangan5"></td>
-                                                <td><input class="form-control" type="text" name="nilai_tunjangan5"></td>
+                                                <td><input class="form-control" type="number" name="nilai_tunjangan5"></td>
                                             </tr>
                                             <!-- Insentif -->
                                             <tr>
                                                 <td>Insentif</td>
-                                                <td><input class="form-control" type="text" name="nilai_insentif"></td>
+                                                <td><input class="form-control" type="number" name="nilai_insentif"></td>
                                             </tr>
                                             <!-- Lain-lain -->
                                             <tr>
                                                 <td>Lain-lain</td>
-                                                <td><input class="form-control" type="text" name="nilai_lain_lain"></td>
+                                                <td><input class="form-control" type="number" name="nilai_lain_lain"></td>
                                             </tr>
                                             <!-- Total Take Home Pay -->
                                             <tr>
                                                 <td>Total Take Home Pay / Bulan</td>
-                                                <td><input class="form-control" type="text" name="take_home_bulan"></td>
+                                                <td><input class="form-control" type="number" name="take_home_bulan"></td>
                                             </tr>
                                             <!-- Pendapatan per Tahun -->
                                             <tr>
                                                 <td>Pendapatan per Tahun (Termasuk THR)</td>
-                                                <td><input class="form-control" type="text" name="take_home_tahun"></td>
+                                                <td><input class="form-control" type="number" name="take_home_tahun"></td>
                                             </tr>
                                             <!-- Gaji per Tahun Bulan -->
                                             <tr>
                                                 <td>Gaji per Tahun Bulan</td>
-                                                <td><input class="form-control" type="text" name="bulan_gaji"></td>
+                                                <td><input class="form-control" type="number" name="bulan_gaji"></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -808,12 +808,12 @@
                                             <!-- Take Home Pay / Bulan -->
                                             <tr>
                                                 <td>Take Home Pay / Bulan</td>
-                                                <td><input class="form-control" type="text" name="harap_take_home_bulan"></td>
+                                                <td><input class="form-control" type="number" name="harap_take_home_bulan"></td>
                                             </tr>
                                             <!-- Pendapatan per Tahun -->
                                             <tr>
                                                 <td>Pendapatan per Tahun (Bersih/Kotor)</td>
-                                                <td><input class="form-control" type="text" name="harap_take_home_tahun"></td>
+                                                <td><input class="form-control" type="number" name="harap_take_home_tahun"></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -1014,14 +1014,15 @@
             const tableBody = document.getElementById('pekerjaan_table_body');
             const newRow = document.createElement('tr');
 
+            newRow.id = 'row_' + pekerjaanCount;
             newRow.innerHTML = `
-            <td><input class="form-control" type="text" name="perusahaan[]"></td>
-            <td><input class="form-control" type="text" name="alamat[]"></td>
-            <td><input class="form-control" type="text" name="jabatan[]"></td>
-            <td><input class="form-control" type="date" name="dari[]"></td>
-            <td><input class="form-control" type="date" name="sampai[]"></td>
-            <td><input class="form-control" type="text" name="keterangan[]"></td>
-            <td><input class="form-control" type="text" name="alasan[]"></td>
+            <td><input class="form-control" type="text" name="pekerjaan_${pekerjaanCount}_perusahaan"></td>
+            <td><input class="form-control" type="text" name="pekerjaan_${pekerjaanCount}_alamat"></td>
+            <td><input class="form-control" type="text" name="pekerjaan_${pekerjaanCount}_jabatan"></td>
+            <td><input class="form-control" type="date" name="pekerjaan_${pekerjaanCount}_dari"></td>
+            <td><input class="form-control" type="date" name="pekerjaan_${pekerjaanCount}_sampai"></td>
+            <td><input class="form-control" type="text" name="pekerjaan_${pekerjaanCount}_keterangan"></td>
+            <td><input class="form-control" type="text" name="pekerjaan_${pekerjaanCount}_alasan"></td>
             <td><button type="button" class="btn btn-sm btn-danger" onclick="removeRow(this)">-</button></td>
         `;
 

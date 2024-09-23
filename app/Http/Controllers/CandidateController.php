@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCandidateRequest;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 
 class CandidateController extends Controller
 {
@@ -22,8 +24,75 @@ class CandidateController extends Controller
         $data = $request->validated();
 
         // Add candidate_id manually
-        $candidateId = Auth::guard('candidate')->user()->id;
+        $candidate = Auth::guard('candidate')->user();
+        $candidateId = $candidate->id;
+        $candidateUser = $candidate->nama_candidate;
         $data['candidate_id'] = $candidateId;
+
+        $folderPath = "public/uploads/candidate/{$candidateId}.{$candidateUser}/";
+
+        // Check if the folder exists, create it if not
+        if (!Storage::exists($folderPath)) {
+            Storage::makeDirectory($folderPath);
+        }
+
+        $currentDate = Carbon::now();
+
+        // Handle the file upload
+        if ($request->hasFile('gambaran_posisi')) {
+            $file = $request->file('gambaran_posisi');
+            $extension = $file->getClientOriginalExtension();
+
+            // Generate a unique file name
+            $fileName = $candidateId . "_" . $candidateUser . "_" . $currentDate->format('d_m_Y') . "_" . uniqid() . "." . $extension;
+
+            // Store the file in the defined folder
+            $file->storeAs($folderPath, $fileName);
+
+            // Assign the file name to the gambaran_posisi field
+            $data['gambaran_posisi'] = $fileName;
+        } else {
+            $data['gambaran_posisi'] = "No_Document"; // Handle the case where no file is uploaded
+        }
+
+        // Handle the upload for 'slip1'
+        if ($request->hasFile('slip1')) {
+            $file = $request->file('slip1');
+            $extension = $file->getClientOriginalExtension();
+
+            $fileName = "Slip1_" . $candidateId . "_" . $currentDate->format('d_m_Y') . "_" . uniqid() . "." . $extension;
+
+            $file->storeAs($folderPath, $fileName);
+            $data['slip1'] = $fileName;
+        } else {
+            $data['slip1'] = "No_Document";
+        }
+
+        // Handle the upload for 'slip2'
+        if ($request->hasFile('slip2')) {
+            $file = $request->file('slip2');
+            $extension = $file->getClientOriginalExtension();
+
+            $fileName = "Slip2_" . $candidateId . "_" . $currentDate->format('d_m_Y') . "_" . uniqid() . "." . $extension;
+
+            $file->storeAs($folderPath, $fileName);
+            $data['slip2'] = $fileName;
+        } else {
+            $data['slip2'] = "No_Document";
+        }
+
+        // Handle the upload for 'slip3'
+        if ($request->hasFile('slip3')) {
+            $file = $request->file('slip3');
+            $extension = $file->getClientOriginalExtension();
+
+            $fileName = "Slip3_" . $candidateId . "_" . $currentDate->format('d_m_Y') . "_" . uniqid() . "." . $extension;
+
+            $file->storeAs($folderPath, $fileName);
+            $data['slip3'] = $fileName;
+        } else {
+            $data['slip3'] = "No_Document";
+        }
 
         DB::beginTransaction();
 
@@ -131,7 +200,7 @@ class CandidateController extends Controller
                 DB::table('candidate_data_keluarga')->insert($familyDataKeluarga);
             }
 
-            foreach(['Dasar', 'SLTP', 'SLTA', 'Diploma', 'Strata I', 'Strata II', 'Lain-Lain'] as $index => $level) {
+            foreach (['Dasar', 'SLTP', 'SLTA', 'Diploma', 'Strata I', 'Strata II', 'Lain-Lain'] as $index => $level) {
                 // Retrieve input data for the current index
                 $namaSekolah = $request->input('nama_sekolah_' . $index);
                 $tempatSekolah = $request->input('tempat_sekolah_' . $index);
@@ -184,6 +253,62 @@ class CandidateController extends Controller
                     'tahun' => $kursus['tahun'] ?? null,
                     'dibiayai_oleh' => $kursus['dibiayai'] ?? null,
                     'keterangan' => $kursus['keterangan'] ?? null,
+                ]);
+            }
+
+            $languageData = [];
+
+            foreach ($request->all() as $key => $value) {
+                if (strpos($key, 'language_') === 0) {
+                    $parts = explode('_', $key);
+                    $index = $parts[1];
+                    $field = $parts[2];
+
+                    if (!isset($languageData[$index])) {
+                        $languageData[$index] = [];
+                    }
+
+                    $languageData[$index][$field] = $value;
+                }
+            }
+
+            foreach ($languageData as $index => $language) {
+                DB::table('candidate_data_bahasa')->insert([
+                    'candidate_data_id' => $candidateDataId,
+                    'bahasa' => $language['bahasa'] ?? null,
+                    'bicara' => $language['bicara'] ?? null,
+                    'baca' => $language['baca'] ?? null,
+                    'tulis' => $language['tulis'] ?? null,
+                    'steno_wpm' => $language['steno_wpm'] ?? null,
+                ]);
+            }
+
+            $kerjaData = [];
+
+            foreach ($request->all() as $key => $value) {
+                if (strpos($key, 'pekerjaan_') === 0) {
+                    $parts = explode('_', $key);
+                    $index = $parts[1];
+                    $field = $parts[2];
+
+                    if (!isset($kerjaData[$index])) {
+                        $kerjaData[$index] = [];
+                    }
+
+                    $kerjaData[$index][$field] = $value;
+                }
+            }
+
+            foreach ($kerjaData as $index => $kerja) {
+                DB::table('candidate_data_pekerjaan')->insert([
+                    'candidate_data_id' => $candidateDataId,
+                    'perusahaan' => $kerja['perusahaan'] ?? null,
+                    'alamat' => $kerja['alamat'] ?? null,
+                    'jabatan' => $kerja['jabatan'] ?? null,
+                    'dari' => $kerja['dari'] ?? null,
+                    'sampai' => $kerja['sampai'] ?? null,
+                    'keterangan' => $kerja['keterangan'] ?? null,
+                    'alasan' => $kerja['alasan'] ?? null,
                 ]);
             }
 
