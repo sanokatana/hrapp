@@ -15,7 +15,12 @@ class CandidateController extends Controller
 {
     public function candidate_data()
     {
-        return view("recruitment.form.index");
+
+        $candidate = Auth::guard('candidate')->user();
+        $candidateId = $candidate->id;
+        $candidateData = DB::table('candidate_data')->where('candidate_id', $candidateId)->first();
+
+        return view("recruitment.form.index", compact('candidateData','candidateId'));
     }
 
     public function candidate_store(StoreCandidateRequest $request)

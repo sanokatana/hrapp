@@ -45,16 +45,16 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <form action="/candidate/data/store" method="POST">
+                        <form action="{{ $candidateData ? url('/candidate/data/update') : url('/candidate/data/store') }}" method="POST" id="formCandidate">
                             @csrf
                             <h2>A. IDENTITAS</h2>
-                            <input type="hidden" id="sibling_count" name="sibling_count" value="1">
+                            <input type="hidden" id="candidate_id" name="candidate_id" value="{{$candidateId}}">
 
                             <!-- Nama Lengkap -->
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Nama Lengkap</label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="nama_lengkap" id="nama_lengkap" placeholder="Nama Lengkap">
+                                    <input type="text" value="{{ $candidateData ? $candidateData->nama_lengkap : '' }}" class="form-control" name="nama_lengkap" id="nama_lengkap" placeholder="Nama Lengkap">
                                 </div>
                             </div>
 
@@ -62,7 +62,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Nama Kecil/Panggilan</label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="nama_panggilan" id="nama_panggilan" placeholder="Nama Panggilan">
+                                    <input type="text" value="{{ $candidateData ? $candidateData->nama_panggilan : '' }}" class="form-control" name="nama_panggilan" id="nama_panggilan" placeholder="Nama Panggilan">
                                 </div>
                             </div>
 
@@ -71,21 +71,24 @@
                                 <label class="col-md-3 col-form-label">Jenis Kelamin</label>
                                 <div class="col-md-9">
                                     <select class="form-select" name="jenis">
-                                        <option value="Laki-laki">Laki-laki</option>
-                                        <option value="Perempuan">Perempuan</option>
+                                        <option value="">Pilih</option>
+                                        <option value="Laki-laki" {{ (isset($candidateData) && $candidateData->jenis == 'Laki-laki') ? 'selected' : '' }}>Laki-laki</option>
+                                        <option value="Perempuan" {{ (isset($candidateData) && $candidateData->jenis == 'Perempuan') ? 'selected' : '' }}>Perempuan</option>
                                     </select>
                                 </div>
                             </div>
+
 
                             <!-- Golongan Darah -->
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Golongan Darah</label>
                                 <div class="col-md-9">
                                     <select class="form-select" name="gol_darah">
-                                        <option value="A">A</option>
-                                        <option value="B">B</option>
-                                        <option value="AB">AB</option>
-                                        <option value="O">O</option>
+                                        <option value="">Pilih</option>
+                                        <option value="A" {{ (isset($candidateData) && $candidateData->gol_darah == 'A') ? 'selected' : '' }}>A</option>
+                                        <option value="B" {{ (isset($candidateData) && $candidateData->gol_darah == 'B') ? 'selected' : '' }}>B</option>
+                                        <option value="AB" {{ (isset($candidateData) && $candidateData->gol_darah == 'AB') ? 'selected' : '' }}>AB</option>
+                                        <option value="O" {{ (isset($candidateData) && $candidateData->gol_darah == 'O') ? 'selected' : '' }}>O</option>
                                     </select>
                                 </div>
                             </div>
@@ -94,7 +97,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Tempat/Tgl Lahir</label>
                                 <div class="col-md-9">
-                                    <input type="date" class="form-control" name="tgl_lahir">
+                                    <input type="date" value="{{ $candidateData ? $candidateData->tgl_lahir : '' }}" class="form-control" name="tgl_lahir">
                                 </div>
                             </div>
 
@@ -102,7 +105,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Warga Negara</label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="warga_negara" placeholder="Warga Negara">
+                                    <input type="text" value="{{ $candidateData ? $candidateData->warga_negara : '' }}" class="form-control" name="warga_negara" placeholder="Warga Negara">
                                 </div>
                             </div>
 
@@ -110,15 +113,16 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Alamat Rumah</label>
                                 <div class="col-md-9">
-                                    <textarea class="form-control" name="alamat_rumah" rows="2" placeholder="Alamat Rumah"></textarea>
+                                    <textarea class="form-control" name="alamat_rumah" rows="2" placeholder="Alamat Rumah">{{ $candidateData ? $candidateData->alamat_rumah : '' }}</textarea>
                                 </div>
                             </div>
+
 
                             <!-- Telpon Rumah/HP -->
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Telpon Rumah/HP</label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="telp_rumah_hp" placeholder="Telpon Rumah/HP">
+                                    <input type="text" value="{{ $candidateData ? $candidateData->telp_rumah_hp : '' }}" class="form-control" name="telp_rumah_hp" placeholder="Telpon Rumah/HP">
                                 </div>
                             </div>
 
@@ -126,7 +130,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">No. KTP/SIM</label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="no_ktp_sim" placeholder="No. KTP/SIM">
+                                    <input type="text" value="{{ $candidateData ? $candidateData->no_ktp_sim : '' }}" class="form-control" name="no_ktp_sim" placeholder="No. KTP/SIM">
                                 </div>
                             </div>
 
@@ -134,7 +138,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Tgl Berlaku KTP/SIM</label>
                                 <div class="col-md-9">
-                                    <input type="date" class="form-control" name="tgl_ktp_sim">
+                                    <input type="date" value="{{ $candidateData ? $candidateData->tgl_ktp_sim : '' }}" class="form-control" name="tgl_ktp_sim">
                                 </div>
                             </div>
 
@@ -142,7 +146,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">No. NPWP</label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="no_npwp" placeholder="No. NPWP">
+                                    <input type="text" value="{{ $candidateData ? $candidateData->no_npwp : '' }}" class="form-control" name="no_npwp" placeholder="No. NPWP">
                                 </div>
                             </div>
 
@@ -150,7 +154,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Alamat NPWP</label>
                                 <div class="col-md-9">
-                                    <textarea class="form-control" name="alamat_npwp" rows="2" placeholder="Alamat NPWP"></textarea>
+                                    <textarea class="form-control" name="alamat_npwp" rows="2" placeholder="Alamat NPWP">{{ $candidateData ? $candidateData->alamat_npwp : '' }}</textarea>
                                 </div>
                             </div>
 
@@ -159,23 +163,25 @@
                                 <label class="col-md-3 col-form-label">Status Keluarga</label>
                                 <div class="col-md-9">
                                     <select class="form-select" name="status_keluarga" id="status_keluarga">
-                                        <option value="TK">TK (Tidak Kawin)</option>
-                                        <option value="TK1">TK1</option>
-                                        <option value="TK2">TK2</option>
-                                        <option value="TK3">TK3</option>
-                                        <option value="M">M (Menikah)</option>
-                                        <option value="M1">M1</option>
-                                        <option value="M2">M2</option>
-                                        <option value="M3">M3</option>
+                                        <option value="">Pilih</option>
+                                        <option value="TK" {{ (isset($candidateData) && $candidateData->status_keluarga == 'TK') ? 'selected' : '' }}>TK (Tidak Kawin)</option>
+                                        <option value="TK1" {{ (isset($candidateData) && $candidateData->status_keluarga == 'TK1') ? 'selected' : '' }}>TK1</option>
+                                        <option value="TK2" {{ (isset($candidateData) && $candidateData->status_keluarga == 'TK2') ? 'selected' : '' }}>TK2</option>
+                                        <option value="TK3" {{ (isset($candidateData) && $candidateData->status_keluarga == 'TK3') ? 'selected' : '' }}>TK3</option>
+                                        <option value="M" {{ (isset($candidateData) && $candidateData->status_keluarga == 'M') ? 'selected' : '' }}>M (Menikah)</option>
+                                        <option value="M1" {{ (isset($candidateData) && $candidateData->status_keluarga == 'M1') ? 'selected' : '' }}>M1</option>
+                                        <option value="M2" {{ (isset($candidateData) && $candidateData->status_keluarga == 'M2') ? 'selected' : '' }}>M2</option>
+                                        <option value="M3" {{ (isset($candidateData) && $candidateData->status_keluarga == 'M3') ? 'selected' : '' }}>M3</option>
                                     </select>
                                 </div>
                             </div>
+
 
                             <!-- Tanggal Menikah -->
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Tanggal Menikah</label>
                                 <div class="col-md-9">
-                                    <input type="date" class="form-control" name="tgl_menikah">
+                                    <input type="date"value="{{ $candidateData ? $candidateData->tgl_menikah : '' }}"  class="form-control" name="tgl_menikah">
                                 </div>
                             </div>
 
@@ -183,7 +189,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Jabatan saat ini</label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="jabatan" placeholder="Jabatan saat ini">
+                                    <input type="text" value="{{ $candidateData ? $candidateData->jabatan : '' }}" class="form-control" name="jabatan" placeholder="Jabatan saat ini">
                                 </div>
                             </div>
 
@@ -191,7 +197,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Nama Perusahaan</label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="nama_perusahaan" placeholder="Nama Perusahaan">
+                                    <input type="text" value="{{ $candidateData ? $candidateData->nama_perusahaan : '' }}" class="form-control" name="nama_perusahaan" placeholder="Nama Perusahaan">
                                 </div>
                             </div>
 
@@ -199,7 +205,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Alamat Perusahaan</label>
                                 <div class="col-md-9">
-                                    <textarea class="form-control" name="alamat_perusahaan" rows="2" placeholder="Alamat Perusahaan"></textarea>
+                                    <textarea class="form-control" name="alamat_perusahaan" rows="2" placeholder="Alamat Perusahaan">{{ $candidateData ? $candidateData->alamat_perusahaan : '' }}</textarea>
                                 </div>
                             </div>
 
@@ -207,7 +213,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Alamat Email</label>
                                 <div class="col-md-9">
-                                    <input type="email" class="form-control" name="alamat_email" placeholder="Alamat Email">
+                                    <input type="email" value="{{ $candidateData ? $candidateData->alamat_email : '' }}" class="form-control" name="alamat_email" placeholder="Alamat Email">
                                 </div>
                             </div>
 
@@ -354,6 +360,7 @@
                                 <label class="col-md-5 col-form-label">Apakah rumah status yang Saudara tempati saat ini:</label>
                                 <div class="col-md-7">
                                     <select class="form-select" name="rumah_status">
+                                        <option value="">Pilih</option>
                                         <option value="Rumah Pribadi">Rumah Pribadi</option>
                                         <option value="Orang Tua">Orang Tua</option>
                                         <option value="Kontrak">Kontrak</option>
@@ -471,9 +478,10 @@
                                         </thead>
                                         <tbody id="bahasa_table_body">
                                             <tr>
-                                                <td><input class="form-control" type="text" name="language_1_bahasa"></td>
+                                                <td><input class="form-control" type="text" name="language_1_bahasa" value="English"></td>
                                                 <td>
                                                     <select class="form-select" name="language_1_bicara">
+                                                        <option value="">Pilih</option>
                                                         <option value="Baik">Baik</option>
                                                         <option value="Cukup">Cukup</option>
                                                         <option value="Kurang">Kurang</option>
@@ -481,6 +489,7 @@
                                                 </td>
                                                 <td>
                                                     <select class="form-select" name="language_1_baca">
+                                                        <option value="">Pilih</option>
                                                         <option value="Baik">Baik</option>
                                                         <option value="Cukup">Cukup</option>
                                                         <option value="Kurang">Kurang</option>
@@ -488,6 +497,7 @@
                                                 </td>
                                                 <td>
                                                     <select class="form-select" name="language_1_tulis">
+                                                        <option value="">Pilih</option>
                                                         <option value="Baik">Baik</option>
                                                         <option value="Cukup">Cukup</option>
                                                         <option value="Kurang">Kurang</option>
@@ -868,27 +878,67 @@
         document.getElementById('row_anak2').style.display = 'none';
         document.getElementById('row_anak3').style.display = 'none';
 
-        // Show rows based on selected status
+        // Reset all required attributes
+        document.querySelectorAll('#row_istri input, #row_anak1 input, #row_anak2 input, #row_anak3 input').forEach(function(input) {
+            input.required = false;
+        });
+
+        // Show the table if any family members are required
+        let shouldShowTable = false;
+
+        // Handle spouse visibility and required attribute
         if (status.startsWith('M')) {
             document.getElementById('row_istri').style.display = 'table-row'; // show spouse
-            document.getElementById('table_keluarga').style.display = 'table-row'; // show spouse
+            shouldShowTable = true;
+
+            // Make spouse fields required
+            document.querySelectorAll('#row_istri input').forEach(function(input) {
+                input.required = true;
+            });
         }
+
+        // Handle anak1 visibility and required attribute
         if (status.includes('1')) {
             document.getElementById('row_anak1').style.display = 'table-row'; // show first child
-            document.getElementById('table_keluarga').style.display = 'table-row'; // show spouse
+            shouldShowTable = true;
+
+            // Make anak1 fields required
+            document.querySelectorAll('#row_anak1 input').forEach(function(input) {
+                input.required = true;
+            });
         }
+
+        // Handle anak2 visibility and required attributex
         if (status.includes('2')) {
             document.getElementById('row_anak1').style.display = 'table-row'; // ensure first child is shown
             document.getElementById('row_anak2').style.display = 'table-row'; // show second child
-            document.getElementById('table_keluarga').style.display = 'table-row'; // show spouse
+            shouldShowTable = true;
+
+            // Make anak1 and anak2 fields required
+            document.querySelectorAll('#row_anak1 input, #row_anak2 input').forEach(function(input) {
+                input.required = true;
+            });
         }
+
+        // Handle anak3 visibility and required attribute
         if (status.includes('3')) {
             document.getElementById('row_anak1').style.display = 'table-row'; // ensure first child is shown
             document.getElementById('row_anak2').style.display = 'table-row'; // ensure second child is shown
             document.getElementById('row_anak3').style.display = 'table-row'; // show third child
-            document.getElementById('table_keluarga').style.display = 'table-row'; // show spouse
+            shouldShowTable = true;
+
+            // Make anak1, anak2, and anak3 fields required
+            document.querySelectorAll('#row_anak1 input, #row_anak2 input, #row_anak3 input').forEach(function(input) {
+                input.required = true;
+            });
+        }
+
+        // If any row is shown, display the table
+        if (shouldShowTable) {
+            document.getElementById('table_keluarga').style.display = 'block';
         }
     });
+
 
     // Trigger change event on page load to set initial table visibility
     document.getElementById('status_keluarga').dispatchEvent(new Event('change'));
@@ -974,6 +1024,7 @@
             <td><input class="form-control" type="text" name="language_${bahasaCount}_bahasa"></td>
             <td>
                 <select class="form-select" name="language_${bahasaCount}_bicara">
+                    <option value="">Pilih</option>
                     <option value="Baik">Baik</option>
                     <option value="Cukup">Cukup</option>
                     <option value="Kurang">Kurang</option>
@@ -981,6 +1032,7 @@
             </td>
             <td>
                 <select class="form-select" name="language_${bahasaCount}_baca">
+                    <option value="">Pilih</option>
                     <option value="Baik">Baik</option>
                     <option value="Cukup">Cukup</option>
                     <option value="Kurang">Kurang</option>
@@ -988,6 +1040,7 @@
             </td>
             <td>
                 <select class="form-select" name="language_${bahasaCount}_tulis">
+                    <option value="">Pilih</option>
                     <option value="Baik">Baik</option>
                     <option value="Cukup">Cukup</option>
                     <option value="Kurang">Kurang</option>
@@ -1033,6 +1086,265 @@
             // Remove the row when the "-" button is clicked
             button.closest('tr').remove();
         }
+    });
+    $(function() {
+        $('#formCandidate').submit(function(event) {
+            event.preventDefault(); // Prevent the form from submitting by default
+
+            var fields = [
+                // Existing fields
+                {
+                    id: '#nama_lengkap',
+                    message: 'Nama Lengkap Harus Diisi'
+                },
+                {
+                    id: '#nama_panggilan',
+                    message: 'Nama Panggilan Harus Diisi'
+                },
+                {
+                    id: 'select[name="jenis"]',
+                    message: 'Jenis Kelamin Harus Diisi'
+                },
+                {
+                    id: 'select[name="gol_darah"]',
+                    message: 'Golongan Darah Harus Diisi'
+                },
+                {
+                    id: 'input[name="tgl_lahir"]',
+                    message: 'Tanggal Lahir Harus Diisi'
+                },
+                {
+                    id: 'input[name="warga_negara"]',
+                    message: 'Warga Negara Harus Diisi'
+                },
+                {
+                    id: 'textarea[name="alamat_rumah"]',
+                    message: 'Alamat Rumah Harus Diisi'
+                },
+                {
+                    id: 'input[name="telp_rumah_hp"]',
+                    message: 'Telpon Rumah/HP Harus Diisi'
+                },
+                {
+                    id: 'input[name="no_ktp_sim"]',
+                    message: 'No. KTP/SIM Harus Diisi'
+                },
+                {
+                    id: 'input[name="tgl_ktp_sim"]',
+                    message: 'Tanggal Berlaku KTP/SIM Harus Diisi'
+                },
+                {
+                    id: 'input[name="no_npwp"]',
+                    message: 'No. NPWP Harus Diisi'
+                },
+                {
+                    id: 'textarea[name="alamat_npwp"]',
+                    message: 'Alamat NPWP Harus Diisi'
+                },
+                {
+                    id: 'select[name="status_keluarga"]',
+                    message: 'Status Keluarga Harus Diisi'
+                },
+                {
+                    id: 'input[name="tgl_menikah"]',
+                    message: 'Tanggal Menikah Harus Diisi'
+                },
+                {
+                    id: 'input[name="jabatan"]',
+                    message: 'Jabatan Saat Ini Harus Diisi'
+                },
+                {
+                    id: 'input[name="nama_perusahaan"]',
+                    message: 'Nama Perusahaan Harus Diisi'
+                },
+                {
+                    id: 'textarea[name="alamat_perusahaan"]',
+                    message: 'Alamat Perusahaan Harus Diisi'
+                },
+                {
+                    id: 'input[name="alamat_email"]',
+                    message: 'Alamat Email Harus Diisi'
+                },
+
+                // New family fields
+                {
+                    id: 'input[name="family1_nama_lengkap_ayah"]',
+                    message: 'Nama Lengkap Ayah Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_jenis_ayah"]',
+                    message: 'Jenis Kelamin Ayah Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_tgl_lahir_ayah"]',
+                    message: 'Tanggal Lahir Ayah Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_pendidikan_ayah"]',
+                    message: 'Pendidikan Ayah Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_pekerjaan_ayah"]',
+                    message: 'Pekerjaan Ayah Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_keterangan_ayah"]',
+                    message: 'Keterangan Ayah Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_nama_lengkap_ibu"]',
+                    message: 'Nama Lengkap Ibu Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_jenis_ibu"]',
+                    message: 'Jenis Kelamin Ibu Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_tgl_lahir_ibu"]',
+                    message: 'Tanggal Lahir Ibu Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_pendidikan_ibu"]',
+                    message: 'Pendidikan Ibu Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_pekerjaan_ibu"]',
+                    message: 'Pekerjaan Ibu Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_keterangan_ibu"]',
+                    message: 'Keterangan Ibu Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_nama_lengkap_anak1"]',
+                    message: 'Nama Lengkap Anak ke-1 Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_jenis_anak1"]',
+                    message: 'Jenis Kelamin Anak ke-1 Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_tgl_lahir_anak1"]',
+                    message: 'Tanggal Lahir Anak ke-1 Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_pendidikan_anak1"]',
+                    message: 'Pendidikan Anak ke-1 Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_pekerjaan_anak1"]',
+                    message: 'Pekerjaan Anak ke-1 Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_keterangan_anak1"]',
+                    message: 'Keterangan Anak ke-1 Harus Diisi'
+                },
+                {
+                    id: 'select[name="tanggung_jawab"]',
+                    message: 'Tanggung Jawab Harus Diisi'
+                },
+                {
+                    id: 'select[name="rumah_status"]',
+                    message: 'Status Rumah Harus Diisi'
+                },
+                {
+                    id: 'input[name="melanjut_pendidikan"]',
+                    message: 'Perlanjutan Pendidikan Harus Diisi'
+                },
+                {
+                    id: 'input[name="language_1_bahasa"]',
+                    message: 'Bahasa Inggris Harus Diisi'
+                },
+                {
+                    id: 'select[name="language_1_bicara"]',
+                    message: 'Bicara Bahasa Harus Diisi'
+                },
+                {
+                    id: 'select[name="language_1_baca"]',
+                    message: 'Bicara Bahasa Harus Diisi'
+                },
+                {
+                    id: 'select[name="language_1_tulis"]',
+                    message: 'Tulis Bahasa Harus Diisi'
+                },
+                {
+                    id: 'input[name="language_1_steno_wpm"]',
+                    message: 'Steno Inggris Harus Diisi'
+                },
+                {
+                    id: 'textarea[name="alasan_pekerjaan_terakhir"]',
+                    message: 'Alasan Meninggalkan Pekerjaan Terakhir Harus Diisi'
+                },
+                {
+                    id: 'textarea[name="uraian_pekerjaan_terakhir"]',
+                    message: 'Uraian Pekejeraan Jabatan Terakhir Harus Diisi'
+                },
+                {
+                    id: 'textarea[name="saudara_pekerjaan"]',
+                    message: 'Saudara Melamar Harus Diisi'
+                },
+                {
+                    id: 'textarea[name="organisasi"]',
+                    message: 'Organisasi Harus Diisi'
+                },
+                {
+                    id: 'input[name="em_nama"]',
+                    message: 'Nama Emergency Harus Diisi'
+                },
+                {
+                    id: 'input[name="em_alamat"]',
+                    message: 'Alamat Emergency Harus Diisi'
+                },
+                {
+                    id: 'input[name="em_telp"]',
+                    message: 'Telpon Emergency Harus Diisi'
+                },
+                {
+                    id: 'input[name="em_status"]',
+                    message: 'Hubungan Emergency Harus Diisi'
+                },
+                {
+                    id: 'textarea[name="sakit_lama"]',
+                    message: 'Saudara Pernah Menderita Sakit Yang Lama Harus Diisi'
+                },
+                {
+                    id: '#gambaran_posisi',
+                    message: 'Upload Gambaran Posisi Harus Diisi'
+                },
+                {
+                    id: 'select[name="masa_percobaan"]',
+                    message: 'Masa Percobaan Harus Diisi'
+                },
+                {
+                    id: 'select[name="proses_bi"]',
+                    message: 'Proses BI Harus Diisi'
+                },
+                {
+                    id: 'input[name="mulai_kerja"]',
+                    message: 'Mulai Kerja Harus Diisi'
+                },
+            ];
+
+            // Validate all fields
+            for (let i = 0; i < fields.length; i++) {
+                var field = fields[i];
+                if ($(field.id).val() === "") {
+                    Swal.fire({
+                        title: 'Warning!',
+                        text: field.message,
+                        icon: 'warning',
+                        confirmButtonText: 'Ok'
+                    }).then(() => {
+                        $(field.id).focus();
+                    });
+                    return false; // Stop the form submission and show the alert
+                }
+            }
+
+            // If all fields are filled, allow the form to be submitted
+            this.submit();
+        });
+
     });
 </script>
 @endpush
