@@ -15,13 +15,47 @@ class CandidateController extends Controller
 {
     public function candidate_data()
     {
-
+        // Get the currently authenticated candidate
         $candidate = Auth::guard('candidate')->user();
         $candidateId = $candidate->id;
+
+        // Check if candidate data exists
         $candidateData = DB::table('candidate_data')->where('candidate_id', $candidateId)->first();
 
-        return view("recruitment.form.index", compact('candidateData','candidateId'));
+        // If candidateData exists, return 'recruitment.form.view' view
+        if ($candidateData) {
+            // Get all records from candidate_data_keluarga related to the candidateData's id
+            $candidateFamilyData = DB::table('candidate_data_keluarga')
+                ->where('candidate_data_id', $candidateData->id)
+                ->get();
+
+            $candidateFamilyDataSendiri = DB::table('candidate_data_keluarga_sendiri')
+                ->where('candidate_data_id', $candidateData->id)
+                ->get();
+
+            $candidatePendidikan = DB::table('candidate_data_pendidikan')
+                ->where('candidate_data_id', $candidateData->id)
+                ->get();
+
+            $candidateKursus = DB::table('candidate_data_kursus')
+                ->where('candidate_data_id', $candidateData->id)
+                ->get();
+
+            $candidateBahasa = DB::table('candidate_data_bahasa')
+                ->where('candidate_data_id', $candidateData->id)
+                ->get();
+
+            $candidatePekerjaan = DB::table('candidate_data_pekerjaan')
+                ->where('candidate_data_id', $candidateData->id)
+                ->get();
+            // Return the 'recruitment.form.view' view along with candidate data and family data
+            return view('recruitment.form.view', compact('candidateData', 'candidateFamilyData', 'candidatePekerjaan', 'candidateId', 'candidateFamilyDataSendiri', 'candidateBahasa', 'candidatePendidikan', 'candidateKursus'));
+        }
+
+        // Otherwise, return 'recruitment.form.index' view
+        return view('recruitment.form.index', compact('candidateId'));
     }
+
 
     public function candidate_store(StoreCandidateRequest $request)
     {
@@ -31,6 +65,9 @@ class CandidateController extends Controller
         // Add candidate_id manually
         $candidate = Auth::guard('candidate')->user();
         $candidateId = $candidate->id;
+        $jobOpeningId = $candidate->job_opening_id;
+        $jobOpening = DB::table('job_openings')->where('id', $jobOpeningId)->first();
+        $recruitmentTypeId = $jobOpening->recruitment_type_id;
         $candidateUser = $candidate->nama_candidate;
         $data['candidate_id'] = $candidateId;
 
@@ -284,7 +321,7 @@ class CandidateController extends Controller
                     'bicara' => $language['bicara'] ?? null,
                     'baca' => $language['baca'] ?? null,
                     'tulis' => $language['tulis'] ?? null,
-                    'steno_wpm' => $language['steno_wpm'] ?? null,
+                    'steno_wpm' => $language['steno'] ?? null,
                 ]);
             }
 
@@ -315,6 +352,18 @@ class CandidateController extends Controller
                     'keterangan' => $kerja['keterangan'] ?? null,
                     'alasan' => $kerja['alasan'] ?? null,
                 ]);
+            }
+
+            $stage = DB::table('hiring_stages')
+               ->where('recruitment_type_id', $recruitmentTypeId)
+               ->where('type', 'Form Filled')
+               ->first();
+
+            // If the stage is found, update the candidate's current_stage_id
+            if ($stage) {
+                DB::table('candidates')
+                ->where('id', $candidateId)
+                ->update(['current_stage_id' => $stage->id]);
             }
 
             // Commit the transaction

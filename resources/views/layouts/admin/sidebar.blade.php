@@ -529,6 +529,9 @@
                                         <a class="dropdown-item {{request()->is(['recruitment/candidate/data']) ? 'active' : ''}}" href="/recruitment/candidate/data">
                                             Candidate Data
                                         </a>
+                                        <a class="dropdown-item {{request()->is(['recruitment/candidate/data/interview']) ? 'active' : ''}}" href="/recruitment/candidate/data/interview">
+                                            Candidate Interview
+                                        </a>
                                     </div>
                                     <a class="dropdown-item {{request()->is(['recruitment']) ? 'active' : ''}}" href="/recruitment">
                                         Recruitement

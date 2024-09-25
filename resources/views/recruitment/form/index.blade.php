@@ -45,7 +45,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <form action="{{ $candidateData ? url('/candidate/data/update') : url('/candidate/data/store') }}" method="POST" id="formCandidate">
+                        <form action="'/candidate/data/store'" method="POST" id="formCandidate">
                             @csrf
                             <h2>A. IDENTITAS</h2>
                             <input type="hidden" id="candidate_id" name="candidate_id" value="{{$candidateId}}">
@@ -54,7 +54,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Nama Lengkap</label>
                                 <div class="col-md-9">
-                                    <input type="text" value="{{ $candidateData ? $candidateData->nama_lengkap : '' }}" class="form-control" name="nama_lengkap" id="nama_lengkap" placeholder="Nama Lengkap">
+                                    <input type="text" class="form-control" name="nama_lengkap" id="nama_lengkap" placeholder="Nama Lengkap">
                                 </div>
                             </div>
 
@@ -62,7 +62,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Nama Kecil/Panggilan</label>
                                 <div class="col-md-9">
-                                    <input type="text" value="{{ $candidateData ? $candidateData->nama_panggilan : '' }}" class="form-control" name="nama_panggilan" id="nama_panggilan" placeholder="Nama Panggilan">
+                                    <input type="text" class="form-control" name="nama_panggilan" id="nama_panggilan" placeholder="Nama Panggilan">
                                 </div>
                             </div>
 
@@ -72,8 +72,8 @@
                                 <div class="col-md-9">
                                     <select class="form-select" name="jenis">
                                         <option value="">Pilih</option>
-                                        <option value="Laki-laki" {{ (isset($candidateData) && $candidateData->jenis == 'Laki-laki') ? 'selected' : '' }}>Laki-laki</option>
-                                        <option value="Perempuan" {{ (isset($candidateData) && $candidateData->jenis == 'Perempuan') ? 'selected' : '' }}>Perempuan</option>
+                                        <option value="Laki-laki">Laki-laki</option>
+                                        <option value="Perempuan">Perempuan</option>
                                     </select>
                                 </div>
                             </div>
@@ -85,10 +85,10 @@
                                 <div class="col-md-9">
                                     <select class="form-select" name="gol_darah">
                                         <option value="">Pilih</option>
-                                        <option value="A" {{ (isset($candidateData) && $candidateData->gol_darah == 'A') ? 'selected' : '' }}>A</option>
-                                        <option value="B" {{ (isset($candidateData) && $candidateData->gol_darah == 'B') ? 'selected' : '' }}>B</option>
-                                        <option value="AB" {{ (isset($candidateData) && $candidateData->gol_darah == 'AB') ? 'selected' : '' }}>AB</option>
-                                        <option value="O" {{ (isset($candidateData) && $candidateData->gol_darah == 'O') ? 'selected' : '' }}>O</option>
+                                        <option value="A">A</option>
+                                        <option value="B">B</option>
+                                        <option value="AB">AB</option>
+                                        <option value="O">O</option>
                                     </select>
                                 </div>
                             </div>
@@ -97,7 +97,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Tempat/Tgl Lahir</label>
                                 <div class="col-md-9">
-                                    <input type="date" value="{{ $candidateData ? $candidateData->tgl_lahir : '' }}" class="form-control" name="tgl_lahir">
+                                    <input type="date" class="form-control" name="tgl_lahir">
                                 </div>
                             </div>
 
@@ -105,7 +105,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Warga Negara</label>
                                 <div class="col-md-9">
-                                    <input type="text" value="{{ $candidateData ? $candidateData->warga_negara : '' }}" class="form-control" name="warga_negara" placeholder="Warga Negara">
+                                    <input type="text" class="form-control" name="warga_negara" placeholder="Warga Negara">
                                 </div>
                             </div>
 
@@ -113,7 +113,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Alamat Rumah</label>
                                 <div class="col-md-9">
-                                    <textarea class="form-control" name="alamat_rumah" rows="2" placeholder="Alamat Rumah">{{ $candidateData ? $candidateData->alamat_rumah : '' }}</textarea>
+                                    <textarea class="form-control" name="alamat_rumah" rows="2" placeholder="Alamat Rumah"></textarea>
                                 </div>
                             </div>
 
@@ -122,7 +122,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Telpon Rumah/HP</label>
                                 <div class="col-md-9">
-                                    <input type="text" value="{{ $candidateData ? $candidateData->telp_rumah_hp : '' }}" class="form-control" name="telp_rumah_hp" placeholder="Telpon Rumah/HP">
+                                    <input type="text" class="form-control" name="telp_rumah_hp" placeholder="Telpon Rumah/HP">
                                 </div>
                             </div>
 
@@ -130,7 +130,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">No. KTP/SIM</label>
                                 <div class="col-md-9">
-                                    <input type="text" value="{{ $candidateData ? $candidateData->no_ktp_sim : '' }}" class="form-control" name="no_ktp_sim" placeholder="No. KTP/SIM">
+                                    <input type="text" class="form-control" name="no_ktp_sim" placeholder="No. KTP/SIM">
                                 </div>
                             </div>
 
@@ -138,7 +138,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Tgl Berlaku KTP/SIM</label>
                                 <div class="col-md-9">
-                                    <input type="date" value="{{ $candidateData ? $candidateData->tgl_ktp_sim : '' }}" class="form-control" name="tgl_ktp_sim">
+                                    <input type="date" class="form-control" name="tgl_ktp_sim">
                                 </div>
                             </div>
 
@@ -146,7 +146,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">No. NPWP</label>
                                 <div class="col-md-9">
-                                    <input type="text" value="{{ $candidateData ? $candidateData->no_npwp : '' }}" class="form-control" name="no_npwp" placeholder="No. NPWP">
+                                    <input type="text" class="form-control" name="no_npwp" placeholder="No. NPWP">
                                 </div>
                             </div>
 
@@ -154,7 +154,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Alamat NPWP</label>
                                 <div class="col-md-9">
-                                    <textarea class="form-control" name="alamat_npwp" rows="2" placeholder="Alamat NPWP">{{ $candidateData ? $candidateData->alamat_npwp : '' }}</textarea>
+                                    <textarea class="form-control" name="alamat_npwp" rows="2" placeholder="Alamat NPWP"></textarea>
                                 </div>
                             </div>
 
@@ -164,14 +164,14 @@
                                 <div class="col-md-9">
                                     <select class="form-select" name="status_keluarga" id="status_keluarga">
                                         <option value="">Pilih</option>
-                                        <option value="TK" {{ (isset($candidateData) && $candidateData->status_keluarga == 'TK') ? 'selected' : '' }}>TK (Tidak Kawin)</option>
-                                        <option value="TK1" {{ (isset($candidateData) && $candidateData->status_keluarga == 'TK1') ? 'selected' : '' }}>TK1</option>
-                                        <option value="TK2" {{ (isset($candidateData) && $candidateData->status_keluarga == 'TK2') ? 'selected' : '' }}>TK2</option>
-                                        <option value="TK3" {{ (isset($candidateData) && $candidateData->status_keluarga == 'TK3') ? 'selected' : '' }}>TK3</option>
-                                        <option value="M" {{ (isset($candidateData) && $candidateData->status_keluarga == 'M') ? 'selected' : '' }}>M (Menikah)</option>
-                                        <option value="M1" {{ (isset($candidateData) && $candidateData->status_keluarga == 'M1') ? 'selected' : '' }}>M1</option>
-                                        <option value="M2" {{ (isset($candidateData) && $candidateData->status_keluarga == 'M2') ? 'selected' : '' }}>M2</option>
-                                        <option value="M3" {{ (isset($candidateData) && $candidateData->status_keluarga == 'M3') ? 'selected' : '' }}>M3</option>
+                                        <option value="TK">TK (Tidak Kawin)</option>
+                                        <option value="TK1">TK1</option>
+                                        <option value="TK2">TK2</option>
+                                        <option value="TK3">TK3</option>
+                                        <option value="M">M (Menikah)</option>
+                                        <option value="M1">M1</option>
+                                        <option value="M2">M2</option>
+                                        <option value="M3">M3</option>
                                     </select>
                                 </div>
                             </div>
@@ -181,7 +181,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Tanggal Menikah</label>
                                 <div class="col-md-9">
-                                    <input type="date"value="{{ $candidateData ? $candidateData->tgl_menikah : '' }}"  class="form-control" name="tgl_menikah">
+                                    <input type="date"  class="form-control" name="tgl_menikah">
                                 </div>
                             </div>
 
@@ -189,7 +189,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Jabatan saat ini</label>
                                 <div class="col-md-9">
-                                    <input type="text" value="{{ $candidateData ? $candidateData->jabatan : '' }}" class="form-control" name="jabatan" placeholder="Jabatan saat ini">
+                                    <input type="text" class="form-control" name="jabatan" placeholder="Jabatan saat ini">
                                 </div>
                             </div>
 
@@ -197,7 +197,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Nama Perusahaan</label>
                                 <div class="col-md-9">
-                                    <input type="text" value="{{ $candidateData ? $candidateData->nama_perusahaan : '' }}" class="form-control" name="nama_perusahaan" placeholder="Nama Perusahaan">
+                                    <input type="text" class="form-control" name="nama_perusahaan" placeholder="Nama Perusahaan">
                                 </div>
                             </div>
 
@@ -205,7 +205,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Alamat Perusahaan</label>
                                 <div class="col-md-9">
-                                    <textarea class="form-control" name="alamat_perusahaan" rows="2" placeholder="Alamat Perusahaan">{{ $candidateData ? $candidateData->alamat_perusahaan : '' }}</textarea>
+                                    <textarea class="form-control" name="alamat_perusahaan" rows="2" placeholder="Alamat Perusahaan"></textarea>
                                 </div>
                             </div>
 
@@ -213,7 +213,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Alamat Email</label>
                                 <div class="col-md-9">
-                                    <input type="email" value="{{ $candidateData ? $candidateData->alamat_email : '' }}" class="form-control" name="alamat_email" placeholder="Alamat Email">
+                                    <input type="email" class="form-control" name="alamat_email" placeholder="Alamat Email">
                                 </div>
                             </div>
 
@@ -503,7 +503,7 @@
                                                         <option value="Kurang">Kurang</option>
                                                     </select>
                                                 </td>
-                                                <td><input class="form-control" type="text" name="language_1_steno_wpm"></td>
+                                                <td><input class="form-control" type="text" name="language_1_steno"></td>
                                                 <td><button type="button" class="btn btn-sm btn-success" id="add_bahasa_btn">+</button></td>
                                             </tr>
                                         </tbody>

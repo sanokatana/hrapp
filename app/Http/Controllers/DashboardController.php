@@ -1002,6 +1002,9 @@ class DashboardController extends Controller
             ->orderBy('sequence', 'asc') // assuming there's a sequence column for ordering the stages
             ->get();
 
-        return view('dashboard.dashboardcandidate', compact('candidate', 'stages'));
+        $candidateData = DB::table('candidate_data')->where('candidate_id', $candidateId)->first();
+        $statusForm = $candidateData->status_form;
+
+        return view('dashboard.dashboardcandidate', compact('candidate', 'stages', 'statusForm'));
     }
 }
