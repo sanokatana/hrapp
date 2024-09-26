@@ -16,6 +16,10 @@
         </div>
     </div>
 </div>
+@php
+    use Carbon\Carbon;
+    use App\Helpers\DateHelper;
+@endphp
 @if(session('success'))
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -45,18 +49,6 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-12">
-                                <a href="/recruitment/candidate/interview/get" class="btn btn-primary" id="btnAddInterview">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M12 5l0 14" />
-                                        <path d="M5 12l14 0" />
-                                    </svg>
-                                    Add Interview
-                                </a>
-                            </div>
-                        </div>
                         <div class="row mt-4">
                             <div class="col-12 table-responsive">
                                 <table class="table table-vcenter card-table table-striped">
@@ -69,6 +61,7 @@
                                             <th>Interview Time</th>
                                             <th>Interviewer</th>
                                             <th>Notes</th>
+                                            <th>Status</th>
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
@@ -78,7 +71,7 @@
                                             <td>{{ $d->id}}</td>
                                             <td>{{ $d->candidate_name}}</td>
                                             <td>{{ $d->stage_name}}</td>
-                                            <td>{{ $d->interview_date}}</td>
+                                            <td>{{ DateHelper::formatIndonesiaDate($d->interview_date) }}</td>
                                             <td>{{ $d->interview_time}}</td>
                                             <td>{{ $d->interviewer}}</td>
                                             <td>{{ $d->notes}}</td>
@@ -144,7 +137,7 @@
             var id = $(this).attr('id');
             $.ajax({
                 type: 'POST',
-                url: '/recruitment/interview/edit',
+                url: '/recruitment/candidate/data/interview/edit',
                 cache: false,
                 data: {
                     _token: "{{ csrf_token();}}",

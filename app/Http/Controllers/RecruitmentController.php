@@ -485,5 +485,38 @@ class RecruitmentController extends Controller
         return view("recruitment.interview.index", compact('interview'));
     }
 
+    public function candidate_interview_edit(Request $request)
+    {
+        $id = $request->id;
+
+        $interview = DB::table('interviews')->where('id', $id)->first();
+
+        return view("recruitment.interview.edit", compact('interview'));
+    }
+
+    public function candidate_interview_update($id, Request $request)
+    {
+        $interview_date = $request->interview_date;
+        $interview_time = $request->interview_time;
+        $notes = $request->notes;
+        $interviewer = $request->interviewer;
+        $status = $request->status;
+
+        $data = [
+            'interview_date' => $interview_date,
+            'interview_time' => $interview_time,
+            'notes' => $notes,
+            'interviewer' => $interviewer,
+            'status' => $status
+        ];
+
+        $update = DB::table('interviews')->where('id', $id)->update($data);
+
+        if ($update) {
+            return Redirect::back()->with(['success' => 'Interview Berhasil Di Update']);
+        } else {
+            return Redirect::back()->with(['warning' => 'Interview Gagal Di Update']);
+        }
+    }
 
 }

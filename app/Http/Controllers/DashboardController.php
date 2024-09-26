@@ -996,6 +996,19 @@ class DashboardController extends Controller
         ->where('candidates.id', $candidateId)  // filter by the current candidate
         ->first();
 
+        $interview = DB::table('interviews')
+        ->join('candidates', 'interviews.candidate_id', '=', 'candidates.id') // Join candidates table
+        ->join('hiring_stages', 'interviews.stage_id', '=', 'hiring_stages.id') // Join stages table
+        ->leftJoin('candidate_data', 'candidates.id', '=', 'candidate_data.candidate_id') // Join candidate_data table
+        ->select(
+            'interviews.*',
+            'candidates.nama_candidate as candidate_name', // Retrieve candidate name
+            'hiring_stages.name as stage_name', // Retrieve stage name
+            'candidate_data.status_form' // Retrieve form status
+        )
+        ->where('interviews.candidate_id', $candidateId) // Only get interviews for the current candidate
+        ->get();
+
         // Retrieve all stages related to this candidate's recruitment type
         $stages = DB::table('hiring_stages')
             ->where('recruitment_type_id', $candidate->recruitment_type_id)
@@ -1005,6 +1018,6 @@ class DashboardController extends Controller
         $candidateData = DB::table('candidate_data')->where('candidate_id', $candidateId)->first();
         $statusForm = $candidateData->status_form;
 
-        return view('dashboard.dashboardcandidate', compact('candidate', 'stages', 'statusForm'));
+        return view('dashboard.dashboardcandidate', compact('candidate', 'stages', 'statusForm', 'interview', 'candidateData'));
     }
 }

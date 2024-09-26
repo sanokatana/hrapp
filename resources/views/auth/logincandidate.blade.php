@@ -135,32 +135,41 @@
             }).then(response => response.json());
 
             Promise.all([timerPromise, fetchPromise])
-                .then(([_, data]) => {
-                    if (data.success) {
+            .then(([_, data]) => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'You have been logged in successfully.',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        window.location.href = '/candidate/dashboard';
+                    });
+                } else {
+                    // Differentiate between wrong credentials and other messages
+                    if (data.message === 'Username or Password is incorrect') {
                         Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: 'You have been logged in successfully.',
-                            showConfirmButton: false,
-                            timer: 1500
-                        }).then(() => {
-                            window.location.href = '/candidate/dashboard';
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message
                         });
                     } else {
                         Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: data.message
+                            icon: 'info',
+                            title: 'Information',
+                            html: data.message // Use `html` instead of `text` to support line breaks
                         });
                     }
-                })
-                .catch(error => {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'An error occurred during the login process.'
-                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred during the login process.'
                 });
+            });
         });
     </script>
 </body>

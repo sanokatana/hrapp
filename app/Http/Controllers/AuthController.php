@@ -47,18 +47,37 @@ class AuthController extends Controller
             // Retrieve the logged-in candidate's data
             $candidate = Auth::guard('candidate')->user();
 
-            // Check if the candidate's current_stage_id is 1, and if so, update it to 2
-            if ($candidate->current_stage_id == 1) {
-                DB::table('candidates')
-                    ->where('id', $candidate->id)
-                    ->update(['current_stage_id' => 2]);
-            }
+            // Check the candidate's status and handle login behavior
+            switch ($candidate->status) {
+                case 'In Process':
+                    // Allow login and update stage if needed
+                    if ($candidate->current_stage_id == 1) {
+                        DB::table('candidates')
+                            ->where('id', $candidate->id)
+                            ->update(['current_stage_id' => 2]);
+                    }
+                    return response()->json(['success' => true]);
 
-            return response()->json(['success' => true]);
+                case 'Hired':
+                    // Prevent login and show the message that the candidate has been hired
+                    Auth::guard('candidate')->logout();
+                    return response()->json(['success' => false, 'message' => 'Congratulations, we are pleased to inform you that you have been hired.']);
+
+                case 'Rejected':
+                    // Prevent login and show the rejection message
+                    Auth::guard('candidate')->logout();
+                    return response()->json(['success' => false, 'message' => 'We regret to inform you that your application has been rejected.']);
+
+                default:
+                    // If the status is not recognized, allow login or handle accordingly
+                    return response()->json(['success' => false, 'message' => 'Unknown candidate status.']);
+            }
         } else {
+            // If the credentials are incorrect, return an error message
             return response()->json(['success' => false, 'message' => 'Username or Password is incorrect']);
         }
     }
+
 
     public function proseslogout(){
         if(Auth::guard('karyawan')->check()){

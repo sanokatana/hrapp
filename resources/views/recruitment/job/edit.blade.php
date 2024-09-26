@@ -1,4 +1,4 @@
-<form action="/recruitment/jobs/{{ $job->id }}/store" method="POST" id="formJob">
+<form action="/recruitment/jobs/{{ $job->id }}/update" method="POST" id="formJob">
     @csrf
     <div class="row">
         <div class="col-12">

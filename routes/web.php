@@ -320,6 +320,9 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::post('/recruitment/candidate/interview/get', [RecruitmentController::class, 'candidate_interview_get']);
 
     Route::get('/recruitment/candidate/data/interview', [RecruitmentController::class, 'candidate_interview_data']);
+    Route::post('/recruitment/candidate/data/interview/edit', [RecruitmentController::class, 'candidate_interview_edit']);
+
+    Route::post('/recruitment/interview/{id}/update', [RecruitmentController::class, 'candidate_interview_update']);
 
     //Recruitment - Candidate
     Route::get('/recruitment/jobs', [RecruitmentController::class, 'job_opening']);
