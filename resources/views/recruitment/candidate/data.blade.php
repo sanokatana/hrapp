@@ -1,43 +1,3 @@
-@extends('layouts.admin.tabler')
-@section('content')
-<div class="page-header d-print-none">
-    <div class="container-xl">
-        <div class="row g-2 align-items-center">
-            <div class="col">
-                <div class="page-pretitle">
-                    Dashboard
-                </div>
-                <h2 class="page-title">
-                    Candidate Data
-                </h2>
-                <br>
-            </div>
-        </div>
-    </div>
-</div>
-@if(session('success'))
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            Swal.fire({
-                title: 'Berhasil!',
-                text: "{{ session('success') }}",
-                icon: 'success',
-                confirmButtonText: 'Ok'
-            });
-        });
-    </script>
-@elseif(session('danger'))
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            Swal.fire({
-                title: 'Sudah!',
-                text: "{{ session('danger') }}",
-                icon: 'warning',
-                confirmButtonText: 'Ok'
-            });
-        });
-    </script>
-@endif
 <div class="page-body">
     <div class="container-xl">
         <div class="row">
@@ -901,4 +861,3 @@
         </div>
     </div>
 </div>
-@endsection

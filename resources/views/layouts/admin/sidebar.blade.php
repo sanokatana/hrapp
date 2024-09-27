@@ -508,7 +508,7 @@
                                 Recruitements
                             </span>
                         </a>
-                        <div class="dropdown-menu {{request()->is(['recruitment/dashboard','recruitment/pipeline', 'recruitment/candidate/data/interview', 'recruitment/candidate', 'recruitment', 'recruitment/jobs', 'recruitment/stages']) ? 'show' : ''}}">
+                        <div class="dropdown-menu {{request()->is(['recruitment/dashboard','recruitment/pipeline', 'recruitment/candidate/data', 'recruitment/candidate/data/interview', 'recruitment/candidate', 'recruitment', 'recruitment/jobs', 'recruitment/stages']) ? 'show' : ''}}">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
                                     <a class="dropdown-item {{request()->is(['recruitment/dashboard']) ? 'active' : ''}}" href="/recruitment/dashboard">

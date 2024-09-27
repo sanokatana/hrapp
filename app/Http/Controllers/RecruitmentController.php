@@ -519,4 +519,73 @@ class RecruitmentController extends Controller
         }
     }
 
+    public function candidate_data(Request $request)
+    {
+        // Fetch interview data with candidate name, job opening title, and current stage name
+        $data = DB::table('candidate_data')
+            ->join('candidates', 'candidate_data.candidate_id', '=', 'candidates.id') // Join candidates table
+            ->join('job_openings', 'candidates.job_opening_id', '=', 'job_openings.id') // Join job_openings table to get job title
+            ->join('hiring_stages', 'candidates.current_stage_id', '=', 'hiring_stages.id') // Join stages table to get the current stage
+            ->select(
+                'candidate_data.*',
+                'candidates.nama_candidate as candidate_name', // Retrieve candidate name
+                'candidates.id as candidate_id', // Retrieve candidate name
+                'candidates.status as status_candidate', // Retrieve candidate name
+                'job_openings.title as job_title',             // Retrieve job opening title
+                'hiring_stages.name as stage_name'                    // Retrieve current stage name
+            )
+            ->get();
+
+        return view("recruitment.candidate.datatable", compact('data'));
+    }
+
+    public function candidate_data_view(Request $request)
+    {
+        // Get the currently authenticated candidate
+        $candidateId = $request->candidate_id;
+
+        // Check if candidate data exists
+        $candidateData = DB::table('candidate_data')->where('candidate_id', $candidateId)->first();
+
+        // Get all records from candidate_data_keluarga related to the candidateData's id
+        $candidateFamilyData = DB::table('candidate_data_keluarga')
+            ->where('candidate_data_id', $candidateData->id)
+            ->get();
+
+        $candidateFamilyDataSendiri = DB::table('candidate_data_keluarga_sendiri')
+            ->where('candidate_data_id', $candidateData->id)
+            ->get();
+
+        $candidatePendidikan = DB::table('candidate_data_pendidikan')
+            ->where('candidate_data_id', $candidateData->id)
+            ->get();
+
+        $candidateKursus = DB::table('candidate_data_kursus')
+            ->where('candidate_data_id', $candidateData->id)
+            ->get();
+
+        $candidateBahasa = DB::table('candidate_data_bahasa')
+            ->where('candidate_data_id', $candidateData->id)
+            ->get();
+
+        $candidatePekerjaan = DB::table('candidate_data_pekerjaan')
+            ->where('candidate_data_id', $candidateData->id)
+            ->get();
+
+        // Otherwise, return 'recruitment.form.index' view
+        return view('recruitment.candidate.data', compact('candidateData', 'candidateId', 'candidateFamilyData', 'candidateKursus', 'candidateBahasa', 'candidatePekerjaan', 'candidateFamilyDataSendiri', 'candidatePendidikan'));
+    }
+
+    public function candidate_data_approve(Request $request)
+    {
+        $candidateId = $request->input('id');
+        $newStatus = $request->input('status_form');
+
+        // Update candidate's status in the database
+        DB::table('candidate_data')
+            ->where('id', $candidateId)
+            ->update(['status_form' => $newStatus]);
+
+        return redirect()->back()->with('success', 'Candidate status updated successfully!');
+    }
 }
