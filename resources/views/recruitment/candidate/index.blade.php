@@ -84,27 +84,48 @@
                                             <td>{{ $d->status}}</td>
                                             <td>
                                                 <div class="form-group">
-                                                    <a href="#" class="edit btn btn-info btn-sm" id="{{ $d->id }}">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-edit">
-                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                            <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                                                            <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                                                            <path d="M16 5l3 3" />
-                                                        </svg>
-                                                    </a>
-                                                    <form action="/recruitment/candidate/{{$d->id}}/delete" method="POST">
-                                                        @csrf
-                                                        <a class="btn btn-danger btn-sm delete-confirm">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
+                                                    <div>
+                                                        <a href="#" class="edit btn btn-info btn-sm" id="{{ $d->id }}">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-edit">
                                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                                <path d="M4 7l16 0" />
-                                                                <path d="M10 11l0 6" />
-                                                                <path d="M14 11l0 6" />
-                                                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                                                <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+                                                                <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                                                                <path d="M16 5l3 3" />
                                                             </svg>
                                                         </a>
-                                                    </form>
+                                                    </div>
+                                                    <div>
+                                                        <form action="/recruitment/candidate/{{$d->id}}/delete" method="POST">
+                                                            @csrf
+                                                            <a class="btn btn-success btn-sm karyawan-confirm">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-progress-down">
+                                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                    <path d="M10 20.777a8.942 8.942 0 0 1 -2.48 -.969" />
+                                                                    <path d="M14 3.223a9.003 9.003 0 0 1 0 17.554" />
+                                                                    <path d="M4.579 17.093a8.961 8.961 0 0 1 -1.227 -2.592" />
+                                                                    <path d="M3.124 10.5c.16 -.95 .468 -1.85 .9 -2.675l.169 -.305" />
+                                                                    <path d="M6.907 4.579a8.954 8.954 0 0 1 3.093 -1.356" />
+                                                                    <path d="M12 9v6" />
+                                                                    <path d="M15 12l-3 3l-3 -3" />
+                                                                </svg>
+                                                            </a>
+                                                        </form>
+                                                    </div>
+                                                    <div>
+                                                        <form action="/recruitment/candidate/{{$d->id}}/delete" method="POST">
+                                                            @csrf
+                                                            <a class="btn btn-danger btn-sm delete-confirm">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
+                                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                    <path d="M4 7l16 0" />
+                                                                    <path d="M10 11l0 6" />
+                                                                    <path d="M14 11l0 6" />
+                                                                    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                                                    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                                                </svg>
+                                                            </a>
+                                                        </form>
+                                                    </div>
                                                 </div>
                                             </td>
                                         </tr>
@@ -309,6 +330,24 @@
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",
                 confirmButtonText: "Delete"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+
+        $(".karyawan-confirm").click(function(e) {
+            var form = $(this).closest('form');
+            e.preventDefault();
+            Swal.fire({
+                title: "Apakah Yakin?",
+                text: "Candidate Akan Lanjut Menjadi Karyawan",
+                icon: "info",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Confirm"
             }).then((result) => {
                 if (result.isConfirmed) {
                     form.submit();

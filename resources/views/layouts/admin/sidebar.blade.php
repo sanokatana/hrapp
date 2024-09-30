@@ -608,6 +608,12 @@
                                     <a class="dropdown-item" href="#">
                                         Dashboard
                                     </a>
+                                    <a class="dropdown-item" href="#">
+                                        Notification
+                                    </a>
+                                    <a class="dropdown-item" href="#">
+                                        Schedule Evaluation
+                                    </a>
                                 </div>
                             </div>
                         </div>

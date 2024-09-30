@@ -15,6 +15,26 @@ class AttendanceController extends Controller
     public function index(Request $request)
     {
         // Get filter inputs
+
+        DB::statement('TRUNCATE TABLE presensi');
+
+        // Insert data from att_log in mysql2 connection to hrmschl.presensi in the default connection
+        DB::connection('mysql2')->transaction(function () {
+            DB::connection('mysql2')->statement("
+                INSERT INTO hrmschl.presensi (nip, nik, tgl_presensi, jam_in)
+                SELECT
+                    al.pin AS nip,
+                    p.pegawai_nip AS nik,
+                    DATE(al.scan_date) AS tgl_presensi,
+                    TIME(al.scan_date) AS jam_in
+                FROM
+                    db_absen.att_log al
+                LEFT JOIN
+                    db_absen.pegawai p ON al.pin = p.pegawai_pin
+            ");
+        });
+
+
         $filterMonth = $request->input('bulan', Carbon::now()->month);
         $filterYear = $request->input('tahun', Carbon::now()->year);
         $filterNamaLengkap = $request->input('nama_lengkap');
