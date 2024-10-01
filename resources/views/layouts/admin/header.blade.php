@@ -113,7 +113,7 @@
                                         <div class="col text-truncate">
                                             <a href="#" class="text-body d-block">Leave Application from {{ $application->nama_karyawan }}</a>
                                             <div class="d-block text-secondary text-truncate mt-n1">
-                                                Applied on {{ $application->tgl_create->format('d M Y') }}
+                                                Applied on {{ \Carbon\Carbon::parse($application->tgl_create)->format('d M Y') }}
                                             </div>
                                         </div>
                                         <div class="col-auto">

@@ -300,7 +300,7 @@ class ApprovalController extends Controller
             }
         } else {
             // Default to '1' (Approved) if no status_approved is provided
-            $query->where('status_approved', 1);
+            $query->where('status_approved', 0);
         }
 
         // Handle the status_approved_hrd filter
@@ -689,13 +689,13 @@ class ApprovalController extends Controller
         }
 
         // Apply approval status filter if provided
-        if ($request->has('status_approved')) {
+        if ($request->has('status_approved_hrd')) {
             if (in_array($request->status_approved, ['0', '1', '2'])) {
-                $query->where('status_approved', $request->status_approved);
+                $query->where('status_approved_hrd', $request->status_approved);
             }
         } else {
             // Default to '0' (Pending) if no status_approved is provided
-            $query->where('status_approved', 0);
+            $query->where('status_approved_hrd', 1);
         }
 
         // Paginate the results

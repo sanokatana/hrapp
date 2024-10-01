@@ -588,4 +588,28 @@ class RecruitmentController extends Controller
 
         return redirect()->back()->with('success', 'Candidate status updated successfully!');
     }
+
+    public function dashboard()
+    {
+
+        // Total job openings
+        $totalJobOpenings = DB::table('job_openings')->count();
+
+        // Count of job openings that are open
+        $openJobOpenings = DB::table('job_openings')
+            ->where('status', 'Open') // Assuming 'open' is the status you're tracking
+            ->count();
+
+        // Total candidates in progress (where status is 'in progress')
+        $totalCandidatesInProgress = DB::table('candidates')
+            ->where('status', 'In Progress') // Assuming 'in progress' is the status
+            ->count();
+
+        // Total hired candidates (where status is 'hired')
+        $totalHiredCandidates = DB::table('candidates')
+            ->where('status', 'Hired') // Assuming 'hired' is the status
+            ->count();
+
+        return view("recruitment.index", compact('totalHiredCandidates', 'totalCandidatesInProgress', 'openJobOpenings', 'totalJobOpenings'));
+    }
 }
