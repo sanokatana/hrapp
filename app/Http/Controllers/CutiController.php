@@ -219,19 +219,20 @@ class CutiController extends Controller
         $data = [];
         while ($row = fgetcsv($fileHandle, 1000, ';')) { // Specify delimiter as semicolon
             // Ensure each row has the correct number of columns
-            if (count($row) == 6) { // Assuming there are exactly 6 columns in your CSV
+            if (count($row) == 7) { // Assuming there are exactly 6 columns in your CSV
                 $data[] = [
                     'nik' => $row[0],
-                    'tahun' => $row[1],
-                    'sisa_cuti' => $row[2],
+                    'nip' => $row[1],
+                    'tahun' => $row[2],
+                    'sisa_cuti' => $row[3],
                     'periode_awal' => Carbon::createFromFormat('d/m/Y', $row[3])->format('Y-m-d'),
                     'periode_akhir'  => Carbon::createFromFormat('d/m/Y', $row[4])->format('Y-m-d'),
-                    'status' => $row[5],
+                    'status' => $row[6],
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),
                 ];
             } else {
-                return redirect()->back()->with('danger', 'Invalid CSV format: Each row must have exactly 7 columns.');
+                return redirect()->back()->with('danger', 'Invalid CSV format: Each row must have exactly 6 columns.');
             }
         }
 
