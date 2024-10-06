@@ -437,7 +437,7 @@ class RecruitmentController extends Controller
         $kodeDept = DB::table('job_openings')->where('id', $candidate->job_opening_id)->value('kode_dept');
 
         // Fetch interviewers only from the same department or from 'Management'
-        $interviewer = DB::table('karyawan')->whereIn('kode_dept', [$kodeDept, 'Management'])->get();
+        $interviewer = DB::table('karyawan')->whereIn('kode_dept', [$kodeDept, 'Management'])->where('status_kar','Aktif')->get();
 
         return view("recruitment.pipeline.interview", compact('stage', 'interviewer', 'id'));
     }
@@ -581,13 +581,35 @@ class RecruitmentController extends Controller
         $candidateId = $request->input('id');
         $newStatus = $request->input('status_form');
 
-        // Update candidate's status in the database
+        // Update candidate's status in the candidate_data table
         DB::table('candidate_data')
             ->where('id', $candidateId)
             ->update(['status_form' => $newStatus]);
 
+        // Get the candidate_id from the updated candidate_data table
+        $candidate = DB::table('candidate_data')
+            ->where('id', $candidateId)
+            ->first(); // Assuming 'candidate_id' exists in this table
+
+        if ($candidate) {
+            $candidateRealId = $candidate->candidate_id; // Adjust this to match your actual field name
+
+            // Update verify_offer in the candidates table based on newStatus
+            if ($newStatus === 'Verified') {
+                DB::table('candidates')
+                    ->where('id', $candidateRealId) // Using the candidate_id from candidate_data
+                    ->update(['verify_offer' => 1]);
+            } elseif ($newStatus === 'Declined') {
+                DB::table('candidates')
+                    ->where('id', $candidateRealId) // Using the candidate_id from candidate_data
+                    ->update(['verify_offer' => 0]);
+            }
+        }
+
         return redirect()->back()->with('success', 'Candidate status updated successfully!');
     }
+
+
 
     public function dashboard()
     {

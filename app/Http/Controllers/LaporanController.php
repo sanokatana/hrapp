@@ -24,6 +24,25 @@ class LaporanController extends Controller
     }
     public function exportData(Request $request)
     {
+
+        DB::statement('TRUNCATE TABLE presensi');
+
+        // Insert data from att_log in mysql2 connection to hrmschl.presensi in the default connection
+        DB::connection('mysql2')->transaction(function () {
+            DB::connection('mysql2')->statement("
+                INSERT INTO hrmschl.presensi (nip, nik, tgl_presensi, jam_in)
+                SELECT
+                    al.pin AS nip,
+                    p.pegawai_nip AS nik,
+                    DATE(al.scan_date) AS tgl_presensi,
+                    TIME(al.scan_date) AS jam_in
+                FROM
+                    db_absen.att_log al
+                LEFT JOIN
+                    db_absen.pegawai p ON al.pin = p.pegawai_pin
+            ");
+        });
+
         // Get filter inputs
         $filterMonth = $request->input('bulan', Carbon::now()->month);
         $filterYear = $request->input('tahun', Carbon::now()->year);

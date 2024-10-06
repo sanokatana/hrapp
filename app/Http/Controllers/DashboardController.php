@@ -595,11 +595,19 @@ class DashboardController extends Controller
         $bulanini = date("m");
         $tahunini = date("Y");
 
-        $rekappresensi = DB::table('presensi')
-            ->selectRaw('COUNT(presensi.nip) as jmlhadir, SUM(IF(presensi.jam_in > "08:00:00",1,0)) as jmlterlambat')
-            ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
-            ->where('presensi.tgl_presensi', $hariini)
+        // $rekappresensi = DB::table('presensi')
+        //     ->selectRaw('COUNT(presensi.nip) as jmlhadir, SUM(IF(presensi.jam_in > "08:00:00",1,0)) as jmlterlambat')
+        //     ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
+        //     ->where('presensi.tgl_presensi', $hariini)
+        //     ->first();
+
+        $rekappresensi = DB::connection('mysql2') // Assuming db_absen is on mysql2
+            ->table('db_absen.att_log as presensi')
+            ->selectRaw('COUNT(presensi.pin) as jmlhadir, SUM(IF(TIME(presensi.scan_date) > "08:00:00", 1, 0)) as jmlterlambat')
+            ->join('hrmschl.karyawan', 'presensi.pin', '=', 'karyawan.nip')
+            ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini)
             ->first();
+
 
         $rekapizin = DB::table('pengajuan_izin')
             ->selectRaw('COUNT(*) as jmlizin')
@@ -626,14 +634,24 @@ class DashboardController extends Controller
             ->where('status_kar', 'Aktif')
             ->first();
 
+        // $jmlnoatt = DB::table('karyawan')
+        //     ->leftJoin('presensi', function ($join) use ($hariini) {
+        //         $join->on('karyawan.nip', '=', 'presensi.nip')
+        //             ->where('presensi.tgl_presensi', '=', $hariini);
+        //     })
+        //     ->where('status_kar', 'Aktif')
+        //     ->whereNull('presensi.nip')
+        //     ->count();
+
         $jmlnoatt = DB::table('karyawan')
-            ->leftJoin('presensi', function ($join) use ($hariini) {
-                $join->on('karyawan.nip', '=', 'presensi.nip')
-                    ->where('presensi.tgl_presensi', '=', $hariini);
-            })
-            ->where('status_kar', 'Aktif')
-            ->whereNull('presensi.nip')
-            ->count();
+        ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
+            $join->on('karyawan.nip', '=', 'presensi.pin')
+                ->whereDate(DB::raw('DATE(presensi.scan_date)'), '=', $hariini);
+        })
+        ->where('status_kar', 'Aktif')
+        ->whereNull('presensi.pin')
+        ->count();
+
 
         // Get historical attendance data for NS employees
         $historihariNS = DB::connection('mysql2')

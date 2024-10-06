@@ -27,6 +27,7 @@ class KaryawanController extends Controller
         $query->select('karyawan.*', 'department.nama_dept', 'jabatan.nama_jabatan');
         $query->leftJoin('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
         $query->leftJoin('jabatan', 'karyawan.jabatan', '=', 'jabatan.id');
+        $query->orderBy('karyawan.id', 'asc');
         $query->orderBy('karyawan.tgl_masuk', 'asc');
 
         if (!empty($request->nama_karyawan)) {
@@ -37,13 +38,59 @@ class KaryawanController extends Controller
             $query->where('karyawan.kode_dept', $request->kode_dept);
         }
 
+        if (!empty($request->pt_karyawan)) {
+            $query->where('karyawan.nama_pt', $request->pt_karyawan);
+        }
+
+        if (!empty($request->religion_karyawan)) {
+            $query->where('karyawan.religion', $request->religion_karyawan);
+        }
+
+        if (!empty($request->base)) {
+            $query->where('karyawan.base_poh', $request->base);
+        }
+
+        if (!empty($request->grade_karyawan)) {
+            $query->where('karyawan.grade', $request->grade_karyawan);
+        }
+
+        if (!empty($request->status_karyawan)) {
+            $query->where('karyawan.status_kar', $request->status_karyawan);
+        }
+
+        if (!empty($request->status_employee)) {
+            $query->where('karyawan.employee_status', $request->status_employee);
+        }
+
         $karyawan = $query->paginate(15)->appends($request->except('page'));
         $shift = ShiftPattern::all(); // Assuming you have a Shift model and you want all shifts
         $department = DB::table('department')->get();
         $jabatan = DB::table('jabatan')->get();
         $contract = Contract::all();
         $location = DB::table('konfigurasi_lokasi')->get();
-        return view("karyawan.index", compact('karyawan', 'department', 'jabatan', 'location', 'shift','contract'));
+
+        // Fetch unique values for the dropdowns
+        $uniquePt = Karyawan::whereNotNull('nama_pt')->distinct()->pluck('nama_pt')->filter();
+        $uniqueReligion = Karyawan::whereNotNull('religion')->distinct()->pluck('religion')->filter();
+        $uniqueBase = Karyawan::whereNotNull('base_poh')->distinct()->pluck('base_poh')->filter();
+        $uniqueGrade = Karyawan::whereNotNull('grade')->distinct()->pluck('grade')->filter();
+        $uniqueStatusKar = Karyawan::whereNotNull('status_kar')->distinct()->pluck('status_kar')->filter();
+        $uniqueEmployeeStatus = Karyawan::whereNotNull('employee_status')->distinct()->pluck('employee_status')->filter();
+
+        return view("karyawan.index", compact(
+            'karyawan',
+            'department',
+            'jabatan',
+            'location',
+            'shift',
+            'contract',
+            'uniquePt',
+            'uniqueReligion',
+            'uniqueBase',
+            'uniqueGrade',
+            'uniqueStatusKar',
+            'uniqueEmployeeStatus'
+        ));
     }
 
     public function store(StoreEmployeeRequest $request)
@@ -271,6 +318,7 @@ class KaryawanController extends Controller
             return redirect()->back()->with('success', 'Data successfully uploaded.');
         } catch (\Exception $e) {
             // Redirect back with error message
+            Log::error('Error uploading data: ' . $e->getMessage());
             return redirect()->back()->with('danger', 'Error uploading data: ' . $e->getMessage());
         }
     }

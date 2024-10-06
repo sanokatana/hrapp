@@ -124,8 +124,11 @@
             <div class="form-label">Employee Status</div>
             <select name="employee_status_edit" id="employee_status_edit" class="form-select">
                 <option {{ $karyawan->employee_status == '' ? 'selected' : '' }} value="">Choose</option>
+                <option {{ $karyawan->employee_status == 'Kontrak' ? 'selected' : '' }} value="Kontrak">Kontrak</option>
                 <option {{ $karyawan->employee_status == 'PKWT' ? 'selected' : '' }} value="PKWT">PKWT</option>
                 <option {{ $karyawan->employee_status == 'PKWTT' ? 'selected' : '' }} value="PKWTT">PKWTT</option>
+                <option {{ $karyawan->employee_status == 'Tetap' ? 'selected' : '' }} value="Tetap">Tetap</option>
+                <option {{ $karyawan->employee_status == 'probation' ? 'selected' : '' }} value="probation">probation</option>
             </select>
         </div>
         <div class="col-3">

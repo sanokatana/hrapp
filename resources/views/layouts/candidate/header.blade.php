@@ -1,4 +1,8 @@
 <header class="navbar navbar-expand-md d-print-none">
+    @php
+    $user = Auth::guard('candidate')->user();
+    $userVerify = $user ? $user->verify_offer : null;
+    @endphp
     <div class="container-xl">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -62,6 +66,15 @@
                             </span>
                         </a>
                     </li>
+                    @if($userVerify == '1')
+                    <li class="nav-item {{request()->is(['candidate/data/perlengkapan']) ? 'active' : ''}}">
+                        <a class="nav-link" href="/candidate/data/perlengkapan">
+                            <span class="nav-link-title">
+                                Perlengkapan Data
+                            </span>
+                        </a>
+                    </li>
+                    @endif
                 </ul>
             </div>
         </div>

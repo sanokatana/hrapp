@@ -81,12 +81,12 @@ use App\Helpers\DateHelper;
                             <div class="col-12">
                                 <form action="/karyawan" method="GET">
                                     <div class="row">
-                                        <div class="col-6 col-sm-6 col-md-4 col-lg-6">
+                                        <div class="col-3 col-lg-3">
                                             <div class="form-group">
                                                 <input type="text" name="nama_karyawan" id="nama_karyawan" class="form-control" placeholder="Nama Karyawan" value="{{ request('nama_karyawan') }}">
                                             </div>
                                         </div>
-                                        <div class="col-4 col-sm-4 col-md-6 col-lg-4">
+                                        <div class="col-3 col-lg-3">
                                             <div class="form-group mb-3">
                                                 <select name="kode_dept" id="kode_dept" class="form-select">
                                                     <option value="">Department</option>
@@ -96,7 +96,72 @@ use App\Helpers\DateHelper;
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-2 col-sm-2 col-md-2 col-lg-2">
+                                        <div class="col-3 col-lg-3">
+                                            <div class="form-group mb-3">
+                                                <select name="pt_karyawan" id="pt_karyawan" class="form-select">
+                                                    <option value="">Nama PT</option>
+                                                    @foreach ($uniquePt as $d) <!-- Here $d is a string -->
+                                                        <option {{ request('pt_karyawan') == $d ? 'selected' : '' }} value="{{ $d }}">{{ $d }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 col-lg-3">
+                                            <div class="form-group mb-3">
+                                                <select name="religion_karyawan" id="religion_karyawan" class="form-select">
+                                                    <option value="">Religion</option>
+                                                    @foreach ($uniqueReligion as $religion)
+                                                        <option {{ request('religion_karyawan') == $religion ? 'selected' : '' }} value="{{ $religion }}">{{ $religion }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-3 col-lg-3">
+                                            <div class="form-group mb-3">
+                                                <select name="base" id="base" class="form-select">
+                                                    <option value="">Base</option>
+                                                    @foreach ($uniqueBase as $base)
+                                                        <option {{ request('base') == $base ? 'selected' : '' }} value="{{ $base }}">{{ $base }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-3 col-lg-3">
+                                            <div class="form-group mb-3">
+                                                <select name="grade_karyawan" id="grade_karyawan" class="form-select">
+                                                    <option value="">Grade</option>
+                                                    @foreach ($uniqueGrade as $grade)
+                                                        <option {{ request('grade_karyawan') == $grade ? 'selected' : '' }} value="{{ $grade }}">{{ $grade }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-3 col-lg-3">
+                                            <div class="form-group mb-3">
+                                                <select name="status_karyawan" id="status_karyawan" class="form-select">
+                                                    <option value="">Status Karyawan</option>
+                                                    @foreach ($uniqueStatusKar as $status)
+                                                        <option {{ request('status_karyawan') == $status ? 'selected' : '' }} value="{{ $status }}">{{ $status }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-3 col-lg-3">
+                                            <div class="form-group mb-3">
+                                                <select name="status_employee" id="status_employee" class="form-select">
+                                                    <option value="">Status Employee</option>
+                                                    @foreach ($uniqueEmployeeStatus as $status)
+                                                        <option {{ request('status_employee') == $status ? 'selected' : '' }} value="{{ $status }}">{{ $status }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 col-lg-12">
                                             <div class="form-group">
                                                 <button class="btn btn-primary w-100">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-search">
@@ -355,7 +420,15 @@ use App\Helpers\DateHelper;
                         </div>
                         <div class="col-3">
                             <div class="form-label">Employee Status</div>
-                            <input type="text" value="" class="form-control" name="employee_status" id="employee_status" placeholder="Employee Status">
+                            <!-- <input type="text" value="" class="form-control" name="employee_status" id="employee_status" placeholder="Employee Status"> -->
+                            <select name="employee_status" id="employee_status" class="form-select">
+                                <option value="">Pilih</option>
+                                <option value="Kontrak">Kontrak</option>
+                                <option value="PKWT">PKWT</option>
+                                <option value="PKWTT">PKWTT</option>
+                                <option value="Tetap">Tetap</option>
+                                <option value="Probation">Probation</option>
+                            </select>
                         </div>
                         <div class="col-3">
                             <div class="form-label">Site</div>
