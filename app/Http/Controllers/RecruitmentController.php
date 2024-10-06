@@ -429,18 +429,25 @@ class RecruitmentController extends Controller
         $id = $request->id;
         $candidate = Candidate::find($id);
 
+        // Get job opening associated with the candidate
         $job_opening = DB::table('job_openings')->where('id', $candidate->job_opening_id)->first();
 
+        // Fetch stages based on recruitment type
         $stage = DB::table('hiring_stages')->where('recruitment_type_id', $job_opening->recruitment_type_id)->get();
 
-        // Get the candidate's kode_dept
-        $kodeDept = DB::table('job_openings')->where('id', $candidate->job_opening_id)->value('kode_dept');
-
-        // Fetch interviewers only from the same department or from 'Management'
-        $interviewer = DB::table('karyawan')->whereIn('kode_dept', [$kodeDept, 'Management'])->where('status_kar','Aktif')->get();
+        // Fetch interviewers with specific jabatan (Section Head, Head of Department, Management)
+        $interviewer = DB::table('karyawan')
+            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with the jabatan table
+            ->where('karyawan.status_kar', 'Aktif') // Only active employees
+            ->whereIn('jabatan.jabatan', ['Section Head', 'Head of Department', 'Management']) // Filter by job titles
+            ->select('karyawan.*', 'jabatan.nama_jabatan as nama_jabatan') // Select all karyawan fields
+            ->get();
 
         return view("recruitment.pipeline.interview", compact('stage', 'interviewer', 'id'));
     }
+
+
+
 
     public function candidate_interview(Request $request)
     {
@@ -449,6 +456,7 @@ class RecruitmentController extends Controller
         $interview_time = $request->interview_time;
         $notes = $request->notes;
         $interviewer = $request->interviewer;
+        $interviewer2 = $request->interviewer2;
         $stage_id = $request->stage_id;
         $data = [
             'candidate_id' => $id,
@@ -456,6 +464,7 @@ class RecruitmentController extends Controller
             'interview_time' => $interview_time,
             'notes' => $notes,
             'interviewer' => $interviewer,
+            'interviewer2' => $interviewer2,
             'stage_id' => $stage_id
         ];
 
@@ -500,6 +509,7 @@ class RecruitmentController extends Controller
         $interview_time = $request->interview_time;
         $notes = $request->notes;
         $interviewer = $request->interviewer;
+        $interviewer2 = $request->interviewer2;
         $status = $request->status;
 
         $data = [
@@ -507,6 +517,7 @@ class RecruitmentController extends Controller
             'interview_time' => $interview_time,
             'notes' => $notes,
             'interviewer' => $interviewer,
+            'interviewer2' => $interviewer2,
             'status' => $status
         ];
 

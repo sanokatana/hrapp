@@ -61,6 +61,14 @@
     </div>
     <div class="row">
         <div class="col-12">
+            <div class="form-label">Interviewer 2</div>
+            <div class="input-icon mb-3">
+                <input type="text" value="{{ $interview->interviewer2 }}" class="form-control" name="interviewer2" id="interviewer2" placeholder="Interviewer">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
             <div class="form-label">Status</div>
             <div class="input-icon mb-3">
                 <select name="status" id="status" class="form-select">

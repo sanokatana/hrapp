@@ -59,7 +59,20 @@
                 <select name="interviewer" id="interviewer" class="form-select">
                     <option value="">Pilih</option>
                     @foreach ($interviewer as $d)
-                    <option {{ Request('nama_lengkap') == $d->nama_lengkap ? 'selected' : '' }} value="{{ $d->nama_lengkap }}">{{ $d->nama_lengkap }}</option>
+                    <option {{ Request('nama_lengkap') == $d->nama_lengkap ? 'selected' : '' }} value="{{ $d->nama_lengkap }}">{{ $d->nama_lengkap }} | {{ $d->nama_jabatan }}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="form-label">Interviewer 2</div>
+            <div class="input-icon mb-3">
+                <select name="interviewer2" id="interviewer2" class="form-select">
+                    <option value="">Pilih</option>
+                    @foreach ($interviewer as $d)
+                    <option {{ Request('nama_lengkap') == $d->nama_lengkap ? 'selected' : '' }} value="{{ $d->nama_lengkap }}">{{ $d->nama_lengkap }} | {{ $d->nama_jabatan }}</option>
                     @endforeach
                 </select>
             </div>
