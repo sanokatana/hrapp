@@ -493,7 +493,7 @@ class PresensiController extends Controller
                     Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan) {
                         $message->to($atasan->email)
                             ->subject("Pengajuan Izin Baru Dari {$nama_lengkap}")
-                            ->cc(['chandrazahran@gmail.com', $email_karyawan])
+                            ->cc(['human.resources@ciptaharmoni.com', $email_karyawan])
                             ->priority(1)  // Set email priority
                             ->getHeaders()
                             ->addTextHeader('Importance', 'high')  // Mark as important

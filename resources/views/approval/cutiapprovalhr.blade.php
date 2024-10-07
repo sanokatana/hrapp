@@ -177,7 +177,7 @@ use App\Helpers\DateHelper;
                                             <th>Note</th>
                                             <th>Jenis Cuti</th>
                                             <th>Tipe Cuti</th>
-                                            <th>Status Manager <br>-------------------<br> Status HRD </th>
+                                            <th> Manager <br>-------------------<br> HRD <br>-------------------<br> Management</th>
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
@@ -220,6 +220,13 @@ use App\Helpers\DateHelper;
                                                 @if ($d->status_approved_hrd == 1)
                                                 <span class="badge bg-success mt-1" style="color: white; width:90px">Approved</span>
                                                 @elseif ($d->status_approved_hrd == 0)
+                                                <span class="badge bg-yellow mt-1" style="color: white; width:90px">Pending</span>
+                                                @else
+                                                <span class="badge bg-red mt-1" style="color: white; width:90px">Rejected</span>
+                                                @endif
+                                                @if ($d->status_management == 1)
+                                                <span class="badge bg-success mt-1" style="color: white; width:90px">Approved</span>
+                                                @elseif ($d->status_management == 0)
                                                 <span class="badge bg-yellow mt-1" style="color: white; width:90px">Pending</span>
                                                 @else
                                                 <span class="badge bg-red mt-1" style="color: white; width:90px">Rejected</span>

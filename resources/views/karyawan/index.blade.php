@@ -428,6 +428,7 @@ use App\Helpers\DateHelper;
                                 <option value="PKWTT">PKWTT</option>
                                 <option value="Tetap">Tetap</option>
                                 <option value="Probation">Probation</option>
+                                <option value="Internship">Internship</option>
                             </select>
                         </div>
                         <div class="col-3">

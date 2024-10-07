@@ -129,9 +129,9 @@ class PengajuanCutiController extends Controller
 
                         // Send the email using Mail::html
                         Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan) {
-                            $message->to($atasan->email)
+                            $message->to('chandrazahran@gmail.com')
                                 ->subject("Pengajuan Cuti Baru Dari {$nama_lengkap}")
-                                ->cc(['hr@ciptaharmoni.com', $email_karyawan])
+                                ->cc(['chandrazahran@gmail.com', $email_karyawan])
                                 ->priority(1);  // Set email priority to high
 
                             // Set additional headers for importance
@@ -264,9 +264,9 @@ class PengajuanCutiController extends Controller
                     ";
 
                         Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan) {
-                            $message->to($atasan->email)
+                            $message->to('chandrazahran@gmail.com')
                                 ->subject("Pengajuan Cuti Baru Dari {$nama_lengkap}")
-                                ->cc(['hr@ciptaharmoni.com', $email_karyawan])
+                                ->cc(['chandrazahran@gmail.com', $email_karyawan])
                                 ->priority(1);
 
                             $message->getHeaders()->addTextHeader('Importance', 'high');

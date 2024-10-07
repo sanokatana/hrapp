@@ -293,24 +293,15 @@ class ApprovalController extends Controller
             $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama_lengkap . '%');
         }
 
-        // Handle the status_approved filter
-        if ($request->has('status_approved')) {
-            if ($request->status_approved === '0' || $request->status_approved === '1' || $request->status_approved === '2') {
-                $query->where('status_approved', $request->status_approved);
-            }
-        } else {
-            // Default to '1' (Approved) if no status_approved is provided
-            $query->where('status_approved', 0);
-        }
 
         // Handle the status_approved_hrd filter
         if ($request->has('status_approved_hrd')) {
-            if ($request->status_approved_hrd === '0' || $request->status_approved_hrd === '1' || $request->status_approved_hrd === '2') {
-                $query->where('status_approved_hrd', $request->status_approved_hrd);
+            if (in_array($request->status_approved, ['0', '1', '2'])) {
+                $query->where('status_approved_hrd', $request->status_approved);
             }
         } else {
-            // Default to '0' (Pending) if no status_approved_hrd is provided
-            $query->where('status_approved_hrd', 0);
+            // Default to '1' (Approved) if no status_approved is provided
+            $query->where('status_approved_hrd', 1);
         }
 
         $cutiapproval = $query->paginate(10);
@@ -654,15 +645,10 @@ class ApprovalController extends Controller
     {
         $nik = Auth::guard('user')->user()->nik;
 
-        // Get the current user's jabatan id
+        // Get the current user's details
         $currentUser = Karyawan::where('nik', $nik)->first();
         $currentUserJabatanId = $currentUser->jabatan;
-
-        // Get the list of employee NIKs whose jabatan_atasan matches the current user's jabatan
-        $employeeNiks = Karyawan::join('jabatan as j1', 'karyawan.jabatan', '=', 'j1.id')
-            ->join('jabatan as j2', 'j1.jabatan_atasan', '=', 'j2.id')
-            ->where('j2.id', $currentUserJabatanId)
-            ->pluck('karyawan.nik');
+        $currentUserKodeDept = $currentUser->kode_dept;
 
         // Begin query on pengajuan_cuti table
         $query = PengajuanCuti::query();
@@ -670,8 +656,21 @@ class ApprovalController extends Controller
             ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept')
             ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
             ->leftJoin('tipe_cuti', 'pengajuan_cuti.tipe', '=', 'tipe_cuti.id_tipe_cuti')
-            ->select('pengajuan_cuti.*', 'karyawan.nama_lengkap', 'karyawan.jabatan', 'department.nama_dept', 'karyawan.tgl_masuk', 'tipe_cuti.tipe_cuti', 'jabatan.nama_jabatan')
-            ->whereIn('pengajuan_cuti.nik', $employeeNiks); // Filter to only include employees supervised by the current user
+            ->select('pengajuan_cuti.*', 'karyawan.nama_lengkap', 'karyawan.jabatan', 'department.nama_dept', 'karyawan.tgl_masuk', 'tipe_cuti.tipe_cuti', 'jabatan.nama_jabatan');
+
+        // Check if the user belongs to the Management department
+        if ($currentUserKodeDept === 'Management') {
+            // Management can access all leave requests, no additional filters
+        } else {
+            // Otherwise, only fetch employees under their supervision (jabatan_atasan matches)
+            $employeeNiks = Karyawan::join('jabatan as j1', 'karyawan.jabatan', '=', 'j1.id')
+                ->join('jabatan as j2', 'j1.jabatan_atasan', '=', 'j2.id')
+                ->where('j2.id', $currentUserJabatanId)
+                ->pluck('karyawan.nik');
+
+            // Apply filter by NIKs (subordinates only)
+            $query->whereIn('pengajuan_cuti.nik', $employeeNiks);
+        }
 
         // Apply date filter if provided
         if (!empty($request->dari) && !empty($request->sampai)) {
@@ -694,7 +693,7 @@ class ApprovalController extends Controller
                 $query->where('status_approved_hrd', $request->status_approved);
             }
         } else {
-            // Default to '0' (Pending) if no status_approved is provided
+            // Default to '1' (Approved) if no status_approved is provided
             $query->where('status_approved_hrd', 1);
         }
 
@@ -722,41 +721,65 @@ class ApprovalController extends Controller
     }
 
 
+
     public function approvecuti(Request $request)
     {
+        // Get the current user's nik from the authenticated user in the 'users' table
+        $currentUserNik = Auth::guard('user')->user()->nik;
+
+        // Fetch karyawan details using the user's nik
+        $currentUserKaryawan = Karyawan::where('nik', $currentUserNik)->first();
+
+        // Get the request inputs
         $id = $request->id_cuti_form;
-        $nik = $request->nik_cuti_form;
+        $nik = $request->nik_cuti_form;  // The nik of the karyawan whose leave is being approved
         $periode = $request->periode_cuti_form;
         $status_approved = $request->status_approved;
         $currentDate = Carbon::now();
 
-        $update = DB::table('pengajuan_cuti')
-            ->where('id', $id)
-            ->update([
-                'status_approved' => $status_approved,
-                'tgl_status_approved' => $currentDate
-            ]);
+        // Check if the current user belongs to the "Management" department
+        if ($currentUserKaryawan->kode_dept == 'Management') {
+            // If the user is in "Management", update status_management and tgl_status_management
+            $update = DB::table('pengajuan_cuti')
+                ->where('id', $id)
+                ->update([
+                    'status_management' => $status_approved,
+                    'tgl_status_management' => $currentDate
+                ]);
+        } else {
+            // Otherwise, update status_approved and tgl_status_approved
+            $update = DB::table('pengajuan_cuti')
+                ->where('id', $id)
+                ->update([
+                    'status_approved' => $status_approved,
+                    'tgl_status_approved' => $currentDate
+                ]);
+        }
 
         if ($update) {
-
+            // Retrieve the leave application for further processing
             $leaveApplication = DB::table('pengajuan_cuti')->where('id', $id)->first();
 
+            // If the leave is approved (status_approved == 2), update the cuti record
             if ($leaveApplication->status_approved == 2) {
-                // Get the cuti record for this user and period
+                // Get the cuti record for the user based on nik and periode (year)
                 $cutiRecord = DB::table('cuti')
                     ->where('nik', $nik)
                     ->where('tahun', $periode)
                     ->first();
 
-                // Calculate the new sisa_cuti
-                $newSisaCuti = $cutiRecord->sisa_cuti + $leaveApplication->jml_hari;
+                // Calculate the new sisa_cuti (remaining leave)
+                if ($cutiRecord) {
+                    $newSisaCuti = $cutiRecord->sisa_cuti + $leaveApplication->jml_hari;
 
-                // Update the cuti record
-                DB::table('cuti')
-                    ->where('nik', $nik)
-                    ->where('tahun', $periode)
-                    ->update(['sisa_cuti' => $newSisaCuti]);
+                    // Update the sisa_cuti in the cuti record
+                    DB::table('cuti')
+                        ->where('nik', $nik)
+                        ->where('tahun', $periode)
+                        ->update(['sisa_cuti' => $newSisaCuti]);
+                }
 
+                // If not Management, update status_approved_hrd and tgl_status_approved_hrd fields
                 DB::table('pengajuan_cuti')
                     ->where('id', $id)
                     ->update([
@@ -764,11 +787,13 @@ class ApprovalController extends Controller
                         'tgl_status_approved_hrd' => $currentDate
                     ]);
             }
+
             return redirect('/approval/cutiapproval')->with(['success' => 'Pengajuan Cuti Berhasil Di Update']);
         } else {
             return redirect('/approval/cutiapproval')->with(['error' => 'Pengajuan Cuti Gagal Di Update']);
         }
     }
+
     public function batalapprovecuti($id)
     {
         $leaveApplication = DB::table('pengajuan_cuti')->where('id', $id)->first();
@@ -796,6 +821,8 @@ class ApprovalController extends Controller
                     'tgl_status_approved' => null,
                     'status_approved_hrd' => 0,
                     'tgl_status_approved_hrd' => null,
+                    'status_management' => 0,
+                    'tgl_status_management' => null,
                 ]);
 
             $cutiRecord = DB::table('cuti')

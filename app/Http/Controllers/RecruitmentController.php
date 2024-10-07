@@ -12,13 +12,27 @@ class RecruitmentController extends Controller
 {
 
     //Candidate
-    public function candidate()
+    public function candidate(Request $request)
     {
-        $candidate = DB::table('candidates')
+        $candidates = DB::table('candidates')
             ->join('job_openings', 'candidates.job_opening_id', '=', 'job_openings.id')
             ->join('hiring_stages', 'candidates.current_stage_id', '=', 'hiring_stages.id')
-            ->select('candidates.*', 'job_openings.title as job_opening_name', 'hiring_stages.name as hiring_stages_name')
-            ->get();
+            ->select('candidates.*', 'job_openings.title as job_opening_name', 'hiring_stages.name as hiring_stages_name');
+
+
+            if (!empty($request->nama_candidate)) {
+                $candidates->where('candidates.nama_candidate', 'like', '%' . $request->nama_candidate . '%');
+            }
+
+            if (!empty($request->title_job)) {
+                $candidates->where('job_openings.title', $request->title_job);
+            }
+
+            if (!empty($request->status_candidate)) {
+                $candidates->where('candidates.status', $request->status_candidate);
+            }
+
+        $candidate = $candidates->get(); // Get results after applying filters
 
         $job = DB::table('job_openings')->get();
         $currentStage = DB::table('hiring_stages')->get();
@@ -533,7 +547,7 @@ class RecruitmentController extends Controller
     public function candidate_data(Request $request)
     {
         // Fetch interview data with candidate name, job opening title, and current stage name
-        $data = DB::table('candidate_data')
+        $datas = DB::table('candidate_data')
             ->join('candidates', 'candidate_data.candidate_id', '=', 'candidates.id') // Join candidates table
             ->join('job_openings', 'candidates.job_opening_id', '=', 'job_openings.id') // Join job_openings table to get job title
             ->join('hiring_stages', 'candidates.current_stage_id', '=', 'hiring_stages.id') // Join stages table to get the current stage
@@ -544,10 +558,26 @@ class RecruitmentController extends Controller
                 'candidates.status as status_candidate', // Retrieve candidate name
                 'job_openings.title as job_title',             // Retrieve job opening title
                 'hiring_stages.name as stage_name'                    // Retrieve current stage name
-            )
-            ->get();
+            );
 
-        return view("recruitment.candidate.datatable", compact('data'));
+
+            if (!empty($request->nama_candidate)) {
+                $datas->where('candidates.nama_candidate', 'like', '%' . $request->nama_candidate . '%');
+            }
+
+            if (!empty($request->title_job)) {
+                $datas->where('job_openings.title', $request->title_job);
+            }
+
+            if (!empty($request->status_candidate)) {
+                $datas->where('candidates.status', $request->status_candidate);
+            }
+
+        $data = $datas->get(); // Get results after applying filters
+
+        $job = DB::table('job_openings')->get();
+
+        return view("recruitment.candidate.datatable", compact('data', 'job'));
     }
 
     public function candidate_data_view(Request $request)

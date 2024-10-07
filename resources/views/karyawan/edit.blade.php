@@ -128,7 +128,8 @@
                 <option {{ $karyawan->employee_status == 'PKWT' ? 'selected' : '' }} value="PKWT">PKWT</option>
                 <option {{ $karyawan->employee_status == 'PKWTT' ? 'selected' : '' }} value="PKWTT">PKWTT</option>
                 <option {{ $karyawan->employee_status == 'Tetap' ? 'selected' : '' }} value="Tetap">Tetap</option>
-                <option {{ $karyawan->employee_status == 'probation' ? 'selected' : '' }} value="probation">probation</option>
+                <option {{ $karyawan->employee_status == 'Probation' ? 'selected' : '' }} value="Probation">Probation</option>
+                <option {{ $karyawan->employee_status == 'Internship' ? 'selected' : '' }} value="Internship">Internship</option>
             </select>
         </div>
         <div class="col-3">

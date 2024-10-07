@@ -161,8 +161,9 @@ use App\Helpers\DateHelper;
                                             <th>Jumlah Hari</th>
                                             <th>Kar Pengganti</th>
                                             <th>Note</th>
+                                            <th>Jenis Cuti</th>
                                             <th>Tipe Cuti</th>
-                                            <th>Status Manager <br>-------------------<br> Status HRD </th>
+                                            <th> Manager <br>-------------------<br> HRD <br>-------------------<br> Management</th>
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
@@ -185,6 +186,7 @@ use App\Helpers\DateHelper;
                                             <td>{{ $d->jml_hari }} </td>
                                             <td>{{ $d->kar_ganti}} </td>
                                             <td>{{ $d->note }}</td>
+                                            <td>{{ $d->jenis }}</td>
                                             <td>{{ $d->tipe_cuti }}</td>
                                             <td>
                                                 @if ($d->status_approved == 1)
@@ -198,6 +200,14 @@ use App\Helpers\DateHelper;
                                                 @if ($d->status_approved_hrd == 1)
                                                 <span class="badge bg-success mt-1" style="color: white; width:90px">Approved</span>
                                                 @elseif ($d->status_approved_hrd == 0)
+                                                <span class="badge bg-yellow mt-1" style="color: white; width:90px">Pending</span>
+                                                @else
+                                                <span class="badge bg-red mt-1" style="color: white; width:90px">Rejected</span>
+                                                @endif
+                                                <br>
+                                                @if ($d->status_management == 1)
+                                                <span class="badge bg-success mt-1" style="color: white; width:90px">Approved</span>
+                                                @elseif ($d->status_management == 0)
                                                 <span class="badge bg-yellow mt-1" style="color: white; width:90px">Pending</span>
                                                 @else
                                                 <span class="badge bg-red mt-1" style="color: white; width:90px">Rejected</span>

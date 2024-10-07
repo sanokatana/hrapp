@@ -45,6 +45,53 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
+                    <div class="row mt-2">
+                            <div class="col-12">
+                                <form action="/recruitment/candidate/data" method="GET">
+                                    <div class="row">
+                                        <div class="col-3 col-lg-3">
+                                            <div class="form-group">
+                                                <input type="text" name="nama_candidate" id="nama_candidate" class="form-control" placeholder="Nama Candidate" value="{{ request('nama_candidate') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-3 col-lg-3">
+                                            <div class="form-group mb-3">
+                                                <select name="title_job" id="title_job" class="form-select">
+                                                    <option value="">Job Opening</option>
+                                                    @foreach ($job as $d)
+                                                        <option {{ request('title_job') == $d->title ? 'selected' : '' }} value="{{ $d->title }}">{{ $d->title }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 col-lg-3">
+                                            <div class="form-group mb-3">
+                                                <select name="status_candidate" id="status_candidate" class="form-select">
+                                                    <option value="">Status Candidate</option>
+                                                    <option value="In Process">In Process</option>
+                                                    <option value="Hired">Hired</option>
+                                                    <option value="Rejected">Rejected</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="col-3 col-lg-3">
+                                            <div class="form-group">
+                                                <button class="btn btn-primary w-100">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-search">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+                                                        <path d="M21 21l-6 -6" />
+                                                    </svg>
+                                                    Cari
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                         <div class="row mt-4">
                             <div class="col-12 table-responsive">
                                 <table class="table table-vcenter card-table table-striped">

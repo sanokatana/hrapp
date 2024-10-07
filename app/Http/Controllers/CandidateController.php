@@ -379,4 +379,9 @@ class CandidateController extends Controller
             return redirect()->back()->with(['danger' => 'Data Gagal Disimpan']);
         }
     }
+
+    public function files()
+    {
+        return view('recruitment.files.index');
+    }
 }

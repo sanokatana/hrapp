@@ -644,13 +644,13 @@ class DashboardController extends Controller
         //     ->count();
 
         $jmlnoatt = DB::table('karyawan')
-        ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
-            $join->on('karyawan.nip', '=', 'presensi.pin')
-                ->whereDate(DB::raw('DATE(presensi.scan_date)'), '=', $hariini);
-        })
-        ->where('status_kar', 'Aktif')
-        ->whereNull('presensi.pin')
-        ->count();
+            ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
+                $join->on('karyawan.nip', '=', 'presensi.pin')
+                    ->whereDate(DB::raw('DATE(presensi.scan_date)'), '=', $hariini);
+            })
+            ->where('status_kar', 'Aktif')
+            ->whereNull('presensi.pin')
+            ->count();
 
 
         // Get historical attendance data for NS employees
@@ -683,6 +683,24 @@ class DashboardController extends Controller
             )
             ->get();
 
+        $noAttendanceNS = DB::connection('mysql2')
+            ->table('hrmschl.karyawan')
+            ->leftJoin('db_absen.att_log as presensi', function($join) use ($hariini) {
+                $join->on('karyawan.nip', '=', 'presensi.pin') // Use 'pin' from 'att_log'
+                    ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini);
+            })
+            ->join('hrmschl.jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+            ->whereNull('presensi.pin') // Filter for karyawan with no attendance
+            ->where('karyawan.grade', 'NS') // Exclude NS grade
+            ->where('jabatan.kode_dept', '!=', 'Management')
+            ->select(
+                'karyawan.*',
+                'jabatan.nama_jabatan',
+                DB::raw('CURRENT_DATE as tgl_presensi'), // Using the current date
+                DB::raw('\'00:00\' as jam_in') // Set jam_in to 00:00 for no attendance
+            )
+            ->get();
+
 
         $historihariNonNS = DB::connection('mysql2')
             ->table('db_absen.att_log as presensi')
@@ -712,39 +730,59 @@ class DashboardController extends Controller
             )
             ->get();
 
+        // Get the list of karyawan who do not have attendance today
+        $noAttendanceNonNS = DB::connection('mysql2')
+            ->table('hrmschl.karyawan')
+            ->leftJoin('db_absen.att_log as presensi', function($join) use ($hariini) {
+                $join->on('karyawan.nip', '=', 'presensi.pin') // Use 'pin' from 'att_log'
+                    ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini);
+            })
+            ->join('hrmschl.jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+            ->whereNull('presensi.pin') // Filter for karyawan with no attendance
+            ->where('karyawan.grade', '!=', 'NS') // Exclude NS grade
+            ->where('jabatan.kode_dept', '!=', 'Management')
+            ->select(
+                'karyawan.*',
+                'jabatan.nama_jabatan',
+                DB::raw('CURRENT_DATE as tgl_presensi'), // Using the current date
+                DB::raw('\'00:00\' as jam_in') // Set jam_in to 00:00 for no attendance
+            )
+            ->get();
 
         // Subquery to get the earliest jam_in for each employee per day
-        $subquery = DB::table('presensi')
+        $subquery = DB::connection('mysql2')
+            ->table('db_absen.att_log as presensi')
             ->select(
-                'presensi.nip',
-                'presensi.tgl_presensi',
-                DB::raw('MIN(presensi.jam_in) as earliest_jam_in'),
+                'presensi.pin',
+                DB::raw('DATE(presensi.scan_date) as tgl_presensi'),
+                DB::raw('TIME(MIN(presensi.scan_date)) as earliest_jam_in'),
                 'shift.start_time'
             )
-            ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
+            ->join('karyawan', 'presensi.pin', '=', 'karyawan.nip')
             ->join('shift_pattern_cycle', function ($join) {
                 $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
                     ->on(DB::raw('
-                CASE
-                    WHEN DAYOFWEEK(presensi.tgl_presensi) = 1 THEN 7
-                    ELSE DAYOFWEEK(presensi.tgl_presensi) - 1
-                END
-            '), '=', 'shift_pattern_cycle.cycle_day');
+                        CASE
+                            WHEN DAYOFWEEK(DATE(presensi.scan_date)) = 1 THEN 7
+                            ELSE DAYOFWEEK(DATE(presensi.scan_date)) - 1
+                        END
+                    '), '=', 'shift_pattern_cycle.cycle_day');
             })
             ->join('shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
-            ->whereMonth('presensi.tgl_presensi', $bulanini)
-            ->whereYear('presensi.tgl_presensi', $tahunini)
-            ->groupBy('presensi.nip', 'presensi.tgl_presensi', 'shift.start_time');
+            ->whereRaw('MONTH(presensi.scan_date) = ?', [$bulanini])
+            ->whereRaw('YEAR(presensi.scan_date) = ?', [$tahunini])
+            ->groupBy('presensi.pin', 'tgl_presensi', 'shift.start_time');
+
 
 
         // Leaderboard for lateness for NS employees
         // Leaderboard for lateness for NS employees
         $leaderboardTelatNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
             ->mergeBindings($subquery)
-            ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
+            ->join('karyawan', 'sub.pin', '=', 'karyawan.nip')
             ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
             ->select(
-                'sub.nip',
+                'sub.pin',
                 'karyawan.kode_dept',
                 'jabatan.nama_jabatan',
                 'karyawan.nama_lengkap',
@@ -757,7 +795,7 @@ class DashboardController extends Controller
             ) as total_late_minutes')
             )
             ->where('karyawan.grade', 'NS')
-            ->groupBy('sub.nip', 'karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
+            ->groupBy('sub.pin', 'karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
             ->orderBy('total_late_minutes', 'desc')
             ->limit(10)
             ->get();
@@ -765,10 +803,10 @@ class DashboardController extends Controller
         // Leaderboard for lateness for Non-NS employees
         $leaderboardTelatNonNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
             ->mergeBindings($subquery)
-            ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
+            ->join('karyawan', 'sub.pin', '=', 'karyawan.nip')
             ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
             ->select(
-                'sub.nip',
+                'sub.pin',
                 'karyawan.kode_dept',
                 'jabatan.nama_jabatan',
                 'karyawan.nama_lengkap',
@@ -781,39 +819,41 @@ class DashboardController extends Controller
             ) as total_late_minutes')
             )
             ->where('karyawan.grade', '!=', 'NS')
-            ->groupBy('sub.nip', 'karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
+            ->groupBy('sub.pin', 'karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
             ->orderBy('total_late_minutes', 'desc')
             ->limit(10)
             ->get();
 
-        $subquery = DB::table('presensi')
+        $subquery = DB::connection('mysql2')
+            ->table('db_absen.att_log as presensi')
             ->select(
-                'presensi.nip',
-                'presensi.tgl_presensi',
-                DB::raw('MIN(presensi.jam_in) as earliest_jam_in'),
+                'presensi.pin as nip',
+                DB::raw('DATE(presensi.scan_date) as tgl_presensi'),
+                DB::raw('MIN(TIME(presensi.scan_date)) as earliest_jam_in'),
                 'shift.start_time',
                 DB::raw(
                     '
                     CASE
-                        WHEN MIN(presensi.jam_in) > shift.start_time THEN 1
+                        WHEN MIN(TIME(presensi.scan_date)) > shift.start_time THEN 1
                         ELSE 0
                     END as is_late'
                 )
             )
-            ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
+            ->join('karyawan', 'presensi.pin', '=', 'karyawan.nip')
             ->join('shift_pattern_cycle', function ($join) {
                 $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
                     ->on(DB::raw('
                         CASE
-                            WHEN DAYOFWEEK(presensi.tgl_presensi) = 1 THEN 7
-                            ELSE DAYOFWEEK(presensi.tgl_presensi) - 1
+                            WHEN DAYOFWEEK(DATE(presensi.scan_date)) = 1 THEN 7
+                            ELSE DAYOFWEEK(DATE(presensi.scan_date)) - 1
                         END
                     '), '=', 'shift_pattern_cycle.cycle_day');
             })
             ->join('shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
-            ->whereMonth('presensi.tgl_presensi', $bulanini)
-            ->whereYear('presensi.tgl_presensi', $tahunini)
-            ->groupBy('presensi.nip', 'presensi.tgl_presensi', 'shift.start_time');
+            ->whereRaw('MONTH(presensi.scan_date) = ?', [$bulanini])
+            ->whereRaw('YEAR(presensi.scan_date) = ?', [$tahunini])
+            ->groupBy('presensi.pin', 'tgl_presensi', 'shift.start_time');
+
 
 
         // Query for total lateness count for NS grade
@@ -854,27 +894,29 @@ class DashboardController extends Controller
 
 
         // Query for NS grade on-time leaderboard
-        $subquery = DB::table('presensi')
+        $subquery = DB::connection('mysql2')
+            ->table('db_absen.att_log as presensi')
             ->select(
-                'presensi.nip',
-                'presensi.tgl_presensi',
-                DB::raw('MIN(presensi.jam_in) as earliest_jam_in'),
+                'presensi.pin as nip',  // Using 'pin' for 'nip'
+                DB::raw('DATE(presensi.scan_date) as tgl_presensi'),  // Extracting date for tgl_presensi
+                DB::raw('MIN(TIME(presensi.scan_date)) as earliest_jam_in'),  // Extracting time for jam_in
                 'shift.start_time'
             )
-            ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
+            ->join('karyawan', 'presensi.pin', '=', 'karyawan.nip')  // Joining on pin to karyawan.nip
             ->join('shift_pattern_cycle', function ($join) {
                 $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
                     ->on(DB::raw('
-                    CASE
-                        WHEN DAYOFWEEK(presensi.tgl_presensi) = 1 THEN 7
-                        ELSE DAYOFWEEK(presensi.tgl_presensi) - 1
-                    END
-                '), '=', 'shift_pattern_cycle.cycle_day');
+                        CASE
+                            WHEN DAYOFWEEK(DATE(presensi.scan_date)) = 1 THEN 7
+                            ELSE DAYOFWEEK(DATE(presensi.scan_date)) - 1
+                        END
+                    '), '=', 'shift_pattern_cycle.cycle_day');
             })
             ->join('shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
-            ->whereMonth('presensi.tgl_presensi', $bulanini)
-            ->whereYear('presensi.tgl_presensi', $tahunini)
-            ->groupBy('presensi.nip', 'presensi.tgl_presensi', 'shift.start_time');
+            ->whereRaw('MONTH(presensi.scan_date) = ?', [$bulanini])  // Filtering by month using scan_date
+            ->whereRaw('YEAR(presensi.scan_date) = ?', [$tahunini])  // Filtering by year using scan_date
+            ->groupBy('presensi.pin', 'tgl_presensi', 'shift.start_time');  // Grouping by necessary fields
+
 
         // Leaderboard for on-time for NS employees
         $leaderboardOnTimeNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
@@ -920,6 +962,76 @@ class DashboardController extends Controller
             )
             ->where('karyawan.grade', '!=', 'NS')
             ->groupBy('sub.nip', 'karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
+            ->orderBy('total_on_time', 'desc')
+            ->limit(10)
+            ->get();
+
+
+        $subquery = DB::connection('mysql2')
+            ->table('db_absen.att_log as presensi')
+            ->select(
+                'presensi.pin as nip',
+                DB::raw('DATE(presensi.scan_date) as tgl_presensi'),
+                DB::raw('MIN(TIME(presensi.scan_date)) as earliest_jam_in'),
+                'shift.start_time',
+                DB::raw(
+                    '
+                    CASE
+                        WHEN MIN(TIME(presensi.scan_date)) < shift.start_time THEN 1
+                        ELSE 0
+                    END as is_ontime'
+                )
+            )
+            ->join('karyawan', 'presensi.pin', '=', 'karyawan.nip')
+            ->join('shift_pattern_cycle', function ($join) {
+                $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
+                    ->on(DB::raw('
+                        CASE
+                            WHEN DAYOFWEEK(DATE(presensi.scan_date)) = 1 THEN 7
+                            ELSE DAYOFWEEK(DATE(presensi.scan_date)) - 1
+                        END
+                    '), '=', 'shift_pattern_cycle.cycle_day');
+            })
+            ->join('shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
+            ->whereRaw('MONTH(presensi.scan_date) = ?', [$bulanini])
+            ->whereRaw('YEAR(presensi.scan_date) = ?', [$tahunini])
+            ->groupBy('presensi.pin', 'tgl_presensi', 'shift.start_time');
+
+
+
+        // Query for total lateness count for NS grade
+        // Leaderboard for total lateness count for NS employees
+        $totalOnTimeNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
+            ->mergeBindings($subquery)
+            ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
+            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+            ->select(
+                'karyawan.nama_lengkap',
+                'karyawan.kode_dept',
+                'jabatan.nama_jabatan',
+                DB::raw('SUM(sub.is_ontime) as total_on_time')
+            )
+            ->where('karyawan.grade', 'NS')
+            ->where('jabatan.kode_dept', '!=', 'Management')
+            ->groupBy('karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
+            ->orderBy('total_on_time', 'desc')
+            ->limit(10)
+            ->get();
+
+        // Query for total lateness count for Non-NS grade
+        $totalOnTimeNonNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
+            ->mergeBindings($subquery)
+            ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
+            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+            ->select(
+                'karyawan.nama_lengkap',
+                'karyawan.kode_dept',
+                'jabatan.nama_jabatan',
+                DB::raw('SUM(sub.is_ontime) as total_on_time')
+            )
+            ->where('karyawan.grade', '!=', 'NS')
+            ->where('jabatan.kode_dept', '!=', 'Management')
+            ->groupBy('karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
             ->orderBy('total_on_time', 'desc')
             ->limit(10)
             ->get();
@@ -983,9 +1095,13 @@ class DashboardController extends Controller
             'rekapkaryawan',
             'jmlnoatt',
             'historihariNS',
+            'noAttendanceNS',
             'historihariNonNS',
+            'noAttendanceNonNS',
             'leaderboardTelatNS',
             'leaderboardTelatNonNS',
+            'totalOnTimeNS',
+            'totalOnTimeNonNS',
             'KarIzinNow',
             'KarCutiNow',
             'KarIzinNowNS',
@@ -999,33 +1115,34 @@ class DashboardController extends Controller
 
 
 
-    public function dashboardcandidate(){
+    public function dashboardcandidate()
+    {
         $candidateId = Auth::guard('candidate')->user()->id;
         $candidate = DB::table('candidates')
-        ->join('job_openings', 'candidates.job_opening_id', '=', 'job_openings.id')
-        ->join('hiring_stages', 'candidates.current_stage_id', '=', 'hiring_stages.id')
-        ->select(
-            'candidates.*',
-            'job_openings.title as job_title',
-            'job_openings.recruitment_type_id',
-            'hiring_stages.name as current_stage_name',
-            'hiring_stages.id as current_stage_id'
-        )
-        ->where('candidates.id', $candidateId)  // filter by the current candidate
-        ->first();
+            ->join('job_openings', 'candidates.job_opening_id', '=', 'job_openings.id')
+            ->join('hiring_stages', 'candidates.current_stage_id', '=', 'hiring_stages.id')
+            ->select(
+                'candidates.*',
+                'job_openings.title as job_title',
+                'job_openings.recruitment_type_id',
+                'hiring_stages.name as current_stage_name',
+                'hiring_stages.id as current_stage_id'
+            )
+            ->where('candidates.id', $candidateId)  // filter by the current candidate
+            ->first();
 
         $interview = DB::table('interviews')
-        ->join('candidates', 'interviews.candidate_id', '=', 'candidates.id') // Join candidates table
-        ->join('hiring_stages', 'interviews.stage_id', '=', 'hiring_stages.id') // Join stages table
-        ->leftJoin('candidate_data', 'candidates.id', '=', 'candidate_data.candidate_id') // Join candidate_data table
-        ->select(
-            'interviews.*',
-            'candidates.nama_candidate as candidate_name', // Retrieve candidate name
-            'hiring_stages.name as stage_name', // Retrieve stage name
-            'candidate_data.status_form' // Retrieve form status
-        )
-        ->where('interviews.candidate_id', $candidateId) // Only get interviews for the current candidate
-        ->get();
+            ->join('candidates', 'interviews.candidate_id', '=', 'candidates.id') // Join candidates table
+            ->join('hiring_stages', 'interviews.stage_id', '=', 'hiring_stages.id') // Join stages table
+            ->leftJoin('candidate_data', 'candidates.id', '=', 'candidate_data.candidate_id') // Join candidate_data table
+            ->select(
+                'interviews.*',
+                'candidates.nama_candidate as candidate_name', // Retrieve candidate name
+                'hiring_stages.name as stage_name', // Retrieve stage name
+                'candidate_data.status_form' // Retrieve form status
+            )
+            ->where('interviews.candidate_id', $candidateId) // Only get interviews for the current candidate
+            ->get();
 
         // Retrieve all stages related to this candidate's recruitment type
         $stages = DB::table('hiring_stages')
