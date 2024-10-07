@@ -436,10 +436,19 @@
                                                             <span class="badge bg-danger">Form Declined</span>
                                                         @endif
                                                     </div>
-                                                    <div>
+                                                    <div class="mb-1">
                                                         @if ($d->status_approved_hrd == 0)
                                                             <span class="badge bg-warning">Waiting Approval</span>
                                                         @elseif ($d->status_approved_hrd == 1)
+                                                            <span class="badge bg-success">Form Approved</span>
+                                                        @else
+                                                            <span class="badge bg-danger">Form Declined</span>
+                                                        @endif
+                                                    </div>
+                                                    <div>
+                                                        @if ($d->status_management == 0)
+                                                            <span class="badge bg-warning">Waiting Approval</span>
+                                                        @elseif ($d->status_management == 1)
                                                             <span class="badge bg-success">Form Approved</span>
                                                         @else
                                                             <span class="badge bg-danger">Form Declined</span>
