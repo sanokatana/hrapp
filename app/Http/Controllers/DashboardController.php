@@ -1118,6 +1118,8 @@ class DashboardController extends Controller
     public function dashboardcandidate()
     {
         $candidateId = Auth::guard('candidate')->user()->id;
+
+        // Retrieve candidate information
         $candidate = DB::table('candidates')
             ->join('job_openings', 'candidates.job_opening_id', '=', 'job_openings.id')
             ->join('hiring_stages', 'candidates.current_stage_id', '=', 'hiring_stages.id')
@@ -1128,31 +1130,34 @@ class DashboardController extends Controller
                 'hiring_stages.name as current_stage_name',
                 'hiring_stages.id as current_stage_id'
             )
-            ->where('candidates.id', $candidateId)  // filter by the current candidate
+            ->where('candidates.id', $candidateId)
             ->first();
 
+        // Retrieve interviews related to this candidate
         $interview = DB::table('interviews')
-            ->join('candidates', 'interviews.candidate_id', '=', 'candidates.id') // Join candidates table
-            ->join('hiring_stages', 'interviews.stage_id', '=', 'hiring_stages.id') // Join stages table
-            ->leftJoin('candidate_data', 'candidates.id', '=', 'candidate_data.candidate_id') // Join candidate_data table
+            ->join('candidates', 'interviews.candidate_id', '=', 'candidates.id')
+            ->join('hiring_stages', 'interviews.stage_id', '=', 'hiring_stages.id')
+            ->leftJoin('candidate_data', 'candidates.id', '=', 'candidate_data.candidate_id')
             ->select(
                 'interviews.*',
-                'candidates.nama_candidate as candidate_name', // Retrieve candidate name
-                'hiring_stages.name as stage_name', // Retrieve stage name
-                'candidate_data.status_form' // Retrieve form status
+                'candidates.nama_candidate as candidate_name',
+                'hiring_stages.name as stage_name',
+                'candidate_data.status_form'
             )
-            ->where('interviews.candidate_id', $candidateId) // Only get interviews for the current candidate
+            ->where('interviews.candidate_id', $candidateId)
             ->get();
 
         // Retrieve all stages related to this candidate's recruitment type
         $stages = DB::table('hiring_stages')
             ->where('recruitment_type_id', $candidate->recruitment_type_id)
-            ->orderBy('sequence', 'asc') // assuming there's a sequence column for ordering the stages
+            ->orderBy('sequence', 'asc')
             ->get();
 
+        // Retrieve candidate data and handle null case
         $candidateData = DB::table('candidate_data')->where('candidate_id', $candidateId)->first();
-        $statusForm = $candidateData->status_form;
+        $statusForm = $candidateData ? $candidateData->status_form : null; // Check if $candidateData is null
 
         return view('dashboard.dashboardcandidate', compact('candidate', 'stages', 'statusForm', 'interview', 'candidateData'));
     }
+
 }

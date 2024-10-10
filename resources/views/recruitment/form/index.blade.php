@@ -45,7 +45,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <form action="'/candidate/data/store'" method="POST" id="formCandidate">
+                        <form action="/candidate/data/store" method="POST" id="formCandidate">
                             @csrf
                             <h2>A. IDENTITAS</h2>
                             <input type="hidden" id="candidate_id" name="candidate_id" value="{{$candidateId}}">
@@ -160,18 +160,29 @@
 
                             <!-- Status Keluarga -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Status Keluarga</label>
+                                <label class="col-md-3 col-form-label">Status Pajak</label>
                                 <div class="col-md-9">
-                                    <select class="form-select" name="status_keluarga" id="status_keluarga">
+                                    <select class="form-select" name="status_pajak" id="status_pajak">
                                         <option value="">Pilih</option>
                                         <option value="TK">TK (Tidak Kawin)</option>
                                         <option value="TK1">TK1</option>
                                         <option value="TK2">TK2</option>
                                         <option value="TK3">TK3</option>
-                                        <option value="M">M (Menikah)</option>
-                                        <option value="M1">M1</option>
-                                        <option value="M2">M2</option>
-                                        <option value="M3">M3</option>
+                                        <option value="K">K (Menikah)</option>
+                                        <option value="K1">K1</option>
+                                        <option value="K2">K2</option>
+                                        <option value="K3">K3</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 align-items-center">
+                                <label class="col-md-3 col-form-label">Status Menikah</label>
+                                <div class="col-md-9">
+                                    <select class="form-select" name="marriage_status" id="marriage_status">
+                                        <option value="">Pilih</option>
+                                        <option value="Menikah">Menikah</option>
+                                        <option value="Tidak Menikah">Tidak Menikah</option>
                                     </select>
                                 </div>
                             </div>
@@ -181,7 +192,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Tanggal Menikah</label>
                                 <div class="col-md-9">
-                                    <input type="date"  class="form-control" name="tgl_menikah">
+                                    <input type="date" class="form-control" name="tgl_menikah">
                                 </div>
                             </div>
 
@@ -578,44 +589,129 @@
                                         <tbody>
                                             <tr>
                                                 <td>Engineering</td>
-                                                <td><input class="form-control" type="number" name="engineering_no"></td>
+                                                <td>
+                                                    <select class="form-control" name="engineering_no">
+                                                        <option value="">Select</option>
+                                                        @for($i = 1; $i <= 12; $i++)
+                                                            <option value="{{ $i }}">{{ $i }}</option>
+                                                            @endfor
+                                                    </select>
+                                                </td>
                                                 <td>Accounting</td>
-                                                <td><input class="form-control" type="number" name="accounting_no"></td>
+                                                <td>
+                                                    <select class="form-control" name="accounting_no">
+                                                        <option value="">Select</option>
+                                                        @for($i = 1; $i <= 12; $i++)
+                                                            <option value="{{ $i }}">{{ $i }}</option>
+                                                            @endfor
+                                                    </select>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td>Geologist</td>
-                                                <td><input class="form-control" type="number" name="geologist_no"></td>
+                                                <td>
+                                                    <select class="form-control" name="geologist_no">
+                                                        <option value="">Select</option>
+                                                        @for($i = 1; $i <= 12; $i++)
+                                                            <option value="{{ $i }}">{{ $i }}</option>
+                                                            @endfor
+                                                    </select>
+                                                </td>
                                                 <td>Administration</td>
-                                                <td><input class="form-control" type="number" name="administration_no"></td>
+                                                <td>
+                                                    <select class="form-control" name="administration_no">
+                                                        <option value="">Select</option>
+                                                        @for($i = 1; $i <= 12; $i++)
+                                                            <option value="{{ $i }}">{{ $i }}</option>
+                                                            @endfor
+                                                    </select>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td>Agronomist</td>
-                                                <td><input class="form-control" type="number" name="agronomist_no"></td>
+                                                <td>
+                                                    <select class="form-control" name="agronomist_no">
+                                                        <option value="">Select</option>
+                                                        @for($i = 1; $i <= 12; $i++)
+                                                            <option value="{{ $i }}">{{ $i }}</option>
+                                                            @endfor
+                                                    </select>
+                                                </td>
                                                 <td>General Affair</td>
-                                                <td><input class="form-control" type="number" name="ga_no"></td>
+                                                <td>
+                                                    <select class="form-control" name="ga_no">
+                                                        <option value="">Select</option>
+                                                        @for($i = 1; $i <= 12; $i++)
+                                                            <option value="{{ $i }}">{{ $i }}</option>
+                                                            @endfor
+                                                    </select>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td>Consultant/Riset</td>
-                                                <td><input class="form-control" type="number" name="consultant_no"></td>
+                                                <td>
+                                                    <select class="form-control" name="consultant_no">
+                                                        <option value="">Select</option>
+                                                        @for($i = 1; $i <= 12; $i++)
+                                                            <option value="{{ $i }}">{{ $i }}</option>
+                                                            @endfor
+                                                    </select>
+                                                </td>
                                                 <td>Personnel</td>
-                                                <td><input class="form-control" type="number" name="personnel_no"></td>
+                                                <td>
+                                                    <select class="form-control" name="personnel_no">
+                                                        <option value="">Select</option>
+                                                        @for($i = 1; $i <= 12; $i++)
+                                                            <option value="{{ $i }}">{{ $i }}</option>
+                                                            @endfor
+                                                    </select>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td>Cashier</td>
-                                                <td><input class="form-control" type="number" name="cashier_no"></td>
+                                                <td>
+                                                    <select class="form-control" name="cashier_no">
+                                                        <option value="">Select</option>
+                                                        @for($i = 1; $i <= 12; $i++)
+                                                            <option value="{{ $i }}">{{ $i }}</option>
+                                                            @endfor
+                                                    </select>
+                                                </td>
                                                 <td>Finance</td>
-                                                <td><input class="form-control" type="number" name="finance_no"></td>
+                                                <td>
+                                                    <select class="form-control" name="finance_no">
+                                                        <option value="">Select</option>
+                                                        @for($i = 1; $i <= 12; $i++)
+                                                            <option value="{{ $i }}">{{ $i }}</option>
+                                                            @endfor
+                                                    </select>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td>Humas</td>
-                                                <td><input class="form-control" type="number" name="humas_no"></td>
+                                                <td>
+                                                    <select class="form-control" name="humas_no">
+                                                        <option value="">Select</option>
+                                                        @for($i = 1; $i <= 12; $i++)
+                                                            <option value="{{ $i }}">{{ $i }}</option>
+                                                            @endfor
+                                                    </select>
+                                                </td>
                                                 <td>Driver</td>
-                                                <td><input class="form-control" type="number" name="driver_no"></td>
+                                                <td>
+                                                    <select class="form-control" name="driver_no">
+                                                        <option value="">Select</option>
+                                                        @for($i = 1; $i <= 12; $i++)
+                                                            <option value="{{ $i }}">{{ $i }}</option>
+                                                            @endfor
+                                                    </select>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
+
 
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-12 col-form-label">1. Pernahkah Saudara melamar pekerjaan di Perusahaan kami ? </label>
@@ -748,51 +844,51 @@
                                             <!-- Gaji Pokok -->
                                             <tr>
                                                 <td>Gaji Pokok</td>
-                                                <td><input class="form-control" type="number" name="gaji_pokok"></td>
+                                                <td><input class="form-control rupiah" type="text" name="gaji_pokok"></td>
                                             </tr>
                                             <!-- Tunjangan -->
                                             <tr>
                                                 <td colspan="2"><strong>Tunjangan</strong></td>
                                             </tr>
                                             <tr>
-                                                <td><input type="text" class="form-control" name="tunjangan1"></td>
-                                                <td><input class="form-control" type="number" name="nilai_tunjangan1"></td>
+                                                <td><input type="text" class="form-control" name="tunjangan1" value="Tunjangan 1"></td>
+                                                <td><input class="form-control rupiah" type="text" name="nilai_tunjangan1"></td>
                                             </tr>
                                             <tr>
-                                                <td><input type="text" class="form-control" name="tunjangan2"></td>
-                                                <td><input class="form-control" type="number" name="nilai_tunjangan2"></td>
+                                                <td><input type="text" class="form-control" name="tunjangan2" value="Tunjangan 2"></td>
+                                                <td><input class="form-control rupiah" type="text" name="nilai_tunjangan2"></td>
                                             </tr>
                                             <tr>
-                                                <td><input type="text" class="form-control" name="tunjangan3"></td>
-                                                <td><input class="form-control" type="number" name="nilai_tunjangan3"></td>
+                                                <td><input type="text" class="form-control" name="tunjangan3" value="Tunjangan 3"></td>
+                                                <td><input class="form-control rupiah" type="text" name="nilai_tunjangan3"></td>
                                             </tr>
                                             <tr>
-                                                <td><input type="text" class="form-control" name="tunjangan4"></td>
-                                                <td><input class="form-control" type="number" name="nilai_tunjangan4"></td>
+                                                <td><input type="text" class="form-control" name="tunjangan4" value="Tunjangan 4"></td>
+                                                <td><input class="form-control rupiah" type="text" name="nilai_tunjangan4"></td>
                                             </tr>
                                             <tr>
-                                                <td><input type="text" class="form-control" name="tunjangan5"></td>
-                                                <td><input class="form-control" type="number" name="nilai_tunjangan5"></td>
+                                                <td><input type="text" class="form-control" name="tunjangan5" value="Tunjangan 5"></td>
+                                                <td><input class="form-control rupiah" type="text" name="nilai_tunjangan5"></td>
                                             </tr>
                                             <!-- Insentif -->
                                             <tr>
                                                 <td>Insentif</td>
-                                                <td><input class="form-control" type="number" name="nilai_insentif"></td>
+                                                <td><input class="form-control rupiah" type="text" name="nilai_insentif"></td>
                                             </tr>
                                             <!-- Lain-lain -->
                                             <tr>
                                                 <td>Lain-lain</td>
-                                                <td><input class="form-control" type="number" name="nilai_lain_lain"></td>
+                                                <td><input class="form-control rupiah" type="text" name="nilai_lain_lain"></td>
                                             </tr>
                                             <!-- Total Take Home Pay -->
                                             <tr>
                                                 <td>Total Take Home Pay / Bulan</td>
-                                                <td><input class="form-control" type="number" name="take_home_bulan"></td>
+                                                <td><input class="form-control rupiah" type="text" name="take_home_bulan"></td>
                                             </tr>
                                             <!-- Pendapatan per Tahun -->
                                             <tr>
                                                 <td>Pendapatan per Tahun (Termasuk THR)</td>
-                                                <td><input class="form-control" type="number" name="take_home_tahun"></td>
+                                                <td><input class="form-control rupiah" type="text" name="take_home_tahun"></td>
                                             </tr>
                                             <!-- Gaji per Tahun Bulan -->
                                             <tr>
@@ -818,12 +914,12 @@
                                             <!-- Take Home Pay / Bulan -->
                                             <tr>
                                                 <td>Take Home Pay / Bulan</td>
-                                                <td><input class="form-control" type="number" name="harap_take_home_bulan"></td>
+                                                <td><input class="form-control rupiah" type="text" name="harap_take_home_bulan"></td>
                                             </tr>
                                             <!-- Pendapatan per Tahun -->
                                             <tr>
                                                 <td>Pendapatan per Tahun (Bersih/Kotor)</td>
-                                                <td><input class="form-control" type="number" name="harap_take_home_tahun"></td>
+                                                <td><input class="form-control rupiah" type="text" name="harap_take_home_tahun"></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -842,6 +938,30 @@
 
 @push('myscript')
 <script>
+    // document.querySelectorAll('.rupiah').forEach(function(input) {
+    //     input.addEventListener('input', function() {
+    //         let value = this.value.replace(/[^,\d]/g, '').toString();
+    //         let split = value.split(',');
+    //         let sisa = split[0].length % 3;
+    //         let rupiah = split[0].substr(0, sisa);
+    //         let ribuan = split[0].substr(sisa).match(/\d{3}/g);
+
+    //         if (ribuan) {
+    //             let separator = sisa ? '.' : '';
+    //             rupiah += separator + ribuan.join('.');
+    //         }
+
+    //         rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
+    //         this.value = 'Rp ' + rupiah;
+    //     });
+    // });
+
+    // document.getElementById('formCandidate').addEventListener('submit', function(e) {
+    //     document.querySelectorAll('.rupiah').forEach(function(input) {
+    //         input.value = input.value.replace(/[^0-9.,]/g, '');  // Remove Rp and non-numeric characters
+    //     });
+    // });
+
     document.addEventListener('DOMContentLoaded', function() {
         const tanggungJawabSelect = document.getElementById('tanggung_jawab');
         const additionalTanggungan = document.getElementById('additional_tanggungan');
@@ -868,7 +988,7 @@
         });
     });
 
-    document.getElementById('status_keluarga').addEventListener('change', function() {
+    document.getElementById('status_pajak').addEventListener('change', function() {
         const status = this.value;
 
         // Hide all rows by default
@@ -887,7 +1007,7 @@
         let shouldShowTable = false;
 
         // Handle spouse visibility and required attribute
-        if (status.startsWith('M')) {
+        if (status.startsWith('K')) {
             document.getElementById('row_istri').style.display = 'table-row'; // show spouse
             shouldShowTable = true;
 
@@ -941,7 +1061,7 @@
 
 
     // Trigger change event on page load to set initial table visibility
-    document.getElementById('status_keluarga').dispatchEvent(new Event('change'));
+    document.getElementById('status_pajak').dispatchEvent(new Event('change'));
 
     let siblingCount = 1;
 
@@ -1142,8 +1262,8 @@
                     message: 'Alamat NPWP Harus Diisi'
                 },
                 {
-                    id: 'select[name="status_keluarga"]',
-                    message: 'Status Keluarga Harus Diisi'
+                    id: 'select[name="status_pajak"]',
+                    message: 'Status Pajak Harus Diisi'
                 },
                 {
                     id: 'input[name="tgl_menikah"]',
