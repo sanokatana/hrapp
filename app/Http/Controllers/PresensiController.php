@@ -478,7 +478,7 @@ class PresensiController extends Controller
                         NIK : {$nik}<br>
                         NIP : {$nip}<br>
                         Tanggal Izin : " . DateHelper::formatIndonesianDate($tgl_izin) . "<br>
-                        Tanggal Izin Sampai : " . DateHelper::formatIndonesianDate($tgl_izin_akhir) . "<br>
+                        Tanggal Izin Sampai : " . (!empty($tgl_izin_akhir) ? DateHelper::formatIndonesianDate($tgl_izin_akhir) : '') . "<br>
                         Jumlah Hari : {$jml_hari}<br>
                         Status : " . DateHelper::getStatusText($status) . "<br>
                         Pukul : {$pukul}<br>

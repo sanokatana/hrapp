@@ -27,16 +27,16 @@ class StoreCandidateRequest extends FormRequest
             'tgl_ktp_sim' => 'nullable|date',
             'no_npwp' => 'nullable|string|max:20',
             'alamat_npwp' => 'nullable|string|max:500',
-            'status_pajak' => 'required|string|max:10',
-            'marriage_status' => 'required|string|max:10',
+            'status_pajak' => 'nullable|string|max:10',
+            'marriage_status' => 'nullable|string|max:10',
             'tgl_menikah' => 'nullable|date',
             'jabatan' => 'nullable|string|max:255',
             'nama_perusahaan' => 'nullable|string|max:255',
             'alamat_perusahaan' => 'nullable|string|max:500',
             'alamat_email' => 'nullable|email|max:255',
             'tanggung_jawab' => 'nullable|string|max:50',
-            'siapa_tanggungan' => 'nullable|string|max:255',
-            'nilai_tanggungan' => 'nullable|int|max:100',
+            'siapa_tanggungan' => 'nullable|string|max:50',
+            'nilai_tanggungan' => 'nullable|string|max:50',
             'rumah_status' => 'nullable|string|max:100',
             'melanjut_pendidikan' => 'nullable|string|max:100',
             'penjelasan_pendidikan' => 'nullable|string|max:100',
@@ -63,13 +63,13 @@ class StoreCandidateRequest extends FormRequest
             'nama_referensi1' => 'nullable|string|max:255',
             'nama_referensi2' => 'nullable|string|max:255',
             'sakit_lama' => 'nullable|string|max:255',
-            'gambaran_posisi' => 'nullable|file|mimes:jpg,png,pdf|max:2048', // Adjust as needed
-            'masa_percobaan' => 'required|string|max:100',
-            'proses_bi' => 'required|string|max:100',
+            'gambaran_posisi' => 'nullable|file|mimes:jpg,png,pdf|max:10240', // Adjust as needed
+            'masa_percobaan' => 'nullable|string|max:100',
+            'proses_bi' => 'nullable|string|max:100',
             'mulai_kerja' => 'nullable|date',
-            'slip1' => 'nullable|file|mimes:jpg,png,pdf|max:2048',
-            'slip2' => 'nullable|file|mimes:jpg,png,pdf|max:2048',
-            'slip3' => 'nullable|file|mimes:jpg,png,pdf|max:2048',
+            'slip1' => 'nullable|file|mimes:jpg,png,pdf|max:10240',
+            'slip2' => 'nullable|file|mimes:jpg,png,pdf|max:10240',
+            'slip3' => 'nullable|file|mimes:jpg,png,pdf|max:10240',
 
             // Salary and financial details
             'gaji_pokok' => 'nullable|numeric|min:0|max:9999999999999.99', // For decimal(15,2)
@@ -87,7 +87,7 @@ class StoreCandidateRequest extends FormRequest
             'nilai_lain_lain' => 'nullable|numeric|min:0|max:9999999999999.99',
             'take_home_bulan' => 'nullable|numeric|min:0|max:9999999999999.99',
             'take_home_tahun' => 'nullable|numeric|min:0|max:9999999999999.99',
-            'bulan_gaji' => 'required|string|max:100',
+            'bulan_gaji' => 'nullable|string|max:100',
 
             // Expected Income
             'harap_take_home_bulan' => 'nullable|numeric|min:0|max:9999999999999.99',

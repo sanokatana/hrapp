@@ -45,7 +45,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <form action="/candidate/data/store" method="POST" id="formCandidate">
+                        <form action='/candidate/data/store' method="POST" id="formCandidate" enctype="multipart/form-data">
                             @csrf
                             <h2>A. IDENTITAS</h2>
                             <input type="hidden" id="candidate_id" name="candidate_id" value="{{$candidateId}}">
@@ -337,7 +337,7 @@
                                                 <td><input class="form-control" type="text" name="family1_keterangan_anak1"></td>
                                                 <td><button type="button" id="add_sibling_btn" class="btn btn-sm btn-success">+</button></td>
                                             </tr>
-
+                                            <input type="hidden" id="sibling_count" name="sibling_count" value="1">
                                         </tbody>
                                     </table>
                                 </div>
@@ -360,8 +360,8 @@
                                 <div class="row mb-3 align-items-center">
                                     <label class="col-md-5 col-form-label">Siapa dan berapa besar tanggungan?</label>
                                     <div class="col-md-7">
-                                        <input type="text" class="form-control" name="siapa_tanggungan" placeholder="Siapa">
-                                        <input type="number" class="form-control mt-2" name="nilai_tanggungan" placeholder="Rp. ....... / bulan">
+                                        <input type="text" class="form-control" name="siapa_tanggungan" id="siapa_tanggungan" placeholder="Siapa">
+                                        <input type="number" class="form-control mt-2" name="nilai_tanggungan" id="nilai_tanggungan" placeholder="Rp. ....... / bulan">
                                     </div>
                                 </div>
                             </div>
@@ -844,51 +844,51 @@
                                             <!-- Gaji Pokok -->
                                             <tr>
                                                 <td>Gaji Pokok</td>
-                                                <td><input class="form-control rupiah" type="text" name="gaji_pokok"></td>
+                                                <td><input class="form-control" type="number" name="gaji_pokok"></td>
                                             </tr>
                                             <!-- Tunjangan -->
                                             <tr>
                                                 <td colspan="2"><strong>Tunjangan</strong></td>
                                             </tr>
                                             <tr>
-                                                <td><input type="text" class="form-control" name="tunjangan1" value="Tunjangan 1"></td>
-                                                <td><input class="form-control rupiah" type="text" name="nilai_tunjangan1"></td>
+                                                <td><input type="text" class="form-control" name="tunjangan1" value=""></td>
+                                                <td><input class="form-control" type="number" name="nilai_tunjangan1"></td>
                                             </tr>
                                             <tr>
-                                                <td><input type="text" class="form-control" name="tunjangan2" value="Tunjangan 2"></td>
-                                                <td><input class="form-control rupiah" type="text" name="nilai_tunjangan2"></td>
+                                                <td><input type="text" class="form-control" name="tunjangan2" value=""></td>
+                                                <td><input class="form-control" type="number" name="nilai_tunjangan2"></td>
                                             </tr>
                                             <tr>
-                                                <td><input type="text" class="form-control" name="tunjangan3" value="Tunjangan 3"></td>
-                                                <td><input class="form-control rupiah" type="text" name="nilai_tunjangan3"></td>
+                                                <td><input type="text" class="form-control" name="tunjangan3" value=""></td>
+                                                <td><input class="form-control" type="number" name="nilai_tunjangan3"></td>
                                             </tr>
                                             <tr>
-                                                <td><input type="text" class="form-control" name="tunjangan4" value="Tunjangan 4"></td>
-                                                <td><input class="form-control rupiah" type="text" name="nilai_tunjangan4"></td>
+                                                <td><input type="text" class="form-control" name="tunjangan4" value=""></td>
+                                                <td><input class="form-control" type="number" name="nilai_tunjangan4"></td>
                                             </tr>
                                             <tr>
-                                                <td><input type="text" class="form-control" name="tunjangan5" value="Tunjangan 5"></td>
-                                                <td><input class="form-control rupiah" type="text" name="nilai_tunjangan5"></td>
+                                                <td><input type="text" class="form-control" name="tunjangan5" value=""></td>
+                                                <td><input class="form-control" type="number" name="nilai_tunjangan5"></td>
                                             </tr>
                                             <!-- Insentif -->
                                             <tr>
                                                 <td>Insentif</td>
-                                                <td><input class="form-control rupiah" type="text" name="nilai_insentif"></td>
+                                                <td><input class="form-control" type="number" name="nilai_insentif"></td>
                                             </tr>
                                             <!-- Lain-lain -->
                                             <tr>
                                                 <td>Lain-lain</td>
-                                                <td><input class="form-control rupiah" type="text" name="nilai_lain_lain"></td>
+                                                <td><input class="form-control" type="number" name="nilai_lain_lain"></td>
                                             </tr>
                                             <!-- Total Take Home Pay -->
                                             <tr>
                                                 <td>Total Take Home Pay / Bulan</td>
-                                                <td><input class="form-control rupiah" type="text" name="take_home_bulan"></td>
+                                                <td><input class="form-control" type="number" name="take_home_bulan"></td>
                                             </tr>
                                             <!-- Pendapatan per Tahun -->
                                             <tr>
                                                 <td>Pendapatan per Tahun (Termasuk THR)</td>
-                                                <td><input class="form-control rupiah" type="text" name="take_home_tahun"></td>
+                                                <td><input class="form-control" type="number" name="take_home_tahun"></td>
                                             </tr>
                                             <!-- Gaji per Tahun Bulan -->
                                             <tr>
@@ -914,12 +914,12 @@
                                             <!-- Take Home Pay / Bulan -->
                                             <tr>
                                                 <td>Take Home Pay / Bulan</td>
-                                                <td><input class="form-control rupiah" type="text" name="harap_take_home_bulan"></td>
+                                                <td><input class="form-control" type="number" name="harap_take_home_bulan"></td>
                                             </tr>
                                             <!-- Pendapatan per Tahun -->
                                             <tr>
                                                 <td>Pendapatan per Tahun (Bersih/Kotor)</td>
-                                                <td><input class="form-control rupiah" type="text" name="harap_take_home_tahun"></td>
+                                                <td><input class="form-control" type="number" name="harap_take_home_tahun"></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -938,42 +938,25 @@
 
 @push('myscript')
 <script>
-    // document.querySelectorAll('.rupiah').forEach(function(input) {
-    //     input.addEventListener('input', function() {
-    //         let value = this.value.replace(/[^,\d]/g, '').toString();
-    //         let split = value.split(',');
-    //         let sisa = split[0].length % 3;
-    //         let rupiah = split[0].substr(0, sisa);
-    //         let ribuan = split[0].substr(sisa).match(/\d{3}/g);
-
-    //         if (ribuan) {
-    //             let separator = sisa ? '.' : '';
-    //             rupiah += separator + ribuan.join('.');
-    //         }
-
-    //         rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
-    //         this.value = 'Rp ' + rupiah;
-    //     });
-    // });
-
-    // document.getElementById('formCandidate').addEventListener('submit', function(e) {
-    //     document.querySelectorAll('.rupiah').forEach(function(input) {
-    //         input.value = input.value.replace(/[^0-9.,]/g, '');  // Remove Rp and non-numeric characters
-    //     });
-    // });
 
     document.addEventListener('DOMContentLoaded', function() {
-        const tanggungJawabSelect = document.getElementById('tanggung_jawab');
-        const additionalTanggungan = document.getElementById('additional_tanggungan');
+        const tanggungJawabSelectTang = document.getElementById('tanggung_jawab');
+        const additionalTanggunganTang = document.getElementById('additional_tanggungan');
+        const siapaTanggungan = document.getElementById('siapa_tanggungan');
+        const nilaiTanggungan = document.getElementById('nilai_tanggungan');
 
-        tanggungJawabSelect.addEventListener('change', function() {
+        tanggungJawabSelectTang.addEventListener('change', function() {
             if (this.value === 'Ya') {
-                additionalTanggungan.style.display = 'block';
+                additionalTanggunganTang.style.display = 'block';
             } else {
-                additionalTanggungan.style.display = 'none';
+                additionalTanggunganTang.style.display = 'none';
+                // Reset the values of hidden fields to ensure they are submitted as empty
+                siapaTanggungan.value = '';
+                nilaiTanggungan.value = '';
             }
         });
     });
+
 
     document.addEventListener('DOMContentLoaded', function() {
         const tanggungJawabSelect = document.getElementById('melanjut_pendidikan');
@@ -1166,7 +1149,7 @@
                     <option value="Kurang">Kurang</option>
                 </select>
             </td>
-            <td><input class="form-control" type="text" name="_${bahasaCount}_steno_wpm"></td>
+            <td><input class="form-control" type="text" name="_${bahasaCount}_steno"></td>
             <td><button type="button" class="btn btn-sm btn-danger" onclick="removeRow(this)">-</button></td>
         `;
 
@@ -1207,261 +1190,260 @@
             button.closest('tr').remove();
         }
     });
+
     $(function() {
         $('#formCandidate').submit(function(event) {
             event.preventDefault(); // Prevent the form from submitting by default
 
-            var fields = [
-                // Existing fields
-                {
-                    id: '#nama_lengkap',
-                    message: 'Nama Lengkap Harus Diisi'
-                },
-                {
-                    id: '#nama_panggilan',
-                    message: 'Nama Panggilan Harus Diisi'
-                },
-                {
-                    id: 'select[name="jenis"]',
-                    message: 'Jenis Kelamin Harus Diisi'
-                },
-                {
-                    id: 'select[name="gol_darah"]',
-                    message: 'Golongan Darah Harus Diisi'
-                },
-                {
-                    id: 'input[name="tgl_lahir"]',
-                    message: 'Tanggal Lahir Harus Diisi'
-                },
-                {
-                    id: 'input[name="warga_negara"]',
-                    message: 'Warga Negara Harus Diisi'
-                },
-                {
-                    id: 'textarea[name="alamat_rumah"]',
-                    message: 'Alamat Rumah Harus Diisi'
-                },
-                {
-                    id: 'input[name="telp_rumah_hp"]',
-                    message: 'Telpon Rumah/HP Harus Diisi'
-                },
-                {
-                    id: 'input[name="no_ktp_sim"]',
-                    message: 'No. KTP/SIM Harus Diisi'
-                },
-                {
-                    id: 'input[name="tgl_ktp_sim"]',
-                    message: 'Tanggal Berlaku KTP/SIM Harus Diisi'
-                },
-                {
-                    id: 'input[name="no_npwp"]',
-                    message: 'No. NPWP Harus Diisi'
-                },
-                {
-                    id: 'textarea[name="alamat_npwp"]',
-                    message: 'Alamat NPWP Harus Diisi'
-                },
-                {
-                    id: 'select[name="status_pajak"]',
-                    message: 'Status Pajak Harus Diisi'
-                },
-                {
-                    id: 'input[name="tgl_menikah"]',
-                    message: 'Tanggal Menikah Harus Diisi'
-                },
-                {
-                    id: 'input[name="jabatan"]',
-                    message: 'Jabatan Saat Ini Harus Diisi'
-                },
-                {
-                    id: 'input[name="nama_perusahaan"]',
-                    message: 'Nama Perusahaan Harus Diisi'
-                },
-                {
-                    id: 'textarea[name="alamat_perusahaan"]',
-                    message: 'Alamat Perusahaan Harus Diisi'
-                },
-                {
-                    id: 'input[name="alamat_email"]',
-                    message: 'Alamat Email Harus Diisi'
-                },
+            // var fields = [
+            //     // Existing fields
+            //     {
+            //         id: '#nama_lengkap',
+            //         message: 'Nama Lengkap Harus Diisi'
+            //     },
+            //     {
+            //         id: '#nama_panggilan',
+            //         message: 'Nama Panggilan Harus Diisi'
+            //     },
+            //     {
+            //         id: 'select[name="jenis"]',
+            //         message: 'Jenis Kelamin Harus Diisi'
+            //     },
+            //     {
+            //         id: 'select[name="gol_darah"]',
+            //         message: 'Golongan Darah Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="tgl_lahir"]',
+            //         message: 'Tanggal Lahir Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="warga_negara"]',
+            //         message: 'Warga Negara Harus Diisi'
+            //     },
+            //     {
+            //         id: 'textarea[name="alamat_rumah"]',
+            //         message: 'Alamat Rumah Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="telp_rumah_hp"]',
+            //         message: 'Telpon Rumah/HP Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="no_ktp_sim"]',
+            //         message: 'No. KTP/SIM Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="tgl_ktp_sim"]',
+            //         message: 'Tanggal Berlaku KTP/SIM Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="no_npwp"]',
+            //         message: 'No. NPWP Harus Diisi'
+            //     },
+            //     {
+            //         id: 'textarea[name="alamat_npwp"]',
+            //         message: 'Alamat NPWP Harus Diisi'
+            //     },
+            //     {
+            //         id: 'select[name="status_pajak"]',
+            //         message: 'Status Pajak Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="tgl_menikah"]',
+            //         message: 'Tanggal Menikah Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="jabatan"]',
+            //         message: 'Jabatan Saat Ini Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="nama_perusahaan"]',
+            //         message: 'Nama Perusahaan Harus Diisi'
+            //     },
+            //     {
+            //         id: 'textarea[name="alamat_perusahaan"]',
+            //         message: 'Alamat Perusahaan Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="alamat_email"]',
+            //         message: 'Alamat Email Harus Diisi'
+            //     },
 
-                // New family fields
-                {
-                    id: 'input[name="family1_nama_lengkap_ayah"]',
-                    message: 'Nama Lengkap Ayah Harus Diisi'
-                },
-                {
-                    id: 'input[name="family1_jenis_ayah"]',
-                    message: 'Jenis Kelamin Ayah Harus Diisi'
-                },
-                {
-                    id: 'input[name="family1_tgl_lahir_ayah"]',
-                    message: 'Tanggal Lahir Ayah Harus Diisi'
-                },
-                {
-                    id: 'input[name="family1_pendidikan_ayah"]',
-                    message: 'Pendidikan Ayah Harus Diisi'
-                },
-                {
-                    id: 'input[name="family1_pekerjaan_ayah"]',
-                    message: 'Pekerjaan Ayah Harus Diisi'
-                },
-                {
-                    id: 'input[name="family1_keterangan_ayah"]',
-                    message: 'Keterangan Ayah Harus Diisi'
-                },
-                {
-                    id: 'input[name="family1_nama_lengkap_ibu"]',
-                    message: 'Nama Lengkap Ibu Harus Diisi'
-                },
-                {
-                    id: 'input[name="family1_jenis_ibu"]',
-                    message: 'Jenis Kelamin Ibu Harus Diisi'
-                },
-                {
-                    id: 'input[name="family1_tgl_lahir_ibu"]',
-                    message: 'Tanggal Lahir Ibu Harus Diisi'
-                },
-                {
-                    id: 'input[name="family1_pendidikan_ibu"]',
-                    message: 'Pendidikan Ibu Harus Diisi'
-                },
-                {
-                    id: 'input[name="family1_pekerjaan_ibu"]',
-                    message: 'Pekerjaan Ibu Harus Diisi'
-                },
-                {
-                    id: 'input[name="family1_keterangan_ibu"]',
-                    message: 'Keterangan Ibu Harus Diisi'
-                },
-                {
-                    id: 'input[name="family1_nama_lengkap_anak1"]',
-                    message: 'Nama Lengkap Anak ke-1 Harus Diisi'
-                },
-                {
-                    id: 'input[name="family1_jenis_anak1"]',
-                    message: 'Jenis Kelamin Anak ke-1 Harus Diisi'
-                },
-                {
-                    id: 'input[name="family1_tgl_lahir_anak1"]',
-                    message: 'Tanggal Lahir Anak ke-1 Harus Diisi'
-                },
-                {
-                    id: 'input[name="family1_pendidikan_anak1"]',
-                    message: 'Pendidikan Anak ke-1 Harus Diisi'
-                },
-                {
-                    id: 'input[name="family1_pekerjaan_anak1"]',
-                    message: 'Pekerjaan Anak ke-1 Harus Diisi'
-                },
-                {
-                    id: 'input[name="family1_keterangan_anak1"]',
-                    message: 'Keterangan Anak ke-1 Harus Diisi'
-                },
-                {
-                    id: 'select[name="tanggung_jawab"]',
-                    message: 'Tanggung Jawab Harus Diisi'
-                },
-                {
-                    id: 'select[name="rumah_status"]',
-                    message: 'Status Rumah Harus Diisi'
-                },
-                {
-                    id: 'input[name="melanjut_pendidikan"]',
-                    message: 'Perlanjutan Pendidikan Harus Diisi'
-                },
-                {
-                    id: 'input[name="language_1_bahasa"]',
-                    message: 'Bahasa Inggris Harus Diisi'
-                },
-                {
-                    id: 'select[name="language_1_bicara"]',
-                    message: 'Bicara Bahasa Harus Diisi'
-                },
-                {
-                    id: 'select[name="language_1_baca"]',
-                    message: 'Bicara Bahasa Harus Diisi'
-                },
-                {
-                    id: 'select[name="language_1_tulis"]',
-                    message: 'Tulis Bahasa Harus Diisi'
-                },
-                {
-                    id: 'input[name="language_1_steno_wpm"]',
-                    message: 'Steno Inggris Harus Diisi'
-                },
-                {
-                    id: 'textarea[name="alasan_pekerjaan_terakhir"]',
-                    message: 'Alasan Meninggalkan Pekerjaan Terakhir Harus Diisi'
-                },
-                {
-                    id: 'textarea[name="uraian_pekerjaan_terakhir"]',
-                    message: 'Uraian Pekejeraan Jabatan Terakhir Harus Diisi'
-                },
-                {
-                    id: 'textarea[name="saudara_pekerjaan"]',
-                    message: 'Saudara Melamar Harus Diisi'
-                },
-                {
-                    id: 'textarea[name="organisasi"]',
-                    message: 'Organisasi Harus Diisi'
-                },
-                {
-                    id: 'input[name="em_nama"]',
-                    message: 'Nama Emergency Harus Diisi'
-                },
-                {
-                    id: 'input[name="em_alamat"]',
-                    message: 'Alamat Emergency Harus Diisi'
-                },
-                {
-                    id: 'input[name="em_telp"]',
-                    message: 'Telpon Emergency Harus Diisi'
-                },
-                {
-                    id: 'input[name="em_status"]',
-                    message: 'Hubungan Emergency Harus Diisi'
-                },
-                {
-                    id: 'textarea[name="sakit_lama"]',
-                    message: 'Saudara Pernah Menderita Sakit Yang Lama Harus Diisi'
-                },
-                {
-                    id: '#gambaran_posisi',
-                    message: 'Upload Gambaran Posisi Harus Diisi'
-                },
-                {
-                    id: 'select[name="masa_percobaan"]',
-                    message: 'Masa Percobaan Harus Diisi'
-                },
-                {
-                    id: 'select[name="proses_bi"]',
-                    message: 'Proses BI Harus Diisi'
-                },
-                {
-                    id: 'input[name="mulai_kerja"]',
-                    message: 'Mulai Kerja Harus Diisi'
-                },
-            ];
+            //     // New family fields
+            //     {
+            //         id: 'input[name="family1_nama_lengkap_ayah"]',
+            //         message: 'Nama Lengkap Ayah Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="family1_jenis_ayah"]',
+            //         message: 'Jenis Kelamin Ayah Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="family1_tgl_lahir_ayah"]',
+            //         message: 'Tanggal Lahir Ayah Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="family1_pendidikan_ayah"]',
+            //         message: 'Pendidikan Ayah Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="family1_pekerjaan_ayah"]',
+            //         message: 'Pekerjaan Ayah Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="family1_keterangan_ayah"]',
+            //         message: 'Keterangan Ayah Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="family1_nama_lengkap_ibu"]',
+            //         message: 'Nama Lengkap Ibu Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="family1_jenis_ibu"]',
+            //         message: 'Jenis Kelamin Ibu Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="family1_tgl_lahir_ibu"]',
+            //         message: 'Tanggal Lahir Ibu Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="family1_pendidikan_ibu"]',
+            //         message: 'Pendidikan Ibu Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="family1_pekerjaan_ibu"]',
+            //         message: 'Pekerjaan Ibu Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="family1_keterangan_ibu"]',
+            //         message: 'Keterangan Ibu Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="family1_nama_lengkap_anak1"]',
+            //         message: 'Nama Lengkap Anak ke-1 Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="family1_jenis_anak1"]',
+            //         message: 'Jenis Kelamin Anak ke-1 Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="family1_tgl_lahir_anak1"]',
+            //         message: 'Tanggal Lahir Anak ke-1 Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="family1_pendidikan_anak1"]',
+            //         message: 'Pendidikan Anak ke-1 Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="family1_pekerjaan_anak1"]',
+            //         message: 'Pekerjaan Anak ke-1 Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="family1_keterangan_anak1"]',
+            //         message: 'Keterangan Anak ke-1 Harus Diisi'
+            //     },
+            //     {
+            //         id: 'select[name="tanggung_jawab"]',
+            //         message: 'Tanggung Jawab Harus Diisi'
+            //     },
+            //     {
+            //         id: 'select[name="rumah_status"]',
+            //         message: 'Status Rumah Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="melanjut_pendidikan"]',
+            //         message: 'Perlanjutan Pendidikan Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="language_1_bahasa"]',
+            //         message: 'Bahasa Inggris Harus Diisi'
+            //     },
+            //     {
+            //         id: 'select[name="language_1_bicara"]',
+            //         message: 'Bicara Bahasa Harus Diisi'
+            //     },
+            //     {
+            //         id: 'select[name="language_1_baca"]',
+            //         message: 'Bicara Bahasa Harus Diisi'
+            //     },
+            //     {
+            //         id: 'select[name="language_1_tulis"]',
+            //         message: 'Tulis Bahasa Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="language_1_steno"]',
+            //         message: 'Steno Inggris Harus Diisi'
+            //     },
+            //     {
+            //         id: 'textarea[name="alasan_pekerjaan_terakhir"]',
+            //         message: 'Alasan Meninggalkan Pekerjaan Terakhir Harus Diisi'
+            //     },
+            //     {
+            //         id: 'textarea[name="uraian_pekerjaan_terakhir"]',
+            //         message: 'Uraian Pekejeraan Jabatan Terakhir Harus Diisi'
+            //     },
+            //     {
+            //         id: 'textarea[name="saudara_pekerjaan"]',
+            //         message: 'Saudara Melamar Harus Diisi'
+            //     },
+            //     {
+            //         id: 'textarea[name="organisasi"]',
+            //         message: 'Organisasi Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="em_nama"]',
+            //         message: 'Nama Emergency Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="em_alamat"]',
+            //         message: 'Alamat Emergency Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="em_telp"]',
+            //         message: 'Telpon Emergency Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="em_status"]',
+            //         message: 'Hubungan Emergency Harus Diisi'
+            //     },
+            //     {
+            //         id: 'textarea[name="sakit_lama"]',
+            //         message: 'Saudara Pernah Menderita Sakit Yang Lama Harus Diisi'
+            //     },
+            //     {
+            //         id: '#gambaran_posisi',
+            //         message: 'Upload Gambaran Posisi Harus Diisi'
+            //     },
+            //     {
+            //         id: 'select[name="masa_percobaan"]',
+            //         message: 'Masa Percobaan Harus Diisi'
+            //     },
+            //     {
+            //         id: 'select[name="proses_bi"]',
+            //         message: 'Proses BI Harus Diisi'
+            //     },
+            //     {
+            //         id: 'input[name="mulai_kerja"]',
+            //         message: 'Mulai Kerja Harus Diisi'
+            //     },
+            // ];
 
-            // Validate all fields
-            for (let i = 0; i < fields.length; i++) {
-                var field = fields[i];
-                if ($(field.id).val() === "") {
-                    Swal.fire({
-                        title: 'Warning!',
-                        text: field.message,
-                        icon: 'warning',
-                        confirmButtonText: 'Ok'
-                    }).then(() => {
-                        $(field.id).focus();
-                    });
-                    return false; // Stop the form submission and show the alert
-                }
-            }
-
-            // If all fields are filled, allow the form to be submitted
+            // // Validate all fields
+            // for (let i = 0; i < fields.length; i++) {
+            //     var field = fields[i];
+            //     if ($(field.id).val() === "") {
+            //         Swal.fire({
+            //             title: 'Warning!',
+            //             text: field.message,
+            //             icon: 'warning',
+            //             confirmButtonText: 'Ok'
+            //         }).then(() => {
+            //             $(field.id).focus();
+            //         });
+            //         return false; // Stop the form submission and show the alert
+            //     }
+            // }
             this.submit();
         });
 

@@ -512,7 +512,7 @@ class ApprovalController extends Controller
 
         $tglForm = ($izin->tgl_izin == $izin->tgl_izin_akhir)
                 ? DateHelper::formatIndonesianDate($izin->tgl_izin)
-                : DateHelper::formatIndonesianDate($izin->tgl_izin) . ' - ' . DateHelper::formatIndonesianDate($izin->tgl_izin_akhir);
+                : DateHelper::formatIndonesianDate($izin->tgl_izin) . ' - ' . (!empty($tgl_izin_akhir) ? DateHelper::formatIndonesianDate($tgl_izin_akhir) : '');
 
         // Prepare data to return
         $data = [

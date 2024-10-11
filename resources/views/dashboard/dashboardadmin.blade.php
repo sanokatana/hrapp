@@ -457,7 +457,7 @@ use App\Helpers\DateHelper;
                                                                             @if ($d->tgl_izin == $d->tgl_izin_akhir)
                                                                             {{ DateHelper::formatIndonesianDate($d->tgl_izin) }}
                                                                             @else
-                                                                            {{ DateHelper::formatIndonesianDate($d->tgl_izin) }} - {{ DateHelper::formatIndonesianDate($d->tgl_izin_akhir) }}
+                                                                            {{ DateHelper::formatIndonesianDate($d->tgl_izin) }} - {{ (!empty($tgl_izin_akhir) ? DateHelper::formatIndonesianDate($tgl_izin_akhir) : '') }}
                                                                             @endif
                                                                         </b>
                                                                     </div>
@@ -753,7 +753,7 @@ use App\Helpers\DateHelper;
                                                                             @if ($d->tgl_izin == $d->tgl_izin_akhir)
                                                                             {{ DateHelper::formatIndonesianDate($d->tgl_izin) }}
                                                                             @else
-                                                                            {{ DateHelper::formatIndonesianDate($d->tgl_izin) }} - {{ DateHelper::formatIndonesianDate($d->tgl_izin_akhir) }}
+                                                                            {{ DateHelper::formatIndonesianDate($d->tgl_izin) }} - {{ (!empty($tgl_izin_akhir) ? DateHelper::formatIndonesianDate($tgl_izin_akhir) : '') }}
                                                                             @endif
                                                                         </b>
                                                                     </div>

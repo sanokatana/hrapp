@@ -177,18 +177,29 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Status Keluarga</label>
                                 <div class="col-md-9">
-                                    <select class="form-select" name="status_keluarga" id="status_keluarga" disabled>
+                                    <select class="form-select" name="status_pajak" id="status_pajak" disabled>
                                         <option value="">Pilih</option>
-                                        <option value="TK" {{ (isset($candidateData) && $candidateData->status_keluarga == 'TK') ? 'selected' : '' }}>TK (Tidak Kawin)
+                                        <option value="TK" {{ (isset($candidateData) && $candidateData->status_pajak == 'TK') ? 'selected' : '' }}>TK (Tidak Kawin)
                                         </option>
-                                        <option value="TK1" {{ (isset($candidateData) && $candidateData->status_keluarga == 'TK1') ? 'selected' : '' }}>TK1</option>
-                                        <option value="TK2" {{ (isset($candidateData) && $candidateData->status_keluarga == 'TK2') ? 'selected' : '' }}>TK2</option>
-                                        <option value="TK3" {{ (isset($candidateData) && $candidateData->status_keluarga == 'TK3') ? 'selected' : '' }}>TK3</option>
-                                        <option value="M" {{ (isset($candidateData) && $candidateData->status_keluarga == 'M') ? 'selected' : '' }}>M (Menikah)
+                                        <option value="TK1" {{ (isset($candidateData) && $candidateData->status_pajak == 'TK1') ? 'selected' : '' }}>TK1</option>
+                                        <option value="TK2" {{ (isset($candidateData) && $candidateData->status_pajak == 'TK2') ? 'selected' : '' }}>TK2</option>
+                                        <option value="TK3" {{ (isset($candidateData) && $candidateData->status_pajak == 'TK3') ? 'selected' : '' }}>TK3</option>
+                                        <option value="K" {{ (isset($candidateData) && $candidateData->status_pajak == 'K') ? 'selected' : '' }}>M (Menikah)
                                         </option>
-                                        <option value="M1" {{ (isset($candidateData) && $candidateData->status_keluarga == 'M1') ? 'selected' : '' }}>M1</option>
-                                        <option value="M2" {{ (isset($candidateData) && $candidateData->status_keluarga == 'M2') ? 'selected' : '' }}>M2</option>
-                                        <option value="M3" {{ (isset($candidateData) && $candidateData->status_keluarga == 'M3') ? 'selected' : '' }}>M3</option>
+                                        <option value="K1" {{ (isset($candidateData) && $candidateData->status_pajak == 'K1') ? 'selected' : '' }}>M1</option>
+                                        <option value="K2" {{ (isset($candidateData) && $candidateData->status_pajak == 'K2') ? 'selected' : '' }}>M2</option>
+                                        <option value="K3" {{ (isset($candidateData) && $candidateData->status_pajak == 'K3') ? 'selected' : '' }}>M3</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 align-items-center">
+                                <label class="col-md-3 col-form-label">Status Menikah</label>
+                                <div class="col-md-9">
+                                    <select class="form-select" name="marriage_status" id="marriage_status" disabled>
+                                        <option value="">Pilih</option>
+                                        <option value="Menikah" {{ (isset($candidateData) && $candidateData->marriage_status == 'Menikah') ? 'selected' : '' }}>Menikah</option>
+                                        <option value="Tidak Menikah" {{ (isset($candidateData) && $candidateData->marriage_status == 'Tidak Menikah') ? 'selected' : '' }}>Tidak Menikah</option>
                                     </select>
                                 </div>
                             </div>
@@ -476,7 +487,7 @@
                                                     <td>{{ $d->bicara}}</td>
                                                     <td>{{ $d->baca}}</td>
                                                     <td>{{ $d->tulis}}</td>
-                                                    <td>{{ $d->steno_wpm}}</td>
+                                                    <td>{{ $d->steno}}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>

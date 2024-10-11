@@ -595,12 +595,6 @@ class DashboardController extends Controller
         $bulanini = date("m");
         $tahunini = date("Y");
 
-        // $rekappresensi = DB::table('presensi')
-        //     ->selectRaw('COUNT(presensi.nip) as jmlhadir, SUM(IF(presensi.jam_in > "08:00:00",1,0)) as jmlterlambat')
-        //     ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
-        //     ->where('presensi.tgl_presensi', $hariini)
-        //     ->first();
-
         $rekappresensi = DB::connection('mysql2') // Assuming db_absen is on mysql2
             ->table('db_absen.att_log as presensi')
             ->selectRaw('COUNT(presensi.pin) as jmlhadir, SUM(IF(TIME(presensi.scan_date) > "08:00:00", 1, 0)) as jmlterlambat')
@@ -615,7 +609,11 @@ class DashboardController extends Controller
             ->where('status_approved_hrd', 1)
             ->where(function ($query) use ($hariini) {
                 $query->where('tgl_izin', '<=', $hariini)
-                    ->where('tgl_izin_akhir', '>=', $hariini);
+                    ->where(function ($subQuery) use ($hariini) {
+                        $subQuery->where('tgl_izin_akhir', '>=', $hariini)
+                                 ->orWhereNull('tgl_izin_akhir')
+                                 ->orWhere('tgl_izin_akhir', ''); // Handle empty string case
+                    });
             })
             ->first();
 
@@ -625,7 +623,11 @@ class DashboardController extends Controller
             ->where('status_approved_hrd', 1)
             ->where(function ($query) use ($hariini) {
                 $query->where('tgl_cuti', '<=', $hariini)
-                    ->where('tgl_cuti_sampai', '>=', $hariini);
+                    ->where(function ($subQuery) use ($hariini) {
+                        $subQuery->where('tgl_cuti_sampai', '>=', $hariini)
+                                 ->orWhereNull('tgl_cuti_sampai')
+                                 ->orWhere('tgl_cuti_sampai', ''); // Handle empty string case
+                    });
             })
             ->first();
 
@@ -633,15 +635,6 @@ class DashboardController extends Controller
             ->selectRaw('COUNT(karyawan.nip) as jmlkar')
             ->where('status_kar', 'Aktif')
             ->first();
-
-        // $jmlnoatt = DB::table('karyawan')
-        //     ->leftJoin('presensi', function ($join) use ($hariini) {
-        //         $join->on('karyawan.nip', '=', 'presensi.nip')
-        //             ->where('presensi.tgl_presensi', '=', $hariini);
-        //     })
-        //     ->where('status_kar', 'Aktif')
-        //     ->whereNull('presensi.nip')
-        //     ->count();
 
         $jmlnoatt = DB::table('karyawan')
             ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
@@ -1042,11 +1035,16 @@ class DashboardController extends Controller
             ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
             ->where(function ($query) use ($hariini) {
                 $query->where('tgl_izin', '<=', $hariini)
-                    ->where('tgl_izin_akhir', '>=', $hariini);
+                    ->where(function ($subQuery) use ($hariini) {
+                        $subQuery->where('tgl_izin_akhir', '>=', $hariini)
+                                 ->orWhereNull('tgl_izin_akhir')
+                                 ->orWhere('tgl_izin_akhir', ''); // Handle empty string case
+                    });
             })
             ->where('karyawan.grade', '!=', 'NS')
             ->select('karyawan.nama_lengkap', 'pengajuan_izin.tgl_izin', 'pengajuan_izin.tgl_izin_akhir', 'pengajuan_izin.status', 'pengajuan_izin.pukul', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
             ->get();
+
 
 
         // Fetch employees who are on cuti today
@@ -1067,7 +1065,11 @@ class DashboardController extends Controller
             ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
             ->where(function ($query) use ($hariini) {
                 $query->where('tgl_izin', '<=', $hariini)
-                    ->where('tgl_izin_akhir', '>=', $hariini);
+                    ->where(function ($subQuery) use ($hariini) {
+                        $subQuery->where('tgl_izin_akhir', '>=', $hariini)
+                                 ->orWhereNull('tgl_izin_akhir')
+                                 ->orWhere('tgl_izin_akhir', ''); // Handle empty string case
+                    });
             })
             ->where('karyawan.grade', 'NS')
             ->select('karyawan.nama_lengkap', 'pengajuan_izin.tgl_izin', 'pengajuan_izin.tgl_izin_akhir', 'pengajuan_izin.status', 'pengajuan_izin.pukul', 'karyawan.kode_dept', 'jabatan.nama_jabatan')

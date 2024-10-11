@@ -7,6 +7,9 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
@@ -57,9 +60,8 @@ class CandidateController extends Controller
     }
 
 
-    public function candidate_store(StoreCandidateRequest $request)
+    public function candidate_store_form(StoreCandidateRequest $request)
     {
-
         $data = $request->validated();
 
         // Add candidate_id manually
@@ -71,25 +73,45 @@ class CandidateController extends Controller
         $candidateUser = $candidate->nama_candidate;
         $data['candidate_id'] = $candidateId;
 
-        $folderPath = "public/uploads/candidate/{$candidateId}.{$candidateUser}/";
-
-        // Check if the folder exists, create it if not
-        if (!Storage::exists($folderPath)) {
-            Storage::makeDirectory($folderPath);
-        }
-
         $currentDate = Carbon::now();
 
-        // Handle the file upload
+        $manager = new ImageManager();
+
+        // Create the folder path
+        $folderPath = public_path('storage/uploads/candidate/' . $candidateId . '.' . Str::slug($candidateUser) . '/');
+
+        // Create the directory if it doesn't exist
+        if (!file_exists($folderPath)) {
+            mkdir($folderPath, 0755, true);
+        }
+
+        // Handle the file upload for 'gambaran_posisi'
         if ($request->hasFile('gambaran_posisi')) {
             $file = $request->file('gambaran_posisi');
             $extension = $file->getClientOriginalExtension();
 
             // Generate a unique file name
-            $fileName = $candidateId . "_" . $candidateUser . "_" . $currentDate->format('d_m_Y') . "_" . uniqid() . "." . $extension;
+            $fileName = $candidateId . "_" . "gambaran_posisi" . "_" . uniqid() . "." . $extension;
 
-            // Store the file in the defined folder
-            $file->storeAs($folderPath, $fileName);
+            // Create an Intervention Image instance
+            $image = $manager->make($file);
+
+            // Resize and compress the image to keep it under 1 MB
+            $image->resize(null, 800, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize(); // Prevent upsizing
+            });
+
+            // Set the initial quality to 75% and save the image until it's under 1 MB
+            $quality = 75;
+            do {
+                $image->save($folderPath . $fileName, $quality);
+                if (filesize($folderPath . $fileName) > 1048576) { // 1 MB in bytes
+                    $quality -= 5; // Reduce quality by 5%
+                } else {
+                    break; // Break if the file is under 1 MB
+                }
+            } while ($quality > 0);
 
             // Assign the file name to the gambaran_posisi field
             $data['gambaran_posisi'] = $fileName;
@@ -97,43 +119,47 @@ class CandidateController extends Controller
             $data['gambaran_posisi'] = "No_Document"; // Handle the case where no file is uploaded
         }
 
-        // Handle the upload for 'slip1'
-        if ($request->hasFile('slip1')) {
-            $file = $request->file('slip1');
-            $extension = $file->getClientOriginalExtension();
+        // Function to handle slip uploads
+        $slips = ['slip1', 'slip2', 'slip3'];
+        foreach ($slips as $slip) {
+            if ($request->hasFile($slip)) {
+                $file = $request->file($slip);
+                $extension = $file->getClientOriginalExtension();
 
-            $fileName = "Slip1_" . $candidateId . "_" . $currentDate->format('d_m_Y') . "_" . uniqid() . "." . $extension;
+                // Generate a unique file name for each slip
+                $fileName = ucfirst($slip) . "_" . $candidateId . "_" . uniqid() . "." . $extension;
 
-            $file->storeAs($folderPath, $fileName);
-            $data['slip1'] = $fileName;
-        } else {
-            $data['slip1'] = "No_Document";
-        }
+                // Check if the file is an image
+                if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
+                    // Create an Intervention Image instance
+                    $image = $manager->make($file);
 
-        // Handle the upload for 'slip2'
-        if ($request->hasFile('slip2')) {
-            $file = $request->file('slip2');
-            $extension = $file->getClientOriginalExtension();
+                    // Resize and compress the image to keep it under 1 MB
+                    $image->resize(null, 800, function ($constraint) {
+                        $constraint->aspectRatio();
+                        $constraint->upsize(); // Prevent upsizing
+                    });
 
-            $fileName = "Slip2_" . $candidateId . "_" . $currentDate->format('d_m_Y') . "_" . uniqid() . "." . $extension;
+                    // Set the initial quality to 75% and save the image until it's under 1 MB
+                    $quality = 75;
+                    do {
+                        $image->save($folderPath . $fileName, $quality);
+                        if (filesize($folderPath . $fileName) > 1048576) { // 1 MB in bytes
+                            $quality -= 5; // Reduce quality by 5%
+                        } else {
+                            break; // Break if the file is under 1 MB
+                        }
+                    } while ($quality > 0);
+                } else {
+                    // Store other file types (like PDF) without modification
+                    $file->move($folderPath, $fileName);
+                }
 
-            $file->storeAs($folderPath, $fileName);
-            $data['slip2'] = $fileName;
-        } else {
-            $data['slip2'] = "No_Document";
-        }
-
-        // Handle the upload for 'slip3'
-        if ($request->hasFile('slip3')) {
-            $file = $request->file('slip3');
-            $extension = $file->getClientOriginalExtension();
-
-            $fileName = "Slip3_" . $candidateId . "_" . $currentDate->format('d_m_Y') . "_" . uniqid() . "." . $extension;
-
-            $file->storeAs($folderPath, $fileName);
-            $data['slip3'] = $fileName;
-        } else {
-            $data['slip3'] = "No_Document";
+                // Assign the file name to the respective slip field
+                $data[$slip] = $fileName;
+            } else {
+                $data[$slip] = "No_Document"; // Handle the case where no file is uploaded
+            }
         }
 
         DB::beginTransaction();
@@ -200,19 +226,19 @@ class CandidateController extends Controller
                     ['uraian' => 'Anak ke 2', 'key' => 'anak2'],
                     ['uraian' => 'Anak ke 3', 'key' => 'anak3']
                 ],
-                'M' => [
+                'K' => [
                     ['uraian' => 'Istri/Suami', 'key' => 'istri_suami']
                 ],
-                'M1' => [
+                'K1' => [
                     ['uraian' => 'Istri/Suami', 'key' => 'istri_suami'],
                     ['uraian' => 'Anak ke 1', 'key' => 'anak1']
                 ],
-                'M2' => [
+                'K2' => [
                     ['uraian' => 'Istri/Suami', 'key' => 'istri_suami'],
                     ['uraian' => 'Anak ke 1', 'key' => 'anak1'],
                     ['uraian' => 'Anak ke 2', 'key' => 'anak2']
                 ],
-                'M3' => [
+                'K3' => [
                     ['uraian' => 'Istri/Suami', 'key' => 'istri_suami'],
                     ['uraian' => 'Anak ke 1', 'key' => 'anak1'],
                     ['uraian' => 'Anak ke 2', 'key' => 'anak2'],
@@ -221,7 +247,7 @@ class CandidateController extends Controller
             ];
 
             $familyDataKeluarga = [];
-            $familyType = $request->input('status_keluarga');
+            $familyType = $request->input('status_pajak');
             $familyConfig = $fixedFamilyData[$familyType] ?? [];
 
             foreach ($familyConfig as $entry) {
@@ -321,7 +347,7 @@ class CandidateController extends Controller
                     'bicara' => $language['bicara'] ?? null,
                     'baca' => $language['baca'] ?? null,
                     'tulis' => $language['tulis'] ?? null,
-                    'steno_wpm' => $language['steno'] ?? null,
+                    'steno' => $language['steno'] ?? null,
                 ]);
             }
 
@@ -355,15 +381,15 @@ class CandidateController extends Controller
             }
 
             $stage = DB::table('hiring_stages')
-               ->where('recruitment_type_id', $recruitmentTypeId)
-               ->where('type', 'Form Filled')
-               ->first();
+                ->where('recruitment_type_id', $recruitmentTypeId)
+                ->where('type', 'Form Filled')
+                ->first();
 
             // If the stage is found, update the candidate's current_stage_id
             if ($stage) {
                 DB::table('candidates')
-                ->where('id', $candidateId)
-                ->update(['current_stage_id' => $stage->id]);
+                    ->where('id', $candidateId)
+                    ->update(['current_stage_id' => $stage->id]);
             }
 
             // Commit the transaction
@@ -371,11 +397,9 @@ class CandidateController extends Controller
 
             return redirect()->back()->with(['success' => 'Data Berhasil Disimpan']);
         } catch (\Exception $e) {
-            // Rollback the transaction if something goes wrong
-            DB::rollBack();
 
-            // Log the error and show a danger message
-            Log::error($e->getMessage());
+            DB::rollBack();
+            Log::error('Error inserting candidate data', ['message' => $e->getMessage()]);
             return redirect()->back()->with(['danger' => 'Data Gagal Disimpan']);
         }
     }
@@ -383,5 +407,108 @@ class CandidateController extends Controller
     public function files()
     {
         return view('recruitment.files.index');
+    }
+
+    public function candidate_data_perlengkapan()
+    {
+
+        $candidate = Auth::guard('candidate')->user();
+        $candidateId = $candidate->id;
+
+        // Check if candidate data exists
+        $candidateData = DB::table('candidate_data')->where('candidate_id', $candidateId)->first();
+
+        if ($candidateData) {
+            $keluargaData = DB::table('candidate_data_keluarga')->where('candidate_data_id', $candidateData->id)->get();
+        } else {
+            $keluargaData = collect(); // Empty collection if no candidate data
+        }
+
+        // Otherwise, return 'recruitment.form.index' view
+        return view('recruitment.perlengkapan.index', compact('keluargaData'));
+    }
+
+    public function storePerlengkapan(Request $request)
+    {
+        $candidate = Auth::guard('candidate')->user();
+        $candidateId = $candidate->id;
+
+        // Get candidate data
+        $candidateData = DB::table('candidate_data')->where('candidate_id', $candidateId)->first();
+
+        $candidateUser = $candidate->nama_candidate;
+        // Create the ImageManager instance
+        $manager = new ImageManager();
+        $folderPath = public_path('storage/uploads/candidate/' . $candidateId . '.' . Str::slug($candidateUser) . '/');
+
+        // Create directory if not exists
+        if (!file_exists($folderPath)) {
+            mkdir($folderPath, 0755, true);
+        }
+
+        $data = [];
+
+        // Handle multiple file uploads
+        $fields = ['photo_ktp', 'photo_kk', 'photo_sim', 'photo_npwp', 'photo_ijazah', 'photo_candidate'];
+        foreach ($fields as $field) {
+            if ($request->hasFile($field)) {
+                $file = $request->file($field);
+                $extension = $file->getClientOriginalExtension();
+
+                // Generate unique file name
+                $fileName = $candidateId . "_" . str_replace('photo_', '', $field) . "_" . uniqid() . "." . $extension;
+
+                // Compress and resize the image
+                $image = $manager->make($file)->resize(null, 800, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                });
+
+                // Save the image with a quality under 1 MB
+                $quality = 75;
+                do {
+                    $image->save($folderPath . $fileName, $quality);
+                    if (filesize($folderPath . $fileName) > 1048576) {
+                        $quality -= 5;
+                    } else {
+                        break;
+                    }
+                } while ($quality > 0);
+
+                // Save file name in the data array
+                $data[$field] = $fileName;
+            } else {
+                $data[$field] = "No_Document";
+            }
+        }
+
+        // Save the uploaded file paths in the `candidate_data_perlengkapan` table
+        DB::table('candidate_data_perlengkapan')->insert([
+            'candidate_data_id' => $candidateData->id,
+            'photo_ktp' => $data['photo_ktp'],
+            'photo_kk' => $data['photo_kk'],
+            'photo_sim' => $data['photo_sim'],
+            'photo_npwp' => $data['photo_npwp'],
+            'photo_ijazah' => $data['photo_ijazah'],
+            'photo_anda' => $data['photo_candidate'],
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        // Update nik and tempat_lahir in candidate_data_keluarga
+        if ($request->has('nik') && $request->has('tempat_lahir')) {
+            foreach ($request->nik as $index => $nik) {
+                DB::table('candidate_data_keluarga')
+                    ->where('candidate_data_id', $candidateData->id)
+                    ->where('id', $index) // assuming the index matches the id of candidate_data_keluarga row
+                    ->update([
+                        'nik' => $nik,
+                        'tempat_lahir' => $request->tempat_lahir[$index],
+                        'updated_at' => now()
+                    ]);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Data successfully saved!');
     }
 }
