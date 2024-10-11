@@ -134,7 +134,7 @@
 
                             <!-- Status Keluarga -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Status Keluarga</label>
+                                <label class="col-md-3 col-form-label">Status Pajak</label>
                                 <div class="col-md-9">
                                     <select class="form-select" name="status_pajak" id="status_pajak" disabled>
                                         <option value="">Pilih</option>
@@ -143,15 +143,25 @@
                                         <option value="TK1" {{ (isset($candidateData) && $candidateData->status_pajak == 'TK1') ? 'selected' : '' }}>TK1</option>
                                         <option value="TK2" {{ (isset($candidateData) && $candidateData->status_pajak == 'TK2') ? 'selected' : '' }}>TK2</option>
                                         <option value="TK3" {{ (isset($candidateData) && $candidateData->status_pajak == 'TK3') ? 'selected' : '' }}>TK3</option>
-                                        <option value="K" {{ (isset($candidateData) && $candidateData->status_pajak == 'K') ? 'selected' : '' }}>M (Menikah)
+                                        <option value="K" {{ (isset($candidateData) && $candidateData->status_pajak == 'K') ? 'selected' : '' }}>K (Kawin)
                                         </option>
-                                        <option value="K1" {{ (isset($candidateData) && $candidateData->status_pajak == 'K1') ? 'selected' : '' }}>M1</option>
-                                        <option value="K2" {{ (isset($candidateData) && $candidateData->status_pajak == 'K2') ? 'selected' : '' }}>M2</option>
-                                        <option value="K3" {{ (isset($candidateData) && $candidateData->status_pajak == 'K3') ? 'selected' : '' }}>M3</option>
+                                        <option value="K1" {{ (isset($candidateData) && $candidateData->status_pajak == 'K1') ? 'selected' : '' }}>K1</option>
+                                        <option value="K2" {{ (isset($candidateData) && $candidateData->status_pajak == 'K2') ? 'selected' : '' }}>K2</option>
+                                        <option value="K3" {{ (isset($candidateData) && $candidateData->status_pajak == 'K3') ? 'selected' : '' }}>K3</option>
                                     </select>
                                 </div>
                             </div>
 
+                            <div class="row mb-3 align-items-center">
+                                <label class="col-md-3 col-form-label">Status Menikah</label>
+                                <div class="col-md-9">
+                                    <select class="form-select" name="marriage_status" id="marriage_status" disabled>
+                                        <option value="">Pilih</option>
+                                        <option value="Menikah" {{ (isset($candidateData) && $candidateData->marriage_status == 'Menikah') ? 'selected' : '' }}>Menikah</option>
+                                        <option value="Tidak Menikah" {{ (isset($candidateData) && $candidateData->marriage_status == 'Tidak Menikah') ? 'selected' : '' }}>Tidak Menikah</option>
+                                    </select>
+                                </div>
+                            </div>
 
                             <!-- Tanggal Menikah -->
                             <div class="row mb-3 align-items-center">
@@ -666,13 +676,25 @@
 
                             <h2 class="mt-4">H. GAMBARAN POSISI SAAT INI</h2>
                             <h5>Gambarkan Posisi Anda saat ini dalam Struktur Organisasi</h5>
-                            <!-- File Upload Section -->
-                            <div class="row mb-4">
-                                <div class="col-12">
-                                    <label for="gambaran_posisi" class="form-label">Upload Gambaran Posisi</label>
-                                    <input class="form-control" type="file" id="gambaran_posisi" name="gambaran_posisi">
+                            @if(!empty($candidateData->gambaran_posisi))
+                                <!-- If there's a file uploaded, show it as a clickable link -->
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <label for="gambaran_posisi" class="form-label">Lihat Gambaran Posisi</label>
+                                        <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateData->gambaran_posisi) }}" target="_blank" class="btn btn-success btn-block w-100">
+                                            Lihat File
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
+                            @else
+                                <!-- If there's no file uploaded, show the upload input -->
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <label for="gambaran_posisi" class="form-label">Upload Gambaran Posisi</label>
+                                        <input class="form-control" type="file" id="gambaran_posisi" name="gambaran_posisi">
+                                    </div>
+                                </div>
+                            @endif
 
                             <h2 class="mt-4">I. LAIN – LAIN</h2>
                             <div class="row mb-3 align-items-center">
@@ -705,21 +727,60 @@
                                 </div>
                             </div>
 
-                            <h2 class="mt-4">KETERANGAN PENGHASILAN (HARAP LENGKAPI DENGAN SLIP GAJI 3 BULAN TERAKHIR)
-                            </h2>
-                            <h5>Upload 3</h5>
-                            <!-- File Upload Section -->
-                            <div class="row mb-4">
-                                <div class="col-4">
-                                    <input class="form-control" type="file" id="slip_gaji1" name="slip1">
+                            <h2 class="mt-4">KETERANGAN PENGHASILAN (HARAP LENGKAPI DENGAN SLIP GAJI 3 BULAN TERAKHIR)</h2>
+
+                            <!-- Slip 1 -->
+                            @if($candidateData->slip1 !== 'No_Document')
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <label for="slip1" class="form-label">Lihat Slip Gaji 1</label>
+                                        <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateData->slip1) }}" target="_blank" class="btn btn-info btn-block w-100">
+                                            Lihat Slip 1
+                                        </a>
+                                    </div>
                                 </div>
-                                <div class="col-4">
-                                    <input class="form-control" type="file" id="slip_gaji2" name="slip2">
+                            @else
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <label for="slip1" class="form-label">No Document</label>
+                                    </div>
                                 </div>
-                                <div class="col-4">
-                                    <input class="form-control" type="file" id="slip_gaji3" name="slip3">
+                            @endif
+
+                            <!-- Slip 2 -->
+                            @if($candidateData->slip2  !== 'No_Document')
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <label for="slip2" class="form-label">Lihat Slip Gaji 2</label>
+                                        <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateData->slip2) }}" target="_blank" class="btn btn-info btn-block w-100">
+                                            Lihat Slip 2
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
+                            @else
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <label for="slip2" class="form-label">No Document</label>
+                                    </div>
+                                </div>
+                            @endif
+
+                            <!-- Slip 3 -->
+                            @if($candidateData->slip3 !== 'No_Document')
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <label for="slip3" class="form-label">Lihat Slip Gaji 3</label>
+                                        <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateData->slip3) }}" target="_blank" class="btn btn-info btn-block w-100">
+                                            Lihat Slip 3
+                                        </a>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <label for="slip3" class="form-label">No Document</label>
+                            @endif
+
 
                             <h2 class="mt-4">Pendapatan Terakhir</h2>
                             <div class="row mb-4">

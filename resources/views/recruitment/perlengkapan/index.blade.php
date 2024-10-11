@@ -48,40 +48,105 @@
                         <form action='/candidate/data/store/perlengkapan' method="POST" id="formCandidate" enctype="multipart/form-data">
                             @csrf
                             <!-- File Upload Section -->
+
                             <div class="row mb-4">
+                                @if(!empty($candidateDataLengkap->photo_ktp))
+                                <!-- If there's a file uploaded, show it as a clickable link -->
+                                <div class="col-4">
+                                    <h3>Photo KTP</h3>
+                                    <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateDataLengkap->photo_ktp) }}" target="_blank" class="btn btn-info btn-block w-100">
+                                        Lihat File
+                                    </a>
+                                </div>
+                                @else
+                                <!-- If there's no file uploaded, show the upload input -->
                                 <div class="col-4">
                                     <h3>KTP</h3>
                                     <input class="form-control" type="file" id="photo_ktp" name="photo_ktp">
                                 </div>
+                                @endif
+                                @if(!empty($candidateDataLengkap->photo_ktp))
+                                <!-- If there's a file uploaded, show it as a clickable link -->
+                                <div class="col-4">
+                                    <h3>Photo Kartu Keluarga</h3>
+                                    <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateDataLengkap->photo_kk) }}" target="_blank" class="btn btn-info btn-block w-100">
+                                        Lihat File
+                                    </a>
+                                </div>
+                                @else
+                                <!-- If there's no file uploaded, show the upload input -->
                                 <div class="col-4">
                                     <h3>Kartu Keluarga</h3>
                                     <input class="form-control" type="file" id="photo_kk" name="photo_kk">
                                 </div>
+                                @endif
+                                @if(!empty($candidateDataLengkap->photo_ktp))
+                                <!-- If there's a file uploaded, show it as a clickable link -->
+                                <div class="col-4">
+                                    <h3>Photo SIM</h3>
+                                    <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateDataLengkap->photo_sim) }}" target="_blank" class="btn btn-info btn-block w-100">
+                                        Lihat File
+                                    </a>
+                                </div>
+                                @else
+                                <!-- If there's no file uploaded, show the upload input -->
                                 <div class="col-4">
                                     <h3>SIM</h3>
                                     <input class="form-control" type="file" id="photo_sim" name="photo_sim">
                                 </div>
+                                @endif
                             </div>
                             <div class="row mb-4">
+                                @if(!empty($candidateDataLengkap->photo_ktp))
+                                <!-- If there's a file uploaded, show it as a clickable link -->
+                                <div class="col-4">
+                                    <h3>Photo NPWP</h3>
+                                    <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateDataLengkap->photo_npwp) }}" target="_blank" class="btn btn-info btn-block w-100">
+                                        Lihat File
+                                    </a>
+                                </div>
+                                @else
+                                <!-- If there's no file uploaded, show the upload input -->
                                 <div class="col-4">
                                     <h3>NPWP</h3>
                                     <input class="form-control" type="file" id="photo_npwp" name="photo_npwp">
                                 </div>
+                                @endif
+                                @if(!empty($candidateDataLengkap->photo_ktp))
+                                <!-- If there's a file uploaded, show it as a clickable link -->
+                                <div class="col-4">
+                                    <h3>Photo Ijazah</h3>
+                                    <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateDataLengkap->photo_ijazah) }}" target="_blank" class="btn btn-info btn-block w-100">
+                                        Lihat File
+                                    </a>
+                                </div>
+                                @else
+                                <!-- If there's no file uploaded, show the upload input -->
                                 <div class="col-4">
                                     <h3>Ijazah</h3>
                                     <input class="form-control" type="file" id="photo_ijazah" name="photo_ijazah">
                                 </div>
+                                @endif
+                                @if(!empty($candidateDataLengkap->photo_ktp))
+                                <!-- If there's a file uploaded, show it as a clickable link -->
+                                <div class="col-4">
+                                    <h3>Photo Anda</h3>
+                                    <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateDataLengkap->photo_candidate) }}" target="_blank" class="btn btn-info btn-block w-100">
+                                        Lihat File
+                                    </a>
+                                </div>
+                                @else
+                                <!-- If there's no file uploaded, show the upload input -->
                                 <div class="col-4">
                                     <h3>Photo Anda</h3>
                                     <input class="form-control" type="file" id="photo_candidate" name="photo_candidate">
                                 </div>
+                                @endif
                             </div>
 
                             @if($keluargaData->isNotEmpty())
-                            <!-- Only show this section if there is data in keluargaData -->
                             <div class="card mt-4">
                                 <div class="card-body">
-                                    @csrf
                                     <div class="col-12 table-responsive">
                                         <table class="table table-vcenter card-table table-striped">
                                             <thead>
@@ -99,7 +164,10 @@
                                                     <td>{{ $d->uraian }}</td>
                                                     <td>{{ $d->nama_lengkap }}</td>
                                                     <td>{{ $d->jenis }}</td>
-                                                    <td><input type="text" name="nik[]" class="form-control" value="{{ $d->nik }}"></td>
+                                                    <td>
+                                                        <input type="text" name="nik[]" class="form-control" value="{{ $d->nik }}">
+                                                        <input type="hidden" name="keluarga_id[]" value="{{ $d->id }}">
+                                                    </td>
                                                     <td><input type="text" name="tempat_lahir[]" class="form-control" value="{{ $d->tempat_lahir }}"></td>
                                                 </tr>
                                                 @endforeach

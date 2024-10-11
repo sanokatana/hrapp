@@ -27,6 +27,9 @@ class CandidateController extends Controller
 
         // If candidateData exists, return 'recruitment.form.view' view
         if ($candidateData) {
+
+
+            $candidate = DB::table('candidates')->where('id', $candidateId)->first();
             // Get all records from candidate_data_keluarga related to the candidateData's id
             $candidateFamilyData = DB::table('candidate_data_keluarga')
                 ->where('candidate_data_id', $candidateData->id)
@@ -52,7 +55,7 @@ class CandidateController extends Controller
                 ->where('candidate_data_id', $candidateData->id)
                 ->get();
             // Return the 'recruitment.form.view' view along with candidate data and family data
-            return view('recruitment.form.view', compact('candidateData', 'candidateFamilyData', 'candidatePekerjaan', 'candidateId', 'candidateFamilyDataSendiri', 'candidateBahasa', 'candidatePendidikan', 'candidateKursus'));
+            return view('recruitment.form.view', compact('candidateData', 'candidate', 'candidateFamilyData', 'candidatePekerjaan', 'candidateId', 'candidateFamilyDataSendiri', 'candidateBahasa', 'candidatePendidikan', 'candidateKursus'));
         }
 
         // Otherwise, return 'recruitment.form.index' view
@@ -415,8 +418,11 @@ class CandidateController extends Controller
         $candidate = Auth::guard('candidate')->user();
         $candidateId = $candidate->id;
 
+        $candidate = DB::table('candidates')->where('id', $candidateId)->first();
         // Check if candidate data exists
         $candidateData = DB::table('candidate_data')->where('candidate_id', $candidateId)->first();
+
+        $candidateDataLengkap = DB::table('candidate_data_perlengkapan')->where('candidate_data_id', $candidateData->id)->first();
 
         if ($candidateData) {
             $keluargaData = DB::table('candidate_data_keluarga')->where('candidate_data_id', $candidateData->id)->get();
@@ -425,7 +431,7 @@ class CandidateController extends Controller
         }
 
         // Otherwise, return 'recruitment.form.index' view
-        return view('recruitment.perlengkapan.index', compact('keluargaData'));
+        return view('recruitment.perlengkapan.index', compact('keluargaData', 'candidateDataLengkap', 'candidate'));
     }
 
     public function storePerlengkapan(Request $request)
@@ -458,22 +464,31 @@ class CandidateController extends Controller
                 // Generate unique file name
                 $fileName = $candidateId . "_" . str_replace('photo_', '', $field) . "_" . uniqid() . "." . $extension;
 
-                // Compress and resize the image
-                $image = $manager->make($file)->resize(null, 800, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                });
+                // Check if the uploaded file is an image
+                if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'])) {
+                    // Compress and resize the image
+                    $image = $manager->make($file)->resize(null, 800, function ($constraint) {
+                        $constraint->aspectRatio();
+                        $constraint->upsize();
+                    });
 
-                // Save the image with a quality under 1 MB
-                $quality = 75;
-                do {
-                    $image->save($folderPath . $fileName, $quality);
-                    if (filesize($folderPath . $fileName) > 1048576) {
-                        $quality -= 5;
-                    } else {
-                        break;
-                    }
-                } while ($quality > 0);
+                    // Save the image with a quality under 1 MB
+                    $quality = 75;
+                    do {
+                        $image->save($folderPath . $fileName, $quality);
+                        if (filesize($folderPath . $fileName) > 1048576) {
+                            $quality -= 5;
+                        } else {
+                            break;
+                        }
+                    } while ($quality > 0);
+                } elseif ($extension == 'pdf') {
+                    // For PDF files, just move the file to the designated folder
+                    $file->move($folderPath, $fileName);
+                } else {
+                    // Handle unsupported file types as needed
+                    continue; // Skip unsupported file types
+                }
 
                 // Save file name in the data array
                 $data[$field] = $fileName;
@@ -490,17 +505,18 @@ class CandidateController extends Controller
             'photo_sim' => $data['photo_sim'],
             'photo_npwp' => $data['photo_npwp'],
             'photo_ijazah' => $data['photo_ijazah'],
-            'photo_anda' => $data['photo_candidate'],
+            'photo_candidate' => $data['photo_candidate'],
             'created_at' => now(),
             'updated_at' => now()
         ]);
 
         // Update nik and tempat_lahir in candidate_data_keluarga
-        if ($request->has('nik') && $request->has('tempat_lahir')) {
+        if ($request->has('nik') && $request->has('tempat_lahir') && $request->has('keluarga_id')) {
             foreach ($request->nik as $index => $nik) {
+                // Use the actual keluarga_id from the form
+                $keluargaId = $request->keluarga_id[$index];
                 DB::table('candidate_data_keluarga')
-                    ->where('candidate_data_id', $candidateData->id)
-                    ->where('id', $index) // assuming the index matches the id of candidate_data_keluarga row
+                    ->where('id', $keluargaId) // reference the actual ID
                     ->update([
                         'nik' => $nik,
                         'tempat_lahir' => $request->tempat_lahir[$index],

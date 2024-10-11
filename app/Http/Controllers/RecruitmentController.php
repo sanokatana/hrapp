@@ -585,6 +585,8 @@ class RecruitmentController extends Controller
         // Get the currently authenticated candidate
         $candidateId = $request->candidate_id;
 
+        $candidate = DB::table('candidates')->where('id', $candidateId)->first();
+
         // Check if candidate data exists
         $candidateData = DB::table('candidate_data')->where('candidate_id', $candidateId)->first();
 
@@ -614,7 +616,7 @@ class RecruitmentController extends Controller
             ->get();
 
         // Otherwise, return 'recruitment.form.index' view
-        return view('recruitment.candidate.data', compact('candidateData', 'candidateId', 'candidateFamilyData', 'candidateKursus', 'candidateBahasa', 'candidatePekerjaan', 'candidateFamilyDataSendiri', 'candidatePendidikan'));
+        return view('recruitment.candidate.data', compact('candidateData', 'candidate', 'candidateId', 'candidateFamilyData', 'candidateKursus', 'candidateBahasa', 'candidatePekerjaan', 'candidateFamilyDataSendiri', 'candidatePendidikan'));
     }
 
     public function candidate_data_approve(Request $request)
