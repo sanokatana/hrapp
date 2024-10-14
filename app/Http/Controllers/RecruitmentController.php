@@ -583,6 +583,7 @@ class RecruitmentController extends Controller
     public function candidate_data_view(Request $request)
     {
         // Get the currently authenticated candidate
+
         $candidateId = $request->candidate_id;
 
         $candidate = DB::table('candidates')->where('id', $candidateId)->first();
@@ -590,7 +591,15 @@ class RecruitmentController extends Controller
         // Check if candidate data exists
         $candidateData = DB::table('candidate_data')->where('candidate_id', $candidateId)->first();
 
-        // Get all records from candidate_data_keluarga related to the candidateData's id
+
+        $candidateDataLengkap = DB::table('candidate_data_perlengkapan')->where('candidate_data_id', $candidateData->id)->first();
+
+        if ($candidateData) {
+            $keluargaData = DB::table('candidate_data_keluarga')->where('candidate_data_id', $candidateData->id)->get();
+        } else {
+            $keluargaData = collect(); // Empty collection if no candidate data
+        }
+
         $candidateFamilyData = DB::table('candidate_data_keluarga')
             ->where('candidate_data_id', $candidateData->id)
             ->get();
@@ -616,7 +625,7 @@ class RecruitmentController extends Controller
             ->get();
 
         // Otherwise, return 'recruitment.form.index' view
-        return view('recruitment.candidate.data', compact('candidateData', 'candidate', 'candidateId', 'candidateFamilyData', 'candidateKursus', 'candidateBahasa', 'candidatePekerjaan', 'candidateFamilyDataSendiri', 'candidatePendidikan'));
+        return view('recruitment.candidate.data', compact('candidateData', 'candidateDataLengkap', 'keluargaData', 'candidate', 'candidateId', 'candidateFamilyData', 'candidateKursus', 'candidateBahasa', 'candidatePekerjaan', 'candidateFamilyDataSendiri', 'candidatePendidikan'));
     }
 
     public function candidate_data_approve(Request $request)

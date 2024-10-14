@@ -442,8 +442,12 @@ class CandidateController extends Controller
         // Get candidate data
         $candidateData = DB::table('candidate_data')->where('candidate_id', $candidateId)->first();
 
+        // Fetch existing candidate data for perlengkapan
+        $candidateDataPerlengkapan = DB::table('candidate_data_perlengkapan')
+            ->where('candidate_data_id', $candidateData->id)
+            ->first();
+
         $candidateUser = $candidate->nama_candidate;
-        // Create the ImageManager instance
         $manager = new ImageManager();
         $folderPath = public_path('storage/uploads/candidate/' . $candidateId . '.' . Str::slug($candidateUser) . '/');
 
@@ -455,7 +459,7 @@ class CandidateController extends Controller
         $data = [];
 
         // Handle multiple file uploads
-        $fields = ['photo_ktp', 'photo_kk', 'photo_sim', 'photo_npwp', 'photo_ijazah', 'photo_candidate'];
+        $fields = ['photo_ktp', 'photo_kk', 'photo_sim', 'photo_npwp', 'photo_ijazah', 'photo_anda'];
         foreach ($fields as $field) {
             if ($request->hasFile($field)) {
                 $file = $request->file($field);
@@ -464,7 +468,6 @@ class CandidateController extends Controller
                 // Generate unique file name
                 $fileName = $candidateId . "_" . str_replace('photo_', '', $field) . "_" . uniqid() . "." . $extension;
 
-                // Check if the uploaded file is an image
                 if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'])) {
                     // Compress and resize the image
                     $image = $manager->make($file)->resize(null, 800, function ($constraint) {
@@ -486,29 +489,43 @@ class CandidateController extends Controller
                     // For PDF files, just move the file to the designated folder
                     $file->move($folderPath, $fileName);
                 } else {
-                    // Handle unsupported file types as needed
                     continue; // Skip unsupported file types
                 }
 
                 // Save file name in the data array
                 $data[$field] = $fileName;
             } else {
-                $data[$field] = "No_Document";
+                // If no file is uploaded, retain the existing value from the database
+                $data[$field] = $candidateDataPerlengkapan ? $candidateDataPerlengkapan->{$field} : "No_Document";
             }
         }
 
-        // Save the uploaded file paths in the `candidate_data_perlengkapan` table
-        DB::table('candidate_data_perlengkapan')->insert([
-            'candidate_data_id' => $candidateData->id,
-            'photo_ktp' => $data['photo_ktp'],
-            'photo_kk' => $data['photo_kk'],
-            'photo_sim' => $data['photo_sim'],
-            'photo_npwp' => $data['photo_npwp'],
-            'photo_ijazah' => $data['photo_ijazah'],
-            'photo_candidate' => $data['photo_candidate'],
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+        // Check if record exists, then update or insert accordingly
+        if ($candidateDataPerlengkapan) {
+            // Update the record
+            DB::table('candidate_data_perlengkapan')->where('candidate_data_id', $candidateData->id)->update([
+                'photo_ktp' => $data['photo_ktp'],
+                'photo_kk' => $data['photo_kk'],
+                'photo_sim' => $data['photo_sim'],
+                'photo_npwp' => $data['photo_npwp'],
+                'photo_ijazah' => $data['photo_ijazah'],
+                'photo_anda' => $data['photo_anda'],
+                'updated_at' => now(),
+            ]);
+        } else {
+            // Insert new record
+            DB::table('candidate_data_perlengkapan')->insert([
+                'candidate_data_id' => $candidateData->id,
+                'photo_ktp' => $data['photo_ktp'],
+                'photo_kk' => $data['photo_kk'],
+                'photo_sim' => $data['photo_sim'],
+                'photo_npwp' => $data['photo_npwp'],
+                'photo_ijazah' => $data['photo_ijazah'],
+                'photo_anda' => $data['photo_anda'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
         // Update nik and tempat_lahir in candidate_data_keluarga
         if ($request->has('nik') && $request->has('tempat_lahir') && $request->has('keluarga_id')) {
@@ -516,7 +533,7 @@ class CandidateController extends Controller
                 // Use the actual keluarga_id from the form
                 $keluargaId = $request->keluarga_id[$index];
                 DB::table('candidate_data_keluarga')
-                    ->where('id', $keluargaId) // reference the actual ID
+                    ->where('id', $keluargaId)
                     ->update([
                         'nik' => $nik,
                         'tempat_lahir' => $request->tempat_lahir[$index],

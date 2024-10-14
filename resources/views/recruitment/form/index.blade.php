@@ -94,8 +94,16 @@
                             </div>
 
                             <!-- Tempat/Tgl Lahir -->
+
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Tempat/Tgl Lahir</label>
+                                <label class="col-md-3 col-form-label">Tempat Lahir</label>
+                                <div class="col-md-9">
+                                    <input type="date" class="form-control" name="tempat_lahir">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 align-items-center">
+                                <label class="col-md-3 col-form-label">Tgl Lahir</label>
                                 <div class="col-md-9">
                                     <input type="date" class="form-control" name="tgl_lahir">
                                 </div>
@@ -940,6 +948,15 @@
 <script>
 
     document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            title: 'Informasi Mengisi Form',
+            html: 'Form di tandain <span style="color: red;">*</span> WAJIB di isi <br> Click tombol <span style="color: green;">+</span> untuk menambah baris',
+            icon: 'info',
+            confirmButtonText: 'OK'
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
         const tanggungJawabSelectTang = document.getElementById('tanggung_jawab');
         const additionalTanggunganTang = document.getElementById('additional_tanggungan');
         const siapaTanggungan = document.getElementById('siapa_tanggungan');
@@ -1195,255 +1212,259 @@
         $('#formCandidate').submit(function(event) {
             event.preventDefault(); // Prevent the form from submitting by default
 
-            // var fields = [
-            //     // Existing fields
-            //     {
-            //         id: '#nama_lengkap',
-            //         message: 'Nama Lengkap Harus Diisi'
-            //     },
-            //     {
-            //         id: '#nama_panggilan',
-            //         message: 'Nama Panggilan Harus Diisi'
-            //     },
-            //     {
-            //         id: 'select[name="jenis"]',
-            //         message: 'Jenis Kelamin Harus Diisi'
-            //     },
-            //     {
-            //         id: 'select[name="gol_darah"]',
-            //         message: 'Golongan Darah Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="tgl_lahir"]',
-            //         message: 'Tanggal Lahir Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="warga_negara"]',
-            //         message: 'Warga Negara Harus Diisi'
-            //     },
-            //     {
-            //         id: 'textarea[name="alamat_rumah"]',
-            //         message: 'Alamat Rumah Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="telp_rumah_hp"]',
-            //         message: 'Telpon Rumah/HP Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="no_ktp_sim"]',
-            //         message: 'No. KTP/SIM Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="tgl_ktp_sim"]',
-            //         message: 'Tanggal Berlaku KTP/SIM Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="no_npwp"]',
-            //         message: 'No. NPWP Harus Diisi'
-            //     },
-            //     {
-            //         id: 'textarea[name="alamat_npwp"]',
-            //         message: 'Alamat NPWP Harus Diisi'
-            //     },
-            //     {
-            //         id: 'select[name="status_pajak"]',
-            //         message: 'Status Pajak Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="tgl_menikah"]',
-            //         message: 'Tanggal Menikah Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="jabatan"]',
-            //         message: 'Jabatan Saat Ini Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="nama_perusahaan"]',
-            //         message: 'Nama Perusahaan Harus Diisi'
-            //     },
-            //     {
-            //         id: 'textarea[name="alamat_perusahaan"]',
-            //         message: 'Alamat Perusahaan Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="alamat_email"]',
-            //         message: 'Alamat Email Harus Diisi'
-            //     },
+            var fields = [
+                // Existing fields
+                {
+                    id: '#nama_lengkap',
+                    message: 'Nama Lengkap Harus Diisi'
+                },
+                {
+                    id: '#nama_panggilan',
+                    message: 'Nama Panggilan Harus Diisi'
+                },
+                {
+                    id: 'select[name="jenis"]',
+                    message: 'Jenis Kelamin Harus Diisi'
+                },
+                {
+                    id: 'select[name="gol_darah"]',
+                    message: 'Golongan Darah Harus Diisi'
+                },
+                {
+                    id: 'input[name="tempat_lahir"]',
+                    message: 'Tempat Lahir Harus Diisi'
+                },
+                {
+                    id: 'input[name="tgl_lahir"]',
+                    message: 'Tanggal Lahir Harus Diisi'
+                },
+                {
+                    id: 'input[name="warga_negara"]',
+                    message: 'Warga Negara Harus Diisi'
+                },
+                {
+                    id: 'textarea[name="alamat_rumah"]',
+                    message: 'Alamat Rumah Harus Diisi'
+                },
+                {
+                    id: 'input[name="telp_rumah_hp"]',
+                    message: 'Telpon Rumah/HP Harus Diisi'
+                },
+                {
+                    id: 'input[name="no_ktp_sim"]',
+                    message: 'No. KTP/SIM Harus Diisi'
+                },
+                {
+                    id: 'input[name="tgl_ktp_sim"]',
+                    message: 'Tanggal Berlaku KTP/SIM Harus Diisi'
+                },
+                {
+                    id: 'input[name="no_npwp"]',
+                    message: 'No. NPWP Harus Diisi'
+                },
+                {
+                    id: 'textarea[name="alamat_npwp"]',
+                    message: 'Alamat NPWP Harus Diisi'
+                },
+                {
+                    id: 'select[name="status_pajak"]',
+                    message: 'Status Pajak Harus Diisi'
+                },
+                {
+                    id: 'select[name="marriage_status"]',
+                    message: 'Status Menikah Harus Diisi'
+                },
+                {
+                    id: 'input[name="jabatan"]',
+                    message: 'Jabatan Saat Ini Harus Diisi'
+                },
+                {
+                    id: 'input[name="nama_perusahaan"]',
+                    message: 'Nama Perusahaan Harus Diisi'
+                },
+                {
+                    id: 'textarea[name="alamat_perusahaan"]',
+                    message: 'Alamat Perusahaan Harus Diisi'
+                },
+                {
+                    id: 'input[name="alamat_email"]',
+                    message: 'Alamat Email Harus Diisi'
+                },
 
-            //     // New family fields
-            //     {
-            //         id: 'input[name="family1_nama_lengkap_ayah"]',
-            //         message: 'Nama Lengkap Ayah Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="family1_jenis_ayah"]',
-            //         message: 'Jenis Kelamin Ayah Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="family1_tgl_lahir_ayah"]',
-            //         message: 'Tanggal Lahir Ayah Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="family1_pendidikan_ayah"]',
-            //         message: 'Pendidikan Ayah Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="family1_pekerjaan_ayah"]',
-            //         message: 'Pekerjaan Ayah Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="family1_keterangan_ayah"]',
-            //         message: 'Keterangan Ayah Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="family1_nama_lengkap_ibu"]',
-            //         message: 'Nama Lengkap Ibu Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="family1_jenis_ibu"]',
-            //         message: 'Jenis Kelamin Ibu Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="family1_tgl_lahir_ibu"]',
-            //         message: 'Tanggal Lahir Ibu Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="family1_pendidikan_ibu"]',
-            //         message: 'Pendidikan Ibu Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="family1_pekerjaan_ibu"]',
-            //         message: 'Pekerjaan Ibu Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="family1_keterangan_ibu"]',
-            //         message: 'Keterangan Ibu Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="family1_nama_lengkap_anak1"]',
-            //         message: 'Nama Lengkap Anak ke-1 Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="family1_jenis_anak1"]',
-            //         message: 'Jenis Kelamin Anak ke-1 Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="family1_tgl_lahir_anak1"]',
-            //         message: 'Tanggal Lahir Anak ke-1 Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="family1_pendidikan_anak1"]',
-            //         message: 'Pendidikan Anak ke-1 Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="family1_pekerjaan_anak1"]',
-            //         message: 'Pekerjaan Anak ke-1 Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="family1_keterangan_anak1"]',
-            //         message: 'Keterangan Anak ke-1 Harus Diisi'
-            //     },
-            //     {
-            //         id: 'select[name="tanggung_jawab"]',
-            //         message: 'Tanggung Jawab Harus Diisi'
-            //     },
-            //     {
-            //         id: 'select[name="rumah_status"]',
-            //         message: 'Status Rumah Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="melanjut_pendidikan"]',
-            //         message: 'Perlanjutan Pendidikan Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="language_1_bahasa"]',
-            //         message: 'Bahasa Inggris Harus Diisi'
-            //     },
-            //     {
-            //         id: 'select[name="language_1_bicara"]',
-            //         message: 'Bicara Bahasa Harus Diisi'
-            //     },
-            //     {
-            //         id: 'select[name="language_1_baca"]',
-            //         message: 'Bicara Bahasa Harus Diisi'
-            //     },
-            //     {
-            //         id: 'select[name="language_1_tulis"]',
-            //         message: 'Tulis Bahasa Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="language_1_steno"]',
-            //         message: 'Steno Inggris Harus Diisi'
-            //     },
-            //     {
-            //         id: 'textarea[name="alasan_pekerjaan_terakhir"]',
-            //         message: 'Alasan Meninggalkan Pekerjaan Terakhir Harus Diisi'
-            //     },
-            //     {
-            //         id: 'textarea[name="uraian_pekerjaan_terakhir"]',
-            //         message: 'Uraian Pekejeraan Jabatan Terakhir Harus Diisi'
-            //     },
-            //     {
-            //         id: 'textarea[name="saudara_pekerjaan"]',
-            //         message: 'Saudara Melamar Harus Diisi'
-            //     },
-            //     {
-            //         id: 'textarea[name="organisasi"]',
-            //         message: 'Organisasi Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="em_nama"]',
-            //         message: 'Nama Emergency Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="em_alamat"]',
-            //         message: 'Alamat Emergency Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="em_telp"]',
-            //         message: 'Telpon Emergency Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="em_status"]',
-            //         message: 'Hubungan Emergency Harus Diisi'
-            //     },
-            //     {
-            //         id: 'textarea[name="sakit_lama"]',
-            //         message: 'Saudara Pernah Menderita Sakit Yang Lama Harus Diisi'
-            //     },
-            //     {
-            //         id: '#gambaran_posisi',
-            //         message: 'Upload Gambaran Posisi Harus Diisi'
-            //     },
-            //     {
-            //         id: 'select[name="masa_percobaan"]',
-            //         message: 'Masa Percobaan Harus Diisi'
-            //     },
-            //     {
-            //         id: 'select[name="proses_bi"]',
-            //         message: 'Proses BI Harus Diisi'
-            //     },
-            //     {
-            //         id: 'input[name="mulai_kerja"]',
-            //         message: 'Mulai Kerja Harus Diisi'
-            //     },
-            // ];
+                // New family fields
+                {
+                    id: 'input[name="family1_nama_lengkap_ayah"]',
+                    message: 'Nama Lengkap Ayah Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_jenis_ayah"]',
+                    message: 'Jenis Kelamin Ayah Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_tgl_lahir_ayah"]',
+                    message: 'Tanggal Lahir Ayah Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_pendidikan_ayah"]',
+                    message: 'Pendidikan Ayah Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_pekerjaan_ayah"]',
+                    message: 'Pekerjaan Ayah Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_keterangan_ayah"]',
+                    message: 'Keterangan Ayah Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_nama_lengkap_ibu"]',
+                    message: 'Nama Lengkap Ibu Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_jenis_ibu"]',
+                    message: 'Jenis Kelamin Ibu Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_tgl_lahir_ibu"]',
+                    message: 'Tanggal Lahir Ibu Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_pendidikan_ibu"]',
+                    message: 'Pendidikan Ibu Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_pekerjaan_ibu"]',
+                    message: 'Pekerjaan Ibu Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_keterangan_ibu"]',
+                    message: 'Keterangan Ibu Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_nama_lengkap_anak1"]',
+                    message: 'Nama Lengkap Anak ke-1 Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_jenis_anak1"]',
+                    message: 'Jenis Kelamin Anak ke-1 Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_tgl_lahir_anak1"]',
+                    message: 'Tanggal Lahir Anak ke-1 Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_pendidikan_anak1"]',
+                    message: 'Pendidikan Anak ke-1 Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_pekerjaan_anak1"]',
+                    message: 'Pekerjaan Anak ke-1 Harus Diisi'
+                },
+                {
+                    id: 'input[name="family1_keterangan_anak1"]',
+                    message: 'Keterangan Anak ke-1 Harus Diisi'
+                },
+                {
+                    id: 'select[name="tanggung_jawab"]',
+                    message: 'Tanggung Jawab Harus Diisi'
+                },
+                {
+                    id: 'select[name="rumah_status"]',
+                    message: 'Status Rumah Harus Diisi'
+                },
+                {
+                    id: 'input[name="melanjut_pendidikan"]',
+                    message: 'Perlanjutan Pendidikan Harus Diisi'
+                },
+                {
+                    id: 'input[name="language_1_bahasa"]',
+                    message: 'Bahasa Inggris Harus Diisi'
+                },
+                {
+                    id: 'select[name="language_1_bicara"]',
+                    message: 'Bicara Bahasa Harus Diisi'
+                },
+                {
+                    id: 'select[name="language_1_baca"]',
+                    message: 'Bicara Bahasa Harus Diisi'
+                },
+                {
+                    id: 'select[name="language_1_tulis"]',
+                    message: 'Tulis Bahasa Harus Diisi'
+                },
+                {
+                    id: 'input[name="language_1_steno"]',
+                    message: 'Steno Inggris Harus Diisi'
+                },
+                {
+                    id: 'textarea[name="alasan_pekerjaan_terakhir"]',
+                    message: 'Alasan Meninggalkan Pekerjaan Terakhir Harus Diisi'
+                },
+                {
+                    id: 'textarea[name="uraian_pekerjaan_terakhir"]',
+                    message: 'Uraian Pekejeraan Jabatan Terakhir Harus Diisi'
+                },
+                {
+                    id: 'textarea[name="saudara_pekerjaan"]',
+                    message: 'Saudara Melamar Harus Diisi'
+                },
+                {
+                    id: 'textarea[name="organisasi"]',
+                    message: 'Organisasi Harus Diisi'
+                },
+                {
+                    id: 'input[name="em_nama"]',
+                    message: 'Nama Emergency Harus Diisi'
+                },
+                {
+                    id: 'input[name="em_alamat"]',
+                    message: 'Alamat Emergency Harus Diisi'
+                },
+                {
+                    id: 'input[name="em_telp"]',
+                    message: 'Telpon Emergency Harus Diisi'
+                },
+                {
+                    id: 'input[name="em_status"]',
+                    message: 'Hubungan Emergency Harus Diisi'
+                },
+                {
+                    id: 'textarea[name="sakit_lama"]',
+                    message: 'Saudara Pernah Menderita Sakit Yang Lama Harus Diisi'
+                },
+                {
+                    id: '#gambaran_posisi',
+                    message: 'Upload Gambaran Posisi Harus Diisi'
+                },
+                {
+                    id: 'select[name="masa_percobaan"]',
+                    message: 'Masa Percobaan Harus Diisi'
+                },
+                {
+                    id: 'select[name="proses_bi"]',
+                    message: 'Proses BI Harus Diisi'
+                },
+                {
+                    id: 'input[name="mulai_kerja"]',
+                    message: 'Mulai Kerja Harus Diisi'
+                },
+            ];
 
-            // // Validate all fields
-            // for (let i = 0; i < fields.length; i++) {
-            //     var field = fields[i];
-            //     if ($(field.id).val() === "") {
-            //         Swal.fire({
-            //             title: 'Warning!',
-            //             text: field.message,
-            //             icon: 'warning',
-            //             confirmButtonText: 'Ok'
-            //         }).then(() => {
-            //             $(field.id).focus();
-            //         });
-            //         return false; // Stop the form submission and show the alert
-            //     }
-            // }
+            // Validate all fields
+            for (let i = 0; i < fields.length; i++) {
+                var field = fields[i];
+                if ($(field.id).val() === "") {
+                    Swal.fire({
+                        title: 'Warning!',
+                        text: field.message,
+                        icon: 'warning',
+                        confirmButtonText: 'Ok'
+                    }).then(() => {
+                        $(field.id).focus();
+                    });
+                    return false; // Stop the form submission and show the alert
+                }
+            }
             this.submit();
         });
 

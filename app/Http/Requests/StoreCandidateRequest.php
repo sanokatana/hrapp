@@ -19,6 +19,7 @@ class StoreCandidateRequest extends FormRequest
             'nama_panggilan' => 'nullable|string|max:255',
             'jenis' => 'nullable|string',
             'gol_darah' => 'nullable|string|max:2',
+            'tempat_lahir' => 'nullable|string|max:255',
             'tgl_lahir' => 'nullable|date',
             'warga_negara' => 'nullable|string|max:255',
             'alamat_rumah' => 'nullable|string|max:500',

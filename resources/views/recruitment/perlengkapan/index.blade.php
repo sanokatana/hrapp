@@ -50,7 +50,7 @@
                             <!-- File Upload Section -->
 
                             <div class="row mb-4">
-                                @if(!empty($candidateDataLengkap->photo_ktp))
+                                @if($candidateDataLengkap && $candidateDataLengkap->photo_ktp && $candidateDataLengkap->photo_ktp !== 'No_Document'                                )
                                 <!-- If there's a file uploaded, show it as a clickable link -->
                                 <div class="col-4">
                                     <h3>Photo KTP</h3>
@@ -65,7 +65,7 @@
                                     <input class="form-control" type="file" id="photo_ktp" name="photo_ktp">
                                 </div>
                                 @endif
-                                @if(!empty($candidateDataLengkap->photo_ktp))
+                                @if($candidateDataLengkap && $candidateDataLengkap->photo_kk && $candidateDataLengkap->photo_kk !== 'No_Document')
                                 <!-- If there's a file uploaded, show it as a clickable link -->
                                 <div class="col-4">
                                     <h3>Photo Kartu Keluarga</h3>
@@ -80,7 +80,7 @@
                                     <input class="form-control" type="file" id="photo_kk" name="photo_kk">
                                 </div>
                                 @endif
-                                @if(!empty($candidateDataLengkap->photo_ktp))
+                                @if($candidateDataLengkap && $candidateDataLengkap->photo_sim && $candidateDataLengkap->photo_sim !== 'No_Document')
                                 <!-- If there's a file uploaded, show it as a clickable link -->
                                 <div class="col-4">
                                     <h3>Photo SIM</h3>
@@ -97,7 +97,7 @@
                                 @endif
                             </div>
                             <div class="row mb-4">
-                                @if(!empty($candidateDataLengkap->photo_ktp))
+                                @if($candidateDataLengkap && $candidateDataLengkap->photo_npwp && $candidateDataLengkap->photo_npwp !== 'No_Document')
                                 <!-- If there's a file uploaded, show it as a clickable link -->
                                 <div class="col-4">
                                     <h3>Photo NPWP</h3>
@@ -112,7 +112,7 @@
                                     <input class="form-control" type="file" id="photo_npwp" name="photo_npwp">
                                 </div>
                                 @endif
-                                @if(!empty($candidateDataLengkap->photo_ktp))
+                                @if($candidateDataLengkap && $candidateDataLengkap->photo_ijazah && $candidateDataLengkap->photo_ijazah !== 'No_Document')
                                 <!-- If there's a file uploaded, show it as a clickable link -->
                                 <div class="col-4">
                                     <h3>Photo Ijazah</h3>
@@ -127,11 +127,11 @@
                                     <input class="form-control" type="file" id="photo_ijazah" name="photo_ijazah">
                                 </div>
                                 @endif
-                                @if(!empty($candidateDataLengkap->photo_ktp))
+                                @if($candidateDataLengkap && $candidateDataLengkap->photo_anda && $candidateDataLengkap->photo_anda !== 'No_Document')
                                 <!-- If there's a file uploaded, show it as a clickable link -->
                                 <div class="col-4">
                                     <h3>Photo Anda</h3>
-                                    <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateDataLengkap->photo_candidate) }}" target="_blank" class="btn btn-info btn-block w-100">
+                                    <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateDataLengkap->photo_anda) }}" target="_blank" class="btn btn-info btn-block w-100">
                                         Lihat File
                                     </a>
                                 </div>
@@ -139,7 +139,7 @@
                                 <!-- If there's no file uploaded, show the upload input -->
                                 <div class="col-4">
                                     <h3>Photo Anda</h3>
-                                    <input class="form-control" type="file" id="photo_candidate" name="photo_candidate">
+                                    <input class="form-control" type="file" id="photo_anda" name="photo_anda">
                                 </div>
                                 @endif
                             </div>
