@@ -98,7 +98,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Tempat Lahir</label>
                                 <div class="col-md-9">
-                                    <input type="date" class="form-control" name="tempat_lahir">
+                                    <input type="text" class="form-control" name="tempat_lahir">
                                 </div>
                             </div>
 
@@ -839,100 +839,100 @@
                             </div>
 
                             <h2 class="mt-4">Pendapatan Terakhir</h2>
-                            <div class="row mb-4">
-                                <div class="col-12 table-responsive">
-                                    <table class="table table-vcenter card-table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Detail</th>
-                                                <th>Amount (Rp)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <!-- Gaji Pokok -->
-                                            <tr>
-                                                <td>Gaji Pokok</td>
-                                                <td><input class="form-control" type="number" name="gaji_pokok"></td>
-                                            </tr>
-                                            <!-- Tunjangan -->
-                                            <tr>
-                                                <td colspan="2"><strong>Tunjangan</strong></td>
-                                            </tr>
-                                            <tr>
-                                                <td><input type="text" class="form-control" name="tunjangan1" value=""></td>
-                                                <td><input class="form-control" type="number" name="nilai_tunjangan1"></td>
-                                            </tr>
-                                            <tr>
-                                                <td><input type="text" class="form-control" name="tunjangan2" value=""></td>
-                                                <td><input class="form-control" type="number" name="nilai_tunjangan2"></td>
-                                            </tr>
-                                            <tr>
-                                                <td><input type="text" class="form-control" name="tunjangan3" value=""></td>
-                                                <td><input class="form-control" type="number" name="nilai_tunjangan3"></td>
-                                            </tr>
-                                            <tr>
-                                                <td><input type="text" class="form-control" name="tunjangan4" value=""></td>
-                                                <td><input class="form-control" type="number" name="nilai_tunjangan4"></td>
-                                            </tr>
-                                            <tr>
-                                                <td><input type="text" class="form-control" name="tunjangan5" value=""></td>
-                                                <td><input class="form-control" type="number" name="nilai_tunjangan5"></td>
-                                            </tr>
-                                            <!-- Insentif -->
-                                            <tr>
-                                                <td>Insentif</td>
-                                                <td><input class="form-control" type="number" name="nilai_insentif"></td>
-                                            </tr>
-                                            <!-- Lain-lain -->
-                                            <tr>
-                                                <td>Lain-lain</td>
-                                                <td><input class="form-control" type="number" name="nilai_lain_lain"></td>
-                                            </tr>
-                                            <!-- Total Take Home Pay -->
-                                            <tr>
-                                                <td>Total Take Home Pay / Bulan</td>
-                                                <td><input class="form-control" type="number" name="take_home_bulan"></td>
-                                            </tr>
-                                            <!-- Pendapatan per Tahun -->
-                                            <tr>
-                                                <td>Pendapatan per Tahun (Termasuk THR)</td>
-                                                <td><input class="form-control" type="number" name="take_home_tahun"></td>
-                                            </tr>
-                                            <!-- Gaji per Tahun Bulan -->
-                                            <tr>
-                                                <td>Gaji per Tahun Bulan</td>
-                                                <td><input class="form-control" type="number" name="bulan_gaji"></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+<div class="row mb-4">
+    <div class="col-12 table-responsive">
+        <table class="table table-vcenter card-table table-striped">
+            <thead>
+                <tr>
+                    <th>Detail</th>
+                    <th>Amount (Rp)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Gaji Pokok -->
+                <tr>
+                    <td>Gaji Pokok</td>
+                    <td><input class="form-control" type="text" name="gaji_pokok" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                </tr>
+                <!-- Tunjangan -->
+                <tr>
+                    <td colspan="2"><strong>Tunjangan</strong></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="form-control" name="tunjangan1" value="1."></td>
+                    <td><input class="form-control" type="text" name="nilai_tunjangan1" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="form-control" name="tunjangan2" value="2."></td>
+                    <td><input class="form-control" type="text" name="nilai_tunjangan2" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="form-control" name="tunjangan3" value="3."></td>
+                    <td><input class="form-control" type="text" name="nilai_tunjangan3" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="form-control" name="tunjangan4" value="4."></td>
+                    <td><input class="form-control" type="text" name="nilai_tunjangan4" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="form-control" name="tunjangan5" value="5."></td>
+                    <td><input class="form-control" type="text" name="nilai_tunjangan5" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                </tr>
+                <!-- Insentif -->
+                <tr>
+                    <td>Insentif</td>
+                    <td><input class="form-control" type="text" name="nilai_insentif" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                </tr>
+                <!-- Lain-lain -->
+                <tr>
+                    <td>Lain-lain</td>
+                    <td><input class="form-control" type="text" name="nilai_lain_lain" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                </tr>
+                <!-- Total Take Home Pay -->
+                <tr>
+                    <td>Total Take Home Pay / Bulan</td>
+                    <td><input class="form-control" type="text" name="take_home_bulan" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                </tr>
+                <!-- Pendapatan per Tahun -->
+                <tr>
+                    <td>Pendapatan per Tahun (Termasuk THR)</td>
+                    <td><input class="form-control" type="text" name="take_home_tahun" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                </tr>
+                <!-- Gaji per Tahun Bulan -->
+                <tr>
+                    <td>Berapa Bulan Gaji Per Tahun</td>
+                    <td><input class="form-control" type="number" name="bulan_gaji"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
-                            <h2 class="mt-4">Pendapatan Yang Diharapkan</h2>
-                            <div class="row mb-4">
-                                <div class="col-12 table-responsive">
-                                    <table class="table table-vcenter card-table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Detail</th>
-                                                <th>Amount (Rp)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <!-- Take Home Pay / Bulan -->
-                                            <tr>
-                                                <td>Take Home Pay / Bulan</td>
-                                                <td><input class="form-control" type="number" name="harap_take_home_bulan"></td>
-                                            </tr>
-                                            <!-- Pendapatan per Tahun -->
-                                            <tr>
-                                                <td>Pendapatan per Tahun (Bersih/Kotor)</td>
-                                                <td><input class="form-control" type="number" name="harap_take_home_tahun"></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+<h2 class="mt-4">Pendapatan Yang Diharapkan</h2>
+<div class="row mb-4">
+    <div class="col-12 table-responsive">
+        <table class="table table-vcenter card-table table-striped">
+            <thead>
+                <tr>
+                    <th>Detail</th>
+                    <th>Amount (Rp)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Take Home Pay / Bulan -->
+                <tr>
+                    <td>Take Home Pay / Bulan</td>
+                    <td><input class="form-control" type="text" name="harap_take_home_bulan" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                </tr>
+                <!-- Pendapatan per Tahun -->
+                <tr>
+                    <td>Pendapatan per Tahun (Bersih/Kotor)</td>
+                    <td><input class="form-control" type="text" name="harap_take_home_tahun" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
                             <button type="submit" class="btn btn-primary">Submit</button>
                         </form>
@@ -946,6 +946,21 @@
 
 @push('myscript')
 <script>
+
+    function formatCurrency(input) {
+        let value = input.value.replace(/\D/g, ''); // Remove non-digit characters
+        if (value) {
+            input.value = 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
+        } else {
+            input.value = '';
+        }
+    }
+
+    function saveNumericValue(input) {
+        // Remove 'Rp' and format to number
+        let value = input.value.replace(/[^\d]/g, ''); // Remove non-digit characters
+        input.value = value ? parseFloat(value).toFixed(2) : '';
+    }
 
     document.addEventListener('DOMContentLoaded', function() {
         Swal.fire({

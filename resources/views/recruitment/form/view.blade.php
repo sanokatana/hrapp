@@ -17,27 +17,27 @@
     </div>
 </div>
 @if(session('success'))
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            Swal.fire({
-                title: 'Berhasil!',
-                text: "{{ session('success') }}",
-                icon: 'success',
-                confirmButtonText: 'Ok'
-            });
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            title: 'Berhasil!',
+            text: "{{ session('success') }}",
+            icon: 'success',
+            confirmButtonText: 'Ok'
         });
-    </script>
+    });
+</script>
 @elseif(session('danger'))
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            Swal.fire({
-                title: 'Sudah!',
-                text: "{{ session('danger') }}",
-                icon: 'warning',
-                confirmButtonText: 'Ok'
-            });
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            title: 'Sudah!',
+            text: "{{ session('danger') }}",
+            icon: 'warning',
+            confirmButtonText: 'Ok'
         });
-    </script>
+    });
+</script>
 @endif
 <div class="page-body">
     <div class="container-xl">
@@ -99,8 +99,16 @@
                             </div>
 
                             <!-- Tempat/Tgl Lahir -->
+
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Tempat/Tgl Lahir</label>
+                                <label class="col-md-3 col-form-label">Tempat Lahir</label>
+                                <div class="col-md-9">
+                                    <input type="text" value="{{ $candidateData ? $candidateData->tempat_lahir : '' }}" class="form-control" name="tempat_lahir">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 align-items-center">
+                                <label class="col-md-3 col-form-label">Tgl Lahir</label>
                                 <div class="col-md-9">
                                     <input type="date" value="{{ $candidateData ? $candidateData->tgl_lahir : '' }}"
                                         class="form-control" name="tgl_lahir" readonly>
@@ -274,15 +282,15 @@
                                         </thead>
                                         <tbody id="family_table_body">
                                             @foreach ($candidateFamilyData as $d)
-                                                <tr style="text-align: center;">
-                                                    <td>{{ $d->uraian}}</td>
-                                                    <td>{{ $d->nama_lengkap}}</td>
-                                                    <td>{{ $d->jenis}}</td>
-                                                    <td>{{ $d->tgl_lahir}}</td>
-                                                    <td>{{ $d->pendidikan}}</td>
-                                                    <td>{{ $d->pekerjaan}}</td>
-                                                    <td>{{ $d->keterangan}}</td>
-                                                </tr>
+                                            <tr style="text-align: center;">
+                                                <td>{{ $d->uraian}}</td>
+                                                <td>{{ $d->nama_lengkap}}</td>
+                                                <td>{{ $d->jenis}}</td>
+                                                <td>{{ $d->tgl_lahir}}</td>
+                                                <td>{{ $d->pendidikan}}</td>
+                                                <td>{{ $d->pekerjaan}}</td>
+                                                <td>{{ $d->keterangan}}</td>
+                                            </tr>
                                             @endforeach
                                         </tbody>
 
@@ -307,15 +315,15 @@
                                         </thead>
                                         <tbody>
                                             @foreach ($candidateFamilyDataSendiri as $d)
-                                                <tr style="text-align: center;">
-                                                    <td>{{ $d->uraian}}</td>
-                                                    <td>{{ $d->nama_lengkap}}</td>
-                                                    <td>{{ $d->jenis}}</td>
-                                                    <td>{{ $d->tgl_lahir}}</td>
-                                                    <td>{{ $d->pendidikan}}</td>
-                                                    <td>{{ $d->pekerjaan}}</td>
-                                                    <td>{{ $d->keterangan}}</td>
-                                                </tr>
+                                            <tr style="text-align: center;">
+                                                <td>{{ $d->uraian}}</td>
+                                                <td>{{ $d->nama_lengkap}}</td>
+                                                <td>{{ $d->jenis}}</td>
+                                                <td>{{ $d->tgl_lahir}}</td>
+                                                <td>{{ $d->pendidikan}}</td>
+                                                <td>{{ $d->pekerjaan}}</td>
+                                                <td>{{ $d->keterangan}}</td>
+                                            </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
@@ -388,16 +396,16 @@
                                         </thead>
                                         <tbody>
                                             @foreach ($candidatePendidikan as $d)
-                                                <tr style="text-align: center;">
-                                                    <td>{{ $d->tingkat_besar}}</td>
-                                                    <td>{{ $d->nama_sekolah}}</td>
-                                                    <td>{{ $d->tempat_sekolah}}</td>
-                                                    <td>{{ $d->jurusan_studi}}</td>
-                                                    <td>{{ $d->dari}}</td>
-                                                    <td>{{ $d->sampai}}</td>
-                                                    <td>{{ $d->berijazah}}</td>
-                                                    <td>{{ $d->keterangan}}</td>
-                                                </tr>
+                                            <tr style="text-align: center;">
+                                                <td>{{ $d->tingkat_besar}}</td>
+                                                <td>{{ $d->nama_sekolah}}</td>
+                                                <td>{{ $d->tempat_sekolah}}</td>
+                                                <td>{{ $d->jurusan_studi}}</td>
+                                                <td>{{ $d->dari}}</td>
+                                                <td>{{ $d->sampai}}</td>
+                                                <td>{{ $d->berijazah}}</td>
+                                                <td>{{ $d->keterangan}}</td>
+                                            </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
@@ -448,15 +456,15 @@
                                         </thead>
                                         <tbody id="kursus_table_body">
                                             @foreach ($candidateKursus as $d)
-                                                <tr style="text-align: center;">
-                                                    <td>{{ $d->nama}}</td>
-                                                    <td>{{ $d->diadakan_oleh}}</td>
-                                                    <td>{{ $d->tempat}}</td>
-                                                    <td>{{ $d->lama}}</td>
-                                                    <td>{{ $d->tahun}}</td>
-                                                    <td>{{ $d->dibiayai_oleh}}</td>
-                                                    <td>{{ $d->keterangan}}</td>
-                                                </tr>
+                                            <tr style="text-align: center;">
+                                                <td>{{ $d->nama}}</td>
+                                                <td>{{ $d->diadakan_oleh}}</td>
+                                                <td>{{ $d->tempat}}</td>
+                                                <td>{{ $d->lama}}</td>
+                                                <td>{{ $d->tahun}}</td>
+                                                <td>{{ $d->dibiayai_oleh}}</td>
+                                                <td>{{ $d->keterangan}}</td>
+                                            </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
@@ -482,13 +490,13 @@
                                         </thead>
                                         <tbody id="bahasa_table_body">
                                             @foreach ($candidateBahasa as $d)
-                                                <tr style="text-align: center;">
-                                                    <td>{{ $d->bahasa}}</td>
-                                                    <td>{{ $d->bicara}}</td>
-                                                    <td>{{ $d->baca}}</td>
-                                                    <td>{{ $d->tulis}}</td>
-                                                    <td>{{ $d->steno}}</td>
-                                                </tr>
+                                            <tr style="text-align: center;">
+                                                <td>{{ $d->bahasa}}</td>
+                                                <td>{{ $d->bicara}}</td>
+                                                <td>{{ $d->baca}}</td>
+                                                <td>{{ $d->tulis}}</td>
+                                                <td>{{ $d->steno}}</td>
+                                            </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
@@ -513,15 +521,15 @@
                                         </thead>
                                         <tbody id="pekerjaan_table_body">
                                             @foreach ($candidatePekerjaan as $d)
-                                                <tr style="text-align: center;">
-                                                    <td>{{ $d->perusahaan}}</td>
-                                                    <td>{{ $d->alamat}}</td>
-                                                    <td>{{ $d->jabatan}}</td>
-                                                    <td>{{ $d->dari}}</td>
-                                                    <td>{{ $d->sampai}}</td>
-                                                    <td>{{ $d->keterangan}}</td>
-                                                    <td>{{ $d->alasan}}</td>
-                                                </tr>
+                                            <tr style="text-align: center;">
+                                                <td>{{ $d->perusahaan}}</td>
+                                                <td>{{ $d->alamat}}</td>
+                                                <td>{{ $d->jabatan}}</td>
+                                                <td>{{ $d->dari}}</td>
+                                                <td>{{ $d->sampai}}</td>
+                                                <td>{{ $d->keterangan}}</td>
+                                                <td>{{ $d->alasan}}</td>
+                                            </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
@@ -719,23 +727,23 @@
                             <h2 class="mt-4">H. GAMBARAN POSISI SAAT INI</h2>
                             <h5>Gambarkan Posisi Anda saat ini dalam Struktur Organisasi</h5>
                             @if(!empty($candidateData->gambaran_posisi))
-                                <!-- If there's a file uploaded, show it as a clickable link -->
-                                <div class="row mb-4">
-                                    <div class="col-12">
-                                        <label for="gambaran_posisi" class="form-label">Lihat Gambaran Posisi</label>
-                                        <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateData->gambaran_posisi) }}" target="_blank" class="btn btn-success btn-block w-100">
-                                            Lihat File
-                                        </a>
-                                    </div>
+                            <!-- If there's a file uploaded, show it as a clickable link -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <label for="gambaran_posisi" class="form-label">Lihat Gambaran Posisi</label>
+                                    <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateData->gambaran_posisi) }}" target="_blank" class="btn btn-success btn-block w-100">
+                                        Lihat File
+                                    </a>
                                 </div>
+                            </div>
                             @else
-                                <!-- If there's no file uploaded, show the upload input -->
-                                <div class="row mb-4">
-                                    <div class="col-12">
-                                        <label for="gambaran_posisi" class="form-label">Upload Gambaran Posisi</label>
-                                        <input class="form-control" type="file" id="gambaran_posisi" name="gambaran_posisi">
-                                    </div>
+                            <!-- If there's no file uploaded, show the upload input -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <label for="gambaran_posisi" class="form-label">Upload Gambaran Posisi</label>
+                                    <input class="form-control" type="file" id="gambaran_posisi" name="gambaran_posisi">
                                 </div>
+                            </div>
                             @endif
 
                             <h2 class="mt-4">I. LAIN – LAIN</h2>
@@ -773,187 +781,189 @@
                             </h2>
                             <!-- Slip 1 -->
                             @if($candidateData->slip1 !== 'No_Document')
-                                <div class="row mb-4">
-                                    <div class="col-12">
-                                        <label for="slip1" class="form-label">Lihat Slip Gaji 1</label>
-                                        <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateData->slip1) }}" target="_blank" class="btn btn-info btn-block w-100">
-                                            Lihat Slip 1
-                                        </a>
-                                    </div>
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <label for="slip1" class="form-label">Lihat Slip Gaji 1</label>
+                                    <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateData->slip1) }}" target="_blank" class="btn btn-info btn-block w-100">
+                                        Lihat Slip 1
+                                    </a>
                                 </div>
+                            </div>
                             @else
-                                <div class="row mb-4">
-                                    <div class="col-12">
-                                        <label for="slip1" class="form-label">No Document</label>
-                                    </div>
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <label for="slip1" class="form-label">No Document</label>
                                 </div>
+                            </div>
                             @endif
 
                             <!-- Slip 2 -->
-                            @if($candidateData->slip2  !== 'No_Document')
-                                <div class="row mb-4">
-                                    <div class="col-12">
-                                        <label for="slip2" class="form-label">Lihat Slip Gaji 2</label>
-                                        <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateData->slip2) }}" target="_blank" class="btn btn-info btn-block w-100">
-                                            Lihat Slip 2
-                                        </a>
-                                    </div>
+                            @if($candidateData->slip2 !== 'No_Document')
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <label for="slip2" class="form-label">Lihat Slip Gaji 2</label>
+                                    <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateData->slip2) }}" target="_blank" class="btn btn-info btn-block w-100">
+                                        Lihat Slip 2
+                                    </a>
                                 </div>
+                            </div>
                             @else
-                                <div class="row mb-4">
-                                    <div class="col-12">
-                                        <label for="slip2" class="form-label">No Document</label>
-                                    </div>
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <label for="slip2" class="form-label">No Document</label>
                                 </div>
+                            </div>
                             @endif
 
                             <!-- Slip 3 -->
                             @if($candidateData->slip3 !== 'No_Document')
-                                <div class="row mb-4">
-                                    <div class="col-12">
-                                        <label for="slip3" class="form-label">Lihat Slip Gaji 3</label>
-                                        <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateData->slip3) }}" target="_blank" class="btn btn-info btn-block w-100">
-                                            Lihat Slip 3
-                                        </a>
-                                    </div>
-                                </div>
-                            @else
-                                <div class="row mb-4">
-                                    <div class="col-12">
-                                        <label for="slip3" class="form-label">No Document</label>
-                            @endif
-
-                            <h2 class="mt-4">Pendapatan Terakhir</h2>
                             <div class="row mb-4">
-                                <div class="col-12 table-responsive">
-                                    <table class="table table-vcenter card-table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Detail</th>
-                                                <th>Amount (Rp)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <!-- Gaji Pokok -->
-                                            <tr>
-                                                <td>Gaji Pokok</td>
-                                                <td>
-                                                    <input class="form-control"
-                                                        value="{{ $candidateData ? 'Rp ' . number_format($candidateData->gaji_pokok, 0, ',', '.') : '' }}"
-                                                        type="text" name="gaji_pokok" readonly>
-                                                </td>
-                                            </tr>
-
-                                            <!-- Tunjangan -->
-                                            <tr>
-                                                <td colspan="2"><strong>Tunjangan</strong></td>
-                                            </tr>
-                                            <tr>
-                                                <td><input type="text"
-                                                        value="{{ $candidateData ? $candidateData->tunjangan1 : '' }}"
-                                                        class="form-control" name="tunjangan1" readonly></td>
-                                                <td><input class="form-control"
-                                                        value="{{ $candidateData ? 'Rp ' . number_format($candidateData->nilai_tunjangan1, 0, ',', '.') : '' }}"
-                                                        type="text" name="nilai_tunjangan1" readonly>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><input type="text" value="{{ $candidateData ? $candidateData->tunjangan2 : '' }}" class="form-control" name="tunjangan2" readonly></td>
-                                                <td><input class="form-control"
-                                                        value="{{ $candidateData ? 'Rp ' . number_format($candidateData->nilai_tunjangan2, 0, ',', '.') : '' }}"
-                                                        type="text" name="nilai_tunjangan2" readonly>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><input type="text" value="{{ $candidateData ? $candidateData->tunjangan3 : '' }}" class="form-control" name="tunjangan3" readonly></td>
-                                                <td><input class="form-control"
-                                                        value="{{ $candidateData ? 'Rp ' . number_format($candidateData->nilai_tunjangan3, 0, ',', '.') : '' }}"
-                                                        type="text" name="nilai_tunjangan3" readonly>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><input type="text" value="{{ $candidateData ? $candidateData->tunjangan4 : '' }}" class="form-control" name="tunjangan4" readonly></td>
-                                                <td><input class="form-control"
-                                                        value="{{ $candidateData ? 'Rp ' . number_format($candidateData->nilai_tunjangan4, 0, ',', '.') : '' }}"
-                                                        type="text" name="nilai_tunjangan4" readonly>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><input type="text" value="{{ $candidateData ? $candidateData->tunjangan5 : '' }}" class="form-control" name="tunjangan5" readonly></td>
-                                                <td><input class="form-control"
-                                                        value="{{ $candidateData ? 'Rp ' . number_format($candidateData->nilai_tunjangan5, 0, ',', '.') : '' }}"
-                                                        type="text" name="nilai_tunjangan5" readonly>
-                                                </td>
-                                            </tr>
-                                            <!-- Insentif -->
-                                            <tr>
-                                                <td>Insentif</td>
-                                                <td><input class="form-control"
-                                                        value="{{ $candidateData ? 'Rp ' . number_format($candidateData->nilai_insentif, 0, ',', '.') : '' }}"
-                                                        type="text" name="nilai_insentif" readonly>
-                                                </td>
-                                            </tr>
-                                            <!-- Lain-lain -->
-                                            <tr>
-                                                <td>Lain-lain</td>
-                                                <td><input class="form-control"
-                                                        value="{{ $candidateData ? 'Rp ' . number_format($candidateData->nilai_lain_lain, 0, ',', '.') : '' }}"
-                                                        type="text" name="nilai_lain_lain" readonly>
-                                                </td>
-                                            </tr>
-                                            <!-- Total Take Home Pay -->
-                                            <tr>
-                                                <td>Total Take Home Pay / Bulan</td>
-                                                <td><input class="form-control"
-                                                        value="{{ $candidateData ? 'Rp ' . number_format($candidateData->take_home_bulan, 0, ',', '.') : '' }}"
-                                                        type="text" name="take_home_bulan" readonly>
-                                                </td>
-                                            </tr>
-                                            <!-- Pendapatan per Tahun -->
-                                            <tr>
-                                                <td>Pendapatan per Tahun (Termasuk THR)</td>
-                                                <td><input class="form-control"
-                                                        value="{{ $candidateData ? 'Rp ' . number_format($candidateData->take_home_tahun, 0, ',', '.') : '' }}"
-                                                        type="text" name="take_home_tahun" readonly>
-                                                </td>
-                                            </tr>
-                                            <!-- Gaji per Tahun Bulan -->
-                                            <tr>
-                                                <td>Gaji per Tahun Bulan</td>
-                                                <td><input class="form-control" value="{{ $candidateData ? $candidateData->bulan_gaji : '' }}" type="number" name="bulan_gaji" readonly></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                <div class="col-12">
+                                    <label for="slip3" class="form-label">Lihat Slip Gaji 3</label>
+                                    <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateData->slip3) }}" target="_blank" class="btn btn-info btn-block w-100">
+                                        Lihat Slip 3
+                                    </a>
                                 </div>
                             </div>
-
-                            <h2 class="mt-4">Pendapatan Yang Diharapkan</h2>
+                            @else
                             <div class="row mb-4">
-                                <div class="col-12 table-responsive">
-                                    <table class="table table-vcenter card-table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Detail</th>
-                                                <th>Amount (Rp)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <!-- Take Home Pay / Bulan -->
-                                            <tr>
-                                                <td>Take Home Pay / Bulan</td>
-                                                <td><input class="form-control"
-                                                        value="{{ $candidateData ? 'Rp ' . number_format($candidateData->harap_take_home_bulan, 0, ',', '.') : '' }}"
-                                                        type="text" name="harap_take_home_bulan" readonly></td>
-                                            </tr>
-                                            <!-- Pendapatan per Tahun -->
-                                            <tr>
-                                                <td>Pendapatan per Tahun (Bersih/Kotor)</td>
-                                                <td><input class="form-control"
-                                                        value="{{ $candidateData ? 'Rp ' . number_format($candidateData->harap_take_home_tahun, 0, ',', '.') : '' }}"
-                                                        type="text" name="harap_take_home_tahun" readonly></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                <div class="col-12">
+                                    <label for="slip3" class="form-label">No Document</label>
+                                    @endif
+
+                                    <h2 class="mt-4">Pendapatan Terakhir</h2>
+                                    <div class="row mb-4">
+                                        <div class="col-12 table-responsive">
+                                            <table class="table table-vcenter card-table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Detail</th>
+                                                        <th>Amount (Rp)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <!-- Gaji Pokok -->
+                                                    <tr>
+                                                        <td>Gaji Pokok</td>
+                                                        <td>
+                                                            <input class="form-control"
+                                                                value="{{ $candidateData ? 'Rp ' . number_format($candidateData->gaji_pokok, 0, ',', '.') : '' }}"
+                                                                type="text" name="gaji_pokok" readonly>
+                                                        </td>
+                                                    </tr>
+
+                                                    <!-- Tunjangan -->
+                                                    <tr>
+                                                        <td colspan="2"><strong>Tunjangan</strong></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><input type="text"
+                                                                value="{{ $candidateData ? $candidateData->tunjangan1 : '' }}"
+                                                                class="form-control" name="tunjangan1" readonly></td>
+                                                        <td><input class="form-control"
+                                                                value="{{ $candidateData ? 'Rp ' . number_format($candidateData->nilai_tunjangan1, 0, ',', '.') : '' }}"
+                                                                type="text" name="nilai_tunjangan1" readonly>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><input type="text" value="{{ $candidateData ? $candidateData->tunjangan2 : '' }}" class="form-control" name="tunjangan2" readonly></td>
+                                                        <td><input class="form-control"
+                                                                value="{{ $candidateData ? 'Rp ' . number_format($candidateData->nilai_tunjangan2, 0, ',', '.') : '' }}"
+                                                                type="text" name="nilai_tunjangan2" readonly>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><input type="text" value="{{ $candidateData ? $candidateData->tunjangan3 : '' }}" class="form-control" name="tunjangan3" readonly></td>
+                                                        <td><input class="form-control"
+                                                                value="{{ $candidateData ? 'Rp ' . number_format($candidateData->nilai_tunjangan3, 0, ',', '.') : '' }}"
+                                                                type="text" name="nilai_tunjangan3" readonly>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><input type="text" value="{{ $candidateData ? $candidateData->tunjangan4 : '' }}" class="form-control" name="tunjangan4" readonly></td>
+                                                        <td><input class="form-control"
+                                                                value="{{ $candidateData ? 'Rp ' . number_format($candidateData->nilai_tunjangan4, 0, ',', '.') : '' }}"
+                                                                type="text" name="nilai_tunjangan4" readonly>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><input type="text" value="{{ $candidateData ? $candidateData->tunjangan5 : '' }}" class="form-control" name="tunjangan5" readonly></td>
+                                                        <td><input class="form-control"
+                                                                value="{{ $candidateData ? 'Rp ' . number_format($candidateData->nilai_tunjangan5, 0, ',', '.') : '' }}"
+                                                                type="text" name="nilai_tunjangan5" readonly>
+                                                        </td>
+                                                    </tr>
+                                                    <!-- Insentif -->
+                                                    <tr>
+                                                        <td>Insentif</td>
+                                                        <td><input class="form-control"
+                                                                value="{{ $candidateData ? 'Rp ' . number_format($candidateData->nilai_insentif, 0, ',', '.') : '' }}"
+                                                                type="text" name="nilai_insentif" readonly>
+                                                        </td>
+                                                    </tr>
+                                                    <!-- Lain-lain -->
+                                                    <tr>
+                                                        <td>Lain-lain</td>
+                                                        <td><input class="form-control"
+                                                                value="{{ $candidateData ? 'Rp ' . number_format($candidateData->nilai_lain_lain, 0, ',', '.') : '' }}"
+                                                                type="text" name="nilai_lain_lain" readonly>
+                                                        </td>
+                                                    </tr>
+                                                    <!-- Total Take Home Pay -->
+                                                    <tr>
+                                                        <td>Total Take Home Pay / Bulan</td>
+                                                        <td><input class="form-control"
+                                                                value="{{ $candidateData ? 'Rp ' . number_format($candidateData->take_home_bulan, 0, ',', '.') : '' }}"
+                                                                type="text" name="take_home_bulan" readonly>
+                                                        </td>
+                                                    </tr>
+                                                    <!-- Pendapatan per Tahun -->
+                                                    <tr>
+                                                        <td>Pendapatan per Tahun (Termasuk THR)</td>
+                                                        <td><input class="form-control"
+                                                                value="{{ $candidateData ? 'Rp ' . number_format($candidateData->take_home_tahun, 0, ',', '.') : '' }}"
+                                                                type="text" name="take_home_tahun" readonly>
+                                                        </td>
+                                                    </tr>
+                                                    <!-- Gaji per Tahun Bulan -->
+                                                    <tr>
+                                                        <td>Gaji per Tahun Bulan</td>
+                                                        <td><input class="form-control" value="{{ $candidateData ? $candidateData->bulan_gaji : '' }}" type="number" name="bulan_gaji" readonly></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <h2 class="mt-4">Pendapatan Yang Diharapkan</h2>
+                                    <div class="row mb-4">
+                                        <div class="col-12 table-responsive">
+                                            <table class="table table-vcenter card-table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Detail</th>
+                                                        <th>Amount (Rp)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <!-- Take Home Pay / Bulan -->
+                                                    <tr>
+                                                        <td>Take Home Pay / Bulan</td>
+                                                        <td><input class="form-control"
+                                                                value="{{ $candidateData ? 'Rp ' . number_format($candidateData->harap_take_home_bulan, 0, ',', '.') : '' }}"
+                                                                type="text" name="harap_take_home_bulan" readonly></td>
+                                                    </tr>
+                                                    <!-- Pendapatan per Tahun -->
+                                                    <tr>
+                                                        <td>Pendapatan per Tahun (Bersih/Kotor)</td>
+                                                        <td><input class="form-control"
+                                                                value="{{ $candidateData ? 'Rp ' . number_format($candidateData->harap_take_home_tahun, 0, ',', '.') : '' }}"
+                                                                type="text" name="harap_take_home_tahun" readonly></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </form>

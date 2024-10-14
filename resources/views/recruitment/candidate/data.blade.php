@@ -56,8 +56,17 @@
                         </div>
 
                         <!-- Tempat/Tgl Lahir -->
+
                         <div class="row mb-3 align-items-center">
-                            <label class="col-md-3 col-form-label">Tempat/Tgl Lahir</label>
+                                <label class="col-md-3 col-form-label">Tempat Lahir</label>
+                                <div class="col-md-9">
+                                    <input type="text" value="{{ $candidateData ? $candidateData->tempat_lahir : '' }}" class="form-control" name="tempat_lahir">
+                                </div>
+                            </div>
+
+
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-md-3 col-form-label">Tgl Lahir</label>
                             <div class="col-md-9">
                                 <input type="date" value="{{ $candidateData ? $candidateData->tgl_lahir : '' }}"
                                     class="form-control" name="tgl_lahir" readonly>
