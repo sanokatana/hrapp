@@ -70,7 +70,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Jenis Kelamin</label>
                                 <div class="col-md-9">
-                                    <select class="form-select" name="jenis">
+                                    <select class="form-select" name="jenis" id="jenis">
                                         <option value="">Pilih</option>
                                         <option value="Laki-laki">Laki-laki</option>
                                         <option value="Perempuan">Perempuan</option>
@@ -83,7 +83,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Golongan Darah</label>
                                 <div class="col-md-9">
-                                    <select class="form-select" name="gol_darah">
+                                    <select class="form-select" name="gol_darah" id="gol_darah">
                                         <option value="">Pilih</option>
                                         <option value="A">A</option>
                                         <option value="B">B</option>
@@ -98,14 +98,14 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Tempat Lahir</label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="tempat_lahir">
+                                    <input type="text" class="form-control" name="tempat_lahir" id="tempat_lahir">
                                 </div>
                             </div>
 
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Tgl Lahir</label>
                                 <div class="col-md-9">
-                                    <input type="date" class="form-control" name="tgl_lahir">
+                                    <input type="date" class="form-control" name="tgl_lahir" id="tgl_lahir">
                                 </div>
                             </div>
 
@@ -113,7 +113,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Warga Negara</label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="warga_negara" placeholder="Warga Negara">
+                                    <input type="text" class="form-control" name="warga_negara" id="warga_negara" placeholder="Warga Negara">
                                 </div>
                             </div>
 
@@ -121,7 +121,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Alamat Rumah</label>
                                 <div class="col-md-9">
-                                    <textarea class="form-control" name="alamat_rumah" rows="2" placeholder="Alamat Rumah"></textarea>
+                                    <textarea class="form-control" name="alamat_rumah" id="alamat_rumah" rows="2" placeholder="Alamat Rumah"></textarea>
                                 </div>
                             </div>
 
@@ -130,7 +130,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Telpon Rumah/HP</label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="telp_rumah_hp" placeholder="Telpon Rumah/HP">
+                                    <input type="text" class="form-control" name="telp_rumah_hp" id="telp_rumah_hp" placeholder="Telpon Rumah/HP">
                                 </div>
                             </div>
 
@@ -138,7 +138,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">No. KTP/SIM</label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="no_ktp_sim" placeholder="No. KTP/SIM">
+                                    <input type="text" class="form-control" name="no_ktp_sim" id="no_ktp_sim" placeholder="No. KTP/SIM">
                                 </div>
                             </div>
 
@@ -146,7 +146,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Tgl Berlaku KTP/SIM</label>
                                 <div class="col-md-9">
-                                    <input type="date" class="form-control" name="tgl_ktp_sim">
+                                    <input type="date" class="form-control" name="tgl_ktp_sim" id="tgl_ktp_sim">
                                 </div>
                             </div>
 
@@ -154,7 +154,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">No. NPWP</label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="no_npwp" placeholder="No. NPWP">
+                                    <input type="text" class="form-control" name="no_npwp" placeholder="No. NPWP" id="no_npwp">
                                 </div>
                             </div>
 
@@ -162,7 +162,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Alamat NPWP</label>
                                 <div class="col-md-9">
-                                    <textarea class="form-control" name="alamat_npwp" rows="2" placeholder="Alamat NPWP"></textarea>
+                                    <textarea class="form-control" name="alamat_npwp" id="alamat_npwp" rows="2" placeholder="Alamat NPWP"></textarea>
                                 </div>
                             </div>
 
@@ -200,7 +200,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Tanggal Menikah</label>
                                 <div class="col-md-9">
-                                    <input type="date" class="form-control" name="tgl_menikah">
+                                    <input type="date" class="form-control" name="tgl_menikah" id="tgl_menikah">
                                 </div>
                             </div>
 
@@ -208,7 +208,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Jabatan saat ini</label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="jabatan" placeholder="Jabatan saat ini">
+                                    <input type="text" class="form-control" name="jabatan" id="jabatan" placeholder="Jabatan saat ini">
                                 </div>
                             </div>
 
@@ -216,7 +216,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Nama Perusahaan</label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="nama_perusahaan" placeholder="Nama Perusahaan">
+                                    <input type="text" class="form-control" name="nama_perusahaan" id="nama_perusahaan" placeholder="Nama Perusahaan">
                                 </div>
                             </div>
 
@@ -224,7 +224,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Alamat Perusahaan</label>
                                 <div class="col-md-9">
-                                    <textarea class="form-control" name="alamat_perusahaan" rows="2" placeholder="Alamat Perusahaan"></textarea>
+                                    <textarea class="form-control" name="alamat_perusahaan" id="alamat_perusahaan" rows="2" placeholder="Alamat Perusahaan"></textarea>
                                 </div>
                             </div>
 
@@ -232,7 +232,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Alamat Email</label>
                                 <div class="col-md-9">
-                                    <input type="email" class="form-control" name="alamat_email" placeholder="Alamat Email">
+                                    <input type="email" class="form-control" name="alamat_email" id="alamat_email" placeholder="Alamat Email">
                                 </div>
                             </div>
 
@@ -378,7 +378,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-5 col-form-label">Apakah rumah status yang Saudara tempati saat ini:</label>
                                 <div class="col-md-7">
-                                    <select class="form-select" name="rumah_status">
+                                    <select class="form-select" name="rumah_status" id="rumah_status">
                                         <option value="">Pilih</option>
                                         <option value="Rumah Pribadi">Rumah Pribadi</option>
                                         <option value="Orang Tua">Orang Tua</option>
@@ -567,14 +567,14 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-12 col-form-label">Selain untuk meningkatkan karir dan pendapatan, sebutkan alasan saudara meninggalkan pekerjaan terakhir:</label>
                                 <div class="col-md-12">
-                                    <textarea class="form-control" name="alasan_pekerjaan_terakhir" rows="2" placeholder="Alasan"></textarea>
+                                    <textarea class="form-control" name="alasan_pekerjaan_terakhir" id="alasan_pekerjaan_terakhir" rows="2" placeholder="Alasan"></textarea>
                                 </div>
                             </div>
 
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-12 col-form-label">Berilah uraian pekerjaan dari jabatan terakhir</label>
                                 <div class="col-md-12">
-                                    <textarea class="form-control" name="uraian_pekerjaan_terakhir" rows="2" placeholder="Alasan"></textarea>
+                                    <textarea class="form-control" name="uraian_pekerjaan_terakhir" id="uraian_pekerjaan_terakhir" rows="2" placeholder="Alasan"></textarea>
                                 </div>
                             </div>
 
@@ -1018,6 +1018,21 @@
             input.required = false;
         });
 
+        // Make Keterangan fields optional
+        const keteranganFields = [
+            'family_keterangan_istri_suami',
+            'family_keterangan_anak1',
+            'family_keterangan_anak2',
+            'family_keterangan_anak3'
+        ];
+
+        keteranganFields.forEach(function(field) {
+            const input = document.querySelector(`input[name="${field}"]`);
+            if (input) {
+                input.required = false; // Ensure Keterangan fields are not required
+            }
+        });
+
         // Show the table if any family members are required
         let shouldShowTable = false;
 
@@ -1043,7 +1058,7 @@
             });
         }
 
-        // Handle anak2 visibility and required attributex
+        // Handle anak2 visibility and required attribute
         if (status.includes('2')) {
             document.getElementById('row_anak1').style.display = 'table-row'; // ensure first child is shown
             document.getElementById('row_anak2').style.display = 'table-row'; // show second child
@@ -1181,7 +1196,7 @@
                     <option value="Kurang">Kurang</option>
                 </select>
             </td>
-            <td><input class="form-control" type="text" name="_${bahasaCount}_steno"></td>
+            <td><input class="form-control" type="text" name="language_${bahasaCount}_steno"></td>
             <td><button type="button" class="btn btn-sm btn-danger" onclick="removeRow(this)">-</button></td>
         `;
 
