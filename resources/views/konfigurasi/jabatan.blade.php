@@ -112,6 +112,7 @@
                                             <th>Department</th>
                                             <th>Jabatan Atasan</th>
                                             <th>Site</th>
+                                            <th>Jabatan Level</th>
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
@@ -123,6 +124,7 @@
                                             <td>{{ $d->nama_dept}}</td>
                                             <td>{{ $d->nama_jabatan_atasan ?? '-' }}</td>
                                             <td>{{ $d->site}}</td>
+                                            <td>{{ $d->jabatan}}</td>
                                             <td>
                                                 <div class="form-group">
                                                     <a href="#" class="edit btn btn-info btn-sm" id_jabatan="{{ $d->id }}">
@@ -220,6 +222,16 @@
                                 @endforeach
                             </select>
                         </div>
+                    </div>
+                    <div class="col-12 mt-3">
+                        <div class="form-label">Posisi Jabatan</div>
+                        <select name="jabatan_posisi" id="jabatan_posisi" class="form-select">
+                            <option value="">Pilih</option>
+                            <option {{ Request('jabatan_posisi') == 'Management' ? 'selected' : '' }} value="Management">Management</option>
+                            <option {{ Request('jabatan_posisi') == 'Head Of Department' ? 'selected' : '' }} value="Head Of Department">Head Of Department</option>
+                            <option {{ Request('jabatan_posisi') == 'Section Head' ? 'selected' : '' }} value="Section Head">Section Head</option>
+                            <option {{ Request('jabatan_posisi') == 'Officer' ? 'selected' : '' }} value="Officer">Officer</option>
+                        </select>
                     </div>
                     <div class="row mt-3">
                         <div class="col-12">

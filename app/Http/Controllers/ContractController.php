@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\KontrakExport;
 use App\Models\Contract;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class ContractController extends Controller
 {
@@ -214,5 +219,80 @@ class ContractController extends Controller
         }
     }
 
+    public function downloadTemplateKontrak()
+    {
+        $filePath = public_path('storage/uploads/templates/kontrak_template.xlsx');
+
+        return response()->download($filePath, 'kontrak_template.xlsx', [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+    public function uploadKontrak(Request $request)
+    {
+        $name = Auth::guard('user')->user()->name;
+
+        // Validate the incoming request
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|mimes:xlsx,xls',
+        ]);
+
+        // Redirect back if validation fails
+        if ($validator->fails()) {
+            return redirect()->back()->with('danger', 'Please upload a valid XLSX file.');
+        }
+
+        try {
+            // Get the uploaded file and load the spreadsheet
+            $file = $request->file('file');
+            $filePath = $file->getRealPath();
+            $spreadsheet = IOFactory::load($filePath);
+            $sheet = $spreadsheet->getActiveSheet();
+
+            // Read the data from the spreadsheet
+            $header = [];
+            $data = [];
+            foreach ($sheet->getRowIterator() as $rowIndex => $row) {
+                $rowData = [];
+                foreach ($row->getCellIterator() as $cell) {
+                    $rowData[] = $cell->getValue();
+                }
+
+                if ($rowIndex == 1) {
+                    $header = $rowData;
+                } else {
+                    $mappedData = array_combine($header, $rowData);
+
+                    // Convert Excel date serial numbers to date strings
+                    $tglStart = Date::excelToDateTimeObject($mappedData['start_date'])->format('Y-m-d');
+                    $tglStop = !empty($mappedData['end_date']) ? Date::excelToDateTimeObject($mappedData['end_date'])->format('Y-m-d') : null;
+
+                    $data[] = [
+                        'nik' => $mappedData['nik'],
+                        'no_kontrak' => $mappedData['no_kontrak'],
+                        'start_date' => $tglStart,
+                        'end_date' => $tglStop,
+                        'contract_type' => $mappedData['contract_type'],
+                        'position' => $mappedData['position'],
+                        'status' => $mappedData['status'],
+                        'created_by' => $name
+                    ];
+                }
+            }
+
+            // Insert data into the database
+            DB::table('kontrak')->insert($data);
+
+            // Redirect back with success message
+            return redirect()->back()->with('success', 'Data successfully uploaded.');
+        } catch (\Exception $e) {
+            // Redirect back with error message
+            return redirect()->back()->with('danger', 'Error uploading data: ' . $e->getMessage());
+        }
+    }
+
+    public function export()
+    {
+        return Excel::download(new KontrakExport, 'kontrak.xlsx');
+    }
 
 }

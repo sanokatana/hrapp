@@ -154,11 +154,13 @@ class KonfigurasiController extends Controller
         $kode_dept = $request->kode_dept;
         $atasan_jabatan = $request->atasan_jabatan;
         $site = $request->site;
+        $jabatan_posisis =$request->jabatan_posisis;
         $data = [
             'nama_jabatan' => $nama_jabatan,
             'kode_dept' => $kode_dept,
             'jabatan_atasan' => $atasan_jabatan,
             'site' => $site,
+            'jabatan' => $jabatan_posisis,
         ];
 
         $simpan = DB::table('jabatan')
@@ -189,12 +191,14 @@ class KonfigurasiController extends Controller
         $kode_dept = $request->kode_dept;
         $jabatan_atasan = $request->jabatan_atasan;
         $site = $request->site;
+        $jabatan_posisis =$request->jabatan_posisis;
 
         $data = [
             'nama_jabatan' => $nama_jabatan,
             'kode_dept' => $kode_dept,
             'jabatan_atasan' => $jabatan_atasan,
             'site' => $site,
+            'jabatan' => $jabatan_posisis,
         ];
 
         $update = DB::table('jabatan')->where('id', $id)->update($data);

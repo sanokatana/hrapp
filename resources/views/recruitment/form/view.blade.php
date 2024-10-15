@@ -183,7 +183,7 @@
 
                             <!-- Status Keluarga -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Status Keluarga</label>
+                                <label class="col-md-3 col-form-label">Status Pajak</label>
                                 <div class="col-md-9">
                                     <select class="form-select" name="status_pajak" id="status_pajak" disabled>
                                         <option value="">Pilih</option>

@@ -52,7 +52,7 @@
 
                             <!-- Nama Lengkap -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Nama Lengkap</label>
+                                <label class="col-md-3 col-form-label">Nama Lengkap <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
                                     <input type="text" class="form-control" name="nama_lengkap" id="nama_lengkap" placeholder="Nama Lengkap">
                                 </div>
@@ -60,7 +60,7 @@
 
                             <!-- Nama Panggilan -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Nama Kecil/Panggilan</label>
+                                <label class="col-md-3 col-form-label">Nama Kecil/Panggilan <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
                                     <input type="text" class="form-control" name="nama_panggilan" id="nama_panggilan" placeholder="Nama Panggilan">
                                 </div>
@@ -68,7 +68,7 @@
 
                             <!-- Jenis Kelamin -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Jenis Kelamin</label>
+                                <label class="col-md-3 col-form-label">Jenis Kelamin <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
                                     <select class="form-select" name="jenis" id="jenis">
                                         <option value="">Pilih</option>
@@ -81,7 +81,7 @@
 
                             <!-- Golongan Darah -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Golongan Darah</label>
+                                <label class="col-md-3 col-form-label">Golongan Darah <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
                                     <select class="form-select" name="gol_darah" id="gol_darah">
                                         <option value="">Pilih</option>
@@ -96,14 +96,14 @@
                             <!-- Tempat/Tgl Lahir -->
 
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Tempat Lahir</label>
+                                <label class="col-md-3 col-form-label">Tempat Lahir <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
                                     <input type="text" class="form-control" name="tempat_lahir" id="tempat_lahir">
                                 </div>
                             </div>
 
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Tgl Lahir</label>
+                                <label class="col-md-3 col-form-label">Tgl Lahir <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
                                     <input type="date" class="form-control" name="tgl_lahir" id="tgl_lahir">
                                 </div>
@@ -111,7 +111,7 @@
 
                             <!-- Warga Negara -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Warga Negara</label>
+                                <label class="col-md-3 col-form-label">Warga Negara <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
                                     <input type="text" class="form-control" name="warga_negara" id="warga_negara" placeholder="Warga Negara">
                                 </div>
@@ -119,7 +119,7 @@
 
                             <!-- Alamat Rumah -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Alamat Rumah</label>
+                                <label class="col-md-3 col-form-label">Alamat Rumah <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
                                     <textarea class="form-control" name="alamat_rumah" id="alamat_rumah" rows="2" placeholder="Alamat Rumah"></textarea>
                                 </div>
@@ -128,7 +128,7 @@
 
                             <!-- Telpon Rumah/HP -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Telpon Rumah/HP</label>
+                                <label class="col-md-3 col-form-label">Telpon Rumah/HP <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
                                     <input type="text" class="form-control" name="telp_rumah_hp" id="telp_rumah_hp" placeholder="Telpon Rumah/HP">
                                 </div>
@@ -136,7 +136,7 @@
 
                             <!-- No. KTP/SIM -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">No. KTP/SIM</label>
+                                <label class="col-md-3 col-form-label">No. KTP/SIM <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
                                     <input type="text" class="form-control" name="no_ktp_sim" id="no_ktp_sim" placeholder="No. KTP/SIM">
                                 </div>
@@ -144,7 +144,7 @@
 
                             <!-- Tgl Berlaku KTP/SIM -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Tgl Berlaku KTP/SIM</label>
+                                <label class="col-md-3 col-form-label">Tgl Berlaku KTP/SIM <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
                                     <input type="date" class="form-control" name="tgl_ktp_sim" id="tgl_ktp_sim">
                                 </div>
@@ -152,7 +152,7 @@
 
                             <!-- No. NPWP -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">No. NPWP</label>
+                                <label class="col-md-3 col-form-label">No. NPWP <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
                                     <input type="text" class="form-control" name="no_npwp" placeholder="No. NPWP" id="no_npwp">
                                 </div>
@@ -160,7 +160,7 @@
 
                             <!-- Alamat NPWP -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Alamat NPWP</label>
+                                <label class="col-md-3 col-form-label">Alamat NPWP <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
                                     <textarea class="form-control" name="alamat_npwp" id="alamat_npwp" rows="2" placeholder="Alamat NPWP"></textarea>
                                 </div>
@@ -168,9 +168,9 @@
 
                             <!-- Status Keluarga -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Status Pajak</label>
+                                <label class="col-md-3 col-form-label">Status Pajak <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <select class="form-select" name="status_pajak" id="status_pajak">
+                                    <select class="form-select" name="status_pajak" id="status_pajak" required>
                                         <option value="">Pilih</option>
                                         <option value="TK">TK (Tidak Kawin)</option>
                                         <option value="TK1">TK1</option>
@@ -185,7 +185,7 @@
                             </div>
 
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Status Menikah</label>
+                                <label class="col-md-3 col-form-label">Status Menikah <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
                                     <select class="form-select" name="marriage_status" id="marriage_status">
                                         <option value="">Pilih</option>
@@ -206,7 +206,7 @@
 
                             <!-- Jabatan Saat Ini -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Jabatan saat ini</label>
+                                <label class="col-md-3 col-form-label">Jabatan saat ini <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
                                     <input type="text" class="form-control" name="jabatan" id="jabatan" placeholder="Jabatan saat ini">
                                 </div>
@@ -230,7 +230,7 @@
 
                             <!-- Alamat Email -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Alamat Email</label>
+                                <label class="col-md-3 col-form-label">Alamat Email <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
                                     <input type="email" class="form-control" name="alamat_email" id="alamat_email" placeholder="Alamat Email">
                                 </div>
@@ -240,7 +240,7 @@
 
                             <h2 class="mt-4">B. KELUARGA & LINGKUNGAN</h2>
 
-                            <h5 id="table_keluarga">1. Susunan Keluarga (Suami/Istri dan anak – anak)</h5>
+                            <h5 id="table_keluarga">1. Susunan Keluarga (Suami/Istri dan anak – anak) <span style="color: red;">*</span></h5>
                             <div class="row" id="table_keluarga">
                                 <div class="col-12 table-responsive">
                                     <table class="table table-vcenter card-table table-striped">
@@ -298,7 +298,7 @@
                                 </div>
                             </div>
 
-                            <h5 class="mt-4">2. Susunan Keluarga (Ayah, Ibu dan Saudara Kandung termasuk Saudara)</h5>
+                            <h5 class="mt-4">2. Susunan Keluarga (Ayah, Ibu dan Saudara Kandung termasuk Saudara) <span style="color: red;">*</span></h5>
                             <div class="row mb-4">
                                 <div class="col-12 table-responsive">
                                     <table class="table table-vcenter card-table table-striped">
@@ -317,32 +317,32 @@
                                         <tbody id="family_table_body_2">
                                             <tr>
                                                 <td>Ayah</td>
-                                                <td><input class="form-control" type="text" name="family1_nama_lengkap_ayah"></td>
-                                                <td><input class="form-control" type="text" name="family1_jenis_ayah"></td>
-                                                <td><input class="form-control" type="date" name="family1_tgl_lahir_ayah"></td>
-                                                <td><input class="form-control" type="text" name="family1_pendidikan_ayah"></td>
-                                                <td><input class="form-control" type="text" name="family1_pekerjaan_ayah"></td>
-                                                <td><input class="form-control" type="text" name="family1_keterangan_ayah"></td>
+                                                <td><input class="form-control" type="text" name="family1_nama_lengkap_ayah" id="family1_nama_lengkap_ayah"></td>
+                                                <td><input class="form-control" type="text" name="family1_jenis_ayah" id="family1_jenis_ayah"></td>
+                                                <td><input class="form-control" type="date" name="family1_tgl_lahir_ayah" id="family1_tgl_lahir_ayah"></td>
+                                                <td><input class="form-control" type="text" name="family1_pendidikan_ayah" id="family1_pendidikan_ayah"></td>
+                                                <td><input class="form-control" type="text" name="family1_pekerjaan_ayah" id="family1_pekerjaan_ayah"></td>
+                                                <td><input class="form-control" type="text" name="family1_keterangan_ayah" id="family1_keterangan_ayah"></td>
                                                 <td></td>
                                             </tr>
                                             <tr>
                                                 <td>Ibu</td>
-                                                <td><input class="form-control" type="text" name="family1_nama_lengkap_ibu"></td>
-                                                <td><input class="form-control" type="text" name="family1_jenis_ibu"></td>
-                                                <td><input class="form-control" type="date" name="family1_tgl_lahir_ibu"></td>
-                                                <td><input class="form-control" type="text" name="family1_pendidikan_ibu"></td>
-                                                <td><input class="form-control" type="text" name="family1_pekerjaan_ibu"></td>
-                                                <td><input class="form-control" type="text" name="family1_keterangan_ibu"></td>
+                                                <td><input class="form-control" type="text" name="family1_nama_lengkap_ibu" id="family1_nama_lengkap_ibu"></td>
+                                                <td><input class="form-control" type="text" name="family1_jenis_ibu" id="family1_jenis_ibu"></td>
+                                                <td><input class="form-control" type="date" name="family1_tgl_lahir_ibu" id="family1_tgl_lahir_ibu"></td>
+                                                <td><input class="form-control" type="text" name="family1_pendidikan_ibu" id="family1_pendidikan_ibu"></td>
+                                                <td><input class="form-control" type="text" name="family1_pekerjaan_ibu" id="family1_pekerjaan_ibu"></td>
+                                                <td><input class="form-control" type="text" name="family1_keterangan_ibu" id="family1_keterangan_ibu"></td>
                                                 <td></td>
                                             </tr>
                                             <tr id="row_anak1">
                                                 <td>Anak ke 1</td>
-                                                <td><input class="form-control" type="text" name="family1_nama_lengkap_anak1"></td>
-                                                <td><input class="form-control" type="text" name="family1_jenis_anak1"></td>
-                                                <td><input class="form-control" type="date" name="family1_tgl_lahir_anak1"></td>
-                                                <td><input class="form-control" type="text" name="family1_pendidikan_anak1"></td>
-                                                <td><input class="form-control" type="text" name="family1_pekerjaan_anak1"></td>
-                                                <td><input class="form-control" type="text" name="family1_keterangan_anak1"></td>
+                                                <td><input class="form-control" type="text" name="family1_nama_lengkap_anak1" id="family1_nama_lengkap_anak1"></td>
+                                                <td><input class="form-control" type="text" name="family1_jenis_anak1" id="family1_jenis_anak1"></td>
+                                                <td><input class="form-control" type="date" name="family1_tgl_lahir_anak1" id="family1_tgl_lahir_anak1"></td>
+                                                <td><input class="form-control" type="text" name="family1_pendidikan_anak1" id="family1_pendidikan_anak1"></td>
+                                                <td><input class="form-control" type="text" name="family1_pekerjaan_anak1" id="family1_pekerjaan_anak1"></td>
+                                                <td><input class="form-control" type="text" name="family1_keterangan_anak1" id="family1_keterangan_anak1"></td>
                                                 <td><button type="button" id="add_sibling_btn" class="btn btn-sm btn-success">+</button></td>
                                             </tr>
                                             <input type="hidden" id="sibling_count" name="sibling_count" value="1">
@@ -353,7 +353,7 @@
 
                             <!-- Apakah Saudara mempunyai tanggung jawab lain selain anak & istri ? -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-5 col-form-label">Apakah Saudara mempunyai tanggung jawab lain selain anak & istri ?</label>
+                                <label class="col-md-5 col-form-label">Apakah Saudara mempunyai tanggung jawab lain selain anak & istri ? <span style="color: red;">*</span></label>
                                 <div class="col-md-7">
                                     <select class="form-select" name="tanggung_jawab" id="tanggung_jawab">
                                         <option value="">Pilih</option>
@@ -376,7 +376,7 @@
 
                             <!-- Status Rumah -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-5 col-form-label">Apakah rumah status yang Saudara tempati saat ini:</label>
+                                <label class="col-md-5 col-form-label">Apakah rumah status yang Saudara tempati saat ini: <span style="color: red;">*</span></label>
                                 <div class="col-md-7">
                                     <select class="form-select" name="rumah_status" id="rumah_status">
                                         <option value="">Pilih</option>
@@ -388,7 +388,7 @@
                                 </div>
                             </div>
 
-                            <h2 class="mt-5">C. PENDIDIKAN</h2>
+                            <h2 class="mt-5">C. PENDIDIKAN <span style="color: red;">*</span></h2>
 
                             <div class="row mb-4">
                                 <div class="col-12 table-responsive">
@@ -425,7 +425,7 @@
                             </div>
 
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-5 col-form-label">Apakah Saudara masih melanjutkan pendidikan ? </label>
+                                <label class="col-md-5 col-form-label">Apakah Saudara masih melanjutkan pendidikan ? <span style="color: red;">*</span></label>
                                 <div class="col-md-7">
                                     <select class="form-select" name="melanjut_pendidikan" id="melanjut_pendidikan">
                                         <option value="">Pilih</option>
@@ -445,7 +445,7 @@
                                 </div>
                             </div>
 
-                            <h2 class="mt-5">D. KURSUS / TRAINING (isikan dari urutan yang terbaru)</h2>
+                            <h2 class="mt-5">D. KURSUS / TRAINING (isikan dari urutan yang terbaru) </h2>
                             <div class="row mb-4">
                                 <div class="col-12 table-responsive">
                                     <table class="table table-vcenter card-table table-striped">
@@ -479,7 +479,7 @@
                             </div>
 
                             <!-- Bahasa dan Keterampilan Section -->
-                            <h2 class="mt-4">E. PENGUASAAN BAHASA DAN KETERAMPILAN</h2>
+                            <h2 class="mt-4">E. PENGUASAAN BAHASA DAN KETERAMPILAN <span style="color: red;">*</span></h2>
                             <h5>Pilih Baik, Cukup, Kurang</h5>
 
                             <div class="row mb-4">
@@ -499,7 +499,7 @@
                                             <tr>
                                                 <td><input class="form-control" type="text" name="language_1_bahasa" value="English"></td>
                                                 <td>
-                                                    <select class="form-select" name="language_1_bicara">
+                                                    <select class="form-select" name="language_1_bicara" id="language_1_bicara">
                                                         <option value="">Pilih</option>
                                                         <option value="Baik">Baik</option>
                                                         <option value="Cukup">Cukup</option>
@@ -507,7 +507,7 @@
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <select class="form-select" name="language_1_baca">
+                                                    <select class="form-select" name="language_1_baca" id="language_1_baca">
                                                         <option value="">Pilih</option>
                                                         <option value="Baik">Baik</option>
                                                         <option value="Cukup">Cukup</option>
@@ -515,14 +515,14 @@
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <select class="form-select" name="language_1_tulis">
+                                                    <select class="form-select" name="language_1_tulis" id="language_1_tulis">
                                                         <option value="">Pilih</option>
                                                         <option value="Baik">Baik</option>
                                                         <option value="Cukup">Cukup</option>
                                                         <option value="Kurang">Kurang</option>
                                                     </select>
                                                 </td>
-                                                <td><input class="form-control" type="text" name="language_1_steno"></td>
+                                                <td><input class="form-control" type="text" name="language_1_steno" id="language_1_steno"></td>
                                                 <td><button type="button" class="btn btn-sm btn-success" id="add_bahasa_btn">+</button></td>
                                             </tr>
                                         </tbody>
@@ -578,7 +578,7 @@
                                 </div>
                             </div>
 
-                            <h2 class="mt-4">G. MINAT DAN KONSEP PRIBADI</h2>
+                            <h2 class="mt-4">G. MINAT DAN KONSEP PRIBADI <span style="color: red;">*</span></h2>
                             <h5>HAL-HAL LAIN YANG BERHUBUNGAN DENGAN LAMARAN SAUDARA.
                                 Berikan nomor secara berurutan bagian/jenis macam pekerjaan yang anda senangi :
                             </h5>
@@ -722,45 +722,45 @@
 
 
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-12 col-form-label">1. Pernahkah Saudara melamar pekerjaan di Perusahaan kami ? </label>
+                                <label class="col-md-12 col-form-label">1. Pernahkah Saudara melamar pekerjaan di Perusahaan kami ? <span style="color: red;">*</span></label>
                                 <div class="col-md-12">
-                                    <textarea class="form-control" name="saudara_pekerjaan" rows="2" placeholder="Alasan"></textarea>
+                                    <textarea class="form-control" name="saudara_pekerjaan" id="saudara_pekerjaan" rows="2" placeholder="Alasan"></textarea>
                                 </div>
                             </div>
 
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-12 col-form-label">2. Organisasi – organisasi apakah yang pernah Saudara masuki ? Sebutkan jabatan – jabatan yang pernah Anda pegang </label>
+                                <label class="col-md-12 col-form-label">2. Organisasi – organisasi apakah yang pernah Saudara masuki ? Sebutkan jabatan – jabatan yang pernah Anda pegang <span style="color: red;">*</span></label>
                                 <div class="col-md-12">
-                                    <textarea class="form-control" name="organisasi" rows="2" placeholder="Alasan"></textarea>
+                                    <textarea class="form-control" name="organisasi" id="organisasi" rows="2" placeholder="Alasan"></textarea>
                                 </div>
                             </div>
 
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-12 col-form-label">3. Dalam keadaan darurat, siapakah yang dapat dihubungi ? Sebutkan nama, alamat, telpon serta apa hubungannya Saudara dengan nama tersebut ?</label>
+                                <label class="col-md-12 col-form-label">3. Dalam keadaan darurat, siapakah yang dapat dihubungi ? Sebutkan nama, alamat, telpon serta apa hubungannya Saudara dengan nama tersebut ? <span style="color: red;">*</span></label>
                             </div>
 
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Nama</label>
+                                <label class="col-md-3 col-form-label">Nama <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="em_nama">
+                                    <input type="text" class="form-control" name="em_nama" id="em_nama">
                                 </div>
                             </div>
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Alamat</label>
+                                <label class="col-md-3 col-form-label">Alamat <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="em_alamat">
+                                    <input type="text" class="form-control" name="em_alamat" id="em_alamat">
                                 </div>
                             </div>
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Telpon</label>
+                                <label class="col-md-3 col-form-label">Telpon <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="em_telp">
+                                    <input type="text" class="form-control" name="em_telp" id="em_telp">
                                 </div>
                             </div>
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Hubungan</label>
+                                <label class="col-md-3 col-form-label">Hubungan <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="em_status">
+                                    <input type="text" class="form-control" name="em_status" id="em_status">
                                 </div>
                             </div>
 
@@ -781,9 +781,9 @@
                             </div>
 
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-12 col-form-label">5. Apakah Saudara pernah menderita sakit yang lama ? </label>
+                                <label class="col-md-12 col-form-label">5. Apakah Saudara pernah menderita sakit yang lama ? <span style="color: red;">*</span></label>
                                 <div class="col-md-12">
-                                    <textarea class="form-control" name="sakit_lama" rows="2" placeholder="Alasan"></textarea>
+                                    <textarea class="form-control" name="sakit_lama" id="sakit_lama" rows="2" placeholder="Alasan"></textarea>
                                 </div>
                             </div>
 
@@ -799,25 +799,25 @@
 
                             <h2 class="mt-4">I. LAIN – LAIN</h2>
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-5 col-form-label">1. Apakah Saudara bersedia menjalani masa percobaan</label>
+                                <label class="col-md-5 col-form-label">1. Apakah Saudara bersedia menjalani masa percobaan <span style="color: red;">*</span></label>
                                 <div class="col-md-7">
-                                    <select class="form-select" name="masa_percobaan">
+                                    <select class="form-select" name="masa_percobaan" id="masa_percobaan">
                                         <option value="Ya">Ya</option>
                                         <option value="Tidak">Tidak</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-5 col-form-label">2. Bersediakan saudara untuk mengikuti proses BI Checking bersama CHL Group?</label>
+                                <label class="col-md-5 col-form-label">2. Bersediakan saudara untuk mengikuti proses BI Checking bersama CHL Group? <span style="color: red;">*</span></label>
                                 <div class="col-md-7">
-                                    <select class="form-select" name="proses_bi">
+                                    <select class="form-select" name="proses_bi" id="proses_bi">
                                         <option value="Ya">Ya</option>
                                         <option value="Tidak">Tidak</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-5 col-form-label">3. Kapankah Saudara dapat mulai bekerja di perusahaan kami ? </label>
+                                <label class="col-md-5 col-form-label">3. Kapankah Saudara dapat mulai bekerja di perusahaan kami ? <span style="color: red;">*</span></label>
                                 <div class="col-md-7">
                                     <input class="form-control" type="DATE" id="mulai_kerja" name="mulai_kerja">
                                 </div>
@@ -839,100 +839,100 @@
                             </div>
 
                             <h2 class="mt-4">Pendapatan Terakhir</h2>
-<div class="row mb-4">
-    <div class="col-12 table-responsive">
-        <table class="table table-vcenter card-table table-striped">
-            <thead>
-                <tr>
-                    <th>Detail</th>
-                    <th>Amount (Rp)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Gaji Pokok -->
-                <tr>
-                    <td>Gaji Pokok</td>
-                    <td><input class="form-control" type="text" name="gaji_pokok" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
-                </tr>
-                <!-- Tunjangan -->
-                <tr>
-                    <td colspan="2"><strong>Tunjangan</strong></td>
-                </tr>
-                <tr>
-                    <td><input type="text" class="form-control" name="tunjangan1" value="1."></td>
-                    <td><input class="form-control" type="text" name="nilai_tunjangan1" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
-                </tr>
-                <tr>
-                    <td><input type="text" class="form-control" name="tunjangan2" value="2."></td>
-                    <td><input class="form-control" type="text" name="nilai_tunjangan2" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
-                </tr>
-                <tr>
-                    <td><input type="text" class="form-control" name="tunjangan3" value="3."></td>
-                    <td><input class="form-control" type="text" name="nilai_tunjangan3" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
-                </tr>
-                <tr>
-                    <td><input type="text" class="form-control" name="tunjangan4" value="4."></td>
-                    <td><input class="form-control" type="text" name="nilai_tunjangan4" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
-                </tr>
-                <tr>
-                    <td><input type="text" class="form-control" name="tunjangan5" value="5."></td>
-                    <td><input class="form-control" type="text" name="nilai_tunjangan5" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
-                </tr>
-                <!-- Insentif -->
-                <tr>
-                    <td>Insentif</td>
-                    <td><input class="form-control" type="text" name="nilai_insentif" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
-                </tr>
-                <!-- Lain-lain -->
-                <tr>
-                    <td>Lain-lain</td>
-                    <td><input class="form-control" type="text" name="nilai_lain_lain" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
-                </tr>
-                <!-- Total Take Home Pay -->
-                <tr>
-                    <td>Total Take Home Pay / Bulan</td>
-                    <td><input class="form-control" type="text" name="take_home_bulan" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
-                </tr>
-                <!-- Pendapatan per Tahun -->
-                <tr>
-                    <td>Pendapatan per Tahun (Termasuk THR)</td>
-                    <td><input class="form-control" type="text" name="take_home_tahun" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
-                </tr>
-                <!-- Gaji per Tahun Bulan -->
-                <tr>
-                    <td>Berapa Bulan Gaji Per Tahun</td>
-                    <td><input class="form-control" type="number" name="bulan_gaji"></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
+                            <div class="row mb-4">
+                                <div class="col-12 table-responsive">
+                                    <table class="table table-vcenter card-table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Detail</th>
+                                                <th>Amount (Rp)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Gaji Pokok -->
+                                            <tr>
+                                                <td>Gaji Pokok</td>
+                                                <td><input class="form-control" type="text" name="gaji_pokok" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                                            </tr>
+                                            <!-- Tunjangan -->
+                                            <tr>
+                                                <td colspan="2"><strong>Tunjangan</strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td><input type="text" class="form-control" name="tunjangan1" value="1."></td>
+                                                <td><input class="form-control" type="text" name="nilai_tunjangan1" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                                            </tr>
+                                            <tr>
+                                                <td><input type="text" class="form-control" name="tunjangan2" value="2."></td>
+                                                <td><input class="form-control" type="text" name="nilai_tunjangan2" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                                            </tr>
+                                            <tr>
+                                                <td><input type="text" class="form-control" name="tunjangan3" value="3."></td>
+                                                <td><input class="form-control" type="text" name="nilai_tunjangan3" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                                            </tr>
+                                            <tr>
+                                                <td><input type="text" class="form-control" name="tunjangan4" value="4."></td>
+                                                <td><input class="form-control" type="text" name="nilai_tunjangan4" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                                            </tr>
+                                            <tr>
+                                                <td><input type="text" class="form-control" name="tunjangan5" value="5."></td>
+                                                <td><input class="form-control" type="text" name="nilai_tunjangan5" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                                            </tr>
+                                            <!-- Insentif -->
+                                            <tr>
+                                                <td>Insentif</td>
+                                                <td><input class="form-control" type="text" name="nilai_insentif" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                                            </tr>
+                                            <!-- Lain-lain -->
+                                            <tr>
+                                                <td>Lain-lain</td>
+                                                <td><input class="form-control" type="text" name="nilai_lain_lain" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                                            </tr>
+                                            <!-- Total Take Home Pay -->
+                                            <tr>
+                                                <td>Total Take Home Pay / Bulan</td>
+                                                <td><input class="form-control" type="text" name="take_home_bulan" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                                            </tr>
+                                            <!-- Pendapatan per Tahun -->
+                                            <tr>
+                                                <td>Pendapatan per Tahun (Termasuk THR)</td>
+                                                <td><input class="form-control" type="text" name="take_home_tahun" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                                            </tr>
+                                            <!-- Gaji per Tahun Bulan -->
+                                            <tr>
+                                                <td>Berapa Bulan Gaji Per Tahun</td>
+                                                <td><input class="form-control" type="number" name="bulan_gaji"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
 
-<h2 class="mt-4">Pendapatan Yang Diharapkan</h2>
-<div class="row mb-4">
-    <div class="col-12 table-responsive">
-        <table class="table table-vcenter card-table table-striped">
-            <thead>
-                <tr>
-                    <th>Detail</th>
-                    <th>Amount (Rp)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Take Home Pay / Bulan -->
-                <tr>
-                    <td>Take Home Pay / Bulan</td>
-                    <td><input class="form-control" type="text" name="harap_take_home_bulan" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
-                </tr>
-                <!-- Pendapatan per Tahun -->
-                <tr>
-                    <td>Pendapatan per Tahun (Bersih/Kotor)</td>
-                    <td><input class="form-control" type="text" name="harap_take_home_tahun" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
+                            <h2 class="mt-4">Pendapatan Yang Diharapkan</h2>
+                            <div class="row mb-4">
+                                <div class="col-12 table-responsive">
+                                    <table class="table table-vcenter card-table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Detail</th>
+                                                <th>Amount (Rp)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Take Home Pay / Bulan -->
+                                            <tr>
+                                                <td>Take Home Pay / Bulan</td>
+                                                <td><input class="form-control" type="text" name="harap_take_home_bulan" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                                            </tr>
+                                            <!-- Pendapatan per Tahun -->
+                                            <tr>
+                                                <td>Pendapatan per Tahun (Bersih/Kotor)</td>
+                                                <td><input class="form-control" type="text" name="harap_take_home_tahun" oninput="formatCurrency(this)" onblur="saveNumericValue(this)"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
 
                             <button type="submit" class="btn btn-primary">Submit</button>
                         </form>
@@ -946,7 +946,6 @@
 
 @push('myscript')
 <script>
-
     function formatCurrency(input) {
         let value = input.value.replace(/\D/g, ''); // Remove non-digit characters
         if (value) {
@@ -1253,249 +1252,235 @@
                     message: 'Nama Panggilan Harus Diisi'
                 },
                 {
-                    id: 'select[name="jenis"]',
+                    id: '#jenis',
                     message: 'Jenis Kelamin Harus Diisi'
                 },
                 {
-                    id: 'select[name="gol_darah"]',
+                    id: '#gol_darah',
                     message: 'Golongan Darah Harus Diisi'
                 },
                 {
-                    id: 'input[name="tempat_lahir"]',
+                    id: '#tempat_lahir',
                     message: 'Tempat Lahir Harus Diisi'
                 },
                 {
-                    id: 'input[name="tgl_lahir"]',
+                    id: '#tgl_lahir',
                     message: 'Tanggal Lahir Harus Diisi'
                 },
                 {
-                    id: 'input[name="warga_negara"]',
+                    id: '#warga_negara',
                     message: 'Warga Negara Harus Diisi'
                 },
                 {
-                    id: 'textarea[name="alamat_rumah"]',
+                    id: '#alamat_rumah',
                     message: 'Alamat Rumah Harus Diisi'
                 },
                 {
-                    id: 'input[name="telp_rumah_hp"]',
+                    id: '#telp_rumah_hp',
                     message: 'Telpon Rumah/HP Harus Diisi'
                 },
                 {
-                    id: 'input[name="no_ktp_sim"]',
+                    id: '#no_ktp_sim',
                     message: 'No. KTP/SIM Harus Diisi'
                 },
                 {
-                    id: 'input[name="tgl_ktp_sim"]',
+                    id: '#tgl_ktp_sim',
                     message: 'Tanggal Berlaku KTP/SIM Harus Diisi'
                 },
                 {
-                    id: 'input[name="no_npwp"]',
+                    id: '#no_npwp',
                     message: 'No. NPWP Harus Diisi'
                 },
                 {
-                    id: 'textarea[name="alamat_npwp"]',
+                    id: '#alamat_npwp',
                     message: 'Alamat NPWP Harus Diisi'
                 },
                 {
-                    id: 'select[name="status_pajak"]',
-                    message: 'Status Pajak Harus Diisi'
-                },
-                {
-                    id: 'select[name="marriage_status"]',
+                    id: '#marriage_status',
                     message: 'Status Menikah Harus Diisi'
                 },
                 {
-                    id: 'input[name="jabatan"]',
+                    id: '#jabatan',
                     message: 'Jabatan Saat Ini Harus Diisi'
                 },
                 {
-                    id: 'input[name="nama_perusahaan"]',
-                    message: 'Nama Perusahaan Harus Diisi'
-                },
-                {
-                    id: 'textarea[name="alamat_perusahaan"]',
-                    message: 'Alamat Perusahaan Harus Diisi'
-                },
-                {
-                    id: 'input[name="alamat_email"]',
+                    id: '#alamat_email',
                     message: 'Alamat Email Harus Diisi'
                 },
 
                 // New family fields
                 {
-                    id: 'input[name="family1_nama_lengkap_ayah"]',
+                    id: '#family1_nama_lengkap_ayah',
                     message: 'Nama Lengkap Ayah Harus Diisi'
                 },
                 {
-                    id: 'input[name="family1_jenis_ayah"]',
+                    id: '#family1_jenis_ayah',
                     message: 'Jenis Kelamin Ayah Harus Diisi'
                 },
                 {
-                    id: 'input[name="family1_tgl_lahir_ayah"]',
+                    id: '#family1_tgl_lahir_ayah',
                     message: 'Tanggal Lahir Ayah Harus Diisi'
                 },
                 {
-                    id: 'input[name="family1_pendidikan_ayah"]',
+                    id: '#family1_pendidikan_ayah',
                     message: 'Pendidikan Ayah Harus Diisi'
                 },
                 {
-                    id: 'input[name="family1_pekerjaan_ayah"]',
+                    id: '#family1_pekerjaan_ayah',
                     message: 'Pekerjaan Ayah Harus Diisi'
                 },
                 {
-                    id: 'input[name="family1_keterangan_ayah"]',
+                    id: '#family1_keterangan_ayah',
                     message: 'Keterangan Ayah Harus Diisi'
                 },
                 {
-                    id: 'input[name="family1_nama_lengkap_ibu"]',
+                    id: '#family1_nama_lengkap_ibu',
                     message: 'Nama Lengkap Ibu Harus Diisi'
                 },
                 {
-                    id: 'input[name="family1_jenis_ibu"]',
+                    id: '#family1_jenis_ibu',
                     message: 'Jenis Kelamin Ibu Harus Diisi'
                 },
                 {
-                    id: 'input[name="family1_tgl_lahir_ibu"]',
+                    id: '#family1_tgl_lahir_ibu',
                     message: 'Tanggal Lahir Ibu Harus Diisi'
                 },
                 {
-                    id: 'input[name="family1_pendidikan_ibu"]',
+                    id: '#family1_pendidikan_ibus',
                     message: 'Pendidikan Ibu Harus Diisi'
                 },
                 {
-                    id: 'input[name="family1_pekerjaan_ibu"]',
+                    id: '#family1_pekerjaan_ibu',
                     message: 'Pekerjaan Ibu Harus Diisi'
                 },
                 {
-                    id: 'input[name="family1_keterangan_ibu"]',
+                    id: '#family1_keterangan_ibu',
                     message: 'Keterangan Ibu Harus Diisi'
                 },
                 {
-                    id: 'input[name="family1_nama_lengkap_anak1"]',
+                    id: '#family1_nama_lengkap_anak1',
                     message: 'Nama Lengkap Anak ke-1 Harus Diisi'
                 },
                 {
-                    id: 'input[name="family1_jenis_anak1"]',
+                    id: '#family1_jenis_anak1',
                     message: 'Jenis Kelamin Anak ke-1 Harus Diisi'
                 },
                 {
-                    id: 'input[name="family1_tgl_lahir_anak1"]',
+                    id: '#family1_tgl_lahir_anak1',
                     message: 'Tanggal Lahir Anak ke-1 Harus Diisi'
                 },
                 {
-                    id: 'input[name="family1_pendidikan_anak1"]',
+                    id: '#family1_pendidikan_anak1',
                     message: 'Pendidikan Anak ke-1 Harus Diisi'
                 },
                 {
-                    id: 'input[name="family1_pekerjaan_anak1"]',
+                    id: '#family1_pekerjaan_anak1',
                     message: 'Pekerjaan Anak ke-1 Harus Diisi'
                 },
                 {
-                    id: 'input[name="family1_keterangan_anak1"]',
+                    id: '#family1_keterangan_anak1',
                     message: 'Keterangan Anak ke-1 Harus Diisi'
                 },
                 {
-                    id: 'select[name="tanggung_jawab"]',
+                    id: '#tanggung_jawab',
                     message: 'Tanggung Jawab Harus Diisi'
                 },
                 {
-                    id: 'select[name="rumah_status"]',
+                    id: '#rumah_status',
                     message: 'Status Rumah Harus Diisi'
                 },
                 {
-                    id: 'input[name="melanjut_pendidikan"]',
-                    message: 'Perlanjutan Pendidikan Harus Diisi'
+                    id: '#melanjut_pendidikan',
+                    message: 'Perlanjutan Pendidikan Field Harus Diisi'
                 },
                 {
-                    id: 'input[name="language_1_bahasa"]',
-                    message: 'Bahasa Inggris Harus Diisi'
+                    id: '#language_1_bicara',
+                    message: 'Field Bicara Bahasa Inggris Harus Diisi'
                 },
                 {
-                    id: 'select[name="language_1_bicara"]',
-                    message: 'Bicara Bahasa Harus Diisi'
+                    id: '#language_1_baca',
+                    message: 'Field Baca Bahasa Inggris Harus Diisi'
                 },
                 {
-                    id: 'select[name="language_1_baca"]',
-                    message: 'Bicara Bahasa Harus Diisi'
+                    id: '#language_1_tulis',
+                    message: 'Field Tulis Bahasa Inggris Harus Diisi'
                 },
                 {
-                    id: 'select[name="language_1_tulis"]',
-                    message: 'Tulis Bahasa Harus Diisi'
+                    id: '#language_1_steno',
+                    message: 'Field Steno Inggris Harus Diisi'
                 },
                 {
-                    id: 'input[name="language_1_steno"]',
-                    message: 'Steno Inggris Harus Diisi'
-                },
-                {
-                    id: 'textarea[name="alasan_pekerjaan_terakhir"]',
-                    message: 'Alasan Meninggalkan Pekerjaan Terakhir Harus Diisi'
-                },
-                {
-                    id: 'textarea[name="uraian_pekerjaan_terakhir"]',
-                    message: 'Uraian Pekejeraan Jabatan Terakhir Harus Diisi'
-                },
-                {
-                    id: 'textarea[name="saudara_pekerjaan"]',
+                    id: '#saudara_pekerjaan',
                     message: 'Saudara Melamar Harus Diisi'
                 },
                 {
-                    id: 'textarea[name="organisasi"]',
+                    id: '#organisasi',
                     message: 'Organisasi Harus Diisi'
                 },
                 {
-                    id: 'input[name="em_nama"]',
-                    message: 'Nama Emergency Harus Diisi'
+                    id: '#em_nama',
+                    message: 'Nama Emergency Contact Harus Diisi'
                 },
                 {
-                    id: 'input[name="em_alamat"]',
-                    message: 'Alamat Emergency Harus Diisi'
+                    id: '#em_alamat',
+                    message: 'Alamat Emergency Contact Harus Diisi'
                 },
                 {
-                    id: 'input[name="em_telp"]',
-                    message: 'Telpon Emergency Harus Diisi'
+                    id: '#em_telp',
+                    message: 'Telpon Emergency Contact Harus Diisi'
                 },
                 {
-                    id: 'input[name="em_status"]',
-                    message: 'Hubungan Emergency Harus Diisi'
+                    id: '#em_status',
+                    message: 'Hubungan Emergency Contact Harus Diisi'
                 },
                 {
-                    id: 'textarea[name="sakit_lama"]',
+                    id: '#sakit_lama',
                     message: 'Saudara Pernah Menderita Sakit Yang Lama Harus Diisi'
                 },
                 {
-                    id: '#gambaran_posisi',
-                    message: 'Upload Gambaran Posisi Harus Diisi'
-                },
-                {
-                    id: 'select[name="masa_percobaan"]',
+                    id: '#masa_percobaan',
                     message: 'Masa Percobaan Harus Diisi'
                 },
                 {
-                    id: 'select[name="proses_bi"]',
+                    id: '#proses_bi',
                     message: 'Proses BI Harus Diisi'
                 },
                 {
-                    id: 'input[name="mulai_kerja"]',
+                    id: '#mulai_kerja',
                     message: 'Mulai Kerja Harus Diisi'
                 },
             ];
 
+            var isValid = true; // Track if all fields are valid
+
             // Validate all fields
             for (let i = 0; i < fields.length; i++) {
                 var field = fields[i];
-                if ($(field.id).val() === "") {
+                if ($(field.id).val().trim() === "") {
                     Swal.fire({
                         title: 'Warning!',
                         text: field.message,
                         icon: 'warning',
                         confirmButtonText: 'Ok'
                     }).then(() => {
-                        $(field.id).focus();
+                        // Smooth scroll to the field
+                        $('html, body').animate({
+                            scrollTop: $(field.id).offset().top - 100 // Adjust for fixed headers
+                        }, 500, function() {
+                            // Set focus after scrolling is complete
+                            $(field.id).focus();
+                        });
                     });
-                    return false; // Stop the form submission and show the alert
+
+                    isValid = false; // Mark as invalid
+                    break; // Stop loop on first invalid field
                 }
             }
-            this.submit();
+
+            // If the form is valid, allow submission
+            if (isValid) {
+                this.submit(); // Submit the form if all validations pass
+            }
         });
 
     });

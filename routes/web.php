@@ -302,6 +302,9 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::get('/contracts', [ContractController::class, 'filterContracts']);
     Route::get('/contract/type', [ContractController::class, 'getContractType']);
     Route::get('/kontrak', [ContractController::class, 'index']);
+    Route::get('/kontrak/exportData', [ContractController::class, 'export']);
+    Route::get('/kontrak/export', [ContractController::class, 'downloadTemplateKontrak']);
+    Route::post('/kontrak/uploadKontrak', [ContractController::class, 'uploadKontrak']);
     Route::post('/kontrak/store', [ContractController::class, 'store']);
     Route::post('/kontrak/edit', [ContractController::class, 'edit']);
     Route::post('/kontrak/view', [ContractController::class, 'view']);

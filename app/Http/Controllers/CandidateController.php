@@ -315,16 +315,22 @@ class CandidateController extends Controller
             }
 
             foreach ($kursusData as $index => $kursus) {
-                DB::table('candidate_data_kursus')->insert([
-                    'candidate_data_id' => $candidateDataId,
-                    'nama' => $kursus['nama'] ?? null,
-                    'diadakan_oleh' => $kursus['diadakan'] ?? null,
-                    'tempat' => $kursus['tempat'] ?? null,
-                    'lama' => $kursus['lama'] ?? null,
-                    'tahun' => $kursus['tahun'] ?? null,
-                    'dibiayai_oleh' => $kursus['dibiayai'] ?? null,
-                    'keterangan' => $kursus['keterangan'] ?? null,
-                ]);
+                // Check if at least one field is not empty
+                if (!empty($kursus['nama']) || !empty($kursus['diadakan']) || !empty($kursus['tempat']) ||
+                    !empty($kursus['lama']) || !empty($kursus['tahun']) || !empty($kursus['dibiayai']) ||
+                    !empty($kursus['keterangan'])) {
+
+                    DB::table('candidate_data_kursus')->insert([
+                        'candidate_data_id' => $candidateDataId,
+                        'nama' => $kursus['nama'] ?? null,
+                        'diadakan_oleh' => $kursus['diadakan'] ?? null,
+                        'tempat' => $kursus['tempat'] ?? null,
+                        'lama' => $kursus['lama'] ?? null,
+                        'tahun' => $kursus['tahun'] ?? null,
+                        'dibiayai_oleh' => $kursus['dibiayai'] ?? null,
+                        'keterangan' => $kursus['keterangan'] ?? null,
+                    ]);
+                }
             }
 
             $languageData = [];
@@ -371,16 +377,22 @@ class CandidateController extends Controller
             }
 
             foreach ($kerjaData as $index => $kerja) {
-                DB::table('candidate_data_pekerjaan')->insert([
-                    'candidate_data_id' => $candidateDataId,
-                    'perusahaan' => $kerja['perusahaan'] ?? null,
-                    'alamat' => $kerja['alamat'] ?? null,
-                    'jabatan' => $kerja['jabatan'] ?? null,
-                    'dari' => $kerja['dari'] ?? null,
-                    'sampai' => $kerja['sampai'] ?? null,
-                    'keterangan' => $kerja['keterangan'] ?? null,
-                    'alasan' => $kerja['alasan'] ?? null,
-                ]);
+                // Check if at least one of the fields is not empty
+                if (!empty($kerja['perusahaan']) || !empty($kerja['alamat']) || !empty($kerja['jabatan']) ||
+                    !empty($kerja['dari']) || !empty($kerja['sampai']) || !empty($kerja['keterangan']) ||
+                    !empty($kerja['alasan'])) {
+
+                    DB::table('candidate_data_pekerjaan')->insert([
+                        'candidate_data_id' => $candidateDataId,
+                        'perusahaan' => $kerja['perusahaan'] ?? null,
+                        'alamat' => $kerja['alamat'] ?? null,
+                        'jabatan' => $kerja['jabatan'] ?? null,
+                        'dari' => $kerja['dari'] ?? null,
+                        'sampai' => $kerja['sampai'] ?? null,
+                        'keterangan' => $kerja['keterangan'] ?? null,
+                        'alasan' => $kerja['alasan'] ?? null,
+                    ]);
+                }
             }
 
             $stage = DB::table('hiring_stages')

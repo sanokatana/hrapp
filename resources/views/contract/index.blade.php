@@ -55,6 +55,13 @@
                                     </svg>
                                     Add Data
                                 </a>
+                                
+                                <a href="#" class="btn btn-primary" id="btnUploadCSV">
+                                    Upload Excel
+                                </a>
+                                <a href="/kontrak/exportData" class="btn btn-primary">
+                                    Export Contract Excel
+                                </a>
                             </div>
                         </div>
                         <div class="row mt-2">
@@ -357,11 +364,46 @@
         </div>
     </div>
 </div>
+
+<div class="modal modal-blur fade" id="modal-uploadContract" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upload Data Contract Excel</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/kontrak/uploadKontrak" method="POST" id="formKontrak" enctype="multipart/form-data">
+                    @csrf
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="file">Upload CSV</label>
+                                <input type="file" name="file" class="form-control" required>
+                            </div>
+                            <div class="form-group mt-3">
+                                <button type="submit" class="btn btn-primary w-100">Simpan</button>
+                            </div>
+                            <div class="form-group mt-3">
+                                <a href="/kontrak/export" class="btn btn-secondary w-100">Download Template CSV</a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('myscript')
 <script>
     $(function() {
+
+        $('#btnUploadCSV').click(function() {
+            $('#modal-uploadContract').modal("show");
+        });
 
         $('.edit').click(function() {
             var id = $(this).attr('id');

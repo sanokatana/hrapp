@@ -24,7 +24,7 @@ class KaryawanExport implements FromQuery, WithHeadings, WithColumnFormatting
                 'karyawan.nik',
                 'karyawan.nip',
                 'karyawan.nama_lengkap',
-                'karyawan.jabatan',
+                'jabatan.nama_jabatan',
                 'karyawan.email',
                 'karyawan.no_hp',
                 'karyawan.tgl_masuk as Tanggal Masuk',
@@ -32,8 +32,6 @@ class KaryawanExport implements FromQuery, WithHeadings, WithColumnFormatting
                 'karyawan.dob as DOB',
                 'karyawan.kode_dept',
                 'karyawan.grade',
-                'karyawan.shift_pattern_id',
-                'karyawan.start_shift',
                 'karyawan.no_kontrak',
                 'karyawan.employee_status',
                 'karyawan.base_poh',
@@ -58,7 +56,7 @@ class KaryawanExport implements FromQuery, WithHeadings, WithColumnFormatting
                 'karyawan.job_exp',
                 'karyawan.email_personal',
                 DB::raw("CONCAT(' ', karyawan.family_card) as family_card"),
-                'karyawan.no_npwp',
+                DB::raw("CONCAT(' ', karyawan.no_npwp) as no_npwp"),
                 'karyawan.alamat_npwp',
                 'karyawan.bpjstk',
                 'karyawan.bpjskes',
@@ -113,8 +111,6 @@ class KaryawanExport implements FromQuery, WithHeadings, WithColumnFormatting
             'DOB',
             'Kode Dept',
             'Grade',
-            'Shift Pattern ID',
-            'Start Shift',
             'No Kontrak',
             'Employee Status',
             'Base POH',
@@ -181,7 +177,7 @@ class KaryawanExport implements FromQuery, WithHeadings, WithColumnFormatting
     {
         return [
             'G' => NumberFormat::FORMAT_NUMBER, // Format 'No HP' as a number
-            'AD' => NumberFormat::FORMAT_TEXT, // Format 'NIK KTP' as text
+            'AE' => NumberFormat::FORMAT_TEXT, // Format 'NIK KTP' as text
             'AP' => NumberFormat::FORMAT_NUMBER, // Format 'Rek No' as a number
             'AK' => NumberFormat::FORMAT_TEXT, // Format 'Family Card' as a number
             'AZ' => NumberFormat::FORMAT_TEXT, // Format 'FD Anak1 NIK' as a number
