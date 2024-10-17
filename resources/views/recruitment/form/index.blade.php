@@ -828,13 +828,13 @@
                             <!-- File Upload Section -->
                             <div class="row mb-4">
                                 <div class="col-4">
-                                    <input class="form-control" type="file" id="slip_gaji1" name="slip1">
+                                    <input class="form-control" type="file" id="slip_gaji1" name="slip_gaji1">
                                 </div>
                                 <div class="col-4">
-                                    <input class="form-control" type="file" id="slip_gaji2" name="slip2">
+                                    <input class="form-control" type="file" id="slip_gaji2" name="slip_gaji2">
                                 </div>
                                 <div class="col-4">
-                                    <input class="form-control" type="file" id="slip_gaji3" name="slip3">
+                                    <input class="form-control" type="file" id="slip_gaji3" name="slip_gaji3">
                                 </div>
                             </div>
 
@@ -1450,13 +1450,9 @@
                     message: 'Mulai Kerja Harus Diisi'
                 },
             ];
-
-            var isValid = true; // Track if all fields are valid
-
-            // Validate all fields
             for (let i = 0; i < fields.length; i++) {
                 var field = fields[i];
-                if ($(field.id).val().trim() === "") {
+                if ($(field.id).val() === "") {
                     Swal.fire({
                         title: 'Warning!',
                         text: field.message,
@@ -1471,18 +1467,13 @@
                             $(field.id).focus();
                         });
                     });
-
-                    isValid = false; // Mark as invalid
-                    break; // Stop loop on first invalid field
+                    return false; // Stop further execution and show the alert
                 }
             }
+            console.log($(this).serializeArray());
 
-            // If the form is valid, allow submission
-            if (isValid) {
-                this.submit(); // Submit the form if all validations pass
-            }
+            this.submit();
         });
-
     });
 </script>
 @endpush

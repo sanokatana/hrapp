@@ -558,23 +558,35 @@ use App\Helpers\DateHelper;
                     // Add other status fields if needed
                 ];
 
-                let isMatched = false;
-                checkboxesKep.forEach(({
-                    field,
-                    value
-                }) => {
-                    const checkboxFieldKep = form.getCheckBox(field); // Replace with actual checkbox field names
-                    if (response.keputusan === value) {
-                        checkboxFieldKep.check();
-                        isMatched = true;
-                    } else {
-                        checkboxFieldKep.uncheck();
-                    }
-                });
+                if (response.keputusan) {
+                    let isMatched = false;
 
-                if (!isMatched) {
-                    const lainLainField = form.getCheckBox('ket5'); // Replace with actual field name for 'Lain-lain'
-                    lainLainField.check();
+                    checkboxesKep.forEach(({
+                        field,
+                        value
+                    }) => {
+                        const checkboxFieldKep = form.getCheckBox(field); // Replace with actual checkbox field names
+                        if (response.keputusan === value) {
+                            checkboxFieldKep.check();
+                            isMatched = true;
+                        } else {
+                            checkboxFieldKep.uncheck();
+                        }
+                    });
+
+                    // If no match is found, check 'Lain-lain'
+                    if (!isMatched) {
+                        const lainLainField = form.getCheckBox('ket5'); // Replace with actual field name for 'Lain-lain'
+                        lainLainField.check();
+                    }
+                } else {
+                    // If 'keputusan' is null or empty, uncheck all checkboxes
+                    checkboxesKep.forEach(({
+                        field
+                    }) => {
+                        const checkboxFieldKep = form.getCheckBox(field);
+                        checkboxFieldKep.uncheck();
+                    });
                 }
 
                 const keteranganField = form.getTextField('alesan'); // Replace with actual field name for the first field

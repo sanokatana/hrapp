@@ -510,9 +510,10 @@ class ApprovalController extends Controller
             return response()->json(['error' => 'Employee not found'], 404);
         }
 
-        $tglForm = ($izin->tgl_izin == $izin->tgl_izin_akhir)
-                ? DateHelper::formatIndonesianDate($izin->tgl_izin)
-                : DateHelper::formatIndonesianDate($izin->tgl_izin) . ' - ' . (!empty($tgl_izin_akhir) ? DateHelper::formatIndonesianDate($tgl_izin_akhir) : '');
+        $tglForm = ($izin->tgl_izin == $izin->tgl_izin_akhir || empty($izin->tgl_izin_akhir))
+            ? DateHelper::formatIndonesianDate($izin->tgl_izin)
+            : DateHelper::formatIndonesianDate($izin->tgl_izin) . ' - ' . DateHelper::formatIndonesianDate($izin->tgl_izin_akhir);
+
 
         // Prepare data to return
         $data = [
@@ -548,9 +549,10 @@ class ApprovalController extends Controller
             return response()->json(['error' => 'Employee not found'], 404);
         }
 
-        $tglForm = ($cuti->tgl_cuti == $cuti->tgl_cuti_akhir)
-                ? DateHelper::formatIndonesianDate($cuti->tgl_cuti)
-                : DateHelper::formatIndonesianDate($cuti->tgl_cuti) . ' - ' . DateHelper::formatIndonesianDate($cuti->tgl_cuti_sampai);
+        $tglForm = ($cuti->tgl_cuti == $cuti->tgl_cuti_akhir || empty($cuti->tgl_cuti_sampai))
+        ? DateHelper::formatIndonesianDate($cuti->tgl_cuti)
+        : DateHelper::formatIndonesianDate($cuti->tgl_cuti) . ' - ' . DateHelper::formatIndonesianDate($cuti->tgl_cuti_sampai);
+
 
         $tglMulai = DateHelper::formatIndonesianDate($karyawan->tgl_masuk);
 

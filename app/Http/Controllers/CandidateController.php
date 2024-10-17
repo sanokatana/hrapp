@@ -123,7 +123,7 @@ class CandidateController extends Controller
         }
 
         // Function to handle slip uploads
-        $slips = ['slip1', 'slip2', 'slip3'];
+        $slips = ['slip_gaji1', 'slip_gaji2', 'slip_gaji3'];
         foreach ($slips as $slip) {
             if ($request->hasFile($slip)) {
                 $file = $request->file($slip);
