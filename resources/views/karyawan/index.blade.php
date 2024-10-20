@@ -91,7 +91,7 @@ use App\Helpers\DateHelper;
                                                 <select name="kode_dept" id="kode_dept" class="form-select">
                                                     <option value="">Department</option>
                                                     @foreach ($department as $d)
-                                                        <option {{ request('kode_dept') == $d->kode_dept ? 'selected' : '' }} value="{{ $d->kode_dept }}">{{ $d->nama_dept }}</option>
+                                                    <option {{ request('kode_dept') == $d->kode_dept ? 'selected' : '' }} value="{{ $d->kode_dept }}">{{ $d->nama_dept }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -101,7 +101,7 @@ use App\Helpers\DateHelper;
                                                 <select name="pt_karyawan" id="pt_karyawan" class="form-select">
                                                     <option value="">Nama PT</option>
                                                     @foreach ($uniquePt as $d) <!-- Here $d is a string -->
-                                                        <option {{ request('pt_karyawan') == $d ? 'selected' : '' }} value="{{ $d }}">{{ $d }}</option>
+                                                    <option {{ request('pt_karyawan') == $d ? 'selected' : '' }} value="{{ $d }}">{{ $d }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -111,7 +111,7 @@ use App\Helpers\DateHelper;
                                                 <select name="religion_karyawan" id="religion_karyawan" class="form-select">
                                                     <option value="">Religion</option>
                                                     @foreach ($uniqueReligion as $religion)
-                                                        <option {{ request('religion_karyawan') == $religion ? 'selected' : '' }} value="{{ $religion }}">{{ $religion }}</option>
+                                                    <option {{ request('religion_karyawan') == $religion ? 'selected' : '' }} value="{{ $religion }}">{{ $religion }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -122,7 +122,7 @@ use App\Helpers\DateHelper;
                                                 <select name="base" id="base" class="form-select">
                                                     <option value="">Base</option>
                                                     @foreach ($uniqueBase as $base)
-                                                        <option {{ request('base') == $base ? 'selected' : '' }} value="{{ $base }}">{{ $base }}</option>
+                                                    <option {{ request('base') == $base ? 'selected' : '' }} value="{{ $base }}">{{ $base }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -133,7 +133,7 @@ use App\Helpers\DateHelper;
                                                 <select name="grade_karyawan" id="grade_karyawan" class="form-select">
                                                     <option value="">Grade</option>
                                                     @foreach ($uniqueGrade as $grade)
-                                                        <option {{ request('grade_karyawan') == $grade ? 'selected' : '' }} value="{{ $grade }}">{{ $grade }}</option>
+                                                    <option {{ request('grade_karyawan') == $grade ? 'selected' : '' }} value="{{ $grade }}">{{ $grade }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -144,7 +144,7 @@ use App\Helpers\DateHelper;
                                                 <select name="status_karyawan" id="status_karyawan" class="form-select">
                                                     <option value="">Status Karyawan</option>
                                                     @foreach ($uniqueStatusKar as $status)
-                                                        <option {{ request('status_karyawan') == $status ? 'selected' : '' }} value="{{ $status }}">{{ $status }}</option>
+                                                    <option {{ request('status_karyawan') == $status ? 'selected' : '' }} value="{{ $status }}">{{ $status }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -155,7 +155,7 @@ use App\Helpers\DateHelper;
                                                 <select name="status_employee" id="status_employee" class="form-select">
                                                     <option value="">Status Employee</option>
                                                     @foreach ($uniqueEmployeeStatus as $status)
-                                                        <option {{ request('status_employee') == $status ? 'selected' : '' }} value="{{ $status }}">{{ $status }}</option>
+                                                    <option {{ request('status_employee') == $status ? 'selected' : '' }} value="{{ $status }}">{{ $status }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -690,6 +690,99 @@ use App\Helpers\DateHelper;
                             <input type="text" value="" class="form-control" name="em_alamat" id="em_alamat" placeholder="Emergency Contact Address">
                         </div>
                     </div>
+                    <div class="row mt-3">
+                        <h5 class="modal-title"><u>Perlengkapan File</u></h5>
+                        <div class="col-md-6">
+                            <div class="form-check mt-2 d-flex align-items-center">
+                                <input type="checkbox" value="" class="form-check-input" name="status_photo" id="status_photo">
+                                <label class="form-check-label ms-2" for="status_photo">Photo Karyawan</label>
+                            </div>
+                            <div class="form-check mt-2 d-flex align-items-center">
+                                <input type="checkbox" value="" class="form-check-input" name="status_ktp" id="status_ktp">
+                                <label class="form-check-label ms-2" for="status_ktp">KTP</label>
+                            </div>
+                            <div class="form-check mt-2 d-flex align-items-center">
+                                <input type="checkbox" value="" class="form-check-input" name="status_kk" id="status_kk">
+                                <label class="form-check-label ms-2" for="status_kk">Family Card</label>
+                            </div>
+                            <div class="form-check mt-2 d-flex align-items-center">
+                                <input type="checkbox" value="" class="form-check-input" name="status_npwp" id="status_npwp">
+                                <label class="form-check-label ms-2" for="status_npwp">NPWP</label>
+                            </div>
+                            <div class="form-check mt-2 d-flex align-items-center">
+                                <input type="checkbox" value="" class="form-check-input" name="status_sim" id="status_sim">
+                                <label class="form-check-label ms-2" for="status_sim">SIM</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-check mt-2 d-flex align-items-center">
+                                <input type="checkbox" value="" class="form-check-input" name="status_ijazah" id="status_ijazah">
+                                <label class="form-check-label ms-2" for="status_ijazah">Ijazah</label>
+                            </div>
+                            <div class="form-check mt-2 d-flex align-items-center">
+                                <input type="checkbox" value="" class="form-check-input" name="status_skck" id="status_skck">
+                                <label class="form-check-label ms-2" for="status_skck">SKCK</label>
+                            </div>
+                            <div class="form-check mt-2 d-flex align-items-center">
+                                <input type="checkbox" value="" class="form-check-input" name="status_cv" id="status_cv">
+                                <label class="form-check-label ms-2" for="status_cv">CV</label>
+                            </div>
+                            <div class="form-check mt-2 d-flex align-items-center">
+                                <input type="checkbox" value="" class="form-check-input" name="status_applicant" id="status_applicant">
+                                <label class="form-check-label ms-2" for="status_applicant">Application</label>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row mt-3">
+                        <h5 class="modal-title"><u>Upload Files</u></h5>
+
+                        <div class="col-md-6">
+                            <div class="form-group mt-2 d-flex">
+                                <input type="file" class="form-control" name="file_photo" id="file_photo" style="width: 50%;">
+                                <label class="ms-5 align-self-center" for="file_photo">Photo Karyawan</label>
+                            </div>
+                            <div class="form-group mt-2 d-flex">
+                                <input type="file" class="form-control" name="file_ktp" id="file_ktp" style="width: 50%;">
+                                <label class="ms-5 align-self-center" for="file_ktp">KTP</label>
+                            </div>
+                            <div class="form-group mt-2 d-flex">
+                                <input type="file" class="form-control" name="file_kk" id="file_kk" style="width: 50%;">
+                                <label class="ms-5 align-self-center" for="file_kk">Family Card</label>
+                            </div>
+                            <div class="form-group mt-2 d-flex">
+                                <input type="file" class="form-control" name="file_npwp" id="file_npwp" style="width: 50%;">
+                                <label class="ms-5 align-self-center" for="file_npwp">NPWP</label>
+                            </div>
+                            <div class="form-group mt-2 d-flex">
+                                <input type="file" class="form-control" name="file_sim" id="file_sim" style="width: 50%;">
+                                <label class="ms-5 align-self-center" for="file_sim">SIM</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group mt-2 d-flex">
+                                <input type="file" class="form-control" name="file_ijazah" id="file_ijazah" style="width: 50%;">
+                                <label class="ms-5 align-self-center" for="file_ijazah">Ijazah</label>
+                            </div>
+                            <div class="form-group mt-2 d-flex">
+                                <input type="file" class="form-control" name="file_skck" id="file_skck" style="width: 50%;">
+                                <label class="ms-5 align-self-center" for="file_skck">SKCK</label>
+                            </div>
+                            <div class="form-group mt-2 d-flex">
+                                <input type="file" class="form-control" name="file_cv" id="file_cv" style="width: 50%;">
+                                <label class="ms-5 align-self-center" for="file_cv">CV</label>
+                            </div>
+                            <div class="form-group mt-2 d-flex">
+                                <input type="file" class="form-control" name="file_applicant" id="file_applicant" style="width: 50%;">
+                                <label class="ms-5 align-self-center" for="file_applicant">Application</label>
+                            </div>
+                        </div>
+                    </div>
+
+
                     <!-- Additional Fields End Here -->
                     <div class="row mt-3">
                         <div class="col-12">
@@ -807,7 +900,7 @@ use App\Helpers\DateHelper;
                 <form action="/kontrak/store" method="POST" id="formContract">
                     @csrf
                     <div class="row">
-                    <div class="col-6">
+                        <div class="col-6">
                             <div class="form-label">NIK</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
@@ -829,7 +922,11 @@ use App\Helpers\DateHelper;
                             <div class="form-label">No Kontrak</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-file"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-file">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                        <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                                    </svg>
                                 </span>
                                 <input type="text" value="" class="form-control" name="no_kontrak" id="no_kontrak" placeholder="No Kontrak">
                             </div>
@@ -882,7 +979,12 @@ use App\Helpers\DateHelper;
                             <div class="form-label">Position</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-versions"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 5m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /><path d="M7 7l0 10" /><path d="M4 8l0 8" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-versions">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M10 5m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" />
+                                        <path d="M7 7l0 10" />
+                                        <path d="M4 8l0 8" />
+                                    </svg>
                                 </span>
                                 <input type="text" value="" class="form-control" name="position" id="position" placeholder="Position">
                             </div>
@@ -891,7 +993,13 @@ use App\Helpers\DateHelper;
                             <div class="form-label">Salary</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-cash-banknote"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M3 6m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" /><path d="M18 12l.01 0" /><path d="M6 12l.01 0" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-cash-banknote">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                                        <path d="M3 6m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
+                                        <path d="M18 12l.01 0" />
+                                        <path d="M6 12l.01 0" />
+                                    </svg>
                                 </span>
                                 <input type="text" value="" class="form-control" name="salary" id="salary" placeholder="Salary">
                             </div>
@@ -912,7 +1020,13 @@ use App\Helpers\DateHelper;
                             <div class="form-label">Contract File</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-file-info"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M11 14h1v4h1" /><path d="M12 11h.01" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-file-info">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                        <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                                        <path d="M11 14h1v4h1" />
+                                        <path d="M12 11h.01" />
+                                    </svg>
                                 </span>
                                 <input type="text" value="" class="form-control" name="contract_file" id="contract_file" placeholder="File">
                             </div>
@@ -952,7 +1066,9 @@ use App\Helpers\DateHelper;
                 $.ajax({
                     url: '/contracts',
                     method: 'GET',
-                    data: { nik: nik },
+                    data: {
+                        nik: nik
+                    },
                     success: function(response) {
                         var $select = $('#no_kontrak');
                         $select.empty();
@@ -1009,7 +1125,9 @@ use App\Helpers\DateHelper;
                         $.ajax({
                             url: '/contract/type',
                             method: 'GET',
-                            data: { no_kontrak: noKontrak },
+                            data: {
+                                no_kontrak: noKontrak
+                            },
                             success: function(response) {
                                 // Assuming response contains the contract type
                                 console.log('Received contract type:', response.contract_type);
@@ -1127,7 +1245,9 @@ use App\Helpers\DateHelper;
                 $.ajax({
                     url: '/contract/type',
                     method: 'GET',
-                    data: { no_kontrak: noKontrak },
+                    data: {
+                        no_kontrak: noKontrak
+                    },
                     success: function(response) {
                         // Assuming response contains the contract type
                         $('#employee_status').val(response.contract_type);
@@ -1159,7 +1279,9 @@ use App\Helpers\DateHelper;
                     $.ajax({
                         url: '/contracts',
                         method: 'GET',
-                        data: { nik: nik },
+                        data: {
+                            nik: nik
+                        },
                         success: function(response) {
                             var $select = $('#no_kontrak');
                             $select.empty();

@@ -116,7 +116,7 @@
             <div class="form-label">Nomer Kontrak</div>
             <select name="no_kontrak_edit" id="no_kontrak_edit" class="form-select">
                 @foreach ($contract as $d)
-                    <option {{ $karyawan->no_kontrak == $d->no_kontrak ? 'selected' : '' }} value="{{ $d->no_kontrak }}">{{ $d->no_kontrak }}</option>
+                <option {{ $karyawan->no_kontrak == $d->no_kontrak ? 'selected' : '' }} value="{{ $d->no_kontrak }}">{{ $d->no_kontrak }}</option>
                 @endforeach
             </select>
         </div>
@@ -137,7 +137,7 @@
             <select name="base_poh" id="base_poh" class="form-select">
                 <option value="">Pilih</option>
                 @foreach ($location as $d)
-                    <option {{ $karyawan->base_poh == $d->nama_kantor ? 'selected' : '' }} value="{{ $d->nama_kantor }}">{{ $d->nama_kantor }}</option>
+                <option {{ $karyawan->base_poh == $d->nama_kantor ? 'selected' : '' }} value="{{ $d->nama_kantor }}">{{ $d->nama_kantor }}</option>
                 @endforeach
             </select>
         </div>
@@ -389,6 +389,114 @@
         <div class="col-3 mt-2">
             <div class="form-label">Emergency Contact Address</div>
             <input type="text" value="{{ $karyawan->em_alamat }}" class="form-control" name="em_alamat" id="em_alamat" placeholder="Emergency Contact Address">
+        </div>
+    </div>
+    <div class="row mt-3">
+        <h5 class="modal-title"><u>Perlengkapan File</u></h5>
+        <div class="col-md-6">
+            <div class="form-check mt-2 d-flex align-items-center">
+                <input type="hidden" name="status_photo" value="0">
+                <input type="checkbox" value="1" class="form-check-input" name="status_photo" id="status_photo" {{ $karyawan->status_photo ? 'checked' : '' }}>
+                <label class="form-check-label ms-2" for="status_photo">Photo Karyawan</label>
+            </div>
+
+            <div class="form-check mt-2 d-flex align-items-center">
+                <input type="hidden" name="status_ktp" value="0">
+                <input type="checkbox" value="1" class="form-check-input" name="status_ktp" id="status_ktp" {{ $karyawan->status_ktp ? 'checked' : '' }}>
+                <label class="form-check-label ms-2" for="status_ktp">KTP</label>
+            </div>
+
+            <div class="form-check mt-2 d-flex align-items-center">
+                <input type="hidden" name="status_kk" value="0">
+                <input type="checkbox" value="1" class="form-check-input" name="status_kk" id="status_kk" {{ $karyawan->status_kk ? 'checked' : '' }}>
+                <label class="form-check-label ms-2" for="status_kk">Family Card</label>
+            </div>
+
+            <div class="form-check mt-2 d-flex align-items-center">
+                <input type="hidden" name="status_npwp" value="0">
+                <input type="checkbox" value="1" class="form-check-input" name="status_npwp" id="status_npwp" {{ $karyawan->status_npwp ? 'checked' : '' }}>
+                <label class="form-check-label ms-2" for="status_npwp">NPWP</label>
+            </div>
+
+            <div class="form-check mt-2 d-flex align-items-center">
+                <input type="hidden" name="status_sim" value="0">
+                <input type="checkbox" value="1" class="form-check-input" name="status_sim" id="status_sim" {{ $karyawan->status_sim ? 'checked' : '' }}>
+                <label class="form-check-label ms-2" for="status_sim">SIM</label>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-check mt-2 d-flex align-items-center">
+                <input type="hidden" name="status_ijazah" value="0">
+                <input type="checkbox" value="1" class="form-check-input" name="status_ijazah" id="status_ijazah" {{ $karyawan->status_ijazah ? 'checked' : '' }}>
+                <label class="form-check-label ms-2" for="status_ijazah">Ijazah</label>
+            </div>
+
+            <div class="form-check mt-2 d-flex align-items-center">
+                <input type="hidden" name="status_skck" value="0">
+                <input type="checkbox" value="1" class="form-check-input" name="status_skck" id="status_skck" {{ $karyawan->status_skck ? 'checked' : '' }}>
+                <label class="form-check-label ms-2" for="status_skck">SKCK</label>
+            </div>
+
+            <div class="form-check mt-2 d-flex align-items-center">
+                <input type="hidden" name="status_cv" value="0">
+                <input type="checkbox" value="1" class="form-check-input" name="status_cv" id="status_cv" {{ $karyawan->status_cv ? 'checked' : '' }}>
+                <label class="form-check-label ms-2" for="status_cv">CV</label>
+            </div>
+
+            <div class="form-check mt-2 d-flex align-items-center">
+                <input type="hidden" name="status_applicant" value="0">
+                <input type="checkbox" value="1" class="form-check-input" name="status_applicant" id="status_applicant" {{ $karyawan->status_applicant ? 'checked' : '' }}>
+                <label class="form-check-label ms-2" for="status_applicant">Application</label>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="row mt-3">
+        <h5 class="modal-title"><u>Upload Files</u></h5>
+
+        <div class="col-md-6">
+            <div class="form-group mt-2 d-flex">
+                <input type="file" class="form-control" name="file_photo" id="file_photo" style="width: 50%;">
+                <label class="ms-5 align-self-center" for="file_photo">Photo Karyawan</label>
+            </div>
+            <div class="form-group mt-2 d-flex">
+                <input type="file" class="form-control" name="file_ktp" id="file_ktp" style="width: 50%;">
+                <label class="ms-5 align-self-center" for="file_ktp">KTP</label>
+            </div>
+            <div class="form-group mt-2 d-flex">
+                <input type="file" class="form-control" name="file_kk" id="file_kk" style="width: 50%;">
+                <label class="ms-5 align-self-center" for="file_kk">Family Card</label>
+            </div>
+            <div class="form-group mt-2 d-flex">
+                <input type="file" class="form-control" name="file_npwp" id="file_npwp" style="width: 50%;">
+                <label class="ms-5 align-self-center" for="file_npwp">NPWP</label>
+            </div>
+            <div class="form-group mt-2 d-flex">
+                <input type="file" class="form-control" name="file_sim" id="file_sim" style="width: 50%;">
+                <label class="ms-5 align-self-center" for="file_sim">SIM</label>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group mt-2 d-flex">
+                <input type="file" class="form-control" name="file_ijazah" id="file_ijazah" style="width: 50%;">
+                <label class="ms-5 align-self-center" for="file_ijazah">Ijazah</label>
+            </div>
+            <div class="form-group mt-2 d-flex">
+                <input type="file" class="form-control" name="file_skck" id="file_skck" style="width: 50%;">
+                <label class="ms-5 align-self-center" for="file_skck">SKCK</label>
+            </div>
+            <div class="form-group mt-2 d-flex">
+                <input type="file" class="form-control" name="file_cv" id="file_cv" style="width: 50%;">
+                <label class="ms-5 align-self-center" for="file_cv">CV</label>
+            </div>
+            <div class="form-group mt-2 d-flex">
+                <input type="file" class="form-control" name="file_applicant" id="file_applicant" style="width: 50%;">
+                <label class="ms-5 align-self-center" for="file_applicant">Application</label>
+            </div>
         </div>
     </div>
     <div class="row mt-3">

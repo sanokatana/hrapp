@@ -78,6 +78,27 @@ class StoreEmployeeRequest extends FormRequest
             'em_relation' => 'nullable|string|max:100',
             'em_alamat' => 'nullable|string',
             'status_kar' => 'required|in:Aktif,Non-Aktif',
+
+            'status_photo' => 'nullable|boolean',
+            'status_ktp' => 'nullable|boolean',
+            'status_kk' => 'nullable|boolean',
+            'status_npwp' => 'nullable|boolean',
+            'status_sim' => 'nullable|boolean',
+            'status_ijazah' => 'nullable|boolean',
+            'status_skck' => 'nullable|boolean',
+            'status_cv' => 'nullable|boolean',
+            'status_applicant' => 'nullable|boolean',
+
+            'file_photo' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+            'file_ktp' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'file_kk' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'file_npwp' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'file_sim' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'file_ijazah' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'file_skck' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'file_cv' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'file_applicant' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+
             'created_by' => 'nullable|string|max:100',
             'updated_by' => 'nullable|string|max:100',
             // Add the rest of your rules here...
