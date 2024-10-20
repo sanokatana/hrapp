@@ -55,7 +55,7 @@
                                     </svg>
                                     Add Data
                                 </a>
-                                
+
                                 <a href="#" class="btn btn-primary" id="btnUploadCSV">
                                     Upload Excel
                                 </a>
@@ -75,7 +75,7 @@
                                         </div>
                                         <div class="col-5">
                                             <div class="form-group">
-                                                <input type="text" name="nama_karyawan" id="nama_karyawan" class="form-control" placeholder="Nomer Kontrak" value="{{ Request('nama_karyawan')}}">
+                                                <input type="text" name="nama_karyawan" id="nama_karyawan" class="form-control" placeholder="Nama Karyawan" value="{{ Request('nama_karyawan')}}">
                                             </div>
                                         </div>
                                         <div class="col-2">
@@ -113,7 +113,7 @@
                                     <tbody>
                                         @foreach ($contract as $d)
                                         <tr style="text-align: center;">
-                                            <td>{{ $loop->iteration}}</td>
+                                            <td>{{ $loop->iteration + $contract->firstItem() -1 }}</td>
                                             <td>{{ $d->no_kontrak}}</td>
                                             <td>{{ $d->nama_lengkap}}</td>
                                             <td>{{ $d->start_date}}</td>
@@ -167,6 +167,7 @@
                                         @endforeach
                                     </tbody>
                                 </table>
+                                {{ $contract->links('vendor.pagination.bootstrap-5')}}
                             </div>
                         </div>
                     </div>

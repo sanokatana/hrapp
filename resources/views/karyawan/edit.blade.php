@@ -151,7 +151,7 @@
         </div>
         <div class="col-3 mt-2">
             <div class="form-label">Marital Status</div>
-            <input type="text" value="{{ $karyawan->marital_status }}" class="form-control" name="marital_status" id="marital_status" placeholder="Marital Status">
+            <input type="text" value="{{ $karyawan->tax_status }}" class="form-control" name="tax_status" id="tax_status" placeholder="Tax Status">
         </div>
         <div class="col-3 mt-2">
             <div class="form-label">Birthplace</div>

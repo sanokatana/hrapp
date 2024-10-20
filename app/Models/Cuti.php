@@ -15,5 +15,5 @@ class Cuti extends Model
     public $timestamps = false;
 
     // Specify fillable attributes
-    protected $fillable = ['nik', 'tahun', 'sisa_cuti'];
+    protected $fillable = ['nik', 'nip', 'tahun', 'sisa_cuti', 'periode_awal', 'periode_akhir'];
 }

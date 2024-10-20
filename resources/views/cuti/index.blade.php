@@ -27,13 +27,13 @@
         });
     });
 </script>
-@elseif(session('danger'))
+@elseif(session('error'))
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         Swal.fire({
-            title: 'Danger!',
-            text: "{{ session('danger') }}",
-            icon: 'danger',
+            title: 'Error!',
+            text: "{{ session('error') }}",
+            icon: 'error',
             confirmButtonText: 'Ok'
         });
     });
@@ -348,7 +348,7 @@
                     <div class="row mt-3">
                         <div class="col-12">
                             <div class="form-group">
-                                <label for="file">Upload CSV</label>
+                                <label for="file">Upload Excel</label>
                                 <input type="file" name="file" class="form-control" required>
                             </div>
                             <div class="form-group mt-3">
@@ -358,7 +358,7 @@
                             </div>
                             <div class="form-group mt-3">
                                 <a href="/cuti/downloadTemplate" class="btn btn-secondary w-100">
-                                    Download Template CSV
+                                    Download Template Excel
                                 </a>
                             </div>
                         </div>

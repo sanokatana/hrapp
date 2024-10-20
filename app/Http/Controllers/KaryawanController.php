@@ -234,6 +234,7 @@ class KaryawanController extends Controller
                     $tglMasuk = Date::excelToDateTimeObject($mappedData['tgl_masuk'])->format('Y-m-d');
                     $tglResign = !empty($mappedData['tgl_resign']) ? Date::excelToDateTimeObject($mappedData['tgl_resign'])->format('Y-m-d') : null;
                     $dob = Date::excelToDateTimeObject($mappedData['DOB'])->format('Y-m-d');
+                    $start_shift = !empty($mappedData['start_shift']) ? Date::excelToDateTimeObject($mappedData['start_shift'])->format('Y-m-d') : null;
                     $fdSiDob = !empty($mappedData['fd_si_dob']) ? Date::excelToDateTimeObject($mappedData['fd_si_dob'])->format('Y-m-d') : null;
                     $fdAnak1Dob = !empty($mappedData['fd_anak1_dob']) ? Date::excelToDateTimeObject($mappedData['fd_anak1_dob'])->format('Y-m-d') : null;
                     $fdAnak2Dob = !empty($mappedData['fd_anak2_dob']) ? Date::excelToDateTimeObject($mappedData['fd_anak2_dob'])->format('Y-m-d') : null;
@@ -252,13 +253,13 @@ class KaryawanController extends Controller
                         'kode_dept' => $mappedData['kode_dept'],
                         'grade' => $mappedData['grade'],
                         'shift_pattern_id' => $mappedData['shift_pattern_id'],
-                        'start_shift' => $mappedData['start_shift'],
+                        'start_shift' => $start_shift,
                         'no_kontrak' => $mappedData['no_kontrak'],
                         'employee_status' => $mappedData['employee_status'],
                         'base_poh' => $mappedData['base_poh'],
                         'nama_pt' => $mappedData['nama_pt'],
                         'sex' => $mappedData['sex'],
-                        'marital_status' => $mappedData['marital_status'],
+                        'tax_status' => $mappedData['tax_status'],
                         'birthplace' => $mappedData['birthplace'],
                         'religion' => $mappedData['religion'],
                         'address' => $mappedData['address'],
@@ -307,6 +308,15 @@ class KaryawanController extends Controller
                         'em_relation' => $mappedData['em_relation'],
                         'em_alamat' => $mappedData['em_alamat'],
                         'status_kar' => $mappedData['status_kar'],
+                        'status_photo' => $mappedData['status_photo'],
+                        'status_npwp' => $mappedData['status_npwp'],
+                        'status_ktp' => $mappedData['status_ktp'],
+                        'status_kk' => $mappedData['status_kk'],
+                        'status_sim' => $mappedData['status_sim'],
+                        'status_ijazah' => $mappedData['status_ijazah'],
+                        'status_skck' => $mappedData['status_skck'],
+                        'status_cv' => $mappedData['status_cv'],
+                        'status_applicant' => $mappedData['status_applicant'],
                     ];
                 }
             }

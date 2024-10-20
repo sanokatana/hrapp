@@ -450,7 +450,7 @@ use App\Helpers\DateHelper;
                         </div>
                         <div class="col-3 mt-2">
                             <div class="form-label">Marital Status</div>
-                            <input type="text" value="" class="form-control" name="marital_status" id="marital_status" placeholder="Marital Status">
+                            <input type="text" value="" class="form-control" name="tax_status" id="tax_status" placeholder="Tax Status">
                         </div>
                         <div class="col-3 mt-2">
                             <div class="form-label">Birthplace</div>
@@ -819,14 +819,14 @@ use App\Helpers\DateHelper;
                     <div class="row mt-3">
                         <div class="col-12">
                             <div class="form-group">
-                                <label for="file">Upload CSV</label>
+                                <label for="file">Upload Excel</label>
                                 <input type="file" name="file" class="form-control" required>
                             </div>
                             <div class="form-group mt-3">
                                 <button type="submit" class="btn btn-primary w-100">Simpan</button>
                             </div>
                             <div class="form-group mt-3">
-                                <a href="/karyawan/downloadTemplate" class="btn btn-secondary w-100">Download Template CSV</a>
+                                <a href="/karyawan/downloadTemplate" class="btn btn-secondary w-100">Download Template Excel</a>
                             </div>
                         </div>
                     </div>

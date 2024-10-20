@@ -30,7 +30,7 @@ class Karyawan extends Authenticatable
         'base_poh',
         'nama_pt',
         'sex',
-        'marital_status',
+        'tax_status',
         'birthplace',
         'religion',
         'kode_dept',

@@ -8,6 +8,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class CutiController extends Controller
@@ -49,7 +53,7 @@ class CutiController extends Controller
         }
 
         // Paginate the results
-        $cuti = $query->paginate(10);
+        $cuti = $query->paginate(50);
         $department = DB::table('department')->get();
 
         // Return the view with the results
@@ -187,6 +191,7 @@ class CutiController extends Controller
         $searchTerm = $request->nama_lengkap;
         $employee = DB::table('karyawan')
             ->where('nama_lengkap', 'like', '%'.$searchTerm.'%')
+            ->where('status_kar', 'Aktif')
             ->get(['nik', 'nama_lengkap']);
         return response()->json($employee);
     }
@@ -200,49 +205,69 @@ class CutiController extends Controller
         ]);
     }
     public function uploadCuti(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'file' => 'required|mimes:csv,txt',
-        ]);
+{
+    // Validate the incoming request
+    $validator = Validator::make($request->all(), [
+        'file' => 'required|mimes:xlsx,xls',
+    ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()->with('danger', 'Please upload a valid CSV file.');
-        }
+    // Redirect back if validation fails
+    if ($validator->fails()) {
+        return redirect()->back()->with('danger', 'Please upload a valid XLSX file.');
+    }
 
+    try {
+        // Store the file in the storage
         $file = $request->file('file');
-        $filePath = $file->getRealPath();
-        $fileHandle = fopen($filePath, 'r');
+        $filePath = $file->storeAs('uploads', $file->getClientOriginalName());
 
-        // Skip the header row
-        $headers = fgetcsv($fileHandle, 1000, ';'); // Specify delimiter as semicolon
+        // Load the file using IOFactory
+        $spreadsheet = IOFactory::load(storage_path('app/' . $filePath));
+        $sheet = $spreadsheet->getActiveSheet();
 
+        // Read the data from the spreadsheet
+        $header = [];
         $data = [];
-        while ($row = fgetcsv($fileHandle, 1000, ';')) { // Specify delimiter as semicolon
-            // Ensure each row has the correct number of columns
-            if (count($row) == 7) { // Assuming there are exactly 6 columns in your CSV
-                $data[] = [
-                    'nik' => $row[0],
-                    'nip' => $row[1],
-                    'tahun' => $row[2],
-                    'sisa_cuti' => $row[3],
-                    'periode_awal' => Carbon::createFromFormat('d/m/Y', $row[3])->format('Y-m-d'),
-                    'periode_akhir'  => Carbon::createFromFormat('d/m/Y', $row[4])->format('Y-m-d'),
-                    'status' => $row[6],
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
-                ];
+        foreach ($sheet->getRowIterator() as $rowIndex => $row) {
+            $rowData = [];
+            foreach ($row->getCellIterator() as $cell) {
+                $rowData[] = $cell->getValue();
+            }
+
+            if ($rowIndex == 1) {
+                $header = $rowData; // First row is header
             } else {
-                return redirect()->back()->with('danger', 'Invalid CSV format: Each row must have exactly 6 columns.');
+                // Map header to row data
+                $mappedData = array_combine($header, $rowData);
+
+                // Convert Excel date serial numbers to date strings
+                $periode_awal = Date::excelToDateTimeObject($mappedData['periode_awal'])->format('Y-m-d');
+                $periode_akhir = !empty($mappedData['periode_akhir']) ? Date::excelToDateTimeObject($mappedData['periode_akhir'])->format('Y-m-d') : null;
+
+                // Prepare data for insertion
+                $data[] = [
+                    'nik' => $mappedData['nik'],
+                    'nip' => $mappedData['nip'],
+                    'tahun' => $mappedData['tahun'],
+                    'sisa_cuti' => $mappedData['sisa_cuti'],
+                    'periode_awal' => $periode_awal,
+                    'periode_akhir' => $periode_akhir,
+                    'status' => $mappedData['status'],
+                ];
             }
         }
 
-        fclose($fileHandle);
+        // Insert data into the database
+        DB::table('cuti')->insert($data);
 
-        try {
-            DB::table('cuti')->insert($data);
-            return redirect()->back()->with('success', 'Data Berhasil Di Simpan');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('danger', 'Data Gagal Di Simpan: ' . $e->getMessage());
-        }
+        // Redirect back with success message
+        return redirect()->back()->with('success', 'Data successfully uploaded.');
+    } catch (\Exception $e) {
+        // Log error and redirect back with error message
+        Log::error('Error uploading data: ' . $e->getMessage());
+        return redirect()->back()->with('error', 'Error uploading data: ' . $e->getMessage());
     }
+}
+
+
 }

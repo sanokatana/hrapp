@@ -16,23 +16,28 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 class ContractController extends Controller
 {
     public function index(Request $request)
-    {
-        // Start the query with a join to the karyawan table
-        $query = Contract::query()
-            ->select('kontrak.*', 'karyawan.nama_lengkap') // Select fields from contracts and nama_lengkap from karyawan
-            ->join('karyawan', 'kontrak.nik', '=', 'karyawan.nik') // Join with karyawan table on nik
-            ->orderBy('kontrak.id', 'asc');
+{
+    // Start the query with a left join to the karyawan table
+    $query = Contract::query()
+        ->select('kontrak.*', 'karyawan.nama_lengkap') // Select fields from contracts and nama_lengkap from karyawan
+        ->leftJoin('karyawan', 'kontrak.nik', '=', 'karyawan.nik') // Use left join to include all contracts
+        ->orderBy('kontrak.id', 'asc');
 
-        // Add filter for no_kontrak if provided in request
-        if (!empty($request->no_kontrak)) {
-            $query->where('kontrak.no_kontrak', 'like', '%' . $request->no_kontrak . '%');
-        }
-
-        // Paginate the results
-        $contract = $query->paginate(20);
-
-        return view('contract.index', compact('contract'));
+    // Add filter for no_kontrak if provided in request
+    if (!empty($request->no_kontrak)) {
+        $query->where('kontrak.no_kontrak', 'like', '%' . $request->no_kontrak . '%');
     }
+
+    if (!empty($request->nama_karyawan)) {
+        $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama_karyawan . '%');
+    }
+
+    // Paginate the results
+    $contract = $query->paginate(50);
+
+    return view('contract.index', compact('contract'));
+}
+
 
 
     public function store(Request $request)
@@ -269,6 +274,7 @@ class ContractController extends Controller
                     $data[] = [
                         'nik' => $mappedData['nik'],
                         'no_kontrak' => $mappedData['no_kontrak'],
+                        'hari_kerja' => $mappedData['hari_kerja'],
                         'start_date' => $tglStart,
                         'end_date' => $tglStop,
                         'contract_type' => $mappedData['contract_type'],

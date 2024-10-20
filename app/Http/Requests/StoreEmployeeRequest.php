@@ -27,7 +27,7 @@ class StoreEmployeeRequest extends FormRequest
             'base_poh' => 'nullable|string|max:50',
             'nama_pt' => 'nullable|string|max:50',
             'sex' => 'nullable|string|max:10',
-            'marital_status' => 'nullable|string|max:50',
+            'tax_status' => 'nullable|string|max:50',
             'birthplace' => 'nullable|string|max:100',
             'religion' => 'nullable|string|max:50',
             'kode_dept' => 'nullable|string|max:50',
