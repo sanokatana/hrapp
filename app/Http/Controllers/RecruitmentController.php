@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Candidate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 
 class RecruitmentController extends Controller
@@ -20,17 +22,17 @@ class RecruitmentController extends Controller
             ->select('candidates.*', 'job_openings.title as job_opening_name', 'hiring_stages.name as hiring_stages_name');
 
 
-            if (!empty($request->nama_candidate)) {
-                $candidates->where('candidates.nama_candidate', 'like', '%' . $request->nama_candidate . '%');
-            }
+        if (!empty($request->nama_candidate)) {
+            $candidates->where('candidates.nama_candidate', 'like', '%' . $request->nama_candidate . '%');
+        }
 
-            if (!empty($request->title_job)) {
-                $candidates->where('job_openings.title', $request->title_job);
-            }
+        if (!empty($request->title_job)) {
+            $candidates->where('job_openings.title', $request->title_job);
+        }
 
-            if (!empty($request->status_candidate)) {
-                $candidates->where('candidates.status', $request->status_candidate);
-            }
+        if (!empty($request->status_candidate)) {
+            $candidates->where('candidates.status', $request->status_candidate);
+        }
 
         $candidate = $candidates->get(); // Get results after applying filters
 
@@ -48,7 +50,12 @@ class RecruitmentController extends Controller
         $current_stage_id = $request->current_stage_id;
         $status = $request->status;
         $password = $request->password;
+        $email_user = Auth::guard('users')->user()->email;
 
+        // Fetch the job opening name using the job_opening_id
+        $job_opening = DB::table('job_openings')
+            ->where('id', $job_opening_id)
+            ->value('name');  // Assuming the name column holds the job title
 
         $data = [
             'nama_candidate' => $nama_candidate,
@@ -60,6 +67,30 @@ class RecruitmentController extends Controller
             'password' => Hash::make($password),  // Hash the password
         ];
 
+        if ($email) {
+            $emailContent = "
+            Kamu Telah Menjadi Candidate Lamaran Untuk Cipta Harmoni Lestari Untuk Posisi : {$job_opening}<br>
+            Username : {$username}
+            Password : {$password}
+            Mohon Cek Di hrms.ciptaharmoni.com/candidate<br><br>
+
+            Terima Kasih
+        ";
+
+
+            // Send the email using Mail::html
+            Mail::html($emailContent, function ($message) use ($email, $nama_candidate, $email_user) {
+                $message->to($email)
+                    ->subject("CHL Job Candidancy For {$nama_candidate}")
+                    ->cc(['human.resources@ciptaharmoni.com', $email_user])
+                    ->priority(1);  // Set email priority to high
+
+                // Set additional headers for importance
+                $message->getHeaders()->addTextHeader('Importance', 'high');  // Mark as important
+                $message->getHeaders()->addTextHeader('X-Priority', '1');  // 1 is the highest priority
+            });
+        };
+
         $simpan = DB::table('candidates')
             ->insert($data);
         if ($simpan) {
@@ -68,6 +99,7 @@ class RecruitmentController extends Controller
             return Redirect::back()->with(['warning' => 'Candidate Gagal Di Simpan']);
         }
     }
+
 
     public function candidate_edit(Request $request)
     {
@@ -561,17 +593,17 @@ class RecruitmentController extends Controller
             );
 
 
-            if (!empty($request->nama_candidate)) {
-                $datas->where('candidates.nama_candidate', 'like', '%' . $request->nama_candidate . '%');
-            }
+        if (!empty($request->nama_candidate)) {
+            $datas->where('candidates.nama_candidate', 'like', '%' . $request->nama_candidate . '%');
+        }
 
-            if (!empty($request->title_job)) {
-                $datas->where('job_openings.title', $request->title_job);
-            }
+        if (!empty($request->title_job)) {
+            $datas->where('job_openings.title', $request->title_job);
+        }
 
-            if (!empty($request->status_candidate)) {
-                $datas->where('candidates.status', $request->status_candidate);
-            }
+        if (!empty($request->status_candidate)) {
+            $datas->where('candidates.status', $request->status_candidate);
+        }
 
         $data = $datas->get(); // Get results after applying filters
 

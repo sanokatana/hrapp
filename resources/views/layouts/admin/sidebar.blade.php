@@ -183,7 +183,7 @@
                 </li>
                 @if($userLevel !== 'Management' && $userLevel !== 'Admin')
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{request()->is(['karyawan', 'data/user', 'shift', 'shiftpatt','kontrak','tetap']) ? 'show' : ''}}"
+                        <a class="nav-link dropdown-toggle {{request()->is(['karyawan', 'data/user', 'shift', 'shiftpatt','kontrak','sk']) ? 'show' : ''}}"
                             href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button"
                             aria-expanded="{{request()->is(['karyawan', 'data/user']) ? 'true' : 'false'}}">
                             <span
@@ -201,7 +201,7 @@
                             </span>
                         </a>
                         <div
-                            class="dropdown-menu {{request()->is(['karyawan', 'data/user', 'shift', 'shiftpatt','kontrak','tetap']) ? 'show' : ''}}">
+                            class="dropdown-menu {{request()->is(['karyawan', 'data/user', 'shift', 'shiftpatt','kontrak','sk']) ? 'show' : ''}}">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
                                     <a class="dropdown-item {{request()->is(['karyawan']) ? 'active' : ''}}"
@@ -230,7 +230,7 @@
                                         Kontrak
                                     </a>
 
-                                    <a class="dropdown-item {{request()->is(['tetap']) ? 'active' : ''}}" href="/tetap">
+                                    <a class="dropdown-item {{request()->is(['sk']) ? 'active' : ''}}" href="/sk">
                                         SK Tetap
                                     </a>
                                     <a class="dropdown-item {{request()->is(['data/user']) ? 'active' : ''}}"
