@@ -16,33 +16,34 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 class ContractController extends Controller
 {
     public function index(Request $request)
-{
-    // Start the query with a left join to the karyawan table
-    $query = Contract::query()
-        ->select('kontrak.*', 'karyawan.nama_lengkap') // Select fields from contracts and nama_lengkap from karyawan
-        ->leftJoin('karyawan', 'kontrak.nik', '=', 'karyawan.nik') // Use left join to include all contracts
-        ->orderBy('kontrak.id', 'asc');
+    {
+        // Start the query with a left join to the karyawan table
+        $query = Contract::query()
+            ->select('kontrak.*', 'karyawan.nama_lengkap') // Select fields from contracts and nama_lengkap from karyawan
+            ->leftJoin('karyawan', 'kontrak.nik', '=', 'karyawan.nik') // Use left join to include all contracts
+            ->orderBy('kontrak.id', 'asc');
 
-    // Add filter for no_kontrak if provided in request
-    if (!empty($request->no_kontrak)) {
-        $query->where('kontrak.no_kontrak', 'like', '%' . $request->no_kontrak . '%');
+        // Add filter for no_kontrak if provided in request
+        if (!empty($request->no_kontrak)) {
+            $query->where('kontrak.no_kontrak', 'like', '%' . $request->no_kontrak . '%');
+        }
+
+        if (!empty($request->nama_karyawan)) {
+            $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama_karyawan . '%');
+        }
+
+        // Paginate the results
+        $contract = $query->paginate(50);
+
+        return view('contract.index', compact('contract'));
     }
-
-    if (!empty($request->nama_karyawan)) {
-        $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama_karyawan . '%');
-    }
-
-    // Paginate the results
-    $contract = $query->paginate(50);
-
-    return view('contract.index', compact('contract'));
-}
 
 
 
     public function store(Request $request)
     {
-        $name = Auth::guard('user')->user()->name;
+        $user = Auth::guard('user')->user();
+        $name = $user->name;
         $nik = $request->nik;
         $no_kontrak = $request->no_kontrak;
         $start_date = $request->start_date;
@@ -53,6 +54,68 @@ class ContractController extends Controller
         $status = $request->status;
         $contract_file = $request->contract_file;
         $reasoning = "New Contract";
+        $periode_awal = $request->start_date; // Assuming `periode_awal` is the same as `start_date`
+
+        // Get the day of the week for `periode_awal`
+        $dayOfWeek = date('l', strtotime($periode_awal)); // Get the day in English
+
+        // Translate the day to Bahasa Indonesia
+        $daysInIndonesian = [
+            'Sunday' => 'Minggu',
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu'
+        ];
+        $hari_kerja = $daysInIndonesian[$dayOfWeek];
+
+        // If no_kontrak is empty, generate it
+        if (empty($no_kontrak)) {
+            // Get the last contract number (xxx)
+            $lastContract = DB::table('kontrak')
+                ->orderBy('id', 'desc')
+                ->value('no_kontrak');
+
+            // Extract the number (xxx) from the last contract
+            if ($lastContract) {
+                $parts = explode('/', $lastContract);
+                $lastNumber = (int)$parts[0];
+                $nextNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT); // Increment and pad with leading zeros
+            } else {
+                $nextNumber = '001'; // If no previous contract, start with 001
+            }
+
+            // Simplify the user's name to 3 letters
+            $nameParts = explode(' ', $name);
+            if (count($nameParts) == 1) {
+                // If there's only one name, take the first 3 letters
+                $simplifiedName = strtoupper(substr($nameParts[0], 0, 3));
+            } else {
+                // Otherwise, take the initials of up to 3 names
+                $simplifiedName = '';
+                foreach ($nameParts as $index => $part) {
+                    $simplifiedName .= strtoupper(substr($part, 0, 1));
+                    if ($index == 2) break; // Only take up to 3 initials
+                }
+            }
+
+            // Get the current month and year
+            $currentMonth = date('n');
+            $currentYear = date('Y');
+
+            // Convert the month to Roman numerals
+            $romanMonths = [
+                1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V',
+                6 => 'VI', 7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X',
+                11 => 'XI', 12 => 'XII'
+            ];
+            $romanMonth = $romanMonths[$currentMonth];
+
+            // Generate the no_kontrak value
+            $no_kontrak = "{$nextNumber}/SPK-CHL/{$simplifiedName}/{$romanMonth}/{$currentYear}";
+        }
 
         $data = [
             'nik' => $nik,
@@ -64,7 +127,8 @@ class ContractController extends Controller
             'salary' => $salary,
             'status' => $status,
             'contract_file' => $contract_file,
-            'created_by' => $name
+            'created_by' => $name,
+            'hari_kerja' => $hari_kerja // Add hari_kerja to the data
         ];
 
         // Insert data into kontrak table
@@ -85,6 +149,7 @@ class ContractController extends Controller
                 'changed_by' => $name,
                 'change_reason' => $reasoning,
                 'contract_file' => $contract_file,
+                'hari_kerja' => $hari_kerja // Add hari_kerja to kontrak_history
             ]);
 
             return Redirect::back()->with(['success' => 'Data Berhasil Disimpan']);
@@ -94,13 +159,14 @@ class ContractController extends Controller
     }
 
 
-    public function edit(Request $request){
+    public function edit(Request $request)
+    {
         $id = $request->id;
         $contract = DB::table('kontrak')
-        ->select('kontrak.*', 'karyawan.nama_lengkap') // Select fields from contracts and nama_lengkap from karyawan
-        ->join('karyawan', 'kontrak.nik', '=', 'karyawan.nik') // Join with karyawan table on nik
-        ->where('kontrak.id', $id)
-        ->first();
+            ->select('kontrak.*', 'karyawan.nama_lengkap') // Select fields from contracts and nama_lengkap from karyawan
+            ->join('karyawan', 'kontrak.nik', '=', 'karyawan.nik') // Join with karyawan table on nik
+            ->where('kontrak.id', $id)
+            ->first();
         return view('contract.edit', compact('contract'));
     }
 
@@ -116,7 +182,8 @@ class ContractController extends Controller
         return view('contract.view', compact('contract')); // Pass the correct variable name
     }
 
-    public function update($id, Request $request){
+    public function update($id, Request $request)
+    {
 
         $currentData = DB::table('kontrak')->where('id', $id)->first();
 
@@ -150,12 +217,12 @@ class ContractController extends Controller
             'contract_file' => $request->contract_file,
         ];
 
-        $update = DB::table('kontrak')->where('id',$id)->update($data);
+        $update = DB::table('kontrak')->where('id', $id)->update($data);
 
-        if($update){
-            return Redirect::back()->with(['success'=>'Data Berhasil Di Update']);
-        }else {
-            return Redirect::back()->with(['warning'=>'Data Gagal Di Update']);
+        if ($update) {
+            return Redirect::back()->with(['success' => 'Data Berhasil Di Update']);
+        } else {
+            return Redirect::back()->with(['warning' => 'Data Gagal Di Update']);
         }
     }
 
@@ -300,5 +367,4 @@ class ContractController extends Controller
     {
         return Excel::download(new KontrakExport, 'kontrak.xlsx');
     }
-
 }

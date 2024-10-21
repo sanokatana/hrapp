@@ -613,16 +613,6 @@
                     $('#nik').focus();
                 });
                 return false;
-            } else if (no_kontrak == "") {
-                Swal.fire({
-                    title: 'Warning!',
-                    text: 'Nomer Kontrak Harus Diisi',
-                    icon: 'warning',
-                    confirmButtonText: 'Ok'
-                }).then(() => {
-                    $('#no_kontrak').focus();
-                });
-                return false;
             } else if (contract_type == "") {
                 Swal.fire({
                     title: 'Warning!',
