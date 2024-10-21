@@ -543,16 +543,27 @@ class ApprovalController extends Controller
         // Fetch the employee data
         $karyawan = Karyawan::where('nip', $cuti->nip)->first();
 
-        $jabatan = DB::table('jabatan')->where('id', $karyawan->jabatan)->first();
-
         if (!$karyawan) {
             return response()->json(['error' => 'Employee not found'], 404);
         }
 
-        $tglForm = ($cuti->tgl_cuti == $cuti->tgl_cuti_akhir || empty($cuti->tgl_cuti_sampai))
-        ? DateHelper::formatIndonesianDate($cuti->tgl_cuti)
-        : DateHelper::formatIndonesianDate($cuti->tgl_cuti) . ' - ' . DateHelper::formatIndonesianDate($cuti->tgl_cuti_sampai);
+        // Fetch the employee's current jabatan (position)
+        $jabatan = DB::table('jabatan')->where('id', $karyawan->jabatan)->first();
 
+        // Finding nama_hr (either jabatan 47 or 25)
+        $hrKaryawan = Karyawan::where('jabatan', 47)->first()
+                        ?? Karyawan::where('jabatan', 25)->first();
+        $nama_hr = $hrKaryawan ? $hrKaryawan->nama_lengkap : '';
+
+        // Finding nama_atasan based on jabatan_atasan of current jabatan
+        $jabatanAtasan = DB::table('jabatan')->where('id', $jabatan->jabatan_atasan)->first();
+        $atasanKaryawan = Karyawan::where('jabatan', $jabatanAtasan->id)->first();
+        $nama_atasan = $atasanKaryawan ? $atasanKaryawan->nama_lengkap : '';
+
+        // Format the dates
+        $tglForm = ($cuti->tgl_cuti == $cuti->tgl_cuti_akhir || empty($cuti->tgl_cuti_sampai))
+            ? DateHelper::formatIndonesianDate($cuti->tgl_cuti)
+            : DateHelper::formatIndonesianDate($cuti->tgl_cuti) . ' - ' . DateHelper::formatIndonesianDate($cuti->tgl_cuti_sampai);
 
         $tglMulai = DateHelper::formatIndonesianDate($karyawan->tgl_masuk);
 
@@ -563,17 +574,18 @@ class ApprovalController extends Controller
             'mulai' => $tglMulai ?? '',
             'periode' => $cuti->periode ?? '',
             'tanggal' => $tglForm ?? '',
-            'sisa_cuti' => $cuti->sisa_cuti !== null ? (string) $cuti->sisa_cuti : '', // Convert null to ''
-            'jml_hari' => $cuti->jml_hari !== null ? (string) $cuti->jml_hari : '',   // Convert null to ''
-            'sisa_setelah' => $cuti->sisa_cuti_setelah !== null ? (string) $cuti->sisa_cuti_setelah : '', // Convert null to ''
+            'sisa_cuti' => $cuti->sisa_cuti !== null ? (string) $cuti->sisa_cuti : '',
+            'jml_hari' => $cuti->jml_hari !== null ? (string) $cuti->jml_hari : '',
+            'sisa_setelah' => $cuti->sisa_cuti_setelah !== null ? (string) $cuti->sisa_cuti_setelah : '',
             'kar_ganti' => $cuti->kar_ganti ?? '',
             'note' => $cuti->note ?? '',
-            // Add other fields as necessary
+            'nama_hr' => $nama_hr,
+            'nama_atasan' => $nama_atasan,
         ];
-
 
         return response()->json($data);
     }
+
 
     public function approveizin(Request $request)
     {
