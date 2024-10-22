@@ -439,6 +439,14 @@ use App\Helpers\DateHelper;
                 const tglField = form.getTextField('tgl_cuti'); // Replace with actual field name
                 tglField.setText(response.tanggal);
 
+                const karNama = form.getTextField('nama_kar'); // Replace with actual field name
+                karNama.setText(response.nama_lengkap);
+
+                const atasanNama = form.getTextField('nama_atasan'); // Replace with actual field name
+                atasanNama.setText(response.nama_atasan);
+
+                const hrNama = form.getTextField('nama_hr'); // Replace with actual field name
+                hrNama.setText(response.nama_hr);
 
                 const noteField = form.getTextField('note'); // Replace with actual field name for the first field
                 const noteFieldCont = form.getTextField('note1'); // Replace with actual field name for the continuation field

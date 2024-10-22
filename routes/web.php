@@ -18,6 +18,7 @@ use App\Http\Controllers\PengajuanCutiController;
 use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\RecruitmentController;
 use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\SkController;
 use App\Http\Controllers\TimeAttendanceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -310,6 +311,19 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::post('/kontrak/view', [ContractController::class, 'view']);
     Route::post('/kontrak/{id}/update', [ContractController::class, 'update']);
     Route::post('/kontrak/{id}/delete', [ContractController::class, 'delete']);
+    Route::post('/kontrak/peningkatanOrExtend', [ContractController::class, 'peningkatanOrExtend']);
+
+    // SK
+
+    Route::get('/sk', [SkController::class, 'index']);
+    Route::get('/sk/exportData', [SkController::class, 'export']);
+    Route::get('/sk/export', [SkController::class, 'downloadTemplateSk']);
+    Route::post('/sk/uploadSk', [SkController::class, 'uploadSk']);
+    Route::post('/sk/store', [SkController::class, 'store']);
+    Route::post('/sk/edit', [SkController::class, 'edit']);
+    Route::post('/sk/view', [SkController::class, 'view']);
+    Route::post('/sk/{id}/update', [SkController::class, 'update']);
+    Route::post('/sk/{id}/delete', [SkController::class, 'delete']);
 
 
     //Recruitment - Candidate

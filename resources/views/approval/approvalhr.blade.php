@@ -578,6 +578,21 @@ use App\Helpers\DateHelper;
                 const departmentField = form.getTextField('bagian'); // Replace with actual field name
                 departmentField.setText(response.bagian);
 
+                const ttdKar = form.getTextField('ttd_kar'); // Replace with actual field name
+                ttdKar.setText(response.nama_lengkap);
+
+                const ttdAtasan = form.getTextField('ttd_atasan'); // Replace with actual field name
+                ttdAtasan.setText(response.nama_atasan);
+
+                const ttdHR = form.getTextField('ttd_hr'); // Replace with actual field name
+                ttdHR.setText(response.nama_hr);
+
+                const tglAtasan = form.getTextField('tgl_atasan'); // Replace with actual field name
+                tglAtasan.setText(response.tgl_approved);
+
+                const tglHR = form.getTextField('tgl_hr'); // Replace with actual field name
+                tglHR.setText(response.tgl_approved_hr);
+
                 const tglField = form.getTextField('tanggal'); // Replace with actual field name
                 tglField.setText(response.tanggal);
 

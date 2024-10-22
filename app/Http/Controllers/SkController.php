@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\SK;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 
 class SkController extends Controller
 {
@@ -25,8 +28,138 @@ class SkController extends Controller
         }
 
         // Paginate the results
-        $contract = $query->paginate(50);
+        $sk = $query->paginate(50)->appends($request->query());
 
-        return view('contract.index', compact('contract'));
+        return view('sk.index', compact('sk'));
+    }
+
+    public function store(Request $request)
+    {
+        $user = Auth::guard('user')->user();
+        $name = $user->name;
+        $nik = $request->nik;
+        $nama_lengkap = $request->nama_lengkap;
+        $no_sk = $request->no_sk;
+        $tgl_sk = $request->tgl_sk;
+        $nama_pt = $request->nama_pt;
+        $masa_probation = $request->masa_probation;
+        $diketahui = $request->diketahui;
+        $status = $request->status;
+        $file_sk = $request->file_sk;
+        $nama_pt = DB::table('karyawan')
+            ->where('nik', $nik)
+            ->value('nama_pt');
+
+        // If no_kontrak is empty, generate it
+        if (empty($no_sk)) {
+            // Get the last contract number (xxx)
+            $lastContract = DB::table('tb_sk')
+                ->orderBy('id', 'desc')
+                ->value('no_sk');
+
+            // Extract the number (xxx) from the last contract
+            if ($lastContract) {
+                $parts = explode('/', $lastContract);
+                $lastNumber = (int)$parts[0];
+                $nextNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT); // Increment and pad with leading zeros
+            } else {
+                $nextNumber = '001'; // If no previous contract, start with 001
+            }
+
+            // Get the current month and year
+            $currentMonth = date('n');
+            $currentYear = date('Y');
+
+            // Convert the month to Roman numerals
+            $romanMonths = [
+                1 => 'I',
+                2 => 'II',
+                3 => 'III',
+                4 => 'IV',
+                5 => 'V',
+                6 => 'VI',
+                7 => 'VII',
+                8 => 'VIII',
+                9 => 'IX',
+                10 => 'X',
+                11 => 'XI',
+                12 => 'XII'
+            ];
+            $romanMonth = $romanMonths[$currentMonth];
+
+            // Generate the no_kontrak value
+            $no_sk = "{$nextNumber}/{$nama_pt}-HRD/SK.Pgt/{$romanMonth}/{$currentYear}";
+        }
+
+        $data = [
+            'nik' => $nik,
+            'no_sk' => $no_sk,
+            'tgl_sk' => $tgl_sk,
+            'nama_pt' => $nama_pt,
+            'nama_karyawan' => $nama_lengkap,
+            'masa_probation' => $masa_probation,
+            'diketahui' => $diketahui,
+            'status' => $status,
+            'file_sk' => $file_sk,
+            'created_by' => $name,
+        ];
+
+        // Insert data into kontrak table
+        $simpan = DB::table('tb_sk')->insert($data);
+
+        if ($simpan) {
+            return Redirect::back()->with(['success' => 'Data Berhasil Disimpan']);
+        } else {
+            return Redirect::back()->with(['warning' => 'Data Gagal Disimpan']);
+        }
+    }
+
+    public function edit(Request $request)
+    {
+        $id = $request->id;
+        $sk = DB::table('tb_sk')
+            ->select('tb_sk.*', 'karyawan.nama_lengkap') // Select fields from contracts and nama_lengkap from karyawan
+            ->join('karyawan', 'tb_sk.nik', '=', 'karyawan.nik') // Join with karyawan table on nik
+            ->where('tb_sk.id', $id)
+            ->first();
+        return view('sk.edit', compact('sk'));
+    }
+
+    public function update($id, Request $request)
+    {
+        $user = Auth::guard('user')->user();
+
+        $name = $user->name;
+
+        $data = [
+            'no_sk' => $request->no_sk,
+            'tgl_sk' => $request->tgl_sk,
+            'nama_pt' => $request->nama_pt,
+            'masa_probation' => $request->masa_probation,
+            'diketahui' => $request->diketahui,
+            'status' => $request->status,
+            'file_sk' => $request->file_sk,
+            'updated_by' => $name,
+        ];
+
+        $update = DB::table('tb_sk')->where('id', $id)->update($data);
+
+        if ($update) {
+            return Redirect::back()->with(['success' => 'Data Berhasil Di Update']);
+        } else {
+            return Redirect::back()->with(['warning' => 'Data Gagal Di Update']);
+        }
+    }
+
+    public function delete($id)
+    {
+        // Step 3: Delete the record from 'kontrak' table after inserting the history
+        $delete = DB::table('kontrak')->where('id', $id)->delete();
+
+        if ($delete) {
+            return Redirect::back()->with(['success' => 'Data Berhasil Di Hapus']);
+        } else {
+            return Redirect::back()->with(['warning' => 'Data Gagal Di Hapus']);
+        }
     }
 }

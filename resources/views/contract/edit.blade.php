@@ -151,6 +151,7 @@
                 <option {{ $contract->status == 'Extended' ? 'selected' : '' }} value="Extended">Extended</option>
                 <option {{ $contract->status == 'Terminated' ? 'selected' : '' }} value="Terminated">Terminated</option>
                 <option {{ $contract->status == 'Expired' ? 'selected' : '' }} value="Expired">Expired</option>
+                <option {{ $contract->status == 'Non-Active' ? 'selected' : '' }} value="Non-Active">Non-Active</option>
             </select>
         </div>
         <div class="col-6">

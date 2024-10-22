@@ -61,7 +61,7 @@ class ApprovalController extends Controller
             $query->where('status_approved_hrd', 0);
         }
 
-        $izinapproval = $query->paginate(10);
+        $izinapproval = $query->paginate(10)->appends($request->query());
         $izinapproval->appends($request->all());
 
         return view('approval.approvalhr', compact('izinapproval'));
@@ -510,6 +510,18 @@ class ApprovalController extends Controller
             return response()->json(['error' => 'Employee not found'], 404);
         }
 
+        $jabatan = DB::table('jabatan')->where('id', $karyawan->jabatan)->first();
+
+        // Finding nama_hr (either jabatan 47 or 25)
+        $hrKaryawan = Karyawan::where('jabatan', 47)->first()
+                        ?? Karyawan::where('jabatan', 25)->first();
+        $nama_hr = $hrKaryawan ? $hrKaryawan->nama_lengkap : '';
+
+        // Finding nama_atasan based on jabatan_atasan of current jabatan
+        $jabatanAtasan = DB::table('jabatan')->where('id', $jabatan->jabatan_atasan)->first();
+        $atasanKaryawan = Karyawan::where('jabatan', $jabatanAtasan->id)->first();
+        $nama_atasan = $atasanKaryawan ? $atasanKaryawan->nama_lengkap : '';
+
         $tglForm = ($izin->tgl_izin == $izin->tgl_izin_akhir || empty($izin->tgl_izin_akhir))
             ? DateHelper::formatIndonesianDate($izin->tgl_izin)
             : DateHelper::formatIndonesianDate($izin->tgl_izin) . ' - ' . DateHelper::formatIndonesianDate($izin->tgl_izin_akhir);
@@ -523,6 +535,10 @@ class ApprovalController extends Controller
             'status' => $izin->status,
             'keterangan' => $izin->keterangan,
             'keputusan' => $izin->keputusan,
+            'tgl_approved' => $izin->tgl_status_approved,
+            'tgl_approved_hr' => $izin->tgl_status_approved_hrd,
+            'nama_atasan' => $nama_atasan,
+            'nama_hr' => $nama_hr,
             // Add other fields as necessary
         ];
 

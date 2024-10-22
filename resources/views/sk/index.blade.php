@@ -9,7 +9,7 @@
                     Employee
                 </div>
                 <h2 class="page-title">
-                    Surat Kepututsan PKWTT
+                    Surat Kepututsan
                 </h2>
                 <br>
             </div>
@@ -69,12 +69,12 @@
                                     <div class="row">
                                         <div class="col-5">
                                             <div class="form-group">
-                                                <input type="text" name="nomer_sk" id="nomer_kontrak" class="form-control" placeholder="Nomer Kontrak" value="{{ Request('nomer_kontrak')}}">
+                                                <input type="text" name="sk_no" id="sk_no" class="form-control" placeholder="Nomer Kontrak" value="{{ Request('nomer_kontrak')}}">
                                             </div>
                                         </div>
                                         <div class="col-5">
                                             <div class="form-group">
-                                                <input type="text" name="nama_karyawan" id="nama_karyawan" class="form-control" placeholder="Nama Karyawan" value="{{ Request('nama_karyawan')}}">
+                                                <input type="text" name="nama_kar" id="nama_kar" class="form-control" placeholder="Nama Karyawan" value="{{ Request('nama_karyawan')}}">
                                             </div>
                                         </div>
                                         <div class="col-2">
@@ -99,10 +99,12 @@
                                     <thead>
                                         <tr style="text-align: center;">
                                             <th>No</th>
-                                            <th>No SK</th>
                                             <th>Nama Karyawan</th>
-                                            <th>Tgl Peningkatan</th>
-                                            <th>Position</th>
+                                            <th>No SK</th>
+                                            <th>Tgl SK</th>
+                                            <th>Nama PT</th>
+                                            <th>Masa Probation</th>
+                                            <th>Diketahui</th>
                                             <th>Status</th>
                                             <th>Aksi</th>
                                         </tr>
@@ -110,12 +112,11 @@
                                     <tbody>
                                         @foreach ($sk as $d)
                                         <tr style="text-align: center;">
-                                            <td>{{ $loop->iteration + $contract->firstItem() -1 }}</td>
+                                            <td>{{ $loop->iteration + $sk->firstItem() -1 }}</td>
+                                            <td>{{ $d->nama_karyawan}}</td>
                                             <td>{{ $d->no_sk}}</td>
                                             <td>{{ $d->tgl_sk}}</td>
-                                            <td>{{ $d->nama_karyawan}}</td>
-                                            <td>{{ $d->tgl_mulai_kerja}}</td>
-                                            <td>{{ $d->jabatan}}</td>
+                                            <td>{{ $d->nama_pt}}</td>
                                             <td>{{ $d->masa_probation}}</td>
                                             <td>{{ $d->diketahui}}</td>
                                             <td>{{ $d->status}}</td>
@@ -167,7 +168,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="/kontrak/store" method="POST" id="formSK">
+                <form action="/sk/store" method="POST" id="formSK">
                     @csrf
                     <div class="row">
                         <div class="col-6">
@@ -183,7 +184,7 @@
                                         <path d="M7 16l10 0" />
                                     </svg>
                                 </span>
-                                <input type="text" value="" class="form-control" name="nik" id="nik" placeholder="10101" autocomplete="off">
+                                <input type="text" value="" class="form-control" name="nik" id="nik" placeholder="0xx-xxx" autocomplete="off">
                             </div>
                         </div>
                         <div class="col-6">
@@ -287,7 +288,7 @@
                                 <option value="">Choose</option>
                                 <option value="Active">Active</option>
                                 <option value="Terminated">Terminated</option>
-                                <option value="Non-Active">Active</option>
+                                <option value="Non-Active">Non-Active</option>
                             </select>
                         </div>
                         <div class="col-6">
@@ -328,11 +329,11 @@
     </div>
 </div>
 <!-- Modal Edit -->
-<div class="modal modal-blur fade" id="modal-editContract" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal modal-blur fade" id="modal-editSK" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit Contract</h5>
+                <h5 class="modal-title">Edit SK</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="loadedEdit">
@@ -377,7 +378,6 @@
 @push('myscript')
 <script>
     $(function() {
-
         $('#btnUploadCSV').click(function() {
             $('#modal-uploadContract').modal("show");
         });
@@ -386,7 +386,7 @@
             var id = $(this).attr('id');
             $.ajax({
                 type: 'POST',
-                url: '/kontrak/edit',
+                url: '/sk/edit',
                 cache: false,
                 data: {
                     _token: "{{ csrf_token() }}",
@@ -398,7 +398,7 @@
                     initializeEventListeners(); // Reinitialize after content is loaded
                 }
             });
-            $('#modal-editContract').modal("show");
+            $('#modal-editSK').modal("show");
         });
 
         function initializeEventListeners() {
@@ -408,11 +408,6 @@
                 // Handle form submission
                 $('#formEditContract').on('submit', function(event) {
                     var reasoning = $('#reasoning').val().trim();
-                    // var salaryInput = $('#salaryedit');
-                    // var salary = salaryInput.val().replace(/[^\d]/g, ''); // Remove all non-digit characters
-
-                    let salaryField = document.getElementById('salaryedit');
-                    salaryField.value = salaryField.value.replace(/[^\d]/g, '');
 
                     // Check if reasoning is empty
                     if (reasoning === "") {
@@ -428,43 +423,10 @@
                     }
                 });
 
-                $('#salaryedit').on('input', function(e) {
-                    let value = e.target.value.replace(/[^\d]/g, ''); // Remove all non-digit characters
-
-                    if (value) {
-                        e.target.value = 'Rp ' + parseInt(value, 10).toLocaleString('id-ID');
-                    } else {
-                        e.target.value = ''; // Clear the input if there's no value
-                    }
-                });
-
-                // Initialize the input field correctly
-                $(document).ready(function() {
-                    let salaryInput = $('#salary');
-                    let initialValue = salaryInput.val().replace(/[^\d]/g, '');
-                    if (initialValue) {
-                        salaryInput.val('Rp ' + parseInt(initialValue, 10).toLocaleString('id-ID'));
-                    }
-                });
             } else {
                 console.log('Form Contract not found'); // Debugging
             }
         }
-
-
-
-        document.getElementById('salary').addEventListener('input', function(e) {
-            // Remove any non-digit characters and format the number as currency
-            let value = e.target.value.replace(/[^\d]/g, ''); // Remove all non-digit characters
-
-            // Convert the cleaned-up string back to an integer
-            if (value) {
-                // Format as currency using Indonesian Rupiah style
-                e.target.value = 'Rp ' + parseInt(value, 10).toLocaleString('id-ID');
-            } else {
-                e.target.value = ''; // Clear the input if there's no value
-            }
-        });
 
         $('#nik').on('blur', function() {
             var nik = $(this).val();
@@ -559,13 +521,8 @@
         });
 
         $('#formSK').submit(function() {
-            let salaryField = document.getElementById('salary');
-            salaryField.value = salaryField.value.replace(/[^\d]/g, '');
             var nik = $('#nik').val();
-            var no_kontrak = $('#no_kontrak').val();
-            var contract_type = $('#contract_type').val();
-            var start_date = $('#start_date').val();
-            var reasoning = $('#reasoning').val();
+            var tgl_sk = $('#tgl_sk').val();
             if (nik == "") {
                 Swal.fire({
                     title: 'Warning!',
@@ -576,34 +533,14 @@
                     $('#nik').focus();
                 });
                 return false;
-            } else if (contract_type == "") {
+            } else if (tgl_sk == "") {
                 Swal.fire({
                     title: 'Warning!',
-                    text: 'Contract Type Harus Diisi',
+                    text: 'Tgl SK Harus Diisi',
                     icon: 'warning',
                     confirmButtonText: 'Ok'
                 }).then(() => {
-                    $('#contract_type').focus();
-                });
-                return false;
-            } else if (start_date == "") {
-                Swal.fire({
-                    title: 'Warning!',
-                    text: 'Start Date Harus Diisi',
-                    icon: 'warning',
-                    confirmButtonText: 'Ok'
-                }).then(() => {
-                    $('#start_date').focus();
-                });
-                return false;
-            } else if (reasoning == "") {
-                Swal.fire({
-                    title: 'Warning!',
-                    text: 'Reasoning Harus Diisi',
-                    icon: 'warning',
-                    confirmButtonText: 'Ok'
-                }).then(() => {
-                    $('#reasoning').focus();
+                    $('#tgl_sk').focus();
                 });
                 return false;
             }

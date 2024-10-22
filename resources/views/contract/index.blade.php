@@ -68,17 +68,28 @@
                             <div class="col-12">
                                 <form action="/kontrak" method="GET">
                                     <div class="row">
-                                        <div class="col-5">
+                                        <div class="col-3">
                                             <div class="form-group">
                                                 <input type="text" name="nomer_kontrak" id="nomer_kontrak" class="form-control" placeholder="Nomer Kontrak" value="{{ Request('nomer_kontrak')}}">
                                             </div>
                                         </div>
-                                        <div class="col-5">
+                                        <div class="col-3">
                                             <div class="form-group">
                                                 <input type="text" name="nama_karyawan" id="nama_karyawan" class="form-control" placeholder="Nama Karyawan" value="{{ Request('nama_karyawan')}}">
                                             </div>
                                         </div>
-                                        <div class="col-2">
+                                        <div class="col-3 col-lg-3">
+                                            <div class="form-group mb-3">
+                                                <select name="status_kontrak" id="status_kontrak" class="form-select">
+                                                    <option value="Pilih" {{ request('status_kontrak') == 'Pilih' ? 'selected' : '' }}>Status</option>
+                                                    <option value="Active" {{ request('status_kontrak') == 'Active' ? 'selected' : '' }}>Active</option>
+                                                    <option value="Terminated" {{ request('status_kontrak') == 'Terminated' ? 'selected' : '' }}>Terminated</option>
+                                                    <option value="Expired" {{ request('status_kontrak') == 'Expired' ? 'selected' : '' }}>Expired</option>
+                                                    <option value="Non-Active" {{ request('status_kontrak') == 'Non-Active' ? 'selected' : '' }}>Non-Active</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
                                             <div class="form-group">
                                                 <button class="btn btn-primary w-100">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-search">
@@ -124,33 +135,39 @@
                                             <td>
                                                 <div class="form-group">
                                                     <div class="mb-1">
-                                                    <a href="#" class="edit btn btn-info btn-sm" id="{{ $d->id }}">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-edit">
-                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                            <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                                                            <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                                                            <path d="M16 5l3 3" />
-                                                        </svg>
-                                                    </a>
+                                                        <a href="#" class="edit btn btn-info btn-sm" id="{{ $d->id }}">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-edit">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+                                                                <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                                                                <path d="M16 5l3 3" />
+                                                            </svg>
+                                                        </a>
                                                     </div>
                                                     <div class="mb-1">
-                                                            <a href="#" class="btn btn-success btn-sm view"
-                                                                id="{{ $d->id }}">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                                                    height="24" viewBox="0 0 18 24" fill="none"
-                                                                    stroke="currentColor" stroke-width="2"
-                                                                    stroke-linecap="round" stroke-linejoin="round"
-                                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-eye">
-                                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                                                                    <path
-                                                                        d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
-                                                                </svg>
-                                                            </a>
-                                                        </div>
+                                                        <a href="#" class="btn btn-success btn-sm view"
+                                                            id="{{ $d->id }}">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                                                height="24" viewBox="0 0 18 24" fill="none"
+                                                                stroke="currentColor" stroke-width="2"
+                                                                stroke-linecap="round" stroke-linejoin="round"
+                                                                class="icon icon-tabler icons-tabler-outline icon-tabler-eye">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                                                                <path
+                                                                    d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                                                            </svg>
+                                                        </a>
+                                                    </div>
+                                                    <div class="mb-1">
+                                                        <a href="#" class="btn btn-primary btn-sm peningkatan"
+                                                            id="{{ $d->id }}">
+                                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-rotate-rectangle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.09 4.01l.496 -.495a2 2 0 0 1 2.828 0l7.071 7.07a2 2 0 0 1 0 2.83l-7.07 7.07a2 2 0 0 1 -2.83 0l-7.07 -7.07a2 2 0 0 1 0 -2.83l3.535 -3.535h-3.988" /><path d="M7.05 11.038v-3.988" /></svg>
+                                                        </a>
+                                                    </div>
                                                     <form action="/kontrak/{{$d->id}}/delete" method="POST">
                                                         @csrf
-                                                        <a class="btn btn-danger btn-sm delete-confirm" >
+                                                        <a class="btn btn-danger btn-sm delete-confirm">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
                                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                                 <path d="M4 7l16 0" />
@@ -187,7 +204,7 @@
                 <form action="/kontrak/store" method="POST" id="formContract">
                     @csrf
                     <div class="row">
-                    <div class="col-6">
+                        <div class="col-6">
                             <div class="form-label">NIK</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
@@ -208,7 +225,7 @@
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-check">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                         <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
                                         <path d="M6 21v-2a4 4 0 0 1 4 -4h4" />
                                         <path d="M15 19l2 2l4 -4" />
@@ -226,7 +243,11 @@
                             <div class="form-label">No Kontrak</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-file"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-file">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                        <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                                    </svg>
                                 </span>
                                 <input type="text" value="" class="form-control" name="no_kontrak" id="no_kontrak" placeholder="No Kontrak">
                             </div>
@@ -279,7 +300,12 @@
                             <div class="form-label">Position</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-versions"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 5m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /><path d="M7 7l0 10" /><path d="M4 8l0 8" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-versions">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M10 5m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" />
+                                        <path d="M7 7l0 10" />
+                                        <path d="M4 8l0 8" />
+                                    </svg>
                                 </span>
                                 <input type="text" value="" class="form-control" name="position" id="position" placeholder="Position">
                             </div>
@@ -288,7 +314,13 @@
                             <div class="form-label">Salary</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-cash-banknote"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M3 6m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" /><path d="M18 12l.01 0" /><path d="M6 12l.01 0" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-cash-banknote">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                                        <path d="M3 6m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
+                                        <path d="M18 12l.01 0" />
+                                        <path d="M6 12l.01 0" />
+                                    </svg>
                                 </span>
                                 <input type="text" value="" class="form-control" name="salary" id="salary" placeholder="Salary">
                             </div>
@@ -303,13 +335,20 @@
                                 <option value="Extended">Extended</option>
                                 <option value="Terminated">Terminated</option>
                                 <option value="Expired">Expired</option>
+                                <option value="Non-Active">Non-Active</option>
                             </select>
                         </div>
                         <div class="col-6">
                             <div class="form-label">Contract File</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-file-info"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M11 14h1v4h1" /><path d="M12 11h.01" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-file-info">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                        <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                                        <path d="M11 14h1v4h1" />
+                                        <path d="M12 11h.01" />
+                                    </svg>
                                 </span>
                                 <input type="text" value="" class="form-control" name="contract_file" id="contract_file" placeholder="File">
                             </div>
@@ -396,6 +435,77 @@
         </div>
     </div>
 </div>
+
+<div class="modal modal-blur fade" id="modal-skContract" tabindex="-1" role="dialog" aria-labelledby="modal-skContractLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-skContractLabel">Contract Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/kontrak/peningkatanOrExtend" method="POST" id="formKontrak" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="id" id="contractId">
+
+                    <!-- Action Selection -->
+                    <div class="form-group">
+                        <label for="actionType">Choose Action</label>
+                        <select class="form-control" id="actionType" name="actionType">
+                            <option value="">Pilih</option>
+                            <option value="extend">Extend Contract</option>
+                            <option value="peningkatan">Peningkatan (Tetap)</option>
+                        </select>
+                    </div>
+
+                    <!-- Extend Contract Fields -->
+                    <div id="extendFields" style="display:none;">
+                        <div class="form-group mt-3">
+                            <label for="new_start_date">New Start Date</label>
+                            <input type="date" class="form-control" id="new_start_date" name="new_start_date">
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="new_end_date">New End Date</label>
+                            <input type="date" class="form-control" id="new_end_date" name="new_end_date">
+                        </div>
+                    </div>
+
+                    <!-- Peningkatan Fields -->
+                    <div id="peningkatanFields" style="display:none;">
+                        <div class="form-group mt-3">
+                            <label for="tgl_sk">Tanggal SK</label>
+                            <input type="date" class="form-control" id="tgl_sk" name="tgl_sk">
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="masa_probation">Masa Probation</label>
+                            <input type="number" class="form-control" id="masa_probation" name="masa_probation">
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="diketahui">Diketahui Oleh</label>
+                            <input type="text" class="form-control" id="diketahui" name="diketahui">
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <button class="btn btn-primary w-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-refresh">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+                                        <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+                                    </svg>
+                                    Simpan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('myscript')
@@ -477,7 +587,7 @@
 
 
 
-        document.getElementById('salary').addEventListener('input', function (e) {
+        document.getElementById('salary').addEventListener('input', function(e) {
             // Remove any non-digit characters and format the number as currency
             let value = e.target.value.replace(/[^\d]/g, ''); // Remove all non-digit characters
 
@@ -490,70 +600,74 @@
             }
         });
 
-        $('#nik').on('blur', function () {
-                var nik = $(this).val();
-                if (nik !== "") {
-                    $.ajax({
-                        url: '/cuti/getEmployeeByNik',
-                        type: 'GET',
-                        data: { nik: nik },
-                        success: function (response) {
-                            if (response) {
-                                $('#nama_lengkap').val(response.nama_lengkap);
-                            } else {
-                                $('#nama_lengkap').val('');
-                            }
+        $('#nik').on('blur', function() {
+            var nik = $(this).val();
+            if (nik !== "") {
+                $.ajax({
+                    url: '/cuti/getEmployeeByNik',
+                    type: 'GET',
+                    data: {
+                        nik: nik
+                    },
+                    success: function(response) {
+                        if (response) {
+                            $('#nama_lengkap').val(response.nama_lengkap);
+                        } else {
+                            $('#nama_lengkap').val('');
                         }
-                    });
-                }
-            });
+                    }
+                });
+            }
+        });
 
-            $('#nama_lengkap').on('input', function () {
-                var nama_lengkap = $(this).val().trim();
+        $('#nama_lengkap').on('input', function() {
+            var nama_lengkap = $(this).val().trim();
 
-                if (nama_lengkap.length >= 2) { // Adjust minimum length as needed
-                    $.ajax({
-                        url: '/cuti/getEmployeeName',
-                        type: 'GET',
-                        data: { nama_lengkap: nama_lengkap },
-                        success: function (response) {
-                            var dropdownMenu = $('#employeeList');
-                            dropdownMenu.empty();
+            if (nama_lengkap.length >= 2) { // Adjust minimum length as needed
+                $.ajax({
+                    url: '/cuti/getEmployeeName',
+                    type: 'GET',
+                    data: {
+                        nama_lengkap: nama_lengkap
+                    },
+                    success: function(response) {
+                        var dropdownMenu = $('#employeeList');
+                        dropdownMenu.empty();
 
-                            if (response.length > 0) {
-                                response.forEach(function (employee) {
-                                    dropdownMenu.append('<a class="dropdown-item" href="#" data-nik="' + employee.nik + '">' + employee.nama_lengkap + '</a>');
-                                });
+                        if (response.length > 0) {
+                            response.forEach(function(employee) {
+                                dropdownMenu.append('<a class="dropdown-item" href="#" data-nik="' + employee.nik + '">' + employee.nama_lengkap + '</a>');
+                            });
 
-                                dropdownMenu.show();
-                            } else {
-                                dropdownMenu.hide();
-                            }
+                            dropdownMenu.show();
+                        } else {
+                            dropdownMenu.hide();
                         }
-                    });
-                } else {
-                    $('#employeeList').hide();
-                }
-            });
-
-            // Handle dropdown item click
-            $(document).on('click', '#employeeList .dropdown-item', function (e) {
-                e.preventDefault();
-                var selectedName = $(this).text();
-                var selectedNIK = $(this).data('nik');
-
-                $('#nama_lengkap').val(selectedName);
-                $('#nik').val(selectedNIK); // Assuming you want to set employee ID to another field like 'nik'
-
+                    }
+                });
+            } else {
                 $('#employeeList').hide();
-            });
+            }
+        });
 
-            // Hide dropdown on click outside
-            $(document).click(function (e) {
-                if (!$(e.target).closest('#employeeList').length && !$(e.target).closest('#nama_lengkap').length) {
-                    $('#employeeList').hide();
-                }
-            });
+        // Handle dropdown item click
+        $(document).on('click', '#employeeList .dropdown-item', function(e) {
+            e.preventDefault();
+            var selectedName = $(this).text();
+            var selectedNIK = $(this).data('nik');
+
+            $('#nama_lengkap').val(selectedName);
+            $('#nik').val(selectedNIK); // Assuming you want to set employee ID to another field like 'nik'
+
+            $('#employeeList').hide();
+        });
+
+        // Hide dropdown on click outside
+        $(document).click(function(e) {
+            if (!$(e.target).closest('#employeeList').length && !$(e.target).closest('#nama_lengkap').length) {
+                $('#employeeList').hide();
+            }
+        });
 
 
         $('#btnAddContract').click(function() {
@@ -577,21 +691,38 @@
             $('#modal-viewContract').modal("show");
         });
 
-        $(".delete-confirm").click(function(e){
+        $('#actionType').change(function() {
+            var actionType = $(this).val();
+            if (actionType == 'extend') {
+                $('#extendFields').show();
+                $('#peningkatanFields').hide();
+            } else if (actionType == 'peningkatan') {
+                $('#extendFields').hide();
+                $('#peningkatanFields').show();
+            }
+        });
+
+        $('.peningkatan').click(function() {
+            var id = $(this).attr('id');
+            $('#contractId').val(id);
+            $('#modal-skContract').modal("show");
+        });
+
+        $(".delete-confirm").click(function(e) {
             var form = $(this).closest('form');
             e.preventDefault();
             Swal.fire({
-            title: "Apakah Yakin?",
-            text: "Kontrak Akan Ke Delete!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Delete"
+                title: "Apakah Yakin?",
+                text: "Kontrak Akan Ke Delete!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Delete"
             }).then((result) => {
-            if (result.isConfirmed) {
-                form.submit();
-            }
+                if (result.isConfirmed) {
+                    form.submit();
+                }
             });
         });
 

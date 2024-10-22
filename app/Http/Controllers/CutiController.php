@@ -53,7 +53,7 @@ class CutiController extends Controller
         }
 
         // Paginate the results
-        $cuti = $query->paginate(50);
+        $cuti = $query->paginate(50)->appends($request->query());
         $department = DB::table('department')->get();
 
         // Return the view with the results

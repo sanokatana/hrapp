@@ -11,6 +11,20 @@ class Contract extends Model
 
     protected $table = 'kontrak';
 
+    protected $fillable = [
+        'nik',
+        'no_kontrak',
+        'hari_kerja',
+        'start_date',
+        'end_date',
+        'contract_type',
+        'position',
+        'salary',
+        'contract_file',
+        'created_by',
+        'status',
+    ];
+
     // Disable automatic timestamps
     public $timestamps = false;
 }
