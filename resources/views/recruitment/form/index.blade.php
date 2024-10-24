@@ -1038,22 +1038,22 @@
         // Handle spouse visibility and required attribute
         if (status.startsWith('K')) {
             document.getElementById('row_istri').style.display = 'table-row'; // show spouse
-            shouldShowTable = true;
+            shouldShowTable = false;
 
             // Make spouse fields required
             document.querySelectorAll('#row_istri input').forEach(function(input) {
-                input.required = true;
+                input.required = false;
             });
         }
 
         // Handle anak1 visibility and required attribute
         if (status.includes('1')) {
             document.getElementById('row_anak1').style.display = 'table-row'; // show first child
-            shouldShowTable = true;
+            shouldShowTable = false;
 
             // Make anak1 fields required
             document.querySelectorAll('#row_anak1 input').forEach(function(input) {
-                input.required = true;
+                input.required = false;
             });
         }
 
@@ -1061,11 +1061,11 @@
         if (status.includes('2')) {
             document.getElementById('row_anak1').style.display = 'table-row'; // ensure first child is shown
             document.getElementById('row_anak2').style.display = 'table-row'; // show second child
-            shouldShowTable = true;
+            shouldShowTable = false;
 
             // Make anak1 and anak2 fields required
             document.querySelectorAll('#row_anak1 input, #row_anak2 input').forEach(function(input) {
-                input.required = true;
+                input.required = false;
             });
         }
 
@@ -1074,11 +1074,11 @@
             document.getElementById('row_anak1').style.display = 'table-row'; // ensure first child is shown
             document.getElementById('row_anak2').style.display = 'table-row'; // ensure second child is shown
             document.getElementById('row_anak3').style.display = 'table-row'; // show third child
-            shouldShowTable = true;
+            shouldShowTable = false;
 
             // Make anak1, anak2, and anak3 fields required
             document.querySelectorAll('#row_anak1 input, #row_anak2 input, #row_anak3 input').forEach(function(input) {
-                input.required = true;
+                input.required = false;
             });
         }
 

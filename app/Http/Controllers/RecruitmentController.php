@@ -50,12 +50,12 @@ class RecruitmentController extends Controller
         $current_stage_id = $request->current_stage_id;
         $status = $request->status;
         $password = $request->password;
-        $email_user = Auth::guard('users')->user()->email;
+        $email_user = Auth::guard('user')->user()->email;
 
         // Fetch the job opening name using the job_opening_id
         $job_opening = DB::table('job_openings')
             ->where('id', $job_opening_id)
-            ->value('name');  // Assuming the name column holds the job title
+            ->value('title');  // Assuming the name column holds the job title
 
         $data = [
             'nama_candidate' => $nama_candidate,

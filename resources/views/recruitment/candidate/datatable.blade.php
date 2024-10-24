@@ -138,6 +138,13 @@
                                                             </svg>
                                                         </a>
                                                     </div>
+                                                    <!-- To Karyawan -->
+                                                    <div class="mb-1">
+                                                        <a href="#" class="btn btn-primary btn-sm peningkatan"
+                                                            id="{{ $d->id }}">
+                                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-rotate-rectangle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.09 4.01l.496 -.495a2 2 0 0 1 2.828 0l7.071 7.07a2 2 0 0 1 0 2.83l-7.07 7.07a2 2 0 0 1 -2.83 0l-7.07 -7.07a2 2 0 0 1 0 -2.83l3.535 -3.535h-3.988" /><path d="M7.05 11.038v-3.988" /></svg>
+                                                        </a>
+                                                    </div>
                                                     <!-- Delete Button -->
                                                     <div>
                                                         <form action="/recruitment/data/{{$d->id}}/delete" method="POST" style="display: inline;">
@@ -211,6 +218,47 @@
         </div>
     </div>
 </div>
+
+<div class="modal modal-blur fade" id="modal-skContract" tabindex="-1" role="dialog" aria-labelledby="modal-skContractLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-skContractLabel">Contract Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/kontrak/peningkatanOrExtend" method="POST" id="formKontrak" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="id" id="dataCandidate">
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-label">NIK</div>
+                            <div class="input-icon mb-3">
+                                <input type="text" value="" class="form-control" name="nik" id="nik" placeholder="Username">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <button class="btn btn-primary w-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-refresh">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+                                        <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+                                    </svg>
+                                    Simpan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('myscript')
@@ -232,6 +280,11 @@
         });
     });
 
+    $('.peningkatan').click(function() {
+            var id = $(this).attr('id');
+            $('#dataCandidate').val(id);
+            $('#modal-skContract').modal("show");
+        });
 
     $(function() {
         $('.view').click(function() {

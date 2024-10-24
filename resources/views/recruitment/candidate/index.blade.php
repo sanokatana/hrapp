@@ -63,7 +63,7 @@
                                     <div class="row">
                                         <div class="col-3 col-lg-3">
                                             <div class="form-group">
-                                                <input type="text" name="nama_candidate" id="nama_candidate" class="form-control" placeholder="Nama Candidate" value="{{ request('nama_candidate') }}">
+                                                <input type="text" name="candidate_name" id="candidate_name" class="form-control" placeholder="Nama Candidate" value="{{ request('nama_candidate') }}">
                                             </div>
                                         </div>
                                         <div class="col-3 col-lg-3">

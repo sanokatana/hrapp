@@ -737,11 +737,11 @@
                         <h2 class="mt-4">KETERANGAN PENGHASILAN (HARAP LENGKAPI DENGAN SLIP GAJI 3 BULAN TERAKHIR)</h2>
 
                         <!-- Slip 1 -->
-                        @if($candidateData->slip1 !== 'No_Document')
+                        @if($candidateData->slip_gaji1 !== 'No_Document')
                         <div class="row mb-4">
                             <div class="col-12">
-                                <label for="slip1" class="form-label">Lihat Slip Gaji 1</label>
-                                <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateData->slip1) }}" target="_blank" class="btn btn-info btn-block w-100">
+                                <label for="slip_gaji1" class="form-label">Lihat Slip Gaji 1</label>
+                                <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateData->slip_gaji1) }}" target="_blank" class="btn btn-info btn-block w-100">
                                     Lihat Slip 1
                                 </a>
                             </div>
@@ -749,17 +749,17 @@
                         @else
                         <div class="row mb-4">
                             <div class="col-12">
-                                <label for="slip1" class="form-label">No Document</label>
+                                <label for="slip_gaji1" class="form-label">No Document</label>
                             </div>
                         </div>
                         @endif
 
                         <!-- Slip 2 -->
-                        @if($candidateData->slip2 !== 'No_Document')
+                        @if($candidateData->slip_gaji2 !== 'No_Document')
                         <div class="row mb-4">
                             <div class="col-12">
-                                <label for="slip2" class="form-label">Lihat Slip Gaji 2</label>
-                                <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateData->slip2) }}" target="_blank" class="btn btn-info btn-block w-100">
+                                <label for="slip_gaji2" class="form-label">Lihat Slip Gaji 2</label>
+                                <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateData->slip_gaji2) }}" target="_blank" class="btn btn-info btn-block w-100">
                                     Lihat Slip 2
                                 </a>
                             </div>
@@ -767,17 +767,17 @@
                         @else
                         <div class="row mb-4">
                             <div class="col-12">
-                                <label for="slip2" class="form-label">No Document</label>
+                                <label for="slip_gaji2" class="form-label">No Document</label>
                             </div>
                         </div>
                         @endif
 
                         <!-- Slip 3 -->
-                        @if($candidateData->slip3 !== 'No_Document')
+                        @if($candidateData->slip_gaji3 !== 'No_Document')
                         <div class="row mb-4">
                             <div class="col-12">
-                                <label for="slip3" class="form-label">Lihat Slip Gaji 3</label>
-                                <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateData->slip3) }}" target="_blank" class="btn btn-info btn-block w-100">
+                                <label for="slip_gaji3" class="form-label">Lihat Slip Gaji 3</label>
+                                <a href="{{ asset('storage/uploads/candidate/' . $candidate->id . '.' . Str::slug($candidate->nama_candidate) . '/' . $candidateData->slip_gaji3) }}" target="_blank" class="btn btn-info btn-block w-100">
                                     Lihat Slip 3
                                 </a>
                             </div>
@@ -785,7 +785,7 @@
                         @else
                         <div class="row mb-4">
                             <div class="col-12">
-                                <label for="slip3" class="form-label">No Document</label>
+                                <label for="slip_gaji3" class="form-label">No Document</label>
                                 @endif
 
 
