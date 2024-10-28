@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Candidate;
+use App\Models\Karyawan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -606,10 +607,11 @@ class RecruitmentController extends Controller
         }
 
         $data = $datas->get(); // Get results after applying filters
-
+        $jabatan = DB::table('jabatan')->get();
+        $uniqueBase = Karyawan::whereNotNull('base_poh')->distinct()->pluck('base_poh')->filter();
         $job = DB::table('job_openings')->get();
 
-        return view("recruitment.candidate.datatable", compact('data', 'job'));
+        return view("recruitment.candidate.datatable", compact('data', 'job', 'jabatan', 'uniqueBase'));
     }
 
     public function candidate_data_view(Request $request)

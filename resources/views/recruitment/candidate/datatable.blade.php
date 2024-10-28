@@ -227,15 +227,95 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="/kontrak/peningkatanOrExtend" method="POST" id="formKontrak" enctype="multipart/form-data">
+                <form action="/candidate/data/peningkatan" method="POST" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="id" id="dataCandidate">
 
                     <div class="row">
-                        <div class="col-12">
+                        <div class="col-6">
                             <div class="form-label">NIK</div>
                             <div class="input-icon mb-3">
-                                <input type="text" value="" class="form-control" name="nik" id="nik" placeholder="Username">
+                                <input type="text" value="" class="form-control" name="nik" id="nik" placeholder="xxx-2024xx">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-label">NIP</div>
+                            <div class="input-icon mb-3">
+                                <input type="text" value="" class="form-control" name="nip" id="nip" placeholder="xxxx">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-label">Jabatan</div>
+                            <select name="jabatan" id="jabatan" class="form-select">
+                                <option value="">Pilih</option>
+                                @foreach ($jabatan as $d)
+                                <option {{ Request('id') == $d->id ? 'selected' : '' }} value="{{ $d->id }}">{{ $d->nama_jabatan }} - {{ $d->site }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-label">Tgl Masuk</div>
+                            <div class="input-icon mb-3">
+                                <input type="date" value="" class="form-control" name="tgl_masuk" id="nitgl_masukp" placeholder="xx-xx-xxxx">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-label">Employee Status</div>
+                            <select name="employee_status" id="employee_status" class="form-select">
+                                <option value="">Pilih</option>
+                                <option value="Kontrak">Kontrak</option>
+                                <option value="Tetap">Tetap</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-label">Grade</div>
+                            <div class="input-icon mb-3">
+                                <input type="text" value="" class="form-control" name="grade" id="grade" placeholder="B/H/NS">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-label">Base POH</div>
+                            <select name="base" id="base" class="form-select">
+                                <option value="">Base</option>
+                                @foreach ($uniqueBase as $base)
+                                <option {{ request('base') == $base ? 'selected' : '' }} value="{{ $base }}">{{ $base }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-label">Nama PT</div>
+                            <div class="input-icon mb-3">
+                                <input type="text" value="" class="form-control" name="nama_pt" id="nama_pt" placeholder="XXX">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="form-label">Rek No</div>
+                            <div class="input-icon mb-3">
+                                <input type="text" value="" class="form-control" name="rek_no" id="rek_no" placeholder="XXXXXX">
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-label">Bank Name</div>
+                            <div class="input-icon mb-3">
+                                <input type="text" value="" class="form-control" name="bank_name" id="bank_name" placeholder="XXX">
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-label">Rek Name</div>
+                            <div class="input-icon mb-3">
+                                <input type="text" value="" class="form-control" name="rek_name" id="rek_name" placeholder="XXXX">
                             </div>
                         </div>
                     </div>
