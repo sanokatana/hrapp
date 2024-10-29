@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 
@@ -613,6 +614,261 @@ class RecruitmentController extends Controller
 
         return view("recruitment.candidate.datatable", compact('data', 'job', 'jabatan', 'uniqueBase'));
     }
+
+    public function candidate_peningkatan(Request $request)
+    {
+        // Validation logic remains unchanged
+        $request->validate([
+            'nik' => 'nullable|string|max:255',
+            'nip' => 'nullable|string|max:255',
+            'jabatan' => 'required',
+            'tgl_masuk' => 'required|date',
+            'employee_status' => 'required|string',
+            'grade' => 'nullable|string|max:255',
+            'base' => 'required|string',
+            'nama_pt' => 'required|string|max:255',
+            'religion' => 'required|string|max:255',
+            'rek_no' => 'required|string|max:255',
+            'bank_name' => 'required|string|max:255',
+            'rek_name' => 'required|string|max:255',
+        ]);
+        try {
+            if (!$request->filled('nik')) {
+                // Retrieve the last numeric sequence portion of NIK by filtering valid patterns
+                $lastSequence = DB::table('karyawan')
+                    ->whereNotNull('nik')
+                    ->whereRaw("nik REGEXP '^[0-9]{4}-[0-9]{8}$'") // Ensures NIK matches the pattern NNNN-YYYYMMDD
+                    ->selectRaw('CAST(SUBSTRING(nik, 1, 4) AS UNSIGNED) as sequence')
+                    ->orderByDesc('sequence')
+                    ->value('sequence'); // Gets the highest sequence as an integer
+
+                // Increment the sequence or start from 1 if none found, ensuring 4-digit formatting
+                $newSequence = str_pad(($lastSequence ?? 0) + 1, 4, '0', STR_PAD_LEFT);
+
+                // Format the date part of the NIK using the input `tgl_masuk`
+                $tglMasukFormatted = date('Ymd', strtotime($request->tgl_masuk));
+
+                // Combine the new sequence and date to create the new NIK
+                $nik = $newSequence . '-' . $tglMasukFormatted;
+                dd($nik);
+            } else {
+                $nik = $request->nik;
+            }
+
+
+            $candidateId = $request->id;
+            $candidateData = DB::table('candidate_data')->where('candidate_id', $candidateId)->first();
+            $candidateDataKeluarga = DB::table('candidate_data_keluarga')->where('candidate_data_id', $candidateData->id)->get(); // Get all family data
+            $jobOpeningId = DB::table('candidates')->where('id', $candidateId)->value('job_opening_id');
+            $kodeDept = DB::table('job_openings')->where('id', $jobOpeningId)->value('kode_dept');
+            $sex = ($candidateData->jenis === 'Laki-Laki') ? 'M' : 'F';
+
+            $taxStatusMap = [
+                'TK' => 'TK',
+                'TK1' => 'TK/1',
+                'TK2' => 'TK/2',
+                'TK3' => 'TK/3',
+                'K' => 'K',
+                'K1' => 'K/1',
+                'K2' => 'K/2',
+                'K3' => 'K/3',
+            ];
+            $taxStatus = $taxStatusMap[$candidateData->status_pajak] ?? $candidateData->status_pajak;
+
+            $latestEducation = DB::table('candidate_data_pendidikan')
+                ->where('candidate_data_id', $candidateData->id)
+                ->orderBy('id', 'desc') // Assuming 'id' is the primary key and auto-incremented
+                ->first();
+
+            // Determine gelar based on tingkat_besar
+            $gelarMap = [
+                'Dasar' => 'Dasar',
+                'SLTP' => 'SLTP',
+                'SLTA' => 'SLTA',
+                'Diploma' => 'D3',
+                'Strata I' => 'S1',
+                'Strata II' => 'S2',
+            ];
+
+            $gelar = $latestEducation ? ($gelarMap[$latestEducation->tingkat_besar] ?? null) : null;
+
+            // Get the last 3 job experiences
+            $jobExperiences = DB::table('candidate_data_pekerjaan')
+                ->where('candidate_data_id', $candidateData->id)
+                ->orderBy('id', 'desc') // Assuming 'id' is the primary key and auto-incremented
+                ->take(3)
+                ->get();
+
+            // Format job experiences into a long text
+            $jobExpText = $jobExperiences->map(function ($job) {
+                return "{$job->dari} - {$job->sampai}: {$job->jabatan} di {$job->perusahaan}";
+            })->implode(', '); // Join with a comma
+
+            // Fetch father and mother names
+            $fatherData = DB::table('candidate_data_keluarga_sendiri')
+                ->where('candidate_data_id', $candidateData->id)
+                ->where('uraian', 'Ayah')
+                ->first();
+            $father_name = $fatherData ? $fatherData->nama_lengkap : null;
+
+            $motherData = DB::table('candidate_data_keluarga_sendiri')
+                ->where('candidate_data_id', $candidateData->id)
+                ->where('uraian', 'Ibu')
+                ->first();
+            $mother_name = $motherData ? $motherData->nama_lengkap : null;
+
+            // Initialize additional fields
+            $fd_si_name = $fd_si_nik = $fd_si_kota = $fd_si_dob = null;
+            $fd_anak1_name = $fd_anak1_nik = $fd_anak1_kota = $fd_anak1_dob = null;
+            $fd_anak2_name = $fd_anak2_nik = $fd_anak2_kota = $fd_anak2_dob = null;
+            $fd_anak3_name = $fd_anak3_nik = $fd_anak3_kota = $fd_anak3_dob = null;
+
+            // Process family data for spouse and children
+            foreach ($candidateDataKeluarga as $familyMember) {
+                switch ($familyMember->uraian) {
+                    case 'Istri/Suami':
+                        $fd_si_name = $familyMember->nama_lengkap;
+                        $fd_si_nik = $familyMember->nik;
+                        $fd_si_kota = $familyMember->tempat_lahir;
+                        $fd_si_dob = $familyMember->tgl_lahir;
+                        break;
+                    case 'Anak ke 1':
+                        $fd_anak1_name = $familyMember->nama_lengkap;
+                        $fd_anak1_nik = $familyMember->nik;
+                        $fd_anak1_kota = $familyMember->tempat_lahir;
+                        $fd_anak1_dob = $familyMember->tgl_lahir;
+                        break;
+                    case 'Anak ke 2':
+                        $fd_anak2_name = $familyMember->nama_lengkap;
+                        $fd_anak2_nik = $familyMember->nik;
+                        $fd_anak2_kota = $familyMember->tempat_lahir;
+                        $fd_anak2_dob = $familyMember->tgl_lahir;
+                        break;
+                    case 'Anak ke 3':
+                        $fd_anak3_name = $familyMember->nama_lengkap;
+                        $fd_anak3_nik = $familyMember->nik;
+                        $fd_anak3_kota = $familyMember->tempat_lahir;
+                        $fd_anak3_dob = $familyMember->tgl_lahir;
+                        break;
+                }
+            }
+
+            $documents = DB::table('candidate_data_perlengkapan')
+                ->where('candidate_data_id', $candidateId)
+                ->first();
+
+            if (!$documents) {
+                // Handle the case where no document data is found
+                return redirect()->back()->with('error', 'No document data found for this candidate.');
+            }
+
+            // Check each document status and set the status and file fields accordingly
+            $statusPhoto = $documents->photo_anda !== 'No_Document' ? 1 : 0;
+            $statusKtp = $documents->photo_ktp !== 'No_Document' ? 1 : 0;
+            $statusKk = $documents->photo_kk !== 'No_Document' ? 1 : 0;
+            $statusNpwp = $documents->photo_npwp !== 'No_Document' ? 1 : 0;
+            $statusIjazah = $documents->photo_ijazah !== 'No_Document' ? 1 : 0;
+            $statusSim = $documents->photo_sim !== 'No_Document' ? 1 : 0;
+            $statusSkck = $documents->photo_skck !== 'No_Document' ? 1 : 0;
+            $statusCv = $documents->photo_cv !== 'No_Document' ? 1 : 0;
+
+            $karyawanData = [
+                'nik' => $nik,
+                'nip' => $request->nip,
+                'nama_lengkap' => $candidateData->nama_lengkap,
+                'jabatan' => $request->jabatan,
+                'email' => $candidateData->alamat_email,
+                'no_hp' => $candidateData->telp_rumah_hp,
+                'tgl_masuk' => $request->tgl_masuk,
+                'DOB' => $candidateData->tgl_lahir,
+                'kode_dept' => $kodeDept,
+                'grade' => $request->grade,
+                'shift_pattern_id' => '1',
+                'start_shift' => $request->tgl_masuk,
+                'employee_status' => $request->employee_status,
+                'base_poh' => $request->base,
+                'nama_pt' => $request->nama_pt,
+                'sex' => $sex,
+                'tax_status' => $taxStatus,
+                'birthplace' => $candidateData->tempat_lahir,
+                'religion' => $request->religion,
+                'address' => $candidateData->alamat_rumah,
+                'address_rt' => $candidateData->alamat_rt,
+                'address_rw' => $candidateData->alamat_rw,
+                'address_kel' => $candidateData->alamat_kel,
+                'address_kec' => $candidateData->alamat_kec,
+                'address_kota' => $candidateData->alamat_kota,
+                'address_prov' => $candidateData->alamat_prov,
+                'kode_pos' => $candidateData->alamat_pos,
+                'nik_ktp' => $candidateData->no_ktp_sim,
+                'blood_type' => $candidateData->gol_darah,
+                'gelar' => $gelar,
+                'major' => $latestEducation ? $latestEducation->jurusan_studi : null,
+                'kampus' => $latestEducation ? $latestEducation->tempat_sekolah : null,
+                'job_exp' => $jobExpText,
+                'email_personal' => $candidateData->alamat_email,
+                'family_card' => $documents->no_kartu_keluarga,
+                'no_npwp' => $candidateData->no_npwp,
+                'alamat_npwp' => $candidateData->alamat_npwp,
+                'father_name' => $father_name,
+                'mother_name' => $mother_name,
+                'fd_si_name' => $fd_si_name,
+                'fd_si_nik' => $fd_si_nik,
+                'fd_si_kota' => $fd_si_kota,
+                'fd_si_dob' => $fd_si_dob,
+                'fd_anak1_name' => $fd_anak1_name,
+                'fd_anak1_nik' => $fd_anak1_nik,
+                'fd_anak1_kota' => $fd_anak1_kota,
+                'fd_anak1_dob' => $fd_anak1_dob,
+                'fd_anak2_name' => $fd_anak2_name,
+                'fd_anak2_nik' => $fd_anak2_nik,
+                'rek_no' => $request->rek_no,
+                'rek_name' => $request->rek_name,
+                'bank_name' => $request->bank_name,
+                'fd_anak2_kota' => $fd_anak2_kota,
+                'fd_anak2_dob' => $fd_anak2_dob,
+                'fd_anak3_name' => $fd_anak3_name,
+                'fd_anak3_nik' => $fd_anak3_nik,
+                'fd_anak3_kota' => $fd_anak3_kota,
+                'fd_anak3_dob' => $fd_anak3_dob,
+                'em_name' => $candidateData->em_nama,
+                'em_telp' => $candidateData->em_telp,
+                'em_relation' => $candidateData->em_status,
+                'em_alamat' => $candidateData->em_alamat,
+                'status_kar' => 'Aktif',
+                'status_photo' => $statusPhoto,
+                'status_ktp' => $statusKtp,
+                'status_kk' => $statusKk,
+                'status_npwp' => $statusNpwp,
+                'status_ijazah' => $statusIjazah,
+                'status_sim' => $statusSim,
+                'status_skck' => $statusSkck,
+                'status_cv' => $statusCv,
+                'status_applicant' => '1',
+                'file_photo' => $statusPhoto ? $documents->photo_anda : null,
+                'file_ktp' => $statusKtp ? $documents->photo_ktp : null,
+                'file_kk' => $statusKk ? $documents->photo_kk : null,
+                'file_npwp' => $statusNpwp ? $documents->photo_npwp : null,
+                'file_ijazah' => $statusIjazah ? $documents->photo_ijazah : null,
+                'file_sim' => $statusSim ? $documents->photo_sim : null,
+                'file_skck' => $statusSkck ? $documents->photo_skck : null,
+                'file_cv' => $statusCv ? $documents->photo_cv : null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+
+            DB::table('karyawan')->insert($karyawanData);
+
+            return redirect()->back()->with(['success' => 'Data Berhasil Disimpan']);
+        } catch (\Exception $e) {
+
+            Log::error('Error inserting candidate data', ['message' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Failed to convert candidate to karyawan. ' . $e->getMessage());
+        }
+    }
+
+
+
 
     public function candidate_data_view(Request $request)
     {

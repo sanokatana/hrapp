@@ -316,9 +316,11 @@ class CandidateController extends Controller
 
             foreach ($kursusData as $index => $kursus) {
                 // Check if at least one field is not empty
-                if (!empty($kursus['nama']) || !empty($kursus['diadakan']) || !empty($kursus['tempat']) ||
+                if (
+                    !empty($kursus['nama']) || !empty($kursus['diadakan']) || !empty($kursus['tempat']) ||
                     !empty($kursus['lama']) || !empty($kursus['tahun']) || !empty($kursus['dibiayai']) ||
-                    !empty($kursus['keterangan'])) {
+                    !empty($kursus['keterangan'])
+                ) {
 
                     DB::table('candidate_data_kursus')->insert([
                         'candidate_data_id' => $candidateDataId,
@@ -378,9 +380,11 @@ class CandidateController extends Controller
 
             foreach ($kerjaData as $index => $kerja) {
                 // Check if at least one of the fields is not empty
-                if (!empty($kerja['perusahaan']) || !empty($kerja['alamat']) || !empty($kerja['jabatan']) ||
+                if (
+                    !empty($kerja['perusahaan']) || !empty($kerja['alamat']) || !empty($kerja['jabatan']) ||
                     !empty($kerja['dari']) || !empty($kerja['sampai']) || !empty($kerja['keterangan']) ||
-                    !empty($kerja['alasan'])) {
+                    !empty($kerja['alasan'])
+                ) {
 
                     DB::table('candidate_data_pekerjaan')->insert([
                         'candidate_data_id' => $candidateDataId,
@@ -468,10 +472,12 @@ class CandidateController extends Controller
             mkdir($folderPath, 0755, true);
         }
 
-        $data = [];
+        $data = [
+            'no_kartu_keluarga' => $request->input('no_kartu_keluarga', $candidateDataPerlengkapan ? $candidateDataPerlengkapan->no_kartu_keluarga : null),
+        ];
 
         // Handle multiple file uploads
-        $fields = ['photo_ktp', 'photo_kk', 'photo_sim', 'photo_npwp', 'photo_ijazah', 'photo_anda'];
+        $fields = ['photo_ktp', 'photo_kk', 'photo_sim', 'photo_npwp', 'photo_ijazah', 'photo_anda', 'photo_cv', 'photo_skck'];
         foreach ($fields as $field) {
             if ($request->hasFile($field)) {
                 $file = $request->file($field);
@@ -498,51 +504,32 @@ class CandidateController extends Controller
                         }
                     } while ($quality > 0);
                 } elseif ($extension == 'pdf') {
-                    // For PDF files, just move the file to the designated folder
                     $file->move($folderPath, $fileName);
                 } else {
-                    continue; // Skip unsupported file types
+                    continue;
                 }
 
-                // Save file name in the data array
                 $data[$field] = $fileName;
             } else {
-                // If no file is uploaded, retain the existing value from the database
                 $data[$field] = $candidateDataPerlengkapan ? $candidateDataPerlengkapan->{$field} : "No_Document";
             }
         }
 
-        // Check if record exists, then update or insert accordingly
         if ($candidateDataPerlengkapan) {
-            // Update the record
-            DB::table('candidate_data_perlengkapan')->where('candidate_data_id', $candidateData->id)->update([
-                'photo_ktp' => $data['photo_ktp'],
-                'photo_kk' => $data['photo_kk'],
-                'photo_sim' => $data['photo_sim'],
-                'photo_npwp' => $data['photo_npwp'],
-                'photo_ijazah' => $data['photo_ijazah'],
-                'photo_anda' => $data['photo_anda'],
+            DB::table('candidate_data_perlengkapan')->where('candidate_data_id', $candidateData->id)->update(array_merge($data, [
                 'updated_at' => now(),
-            ]);
+            ]));
         } else {
-            // Insert new record
-            DB::table('candidate_data_perlengkapan')->insert([
+            DB::table('candidate_data_perlengkapan')->insert(array_merge($data, [
                 'candidate_data_id' => $candidateData->id,
-                'photo_ktp' => $data['photo_ktp'],
-                'photo_kk' => $data['photo_kk'],
-                'photo_sim' => $data['photo_sim'],
-                'photo_npwp' => $data['photo_npwp'],
-                'photo_ijazah' => $data['photo_ijazah'],
-                'photo_anda' => $data['photo_anda'],
                 'created_at' => now(),
                 'updated_at' => now(),
-            ]);
+            ]));
         }
 
         // Update nik and tempat_lahir in candidate_data_keluarga
         if ($request->has('nik') && $request->has('tempat_lahir') && $request->has('keluarga_id')) {
             foreach ($request->nik as $index => $nik) {
-                // Use the actual keluarga_id from the form
                 $keluargaId = $request->keluarga_id[$index];
                 DB::table('candidate_data_keluarga')
                     ->where('id', $keluargaId)

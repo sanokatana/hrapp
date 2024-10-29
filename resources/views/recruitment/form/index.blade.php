@@ -125,6 +125,54 @@
                                 </div>
                             </div>
 
+                            <div class="row mb-3 align-items-center">
+                                <label class="col-md-3 col-form-label">Alamat RT <span style="color: red;">*</span></label>
+                                <div class="col-md-9">
+                                    <textarea class="form-control" name="alamat_rt" id="alamat_rt" rows="1" placeholder="Alamat RT"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 align-items-center">
+                                <label class="col-md-3 col-form-label">Alamat RW <span style="color: red;">*</span></label>
+                                <div class="col-md-9">
+                                    <textarea class="form-control" name="alamat_rw" id="alamat_rw" rows="1" placeholder="Alamat RW"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 align-items-center">
+                                <label class="col-md-3 col-form-label">Alamat Kelurahan <span style="color: red;">*</span></label>
+                                <div class="col-md-9">
+                                    <textarea class="form-control" name="alamat_kel" id="alamat_kel" rows="1" placeholder="Alamat Kelurahan"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 align-items-center">
+                                <label class="col-md-3 col-form-label">Alamat Kecamatan <span style="color: red;">*</span></label>
+                                <div class="col-md-9">
+                                    <textarea class="form-control" name="alamat_kec" id="alamat_kec" rows="1" placeholder="Alamat Kecamatan"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 align-items-center">
+                                <label class="col-md-3 col-form-label">Alamat Kota <span style="color: red;">*</span></label>
+                                <div class="col-md-9">
+                                    <textarea class="form-control" name="alamat_kota" id="alamat_kota" rows="1" placeholder="Alamat Kota"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 align-items-center">
+                                <label class="col-md-3 col-form-label">Alamat Provinsi <span style="color: red;">*</span></label>
+                                <div class="col-md-9">
+                                    <textarea class="form-control" name="alamat_prov" id="alamat_prov" rows="1" placeholder="Alamat Provinsi"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 align-items-center">
+                                <label class="col-md-3 col-form-label">Alamat POS <span style="color: red;">*</span></label>
+                                <div class="col-md-9">
+                                    <textarea class="form-control" name="alamat_pos" id="alamat_pos" rows="1" placeholder="Alamat POS"></textarea>
+                                </div>
+                            </div>
 
                             <!-- Telpon Rumah/HP -->
                             <div class="row mb-3 align-items-center">

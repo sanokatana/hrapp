@@ -223,30 +223,44 @@
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modal-skContractLabel">Contract Action</h5>
+                <h5 class="modal-title" id="modal-skContractLabel">Action</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="/candidate/data/peningkatan" method="POST" enctype="multipart/form-data">
+                <form action="/recruitment/candidate/data/peningkatan" method="POST" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="id" id="dataCandidate">
 
                     <div class="row">
                         <div class="col-6">
+                            <!-- NIK input field -->
                             <div class="form-label">NIK</div>
-                            <div class="input-icon mb-3">
-                                <input type="text" value="" class="form-control" name="nik" id="nik" placeholder="xxx-2024xx">
+                            <div class="input-icon mb-3 mt-2">
+                                <input type="text" class="form-control" name="nik" id="nik" placeholder="xxx-2024xx" readonly>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="form-label">NIP</div>
-                            <div class="input-icon mb-3">
-                                <input type="text" value="" class="form-control" name="nip" id="nip" placeholder="xxxx">
+                            <div class="form-label">Opsi</div>
+                            <!-- Radio buttons for Automatic or Manual NIK input -->
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="nik_option" id="nik_auto" value="automatic" checked>
+                                <label class="form-check-label" for="nik_auto">Automatic</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="nik_option" id="nik_manual" value="manual">
+                                <label class="form-check-label" for="nik_manual">Manual</label>
                             </div>
                         </div>
                     </div>
 
                     <div class="row">
+
+                    <div class="col-6">
+                            <div class="form-label">NIP</div>
+                            <div class="input-icon mb-3">
+                                <input type="text" value="" class="form-control" name="nip" id="nip" placeholder="xxxx">
+                            </div>
+                        </div>
                         <div class="col-6">
                             <div class="form-label">Jabatan</div>
                             <select name="jabatan" id="jabatan" class="form-select">
@@ -256,15 +270,15 @@
                                 @endforeach
                             </select>
                         </div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-6">
                             <div class="form-label">Tgl Masuk</div>
                             <div class="input-icon mb-3">
                                 <input type="date" value="" class="form-control" name="tgl_masuk" id="nitgl_masukp" placeholder="xx-xx-xxxx">
                             </div>
                         </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-6">
                             <div class="form-label">Employee Status</div>
                             <select name="employee_status" id="employee_status" class="form-select">
@@ -273,15 +287,16 @@
                                 <option value="Tetap">Tetap</option>
                             </select>
                         </div>
-                        <div class="col-6">
+                    </div>
+
+                    <div class="row">
+
+                    <div class="col-6">
                             <div class="form-label">Grade</div>
                             <div class="input-icon mb-3">
                                 <input type="text" value="" class="form-control" name="grade" id="grade" placeholder="B/H/NS">
                             </div>
                         </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-6">
                             <div class="form-label">Base POH</div>
                             <select name="base" id="base" class="form-select">
@@ -291,10 +306,19 @@
                                 @endforeach
                             </select>
                         </div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-6">
                             <div class="form-label">Nama PT</div>
                             <div class="input-icon mb-3">
                                 <input type="text" value="" class="form-control" name="nama_pt" id="nama_pt" placeholder="XXX">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-label">Religion</div>
+                            <div class="input-icon mb-3">
+                                <input type="text" value="" class="form-control" name="religion" id="religion" placeholder="XXX">
                             </div>
                         </div>
                     </div>
@@ -343,6 +367,19 @@
 
 @push('myscript')
 <script>
+
+    $(document).ready(function() {
+        // Toggle NIK input field based on selected option
+        $('input[name="nik_option"]').change(function() {
+            if ($('#nik_auto').is(':checked')) {
+                $('#nik').prop('readonly', true).val(''); // Set NIK to read-only and clear value
+            } else {
+                $('#nik').prop('readonly', false); // Enable NIK field for manual input
+            }
+        });
+    });
+
+
     $(document).ready(function() {
         // When the approve button is clicked
         $('.approve').click(function() {
