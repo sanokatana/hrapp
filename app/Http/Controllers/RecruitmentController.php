@@ -71,7 +71,7 @@ class RecruitmentController extends Controller
 
         if ($email) {
             $emailContent = "
-            Kamu Telah Menjadi Candidate Lamaran Untuk Cipta Harmoni Lestari Untuk Posisi : {$job_opening}<br>
+            Anda Telah Menjadi Candidate Lamaran <br> Untuk Cipta Harmoni Lestari <br> Di Posisi : {$job_opening}<br>
             Username : {$username}
             Password : {$password}
             Mohon Cek Di hrms.ciptaharmoni.com/candidate<br><br>

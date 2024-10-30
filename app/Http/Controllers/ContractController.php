@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Exports\KontrakExport;
+use App\Helpers\DateHelper;
 use App\Models\Contract;
 use App\Models\SK;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -518,6 +520,36 @@ class ContractController extends Controller
             // Return a generic error message
             return redirect()->back()->with('danger', 'Error uploading data: ' . $e->getMessage());
         }
+    }
+
+
+    public function printContract($id)
+    {
+        $contract = DB::table('kontrak')
+            ->select('kontrak.*', 'karyawan.nama_lengkap', 'karyawan.sex', 'karyawan.nik_ktp', 'karyawan.birthplace', 'karyawan.dob', 'karyawan.address','karyawan.jabatan')
+            ->join('karyawan', 'kontrak.nik', '=', 'karyawan.nik')
+            ->where('kontrak.id', $id)
+            ->first();
+
+        $dateNow = DateHelper::formatIndonesianDates(Carbon::now());
+        $dateNow2 = DateHelper::formatIndonesianDate($contract->dob);
+        $dateNow3 = DateHelper::formatIndonesiaDate(Carbon::now());
+        $dateNow4 = DateHelper::formatDateDay(Carbon::now());
+
+        // Split the address into two parts if it exceeds 50 characters
+        $addressParts = str_split($contract->address, 50);
+        $addressLine1 = $addressParts[0] ?? '';
+        $addressLine2 = $addressParts[1] ?? '';
+
+        $namaJabatan = DB::table('jabatan')
+        ->where('id', $contract->jabatan)
+        ->first();
+
+        $atasanJabatan = DB::table('jabatan')
+        ->where('id', $namaJabatan->jabatan_atasan)
+        ->first();
+        // Pass data to the view
+        return view('contract.print', compact('contract', 'dateNow', 'dateNow2', 'addressLine1', 'addressLine2', 'dateNow3', 'dateNow4','namaJabatan', 'atasanJabatan'));
     }
 
 }

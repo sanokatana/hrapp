@@ -312,6 +312,8 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::post('/kontrak/{id}/update', [ContractController::class, 'update']);
     Route::post('/kontrak/{id}/delete', [ContractController::class, 'delete']);
     Route::post('/kontrak/peningkatanOrExtend', [ContractController::class, 'peningkatanOrExtend']);
+    Route::post('/kontrak/{id}/print', [ContractController::class, 'printContract']);
+
 
     // SK
 

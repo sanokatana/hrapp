@@ -40,6 +40,58 @@ class DateHelper
         return "$dayName $day $monthName $year";
     }
 
+    public static function formatIndonesianDates($date)
+    {
+        $days = [
+            'Sunday' => 'Minggu',
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu'
+        ];
+
+        $months = [
+            'January' => 'Januari',
+            'February' => 'Februari',
+            'March' => 'Maret',
+            'April' => 'April',
+            'May' => 'Mei',
+            'June' => 'Juni',
+            'July' => 'Juli',
+            'August' => 'Agustus',
+            'September' => 'September',
+            'October' => 'Oktober',
+            'November' => 'November',
+            'December' => 'Desember'
+        ];
+
+        $timestamp = strtotime($date);
+        $dayName = $days[date('l', $timestamp)];
+        $day = date('j', $timestamp);
+        $monthName = $months[date('F', $timestamp)];
+        $year = date('Y', $timestamp);
+        return "$dayName tanggal $day $monthName $year";
+    }
+
+    public static function formatDateDay($date)
+    {
+        $days = [
+            'Sunday' => 'Minggu',
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu'
+        ];
+
+        $timestamp = strtotime($date);
+        $dayName = $days[date('l', $timestamp)];
+        return "$dayName";
+    }
+
     public static function formatIndonesiaDate($date)
     {
 
@@ -64,6 +116,7 @@ class DateHelper
         $year = date('Y', $timestamp);
         return "$day $monthName $year";
     }
+
     public static function getStatusText($status)
     {
         switch ($status) {
