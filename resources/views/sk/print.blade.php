@@ -72,7 +72,7 @@
     <p style="padding-top: 13pt;text-indent: 0pt;text-align: left;"><br /></p>
     <p style="padding-left: 8pt;text-indent: 0pt;text-align: left;">Kepada Yth &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: Bapak Johannes Tanuwijaya</p>
     <p style="padding-left: 7pt;text-indent: 0pt;text-align: left;">Dari &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: Management</p>
-    <p style="padding-left: 7pt;text-indent: 0pt;text-align: left;">Tanggal &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 11 September 2024</p>
+    <p style="padding-left: 7pt;text-indent: 0pt;text-align: left;">Tanggal &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{$dateNow}}</p>
     <p style="padding-left: 7pt;text-indent: 0pt;text-align: left;">Perihal &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: Surat Keputusan Pengangkatan Karyawan</p>
     <p style="padding-top: 2pt;text-indent: 0pt;text-align: left;"><br /></p>
     <p style="padding-left: 5pt;text-indent: 0pt;line-height: 1pt;text-align: left;" />
@@ -127,28 +127,28 @@
             <td
                 style="width:129pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                 <p style="padding-top: 2pt;text-indent: 0pt;text-align: left;"><br /></p>
-                <p class="s3" style="text-indent: 0pt;text-align: center;">Zahran Nurafi Chandra</p>
+                <p class="s3" style="text-indent: 0pt;text-align: center;">{{$sk->nama_lengkap}}</p>
             </td>
             <td
                 style="width:41pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                 <p style="padding-top: 2pt;text-indent: 0pt;text-align: left;"><br /></p>
-                <p class="s2" style="padding-left: 12pt;text-indent: 0pt;text-align: left;">PAL</p>
+                <p class="s2" style="padding-left: 12pt;text-indent: 0pt;text-align: left;">{{$sk->nama_pt}}</p>
             </td>
             <td
                 style="width:88pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                 <p style="padding-top: 2pt;text-indent: 0pt;text-align: left;"><br /></p>
-                <p class="s2" style="padding-left: 13pt;text-indent: 0pt;text-align: left;">1 Maret 2024</p>
+                <p class="s2" style="padding-left: 13pt;text-indent: 0pt;text-align: left;">{{$dateNow1}}</p>
             </td>
             <td
                 style="width:73pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                 <p class="s2" style="padding-top: 8pt;padding-left: 21pt;text-indent: -13pt;text-align: left;">
-                    Programmer Officer</p>
+                    {{$namaJabatan->nama_jabatan}}</p>
             </td>
             <td
                 style="width:112pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                 <p class="s2"
                     style="padding-top: 8pt;padding-left: 16pt;padding-right: 15pt;text-indent: 11pt;text-align: left;">
-                    Promosi dari Karyawan kontrak</p>
+                    {{$sk->masa_probation}}</p>
             </td>
         </tr>
     </table>
@@ -195,8 +195,7 @@
             </td>
             <td
                 style="width:129pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                <p class="s4" style="padding-top: 8pt;padding-left: 22pt;text-indent: 0pt;text-align: left;">Setia
-                    Iskandar Rusli</p>
+                <p class="s4" style="padding-top: 8pt;padding-left: 22pt;text-indent: 0pt;text-align: left;">{{$sk->diketahui}}</p>
             </td>
             <td
                 style="width:123pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">

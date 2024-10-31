@@ -25,10 +25,9 @@ class ContractController extends Controller
         // Start the query with a left join to the karyawan table
         $query = Contract::query()
             ->select('kontrak.*', 'karyawan.nama_lengkap') // Select fields from contracts and nama_lengkap from karyawan
-            ->leftJoin('karyawan', 'kontrak.nik', '=', 'karyawan.nik') // Use left join to include all contracts
-            ->orderBy('kontrak.id', 'asc');
+            ->leftJoin('karyawan', 'kontrak.nik', '=', 'karyawan.nik'); // Use left join to include all contracts
 
-        // Add filter for no_kontrak if provided in request
+        // Filter by specific fields if provided in request
         if (!empty($request->no_kontrak)) {
             $query->where('kontrak.no_kontrak', 'like', '%' . $request->no_kontrak . '%');
         }
@@ -41,13 +40,14 @@ class ContractController extends Controller
             $query->where('kontrak.status', 'like', '%' . $request->status_kontrak . '%');
         }
 
+        // Order the results with Active contracts first
+        $query->orderByRaw("CASE WHEN kontrak.status = 'Active' THEN 0 ELSE 1 END");
+
         // Paginate the results
         $contract = $query->paginate(50)->appends($request->query());
 
         return view('contract.index', compact('contract'));
     }
-
-
 
     public function store(Request $request)
     {
@@ -116,9 +116,18 @@ class ContractController extends Controller
 
             // Convert the month to Roman numerals
             $romanMonths = [
-                1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V',
-                6 => 'VI', 7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X',
-                11 => 'XI', 12 => 'XII'
+                1 => 'I',
+                2 => 'II',
+                3 => 'III',
+                4 => 'IV',
+                5 => 'V',
+                6 => 'VI',
+                7 => 'VII',
+                8 => 'VIII',
+                9 => 'IX',
+                10 => 'X',
+                11 => 'XI',
+                12 => 'XII'
             ];
             $romanMonth = $romanMonths[$currentMonth];
 
@@ -402,7 +411,7 @@ class ContractController extends Controller
 
             if (!$contract) {
 
-            return redirect()->back()->with('danger', 'Error uploading data: ');
+                return redirect()->back()->with('danger', 'Error uploading data: ');
             }
 
             if ($request->actionType == 'extend') {
@@ -429,10 +438,64 @@ class ContractController extends Controller
                 ];
                 $hari_kerja = $daysInIndonesian[$dayOfWeek];
 
+                $user = Auth::guard('user')->user();
+                $name = $user->name;
+
+                $lastContract = DB::table('kontrak')
+                ->orderBy('id', 'desc')
+                ->value('no_kontrak');
+
+                // Extract the number (xxx) from the last contract
+                if ($lastContract) {
+                    $parts = explode('/', $lastContract);
+                    $lastNumber = (int)$parts[0];
+                    $nextNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT); // Increment and pad with leading zeros
+                } else {
+                    $nextNumber = '001'; // If no previous contract, start with 001
+                }
+
+                // Simplify the user's name to 3 letters
+                $nameParts = explode(' ', $name);
+                if (count($nameParts) == 1) {
+                    // If there's only one name, take the first 3 letters
+                    $simplifiedName = strtoupper(substr($nameParts[0], 0, 3));
+                } else {
+                    // Otherwise, take the initials of up to 3 names
+                    $simplifiedName = '';
+                    foreach ($nameParts as $index => $part) {
+                        $simplifiedName .= strtoupper(substr($part, 0, 1));
+                        if ($index == 2) break; // Only take up to 3 initials
+                    }
+                }
+
+                // Get the current month and year
+                $currentMonth = date('n');
+                $currentYear = date('Y');
+
+                // Convert the month to Roman numerals
+                $romanMonths = [
+                    1 => 'I',
+                    2 => 'II',
+                    3 => 'III',
+                    4 => 'IV',
+                    5 => 'V',
+                    6 => 'VI',
+                    7 => 'VII',
+                    8 => 'VIII',
+                    9 => 'IX',
+                    10 => 'X',
+                    11 => 'XI',
+                    12 => 'XII'
+                ];
+                $romanMonth = $romanMonths[$currentMonth];
+
+                // Generate the no_kontrak value
+                $no_kontrak = "{$nextNumber}/SPK-CHL/{$simplifiedName}/{$romanMonth}/{$currentYear}";
+
                 // Create a new contract with the same details but updated start and end dates
                 Contract::create([
                     'nik' => $contract->nik,
-                    'no_kontrak' => $contract->no_kontrak,
+                    'no_kontrak' => $no_kontrak,
                     'hari_kerja' => $hari_kerja,
                     'start_date' => $newStartDate,
                     'end_date' => $newEndDate,
@@ -442,6 +505,7 @@ class ContractController extends Controller
                     'status' => 'Active',
                     'created_by' => Auth::guard('user')->user()->name,
                 ]);
+
             } elseif ($request->actionType == 'peningkatan') {
                 // Peningkatan to Tetap
                 $tglSk = $request->tgl_sk;
@@ -453,8 +517,8 @@ class ContractController extends Controller
                 $contract->save();
 
                 $lastContract = DB::table('tb_sk')
-                ->orderBy('id', 'desc')
-                ->value('no_sk');
+                    ->orderBy('id', 'desc')
+                    ->value('no_sk');
 
                 // Extract the number (xxx) from the last contract
                 if ($lastContract) {
@@ -470,9 +534,9 @@ class ContractController extends Controller
                 $currentYear = date('Y');
 
                 $karyawan = DB::table('karyawan')
-                ->where('nik', $contract->nik)
-                ->where('status_kar', 'Aktif')
-                ->first();
+                    ->where('nik', $contract->nik)
+                    ->where('status_kar', 'Aktif')
+                    ->first();
 
                 // Convert the month to Roman numerals
                 $romanMonths = [
@@ -509,7 +573,6 @@ class ContractController extends Controller
             }
 
             return redirect()->back()->with('success', 'Data successfully uploaded.');
-
         } catch (Exception $e) {
             // Log the error with details
             Log::error('Error in peningkatanOrExtend function: ' . $e->getMessage(), [
@@ -526,7 +589,7 @@ class ContractController extends Controller
     public function printContract($id)
     {
         $contract = DB::table('kontrak')
-            ->select('kontrak.*', 'karyawan.nama_lengkap', 'karyawan.sex', 'karyawan.nik_ktp', 'karyawan.birthplace', 'karyawan.dob', 'karyawan.address','karyawan.jabatan')
+            ->select('kontrak.*', 'karyawan.nama_lengkap', 'karyawan.sex', 'karyawan.nik_ktp', 'karyawan.birthplace', 'karyawan.dob', 'karyawan.address', 'karyawan.jabatan')
             ->join('karyawan', 'kontrak.nik', '=', 'karyawan.nik')
             ->where('kontrak.id', $id)
             ->first();
@@ -535,21 +598,22 @@ class ContractController extends Controller
         $dateNow2 = DateHelper::formatIndonesianDate($contract->dob);
         $dateNow3 = DateHelper::formatIndonesiaDate(Carbon::now());
         $dateNow4 = DateHelper::formatDateDay(Carbon::now());
+        $dateNow5 = DateHelper::formatIndonesiaDate($contract->start_date);
+        $dateNow6 = DateHelper::formatIndonesiaDate($contract->end_date);
 
-        // Split the address into two parts if it exceeds 50 characters
-        $addressParts = str_split($contract->address, 50);
+        $wrappedAddress = wordwrap($contract->address, 50, "\n", true);
+        $addressParts = explode("\n", $wrappedAddress);
         $addressLine1 = $addressParts[0] ?? '';
         $addressLine2 = $addressParts[1] ?? '';
 
         $namaJabatan = DB::table('jabatan')
-        ->where('id', $contract->jabatan)
-        ->first();
+            ->where('id', $contract->jabatan)
+            ->first();
 
         $atasanJabatan = DB::table('jabatan')
-        ->where('id', $namaJabatan->jabatan_atasan)
-        ->first();
+            ->where('id', $namaJabatan->jabatan_atasan)
+            ->first();
         // Pass data to the view
-        return view('contract.print', compact('contract', 'dateNow', 'dateNow2', 'addressLine1', 'addressLine2', 'dateNow3', 'dateNow4','namaJabatan', 'atasanJabatan'));
+        return view('contract.print', compact('contract', 'dateNow', 'dateNow2', 'addressLine1', 'addressLine2', 'dateNow3', 'dateNow4', 'namaJabatan', 'atasanJabatan','dateNow5','dateNow6'));
     }
-
 }

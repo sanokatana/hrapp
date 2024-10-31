@@ -495,7 +495,7 @@
                         <td style="width:286pt">
                             <p class="s3"
                                 style="padding-left: 5pt;text-indent: 0pt;line-height: 11pt;text-align: left;">
-                                1306076406990003</p>
+                                {{$contract->nik_ktp}}</p>
                         </td>
                     </tr>
                     <tr style="height:13pt">
@@ -571,7 +571,7 @@
             <p style="padding-left: 19pt;text-indent: 0pt;text-align: left;">Melapor kepada : {{$atasanJabatan->nama_jabatan}}</p>
         </li>
         <li data-list-text="3.">
-            <p style="padding-top: 12pt;padding-left: 19pt;text-indent: -14pt;text-align: justify;">&nbsp Dengan memperhatikan
+            <p style="padding-top: 12pt;padding-left: 19pt;text-indent: -14pt;text-align: justify;">&nbsp;Dengan memperhatikan
                 kemampuan dan hasil pelaksanaan tugas dan pekerjaan PIHAK KEDUA, Perseroan dari waktu ke waktu berhak
                 dan berwenang memberikan tambahan pekerjaan lain di luar bidang pekerjaan tersebut pada Pasal I (2)
                 dan/atau melakukan mutasi, promosi atau demosi terhadap PIHAK KEDUA, baik di dalam Perseroan maupun di
@@ -617,7 +617,7 @@
         <li data-list-text="1.">
             <p style="padding-top: 12pt;padding-left: 26pt;text-indent: -18pt;text-align: justify;">&nbsp PIHAK PERTAMA dan
                 PIHAK KEDUA menyetujui bahwa dalam Perjanjian berlaku untuk jangka waktu 12 (Dua Belas) Bulan, terhitung
-                mulai tanggal 16 October 2024 sampai dengan tanggal 15 Oktober 2025.</p>
+                mulai tanggal {{$dateNow5}} sampai dengan tanggal {{$dateNow6}}.</p>
         </li>
         <li data-list-text="2.">
             <p style="padding-left: 26pt;text-indent: -17pt;text-align: justify;">&nbsp Berakhirnya perjanjian ini berakhir
@@ -805,7 +805,7 @@
         <li data-list-text="2.">
             <p style="padding-left: 26pt;text-indent: -18pt;text-align: justify;">&nbsp;&nbsp;Apabila tidak dapat diselesaikan
                 secara musyawarah, maka PARA PIHAK sepakat untuk menempuh jalur hukum dengan mendaftarkan perselisihan
-                di Pengadilan Hubungan Industrial Bogor.</p>
+                di Pengadilan Hubungan Industrial Tangerang.</p>
         </li>
     </ol>
     <p style="padding-top: 12pt;padding-left: 4pt;text-indent: 0pt;text-align: center; font-weight: bolder; ">PASAL IX</p>

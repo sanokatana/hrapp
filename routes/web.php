@@ -15,6 +15,7 @@ use App\Http\Controllers\LaporanController;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
 use App\Http\Controllers\PengajuanCutiController;
+use App\Http\Controllers\PerformanceController;
 use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\RecruitmentController;
 use App\Http\Controllers\ShiftController;
@@ -326,7 +327,10 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::post('/sk/view', [SkController::class, 'view']);
     Route::post('/sk/{id}/update', [SkController::class, 'update']);
     Route::post('/sk/{id}/delete', [SkController::class, 'delete']);
+    Route::post('/sk/{id}/print', [SkController::class, 'printContract']);
 
+    //Performance
+    Route::get('/performance/notification', [PerformanceController::class, 'notification']);
 
     //Recruitment - Candidate
     Route::get('/recruitment/candidate', [RecruitmentController::class, 'candidate']);

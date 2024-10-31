@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\DateHelper;
 use App\Models\SK;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -161,5 +163,24 @@ class SkController extends Controller
         } else {
             return Redirect::back()->with(['warning' => 'Data Gagal Di Hapus']);
         }
+    }
+
+    public function printContract($id)
+    {
+        $sk = DB::table('tb_sk')
+            ->select('tb_sk.*', 'karyawan.nama_lengkap', 'karyawan.jabatan', 'karyawan.tgl_masuk')
+            ->join('karyawan', 'tb_sk.nik', '=', 'karyawan.nik')
+            ->where('tb_sk.id', $id)
+            ->first();
+
+        $dateNow = DateHelper::formatIndonesiaDate($sk->tgl_sk);
+        $dateNow1 = DateHelper::formatIndonesiaDate($sk->tgl_masuk);
+
+        $namaJabatan = DB::table('jabatan')
+        ->where('id', $sk->jabatan)
+        ->first();
+        // Pass data to the view
+
+        return view('sk.print', compact('sk', 'dateNow', 'dateNow1', 'namaJabatan'));
     }
 }

@@ -132,7 +132,7 @@
                                                             </svg>
                                                         </a>
                                                     </div>
-                                                    <form action="/kontrak/{{$d->id}}/print" method="POST" class="mb-1">
+                                                    <form action="/sk/{{$d->id}}/print" method="POST" class="mb-1">
                                                         @csrf
                                                         <a class="btn btn-warning btn-sm print-confirm">
                                                         <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-printer"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
@@ -275,12 +275,11 @@
                             <div class="form-label">Diketahui</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-cash-banknote">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-check">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
-                                        <path d="M3 6m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
-                                        <path d="M18 12l.01 0" />
-                                        <path d="M6 12l.01 0" />
+                                        <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                                        <path d="M6 21v-2a4 4 0 0 1 4 -4h4" />
+                                        <path d="M15 19l2 2l4 -4" />
                                     </svg>
                                 </span>
                                 <input type="text" value="" class="form-control" name="diketahui" id="diketahui" placeholder="Nama">
@@ -519,6 +518,24 @@
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",
                 confirmButtonText: "Delete"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+
+        $(".print-confirm").click(function(e) {
+            var form = $(this).closest('form');
+            e.preventDefault();
+            Swal.fire({
+                title: "Apakah Yakin?",
+                text: "Kontrak Akan Ke Print!",
+                icon: "info",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Continue"
             }).then((result) => {
                 if (result.isConfirmed) {
                     form.submit();

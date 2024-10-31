@@ -608,7 +608,9 @@ class RecruitmentController extends Controller
         }
 
         $data = $datas->get(); // Get results after applying filters
-        $jabatan = DB::table('jabatan')->get();
+        $jabatan = DB::table('jabatan')
+        ->orderBy('nama_jabatan', 'ASC')
+        ->get();
         $uniqueBase = Karyawan::whereNotNull('base_poh')->distinct()->pluck('base_poh')->filter();
         $job = DB::table('job_openings')->get();
 
@@ -650,7 +652,6 @@ class RecruitmentController extends Controller
 
                 // Combine the new sequence and date to create the new NIK
                 $nik = $newSequence . '-' . $tglMasukFormatted;
-                dd($nik);
             } else {
                 $nik = $request->nik;
             }
