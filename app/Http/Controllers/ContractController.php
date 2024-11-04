@@ -594,12 +594,20 @@ class ContractController extends Controller
             ->where('kontrak.id', $id)
             ->first();
 
-        $dateNow = DateHelper::formatIndonesianDates(Carbon::now());
+        $dateNow = DateHelper::formatIndonesianDates($contract->start_date);
         $dateNow2 = DateHelper::formatIndonesianDate($contract->dob);
         $dateNow3 = DateHelper::formatIndonesiaDate(Carbon::now());
-        $dateNow4 = DateHelper::formatDateDay(Carbon::now());
+        $dateNow4 = DateHelper::formatDateDay($contract->start_date);
         $dateNow5 = DateHelper::formatIndonesiaDate($contract->start_date);
         $dateNow6 = DateHelper::formatIndonesiaDate($contract->end_date);
+
+        // Calculate contract duration in months
+        $startDate = Carbon::parse($contract->start_date);
+        $endDate = Carbon::parse($contract->end_date);
+        $months = $startDate->diffInMonths($endDate);
+
+        // Convert number of months to Indonesian words
+        $monthsInWords = DateHelper::convertToIndonesianWords($months);
 
         $wrappedAddress = wordwrap($contract->address, 50, "\n", true);
         $addressParts = explode("\n", $wrappedAddress);
@@ -614,6 +622,6 @@ class ContractController extends Controller
             ->where('id', $namaJabatan->jabatan_atasan)
             ->first();
         // Pass data to the view
-        return view('contract.print', compact('contract', 'dateNow', 'dateNow2', 'addressLine1', 'addressLine2', 'dateNow3', 'dateNow4', 'namaJabatan', 'atasanJabatan','dateNow5','dateNow6'));
+        return view('contract.print', compact('contract', 'monthsInWords', 'months', 'dateNow', 'dateNow2', 'addressLine1', 'addressLine2', 'dateNow3', 'dateNow4', 'namaJabatan', 'atasanJabatan','dateNow5','dateNow6'));
     }
 }

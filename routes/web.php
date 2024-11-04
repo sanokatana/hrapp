@@ -356,6 +356,7 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::post('/recruitment/candidate/data/view', [RecruitmentController::class, 'candidate_data_view']);
     Route::post('/recruitment/candidate/data/peningkatan', [RecruitmentController::class, 'candidate_peningkatan']);
     Route::post('/recruitment/interview/{id}/update', [RecruitmentController::class, 'candidate_interview_update']);
+    Route::post('/recruitment/data/{id}/print', [RecruitmentController::class, 'printCandidateData']);
 
     //Recruitment - Candidate
     Route::get('/recruitment/jobs', [RecruitmentController::class, 'job_opening']);

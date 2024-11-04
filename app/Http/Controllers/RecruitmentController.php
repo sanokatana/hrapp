@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\DateHelper;
 use App\Models\Candidate;
 use App\Models\Karyawan;
 use Illuminate\Http\Request;
@@ -609,8 +610,8 @@ class RecruitmentController extends Controller
 
         $data = $datas->get(); // Get results after applying filters
         $jabatan = DB::table('jabatan')
-        ->orderBy('nama_jabatan', 'ASC')
-        ->get();
+            ->orderBy('nama_jabatan', 'ASC')
+            ->get();
         $uniqueBase = Karyawan::whereNotNull('base_poh')->distinct()->pluck('base_poh')->filter();
         $job = DB::table('job_openings')->get();
 
@@ -640,6 +641,7 @@ class RecruitmentController extends Controller
                 $lastSequence = DB::table('karyawan')
                     ->whereNotNull('nik')
                     ->whereRaw("nik REGEXP '^[0-9]{4}-[0-9]{8}$'") // Ensures NIK matches the pattern NNNN-YYYYMMDD
+                    ->where("status_kar", "Aktif")
                     ->selectRaw('CAST(SUBSTRING(nik, 1, 4) AS UNSIGNED) as sequence')
                     ->orderByDesc('sequence')
                     ->value('sequence'); // Gets the highest sequence as an integer
@@ -976,5 +978,238 @@ class RecruitmentController extends Controller
             ->count();
 
         return view("recruitment.index", compact('totalHiredCandidates', 'totalCandidatesInProgress', 'openJobOpenings', 'totalJobOpenings'));
+    }
+
+    public function printCandidateData($id)
+    {
+        // Fetch candidate data along with job opening, hiring stage
+        $candidates = DB::table('candidate_data')
+            ->join('candidates', 'candidate_data.candidate_id', '=', 'candidates.id')
+            ->join('job_openings', 'candidates.job_opening_id', '=', 'job_openings.id')
+            ->join('hiring_stages', 'candidates.current_stage_id', '=', 'hiring_stages.id')
+            ->select('candidate_data.*', 'job_openings.title as job_opening_name', 'hiring_stages.name as hiring_stage_name', 'candidates.id as candidate_id','candidates.nama_candidate as nama_candidate')
+            ->where('candidate_data.id', $id)
+            ->first();
+
+        // Fetch family data separately
+        $familyData = DB::table('candidate_data_keluarga')
+            ->where('candidate_data_id', $candidates->id)
+            ->get();
+
+        // Initialize the family members array with empty values
+        $familyMembers = [
+            ['uraian' => '', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
+            ['uraian' => '', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
+            ['uraian' => '', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
+            ['uraian' => '', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
+        ];
+
+        // Fill the family members with actual data
+        foreach ($familyData as $index => $member) {
+            if ($index < 4) { // Only fill up to 4 rows
+                $familyMembers[$index] = [
+                    'uraian' => $member->uraian,
+                    'nama_lengkap' => $member->nama_lengkap,
+                    'jenis' => $member->jenis,
+                    'tgl_lahir' => DateHelper::formatIndonesiaDate($member->tgl_lahir),
+                    'pendidikan' => $member->pendidikan,
+                    'pekerjaan' => $member->pekerjaan,
+                    'keterangan' => $member->keterangan,
+                ];
+            }
+        }
+
+
+        $familyData1 = DB::table('candidate_data_keluarga_sendiri')
+            ->where('candidate_data_id', $candidates->id)
+            ->get();
+
+        // Initialize the family members array with empty values
+        $familyMembers1 = [
+            ['uraian' => 'Ayah', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
+            ['uraian' => 'Ibu', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
+            ['uraian' => 'Anak ke 1', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
+            ['uraian' => 'Anak ke 2', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
+            ['uraian' => 'Anak ke 3', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
+            ['uraian' => 'Anak ke 4', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
+            ['uraian' => 'Anak ke 5', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
+            ['uraian' => 'Anak ke 6', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
+        ];
+
+        // Fill the family members with actual data
+        foreach ($familyData1 as $index => $member1) {
+            if ($index < 8) { // Only fill up to 4 rows
+                $familyMembers1[$index] = [
+                    'uraian' => $member1->uraian,
+                    'nama_lengkap' => $member1->nama_lengkap,
+                    'jenis' => $member1->jenis,
+                    'tgl_lahir' => DateHelper::formatIndonesiaDate($member1->tgl_lahir),
+                    'pendidikan' => $member1->pendidikan,
+                    'pekerjaan' => $member1->pekerjaan,
+                    'keterangan' => $member1->keterangan,
+                ];
+            }
+        }
+
+
+        $pendidikanData = DB::table('candidate_data_pendidikan')
+            ->where('candidate_data_id', $candidates->id)
+            ->get();
+
+        // Initialize the family members array with empty values
+        $pendidikanList = [
+            ['tingkat_besar' => 'Dasar', 'nama_sekolah' => '', 'tempat_sekolah' => '', 'jurusan_studi' => '', 'berijazah' => '', 'dari_sampai' => '', 'keterangan' => ''],
+            ['tingkat_besar' => 'SLTP', 'nama_sekolah' => '', 'tempat_sekolah' => '', 'jurusan_studi' => '', 'berijazah' => '', 'dari_sampai' => '', 'keterangan' => ''],
+            ['tingkat_besar' => 'SLTA', 'nama_sekolah' => '', 'tempat_sekolah' => '', 'jurusan_studi' => '', 'berijazah' => '', 'dari_sampai' => '', 'keterangan' => ''],
+            ['tingkat_besar' => 'Diploma', 'nama_sekolah' => '', 'tempat_sekolah' => '', 'jurusan_studi' => '', 'berijazah' => '', 'dari_sampai' => '', 'keterangan' => ''],
+            ['tingkat_besar' => 'Strata I', 'nama_sekolah' => '', 'tempat_sekolah' => '', 'jurusan_studi' => '', 'berijazah' => '', 'dari_sampai' => '', 'keterangan' => ''],
+            ['tingkat_besar' => 'Strata II', 'nama_sekolah' => '', 'tempat_sekolah' => '', 'jurusan_studi' => '', 'berijazah' => '', 'dari_sampai' => '', 'keterangan' => ''],
+            ['tingkat_besar' => 'Lain-ain', 'nama_sekolah' => '', 'tempat_sekolah' => '', 'jurusan_studi' => '', 'berijazah' => '', 'dari_sampai' => '', 'keterangan' => ''],
+        ];
+
+        // Fill the family members with actual data
+        foreach ($pendidikanData as $index => $pendidikan) {
+            if ($index < 8) { // Only fill up to 4 rows
+                $pendidikanList[$index] = [
+                    'tingkat_besar' => $pendidikan->tingkat_besar,
+                    'nama_sekolah' => $pendidikan->nama_sekolah,
+                    'tempat_sekolah' => $pendidikan->tempat_sekolah,
+                    'jurusan_studi' => $pendidikan->jurusan_studi,
+                    'berijazah' => $pendidikan->berijazah,
+                    'dari_sampai' => date('d M y', strtotime($pendidikan->dari)) . ' - ' . date('d M y', strtotime($pendidikan->sampai)),
+                    'keterangan' => $pendidikan->keterangan,
+                ];
+            }
+        }
+
+        $kursusData = DB::table('candidate_data_kursus')
+            ->where('candidate_data_id', $candidates->id)
+            ->get();
+
+        // Initialize the family members array with empty values
+        $kursusList = [
+            ['nama' => '', 'diadakan_oleh' => '', 'tempat' => '', 'lama' => '', 'tahun' => '', 'dibiayai_oleh' => '', 'keterangan' => ''],
+            ['nama' => '', 'diadakan_oleh' => '', 'tempat' => '', 'lama' => '', 'tahun' => '', 'dibiayai_oleh' => '', 'keterangan' => ''],
+            ['nama' => '', 'diadakan_oleh' => '', 'tempat' => '', 'lama' => '', 'tahun' => '', 'dibiayai_oleh' => '', 'keterangan' => ''],
+            ['nama' => '', 'diadakan_oleh' => '', 'tempat' => '', 'lama' => '', 'tahun' => '', 'dibiayai_oleh' => '', 'keterangan' => ''],
+            ['nama' => '', 'diadakan_oleh' => '', 'tempat' => '', 'lama' => '', 'tahun' => '', 'dibiayai_oleh' => '', 'keterangan' => ''],
+            ['nama' => '', 'diadakan_oleh' => '', 'tempat' => '', 'lama' => '', 'tahun' => '', 'dibiayai_oleh' => '', 'keterangan' => ''],
+            ['nama' => '', 'diadakan_oleh' => '', 'tempat' => '', 'lama' => '', 'tahun' => '', 'dibiayai_oleh' => '', 'keterangan' => ''],
+        ];
+
+        // Fill the family members with actual data
+        foreach ($kursusData as $index => $kursus) {
+            if ($index < 7) { // Only fill up to 4 rows
+                $kursusList[$index] = [
+                    'nama' => $kursus->nama,
+                    'diadakan_oleh' => $kursus->diadakan_oleh,
+                    'tempat' => $kursus->tempat,
+                    'lama' => $kursus->lama,
+                    'tahun' => $kursus->tahun,
+                    'dibiayai_oleh' => $kursus->dibiayai_oleh,
+                    'keterangan' => $kursus->keterangan,
+                ];
+            }
+        }
+
+        $bahasaData = DB::table('candidate_data_bahasa')
+            ->where('candidate_data_id', $candidates->id)
+            ->get();
+
+        // Initialize the family members array with empty values
+        $bahasaList = [
+            ['bahasa' => '', 'bicara' => '', 'baca' => '', 'tulis' => '', 'steno' => ''],
+            ['bahasa' => '', 'bicara' => '', 'baca' => '', 'tulis' => '', 'steno' => ''],
+            ['bahasa' => '', 'bicara' => '', 'baca' => '', 'tulis' => '', 'steno' => ''],
+        ];
+
+        // Fill the family members with actual data
+        foreach ($bahasaData as $index => $bahasa) {
+            if ($index < 7) { // Only fill up to 4 rows
+                $bahasaList[$index] = [
+                    'bahasa' => $bahasa->bahasa,
+                    'bicara' => $bahasa->bicara,
+                    'baca' => $bahasa->baca,
+                    'tulis' => $bahasa->tulis,
+                    'steno' => $bahasa->steno,
+                ];
+            }
+        }
+
+        $pekerjaanData = DB::table('candidate_data_pekerjaan')
+            ->where('candidate_data_id', $candidates->id)
+            ->get();
+
+        $pekerjaanList = [
+            ['perusahaan' => '', 'alamat' => '', 'jabatan' => '', 'dari' => '', 'sampai' => '', 'keterangan' => '', 'alasan' => ''],
+            ['perusahaan' => '', 'alamat' => '', 'jabatan' => '', 'dari' => '', 'sampai' => '', 'keterangan' => '', 'alasan' => ''],
+            ['perusahaan' => '', 'alamat' => '', 'jabatan' => '', 'dari' => '', 'sampai' => '', 'keterangan' => '', 'alasan' => ''],
+            ['perusahaan' => '', 'alamat' => '', 'jabatan' => '', 'dari' => '', 'sampai' => '', 'keterangan' => '', 'alasan' => ''],
+            ['perusahaan' => '', 'alamat' => '', 'jabatan' => '', 'dari' => '', 'sampai' => '', 'keterangan' => '', 'alasan' => ''],
+            ['perusahaan' => '', 'alamat' => '', 'jabatan' => '', 'dari' => '', 'sampai' => '', 'keterangan' => '', 'alasan' => ''],
+            ['perusahaan' => '', 'alamat' => '', 'jabatan' => '', 'dari' => '', 'sampai' => '', 'keterangan' => '', 'alasan' => ''],
+            ['perusahaan' => '', 'alamat' => '', 'jabatan' => '', 'dari' => '', 'sampai' => '', 'keterangan' => '', 'alasan' => ''],
+        ];
+
+        // Fill the family members with actual data
+        foreach ($pekerjaanData as $index => $pekerjaan) {
+            if ($index < 8) { // Only fill up to 4 rows
+                $pekerjaanList[$index] = [
+                    'perusahaan' => $pekerjaan->perusahaan,
+                    'alamat' => $pekerjaan->alamat,
+                    'jabatan' => $pekerjaan->jabatan,
+                    'dari' => $pekerjaan->dari,
+                    'sampai' => $pekerjaan->sampai,
+                    'keterangan' => $pekerjaan->keterangan,
+                    'alasan' => $pekerjaan->alasan,
+                ];
+            }
+        }
+
+        // Address formatting logic (same as before)
+        $wrappedAddress = wordwrap($candidates->alamat_rumah, 70, "\n", true);
+        $addressParts = explode("\n", $wrappedAddress);
+        $addressLine1 = $addressParts[0] ?? '';
+        $addressLine2 = $addressParts[1] ?? '';
+        $addressLine3 = $addressParts[2] ?? '';
+
+        $wrappedAddress1 = wordwrap($candidates->alamat_perusahaan, 70, "\n", true);
+        $addressParts1 = explode("\n", $wrappedAddress1);
+        $addressLine4 = $addressParts1[0] ?? '';
+        $addressLine5 = $addressParts1[1] ?? '';
+
+        $penjelasan1 = substr($candidates->penjelasan_pendidikan, 0, 30);
+        $penjelasan2 = substr($candidates->penjelasan_pendidikan, 30);
+
+        $wrappedAddress2 = wordwrap($candidates->alasan_pekerjaan_terakhir, 100, "\n", true);
+        $addressParts2 = explode("\n", $wrappedAddress2);
+        $alasan1 = $addressParts2[0] ?? '';
+        $alasan2 = $addressParts2[1] ?? '';
+        $alasan3 = $addressParts2[2] ?? '';
+
+        $wrappedAddress3 = wordwrap($candidates->uraian_pekerjaan_terakhir, 100, "\n", true);
+        $addressParts3 = explode("\n", $wrappedAddress3);
+        $alasan4 = $addressParts3[0] ?? '';
+        $alasan5 = $addressParts3[1] ?? '';
+        $alasan6 = $addressParts3[2] ?? '';
+
+
+        $combinedEm = $candidates->em_nama . ' , ' . $candidates->em_alamat . ' , ' . $candidates->em_telp . ' , ' . $candidates->em_status;
+
+        // Find the last space within the first 45 characters
+        $limit = 50;
+        $breakpoint = strrpos(substr($combinedEm, 0, $limit), ' ');
+
+        if ($breakpoint !== false) {
+            // Split the text at the last space before the limit
+            $penjelasan3 = substr($combinedEm, 0, $breakpoint);
+            $penjelasan4 = substr($combinedEm, $breakpoint + 1); // +1 to skip the space
+        } else {
+            // If there's no space within the limit, break at the limit
+            $penjelasan3 = substr($combinedEm, 0, $limit);
+            $penjelasan4 = substr($combinedEm, $limit);
+        }
+
+        return view('recruitment.candidate.print', compact('candidates', 'penjelasan3', 'penjelasan4', 'alasan1', 'alasan2', 'alasan3', 'alasan4', 'alasan5', 'alasan6', 'pekerjaanList', 'bahasaList', 'kursusList', 'penjelasan1', 'penjelasan2', 'addressLine1', 'pendidikanList', 'addressLine2', 'addressLine3', 'addressLine4', 'addressLine5', 'familyMembers', 'familyMembers1'));
     }
 }

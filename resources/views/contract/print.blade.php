@@ -563,7 +563,7 @@
                 melakukan tugas serta pekerjaan untuk keperluan dan kepentingan PIHAK PERTAMA dalam menjalankan usaha
                 Perseroan untuk jangka waktu tertentu dan dimulai pada:</p>
             <p style="padding-left: 19pt;text-indent: 0pt;line-height: 12pt;text-align: left;">Hari : {{$dateNow4}}</p>
-            <p style="padding-left: 19pt;text-indent: 0pt;text-align: left;">Tanggal : {{$dateNow3}}</p>
+            <p style="padding-left: 19pt;text-indent: 0pt;text-align: left;">Tanggal : {{$dateNow5}}</p>
         </li>
         <li data-list-text="2.">
             <p style="padding-top: 12pt;padding-left: 19pt;text-indent: -14pt;text-align: left;">&nbsp Untuk pertama kalinya
@@ -616,7 +616,7 @@
     <ol id="l5">
         <li data-list-text="1.">
             <p style="padding-top: 12pt;padding-left: 26pt;text-indent: -18pt;text-align: justify;">&nbsp PIHAK PERTAMA dan
-                PIHAK KEDUA menyetujui bahwa dalam Perjanjian berlaku untuk jangka waktu 12 (Dua Belas) Bulan, terhitung
+                PIHAK KEDUA menyetujui bahwa dalam Perjanjian berlaku untuk jangka waktu {{ $months }} ({{ $monthsInWords }}) Bulan, terhitung
                 mulai tanggal {{$dateNow5}} sampai dengan tanggal {{$dateNow6}}.</p>
         </li>
         <li data-list-text="2.">

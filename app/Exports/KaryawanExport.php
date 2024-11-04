@@ -116,7 +116,7 @@ class KaryawanExport implements FromQuery, WithHeadings, WithColumnFormatting
             'Base POH',
             'Nama PT',
             'Sex',
-            'Marital Status',
+            'Tax Status',
             'Birthplace',
             'Religion',
             'Address',

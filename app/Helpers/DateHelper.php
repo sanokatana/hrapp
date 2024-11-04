@@ -92,6 +92,18 @@ class DateHelper
         return "$dayName";
     }
 
+    public static function convertToIndonesianWords($number)
+    {
+        $words = [
+            1 => 'Satu', 2 => 'Dua', 3 => 'Tiga', 4 => 'Empat', 5 => 'Lima',
+            6 => 'Enam', 7 => 'Tujuh', 8 => 'Delapan', 9 => 'Sembilan', 10 => 'Sepuluh',
+            11 => 'Sebelas', 12 => 'Dua Belas'
+        ];
+
+        return $words[$number] ?? $number;
+    }
+
+
     public static function formatIndonesiaDate($date)
     {
 
