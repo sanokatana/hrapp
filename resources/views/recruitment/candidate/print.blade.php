@@ -146,6 +146,12 @@ use App\Helpers\DateHelper;
             /* Optional: add some spacing */
         }
     </style>
+    <script>
+        // Trigger print dialog on page load
+        window.onload = function() {
+            window.print();
+        };
+    </script>
 </head>
 
 <body lang="EN-US" style="overflow-wrap: break-word;">

@@ -168,19 +168,27 @@ class SkController extends Controller
     public function printContract($id)
     {
         $sk = DB::table('tb_sk')
-            ->select('tb_sk.*', 'karyawan.nama_lengkap', 'karyawan.jabatan', 'karyawan.tgl_masuk')
-            ->join('karyawan', 'tb_sk.nik', '=', 'karyawan.nik')
-            ->where('tb_sk.id', $id)
-            ->first();
+        ->select(
+            'tb_sk.*',
+            'karyawan.nama_lengkap',
+            'karyawan.jabatan',
+            'karyawan.tgl_masuk',
+            'karyawan.grade',
+            'karyawan.kode_dept',
+            'jabatan.nama_jabatan' // Get nama_jabatan directly
+        )
+        ->join('karyawan', 'tb_sk.nik', '=', 'karyawan.nik')
+        ->leftJoin('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join to get nama_jabatan
+        ->where('tb_sk.id', $id)
+        ->first();
 
         $dateNow = DateHelper::formatIndonesiaDate($sk->tgl_sk);
-        $dateNow1 = DateHelper::formatIndonesiaDate($sk->tgl_masuk);
 
         $namaJabatan = DB::table('jabatan')
         ->where('id', $sk->jabatan)
         ->first();
         // Pass data to the view
 
-        return view('sk.print', compact('sk', 'dateNow', 'dateNow1', 'namaJabatan'));
+        return view('sk.printSK', compact('sk', 'dateNow', 'namaJabatan'));
     }
 }

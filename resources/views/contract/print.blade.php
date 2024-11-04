@@ -443,6 +443,12 @@
             overflow: visible;
         }
     </style>
+    <script>
+        // Trigger print dialog on page load
+        window.onload = function() {
+            window.print();
+        };
+    </script>
 </head>
 
 <body style="margin-right: 65px;margin-left: 65px">
