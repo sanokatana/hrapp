@@ -25,7 +25,8 @@ class ContractController extends Controller
         // Start the query with a left join to the karyawan table
         $query = Contract::query()
             ->select('kontrak.*', 'karyawan.nama_lengkap') // Select fields from contracts and nama_lengkap from karyawan
-            ->leftJoin('karyawan', 'kontrak.nik', '=', 'karyawan.nik'); // Use left join to include all contracts
+            ->leftJoin('karyawan', 'kontrak.nik', '=', 'karyawan.nik') // Use left join to include all contracts
+            ->whereNotNull('karyawan.nama_lengkap'); // Ensure that nama_lengkap exists
 
         // Filter by specific fields if provided in request
         if (!empty($request->no_kontrak)) {

@@ -120,7 +120,8 @@
     <p style="padding-top: 2pt;text-indent: 0pt;text-align: left;"><br /></p>
     <h2 style="text-indent: 0pt;line-height: 20pt;text-align: center;">SURAT KEPUTUSAN</h2>
     <p class="s2" style="text-indent: 0pt;line-height: 16pt;text-align: center;">No. :
-        {{$sk->no_sk}}</p>
+        {{$sk->no_sk}}
+    </p>
     <p style="text-indent: 0pt;text-align: left;"><br /></p>
     <h3 style="text-indent: 0pt;text-align: center;">Tentang</h3>
     <h3 style="padding-top: 8pt;text-indent: 0pt;text-align: center;">PENGANGKATAN SEBAGAI KARYAWAN

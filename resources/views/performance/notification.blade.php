@@ -5,7 +5,7 @@
         <div class="row g-2 align-items-center">
             <div class="col">
                 <div class="page-pretitle">Performance</div>
-                <h2 class="page-title">Kontrak Notification</h2>
+                <h2 class="page-title">Check Contract</h2>
                 <br>
             </div>
         </div>
@@ -41,16 +41,13 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="card-header">
-                            <h3 class="card-title">Karyawan Kontrak Notifications</h3>
+                            <h3 class="card-title">Karyawan Kontrak List</h3>
                         </div>
                         <div class="table-responsive">
                             <table class="table card-table table-vcenter">
                                 <tbody>
                                     @foreach($contracts as $contract)
                                     <tr>
-                                        <td class="w-1 pe-0">
-                                            <input type="checkbox" class="form-check-input m-0 align-middle" aria-label="Select task">
-                                        </td>
                                         <td class="w-100">
                                             <a href="#" id="{{ $contract->id }}" class="text-reset view">
                                                 <b>Kontrak</b> | <b>{{ $contract->no_kontrak }}</b> | {{ $contract->nama_lengkap }} - {{ $contract->position }}

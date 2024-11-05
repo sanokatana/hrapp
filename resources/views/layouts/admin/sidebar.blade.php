@@ -613,10 +613,10 @@
                                         Dashboard
                                     </a>
                                     <a class="dropdown-item {{request()->is(['performance/notification']) ? 'active' : ''}}" href="/performance/notification">
-                                        Notification
+                                        Check Contract
                                     </a>
-                                    <a class="dropdown-item" href="#">
-                                        Schedule Evaluation
+                                    <a class="dropdown-item {{request()->is(['performance/notificationEmail']) ? 'active' : ''}}" href="/performance/notificationEmail"  href="#">
+                                        Schedule Notif Email
                                     </a>
                                 </div>
                             </div>

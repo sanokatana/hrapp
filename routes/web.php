@@ -331,6 +331,9 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
 
     //Performance
     Route::get('/performance/notification', [PerformanceController::class, 'notification']);
+    Route::get('/performance/notificationEmail', [PerformanceController::class, 'notificationEmail']);
+    Route::post('/contracts/send-email', [PerformanceController::class, 'sendEmail'])->name('contracts.sendEmail');
+
 
     //Recruitment - Candidate
     Route::get('/recruitment/candidate', [RecruitmentController::class, 'candidate']);

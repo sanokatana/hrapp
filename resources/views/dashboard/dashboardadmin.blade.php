@@ -317,6 +317,36 @@ use App\Helpers\DateHelper;
                                         </div>
                                         <div class="col-md-6 col-xl-6">
                                             <div class="card" style="height: 28rem">
+                                             <div class="card-header">
+                                                    <h3 class="card-title">Leaderboard Waktu Telat</h3>
+                                                </div>
+                                                <div class="card-body card-body-scrollable card-body-scrollable-shadow">
+                                                    <div class="divide-y">
+                                                        @foreach ($leaderboardTelatNonNS as $person)
+                                                        <div class="row">
+                                                            <div class="col-auto" style="align-content: center">
+                                                                <span class="avatar">{{ strtoupper(substr($person->nama_lengkap, 0, 2)) }}</span>
+                                                            </div>
+                                                            <div class="col">
+                                                                <div class="text-truncate">
+                                                                    <strong>{{ $person->nama_lengkap }} - {{ $person->kode_dept }}</strong>
+                                                                </div>
+                                                                <div>{{ $person->nama_jabatan }}</div>
+                                                                <div class="text-secondary">
+                                                                    {{ $person->total_late_minutes  }} Menit
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-auto align-self-center">
+                                                                <div class="status status-primary">{{ $loop->iteration }}</div>
+                                                            </div>
+                                                        </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-xl-6">
+                                            <div class="card" style="height: 28rem">
                                                 <div class="card-header">
                                                     <h3 class="card-title">Leaderboard Waktu On Time</h3>
                                                 </div>
@@ -346,36 +376,7 @@ use App\Helpers\DateHelper;
                                             </div>
                                         </div>
 
-                                        <div class="col-md-6 col-xl-6">
-                                            <div class="card" style="height: 28rem">
-                                                <div class="card-header">
-                                                    <h3 class="card-title">Leaderboard Waktu Telat</h3>
-                                                </div>
-                                                <div class="card-body card-body-scrollable card-body-scrollable-shadow">
-                                                    <div class="divide-y">
-                                                        @foreach ($leaderboardTelatNonNS as $person)
-                                                        <div class="row">
-                                                            <div class="col-auto" style="align-content: center">
-                                                                <span class="avatar">{{ strtoupper(substr($person->nama_lengkap, 0, 2)) }}</span>
-                                                            </div>
-                                                            <div class="col">
-                                                                <div class="text-truncate">
-                                                                    <strong>{{ $person->nama_lengkap }} - {{ $person->kode_dept }}</strong>
-                                                                </div>
-                                                                <div>{{ $person->nama_jabatan }}</div>
-                                                                <div class="text-secondary">
-                                                                    {{ $person->total_late_minutes  }} Menit
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-auto align-self-center">
-                                                                <div class="status status-primary">{{ $loop->iteration }}</div>
-                                                            </div>
-                                                        </div>
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+
                                         <div class="col-md-6 col-xl-6">
                                             <div class="card" style="height: 28rem">
                                                 <div class="card-header">
