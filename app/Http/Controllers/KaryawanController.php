@@ -256,6 +256,7 @@ class KaryawanController extends Controller
                         'start_shift' => $start_shift,
                         'no_kontrak' => $mappedData['no_kontrak'],
                         'employee_status' => $mappedData['employee_status'],
+                        'poh' => $mappedData['poh'],
                         'base_poh' => $mappedData['base_poh'],
                         'nama_pt' => $mappedData['nama_pt'],
                         'sex' => $mappedData['sex'],

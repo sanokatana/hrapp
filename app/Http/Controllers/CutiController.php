@@ -150,7 +150,7 @@ class CutiController extends Controller
             $newPeriode = $record->tahun + 1;
             $newPeriodeAwal = Carbon::parse($record->periode_akhir)->addDay()->format('Y-m-d');
             $newPeriodeAkhir = Carbon::parse($record->periode_akhir)->addYear()->format('Y-m-d');
-            if($record->sisa_cuti >=0){
+            if ($record->sisa_cuti >= 0) {
                 $newSisaCuti = 12;
             } else {
                 $newSisaCuti = 12 + $record->sisa_cuti;
@@ -190,7 +190,7 @@ class CutiController extends Controller
     {
         $searchTerm = $request->nama_lengkap;
         $employee = DB::table('karyawan')
-            ->where('nama_lengkap', 'like', '%'.$searchTerm.'%')
+            ->where('nama_lengkap', 'like', '%' . $searchTerm . '%')
             ->where('status_kar', 'Aktif')
             ->get(['nik', 'nama_lengkap']);
         return response()->json($employee);
@@ -205,69 +205,67 @@ class CutiController extends Controller
         ]);
     }
     public function uploadCuti(Request $request)
-{
-    // Validate the incoming request
-    $validator = Validator::make($request->all(), [
-        'file' => 'required|mimes:xlsx,xls',
-    ]);
+    {
+        // Validate the incoming request
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|mimes:xlsx,xls',
+        ]);
 
-    // Redirect back if validation fails
-    if ($validator->fails()) {
-        return redirect()->back()->with('danger', 'Please upload a valid XLSX file.');
-    }
-
-    try {
-        // Store the file in the storage
-        $file = $request->file('file');
-        $filePath = $file->storeAs('uploads', $file->getClientOriginalName());
-
-        // Load the file using IOFactory
-        $spreadsheet = IOFactory::load(storage_path('app/' . $filePath));
-        $sheet = $spreadsheet->getActiveSheet();
-
-        // Read the data from the spreadsheet
-        $header = [];
-        $data = [];
-        foreach ($sheet->getRowIterator() as $rowIndex => $row) {
-            $rowData = [];
-            foreach ($row->getCellIterator() as $cell) {
-                $rowData[] = $cell->getValue();
-            }
-
-            if ($rowIndex == 1) {
-                $header = $rowData; // First row is header
-            } else {
-                // Map header to row data
-                $mappedData = array_combine($header, $rowData);
-
-                // Convert Excel date serial numbers to date strings
-                $periode_awal = Date::excelToDateTimeObject($mappedData['periode_awal'])->format('Y-m-d');
-                $periode_akhir = !empty($mappedData['periode_akhir']) ? Date::excelToDateTimeObject($mappedData['periode_akhir'])->format('Y-m-d') : null;
-
-                // Prepare data for insertion
-                $data[] = [
-                    'nik' => $mappedData['nik'],
-                    'nip' => $mappedData['nip'],
-                    'tahun' => $mappedData['tahun'],
-                    'sisa_cuti' => $mappedData['sisa_cuti'],
-                    'periode_awal' => $periode_awal,
-                    'periode_akhir' => $periode_akhir,
-                    'status' => $mappedData['status'],
-                ];
-            }
+        if ($validator->fails()) {
+            return redirect()->back()->with('danger', 'Please upload a valid XLSX file.');
         }
 
-        // Insert data into the database
-        DB::table('cuti')->insert($data);
+        try {
+            // Store the file
+            $file = $request->file('file');
+            $filePath = $file->storeAs('uploads', $file->getClientOriginalName());
 
-        // Redirect back with success message
-        return redirect()->back()->with('success', 'Data successfully uploaded.');
-    } catch (\Exception $e) {
-        // Log error and redirect back with error message
-        Log::error('Error uploading data: ' . $e->getMessage());
-        return redirect()->back()->with('error', 'Error uploading data: ' . $e->getMessage());
+            // Load the file
+            $spreadsheet = IOFactory::load(storage_path('app/' . $filePath));
+            $sheet = $spreadsheet->getActiveSheet();
+
+            $header = [];
+            $data = [];
+            foreach ($sheet->getRowIterator() as $rowIndex => $row) {
+                $rowData = [];
+                foreach ($row->getCellIterator() as $cell) {
+                    $rowData[] = $cell->getValue();
+                }
+
+                if ($rowIndex == 1) {
+                    $header = $rowData;
+                } else {
+                    $mappedData = array_combine($header, $rowData);
+
+                    // Convert or format date fields
+                    $periode_awal = is_numeric($mappedData['periode_awal'])
+                        ? Date::excelToDateTimeObject($mappedData['periode_awal'])->format('Y-m-d')
+                        : $mappedData['periode_awal'];
+
+                    $periode_akhir = !empty($mappedData['periode_akhir']) && is_numeric($mappedData['periode_akhir'])
+                        ? Date::excelToDateTimeObject($mappedData['periode_akhir'])->format('Y-m-d')
+                        : $mappedData['periode_akhir'];
+
+                    // Cast numeric fields to ensure proper data type
+                    $data[] = [
+                        'nik' => $mappedData['nik'],
+                        'nip' => (int)$mappedData['nip'],
+                        'tahun' => (int)$mappedData['tahun'],
+                        'sisa_cuti' => (float)$mappedData['sisa_cuti'],
+                        'periode_awal' => $periode_awal,
+                        'periode_akhir' => $periode_akhir,
+                        'status' => (int)$mappedData['status'],
+                    ];
+                }
+            }
+
+            // Insert data into the database
+            DB::table('cuti')->insert($data);
+
+            return redirect()->back()->with('success', 'Data successfully uploaded.');
+        } catch (\Exception $e) {
+            Log::error('Error uploading data: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error uploading data: ' . $e->getMessage());
+        }
     }
-}
-
-
 }

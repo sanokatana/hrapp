@@ -201,6 +201,7 @@ use App\Helpers\DateHelper;
         }
 
         /* Watermark background */
+        /* Watermark background */
         body::before {
             content: "";
             position: fixed;
@@ -214,8 +215,9 @@ use App\Helpers\DateHelper;
             opacity: 0.2;
             z-index: -1;
             pointer-events: none;
-            background-image: url('{{ asset('assets/img/logoPic.png') }}');
+            background-image: url("{{ asset('assets/img/logoPic.png') }}");
         }
+
 
         /* Flex container for Catatan and Photo */
         .flex-container {
@@ -231,11 +233,11 @@ use App\Helpers\DateHelper;
         }
 
         .photo-box {
-            width: 150px;
+            width: 120px;
             /* Adjust width as needed */
             border: 0.8pt solid #000000;
             text-align: center;
-            min-height: 160px;
+            min-height: 140px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -286,7 +288,7 @@ use App\Helpers\DateHelper;
         <p class="s3" style="padding-top: 3pt;text-indent: 0pt;text-align: center;">FORMULIR LAMARAN KERJA</p>
 
         <!-- Flex container -->
-        <div class="flex-container MsoNormal" style="margin-bottom: 50px;">
+        <div class="flex-container MsoNormal" style="margin-bottom: 20px;">
             <div class="catatan MsoNormal">
                 <h1 style="padding-top: 11pt;text-indent: 0pt;line-height: 10pt;text-align: left;">Catatan :</h1>
                 <ol id="l1">

@@ -54,8 +54,8 @@
                 </select>
             </div>
             <div class="form-group" id="pukulContainer" style="display: none;">
-                <label for="tipe" class="col-form-label">Pukul Waktu Terlambat</label>
-                <input type="time" name="pukul" id="pukul" class="form-control" placeholder="Pukul Datang Terlambat">
+                <label for="tipe" class="col-form-label">Pukul Waktu</label>
+                <input type="time" name="pukul" id="pukul" class="form-control" placeholder="Pukul Waktu">
             </div>
             <div class="form-group">
                 <button type="button" class="btn btn-primary btn-block" id="nextButton">Next</button>

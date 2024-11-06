@@ -266,7 +266,7 @@ class PengajuanCutiController extends Controller
                         Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan) {
                             $message->to($atasan->email)
                                 ->subject("Pengajuan Cuti Baru Dari {$nama_lengkap}")
-                                ->cc(['human.resources@ciptaharmoni.com', $email_karyawan])
+                                ->cc([$email_karyawan])
                                 ->priority(1);
 
                             $message->getHeaders()->addTextHeader('Importance', 'high');

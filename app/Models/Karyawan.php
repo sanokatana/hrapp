@@ -27,6 +27,7 @@ class Karyawan extends Authenticatable
         'grade',
         'no_kontrak',
         'employee_status',
+        'poh',
         'base_poh',
         'nama_pt',
         'sex',
