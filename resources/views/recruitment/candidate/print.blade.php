@@ -209,7 +209,7 @@ use App\Helpers\DateHelper;
             left: 0;
             width: 100%;
             height: 100%;
-            background-size: 800px;
+            background-size: 100px;
             background-repeat: no-repeat;
             background-position: center;
             opacity: 0.2;

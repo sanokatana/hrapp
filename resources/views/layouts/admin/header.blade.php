@@ -79,7 +79,7 @@
                                             <span class="status-dot status-dot-animated bg-yellow d-block"></span>
                                         </div>
                                         <div class="col text-truncate">
-                                            <a href="#" class="text-body d-block">Leave Request from {{ $request->nama_lengkap }}</a>
+                                            <a href="#" class="text-body d-block">Absen Request from {{ $request->nama_lengkap }}</a>
                                             <div class="d-block text-secondary text-truncate mt-n1">
                                                 Requested on {{ \Carbon\Carbon::parse($request->tgl_create)->format('d M Y') }}
                                             </div>

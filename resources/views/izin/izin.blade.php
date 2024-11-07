@@ -103,7 +103,8 @@
 </div>
 
 <div class="fab-button animate bottom-right dropdown draggable" style="margin-top: 20px;">
-    <a href="#" class="fab bg-primary" data-toggle="dropdown">
+    <!-- Expanded clickable area -->
+    <a href="#" class="fab bg-primary w-100 h-100 d-flex align-items-center justify-content-center" data-toggle="dropdown">
         <ion-icon name="add-outline" role="img" class="md hydrated" aria-label="add outline"></ion-icon>
     </a>
     <div class="dropdown-menu">
@@ -123,26 +124,28 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
 <script>
     $(function() {
-        var isDragging = false;
+        // var isDragging = false;
 
-        $(".draggable").draggable({
-            containment: "window", // Restricts dragging to the body element
-            zIndex: 9999, // Set a high zIndex value to ensure it stays above other elements
-            scroll: false, // Disable scrolling while dragging
-            start: function() {
-                isDragging = true;
-            },
-            stop: function() {
-                setTimeout(function() {
-                    isDragging = false;
-                }, 100);
-            }
-        });
+        // $(".draggable").draggable({
+        //     containment: "window",
+        //     zIndex: 9999,
+        //     scroll: false,
+        //     start: function() {
+        //         isDragging = true;
+        //     },
+        //     stop: function() {
+        //         setTimeout(function() {
+        //             isDragging = false;
+        //         }, 100);
+        //     }
+        // });
 
-        $(".fab").click(function(e) {
+        $(".fab").on("click", function(e) {
             if (isDragging) {
                 e.preventDefault();
                 e.stopImmediatePropagation();
+            } else {
+                $(this).closest(".dropdown").toggleClass("show"); // Opens the dropdown
             }
         });
 
