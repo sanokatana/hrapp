@@ -109,7 +109,7 @@ class PerformanceController extends Controller
             Mail::html($emailContent, function ($message) use ($atasan, $karyawan, $contract) {
                 $message->to('chandrazahran@gmail.com')
                         ->subject("Notifikasi Expiring Kontrak - {$karyawan->nama_lengkap}")
-                        ->cc([$atasan->email ?? '', $karyawan->email, 'al.imron@ciptaharmoni.com'])
+                        ->cc([$atasan->email, $karyawan->email ?? '', 'al.imron@ciptaharmoni.com'])
                         ->priority(1);  // Set email priority to high
 
                 // Set additional headers for importance
