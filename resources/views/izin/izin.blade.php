@@ -104,7 +104,7 @@
 
 <div class="fab-button animate bottom-right dropdown draggable" style="margin-top: 20px;">
     <!-- Expanded clickable area -->
-    <a href="#" class="fab bg-primary w-100 h-100 d-flex align-items-center justify-content-center" data-toggle="dropdown">
+    <a href="#" class="fab bg-primary d-flex align-items-center justify-content-center" data-toggle="dropdown">
         <ion-icon name="add-outline" role="img" class="md hydrated" aria-label="add outline"></ion-icon>
     </a>
     <div class="dropdown-menu">

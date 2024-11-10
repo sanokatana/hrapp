@@ -21,7 +21,7 @@
             <ion-icon name="chevron-back-outline"></ion-icon>
         </a>
     </div>
-    <div class="pageTitle">Pengajuan Izin</div>
+    <div class="pageTitle">Pengajuan Absen</div>
     <div class="right"></div>
 </div>
 <!-- * App Header -->
@@ -54,7 +54,7 @@
                 </select>
             </div>
             <div class="form-group" id="pukulContainer" style="display: none;">
-                <label for="tipe" class="col-form-label">Pukul Waktu</label>
+                <label for="tipe" class="col-form-label">Pukul:</label>
                 <input type="time" name="pukul" id="pukul" class="form-control" placeholder="Pukul Waktu">
             </div>
             <div class="form-group">
