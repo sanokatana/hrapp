@@ -20,9 +20,11 @@ class NotificationsMiddleware
     public function handle($request, Closure $next)
     {
         if (Auth::guard('user')->check()) {
-            $birthdays = Karyawan::whereMonth('DOB', now()->month)
-                ->whereDay('DOB', now()->day)
-                ->get();
+            $startOfWeek = now()->startOfWeek()->format('m-d');
+            $endOfWeek = now()->endOfWeek()->format('m-d');
+
+            $birthdays = Karyawan::whereRaw("DATE_FORMAT(DOB, '%m-%d') BETWEEN ? AND ?", [$startOfWeek, $endOfWeek])->get();
+
 
             $izinRequests = Pengajuanizin::select('pengajuan_izin.*', 'karyawan.nama_lengkap')
                 ->join('karyawan', 'pengajuan_izin.nik', '=', 'karyawan.nik')

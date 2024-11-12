@@ -38,37 +38,37 @@
                                 <h3 class="card-title">Notification</h3>
                             </div>
                             <div class="list-group list-group-flush list-group-hoverable" style="width: max-content;">
-
                                 <!-- Birthdays -->
                                 @forelse ($birthdays as $birthday)
-                                <div class="list-group-item">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto">
-                                            <span class="status-dot status-dot-animated bg-green d-block"></span>
-                                        </div>
-                                        <div class="col text-truncate">
-                                            <a href="#" class="text-body d-block">{{ $birthday->nama_lengkap }}</a>
-                                            <div class="d-block text-secondary text-truncate mt-n1">
-                                                Happy Birthday! 🎉
+                                    <div class="list-group-item">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <span class="status-dot status-dot-animated bg-green d-block"></span>
+                                            </div>
+                                            <div class="col text-truncate">
+                                                <a href="#" class="text-body d-block">{{ $birthday->nama_lengkap }}</a>
+                                                <div class="d-block text-secondary text-truncate mt-n1">
+                                                    Happy Birthday! 🎉
+                                                    <span class="text-muted">({{ \Carbon\Carbon::parse($birthday->DOB)->format('d M') }})</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <a href="#" class="list-group-item-actions">
+                                                    <!-- Optional: Add an icon or action -->
+                                                </a>
                                             </div>
                                         </div>
-                                        <div class="col-auto">
-                                            <a href="#" class="list-group-item-actions">
-                                                <!-- Optional: Add an icon or action -->
-                                            </a>
-                                        </div>
                                     </div>
-                                </div>
                                 @empty
-                                <div class="list-group-item">
-                                    <div class="row align-items-center">
-                                        <div class="col text-truncate">
-                                            <div class="d-block text-secondary text-truncate mt-n1">
-                                                No birthdays today.
+                                    <div class="list-group-item">
+                                        <div class="row align-items-center">
+                                            <div class="col text-truncate">
+                                                <div class="d-block text-secondary text-truncate mt-n1">
+                                                    No birthdays this week.
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
                                 @endforelse
 
                                 <!-- Leave Requests -->
