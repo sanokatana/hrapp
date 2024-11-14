@@ -611,8 +611,8 @@ class DashboardController extends Controller
                 $query->where('tgl_izin', '<=', $hariini)
                     ->where(function ($subQuery) use ($hariini) {
                         $subQuery->where('tgl_izin_akhir', '>=', $hariini)
-                                 ->orWhereNull('tgl_izin_akhir')
-                                 ->orWhere('tgl_izin_akhir', ''); // Handle empty string case
+                            ->orWhereNull('tgl_izin_akhir')
+                            ->orWhere('tgl_izin_akhir', ''); // Handle empty string case
                     });
             })
             ->first();
@@ -625,8 +625,8 @@ class DashboardController extends Controller
                 $query->where('tgl_cuti', '<=', $hariini)
                     ->where(function ($subQuery) use ($hariini) {
                         $subQuery->where('tgl_cuti_sampai', '>=', $hariini)
-                                 ->orWhereNull('tgl_cuti_sampai')
-                                 ->orWhere('tgl_cuti_sampai', ''); // Handle empty string case
+                            ->orWhereNull('tgl_cuti_sampai')
+                            ->orWhere('tgl_cuti_sampai', ''); // Handle empty string case
                     });
             })
             ->first();
@@ -678,7 +678,7 @@ class DashboardController extends Controller
 
         $noAttendanceNS = DB::connection('mysql2')
             ->table('hrmschl.karyawan')
-            ->leftJoin('db_absen.att_log as presensi', function($join) use ($hariini) {
+            ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
                 $join->on('karyawan.nip', '=', 'presensi.pin') // Use 'pin' from 'att_log'
                     ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini);
             })
@@ -702,16 +702,21 @@ class DashboardController extends Controller
             ->join('hrmschl.shift_pattern_cycle', function ($join) {
                 $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
                     ->on(DB::raw('
-                CASE
-                    WHEN DAYOFWEEK(DATE(presensi.scan_date)) = 1 THEN 7
-                    ELSE DAYOFWEEK(DATE(presensi.scan_date)) - 1
-                END
-            '), '=', 'shift_pattern_cycle.cycle_day');
+                    CASE
+                        WHEN DAYOFWEEK(DATE(presensi.scan_date)) = 1 THEN 7
+                        ELSE DAYOFWEEK(DATE(presensi.scan_date)) - 1
+                    END
+                '), '=', 'shift_pattern_cycle.cycle_day');
             })
             ->join('hrmschl.shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
             ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini)
             ->where('karyawan.grade', '!=', 'NS')
-            ->orderBy(DB::raw('TIME(presensi.scan_date)'), 'DESC')
+            ->whereIn(DB::raw('(presensi.pin, presensi.scan_date)'), function ($query) use ($hariini) {
+                $query->select('pin', DB::raw('MIN(scan_date)'))
+                    ->from('db_absen.att_log')
+                    ->whereDate('scan_date', $hariini)
+                    ->groupBy('pin');
+            })
             ->select(
                 'presensi.*',
                 'karyawan.nama_lengkap',
@@ -721,12 +726,13 @@ class DashboardController extends Controller
                 DB::raw('DATE(presensi.scan_date) as tgl_presensi'),
                 DB::raw('TIME(presensi.scan_date) as jam_in')
             )
+            ->orderBy(DB::raw('TIME(presensi.scan_date)'), 'DESC') // Optional: sort by earliest time first
             ->get();
 
         // Get the list of karyawan who do not have attendance today
         $noAttendanceNonNS = DB::connection('mysql2')
             ->table('hrmschl.karyawan')
-            ->leftJoin('db_absen.att_log as presensi', function($join) use ($hariini) {
+            ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
                 $join->on('karyawan.nip', '=', 'presensi.pin') // Use 'pin' from 'att_log'
                     ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini);
             })
@@ -1037,8 +1043,8 @@ class DashboardController extends Controller
                 $query->where('tgl_izin', '<=', $hariini)
                     ->where(function ($subQuery) use ($hariini) {
                         $subQuery->where('tgl_izin_akhir', '>=', $hariini)
-                                 ->orWhereNull('tgl_izin_akhir')
-                                 ->orWhere('tgl_izin_akhir', ''); // Handle empty string case
+                            ->orWhereNull('tgl_izin_akhir')
+                            ->orWhere('tgl_izin_akhir', ''); // Handle empty string case
                     });
             })
             ->where('karyawan.grade', '!=', 'NS')
@@ -1067,8 +1073,8 @@ class DashboardController extends Controller
                 $query->where('tgl_izin', '<=', $hariini)
                     ->where(function ($subQuery) use ($hariini) {
                         $subQuery->where('tgl_izin_akhir', '>=', $hariini)
-                                 ->orWhereNull('tgl_izin_akhir')
-                                 ->orWhere('tgl_izin_akhir', ''); // Handle empty string case
+                            ->orWhereNull('tgl_izin_akhir')
+                            ->orWhere('tgl_izin_akhir', ''); // Handle empty string case
                     });
             })
             ->where('karyawan.grade', 'NS')
@@ -1161,5 +1167,4 @@ class DashboardController extends Controller
 
         return view('dashboard.dashboardcandidate', compact('candidate', 'stages', 'statusForm', 'interview', 'candidateData'));
     }
-
 }

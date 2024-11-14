@@ -14,26 +14,6 @@ class AttendanceController extends Controller
 {
     public function index(Request $request)
     {
-        // Get filter inputs
-
-        DB::statement('TRUNCATE TABLE presensi');
-
-        // Insert data from att_log in mysql2 connection to hrmschl.presensi in the default connection
-        DB::connection('mysql2')->transaction(function () {
-            DB::connection('mysql2')->statement("
-                INSERT INTO hrmschl.presensi (nip, nik, tgl_presensi, jam_in)
-                SELECT
-                    al.pin AS nip,
-                    p.pegawai_nip AS nik,
-                    DATE(al.scan_date) AS tgl_presensi,
-                    TIME(al.scan_date) AS jam_in
-                FROM
-                    db_absen.att_log al
-                LEFT JOIN
-                    db_absen.pegawai p ON al.pin = p.pegawai_pin
-            ");
-        });
-
 
         $filterMonth = $request->input('bulan', Carbon::now()->month);
         $filterYear = $request->input('tahun', Carbon::now()->year);
@@ -63,20 +43,22 @@ class AttendanceController extends Controller
         $karyawan = $karyawanQuery->get()->groupBy('kode_dept');
 
         // Get the earliest and latest years from the presensi table
-        $years = DB::table('presensi')
-            ->selectRaw('MIN(YEAR(tgl_presensi)) as earliest_year, MAX(YEAR(tgl_presensi)) as latest_year')
+        $years = DB::connection('mysql2')
+            ->table('db_absen.att_log')
+            ->selectRaw('MIN(YEAR(scan_date)) as earliest_year, MAX(YEAR(scan_date)) as latest_year')
             ->first();
 
         $earliestYear = $years->earliest_year;
         $latestYear = $years->latest_year;
 
         // Get presensi data for the selected month
-        $presensi = DB::table('presensi')
-            ->select('nip', 'tgl_presensi', DB::raw('MIN(jam_in) as earliest_jam_in'))
-            ->whereMonth('tgl_presensi', $filterMonth)
-            ->whereYear('tgl_presensi', $filterYear)
-            ->groupBy('nip', 'tgl_presensi')
-            ->get();
+        $presensi = DB::connection('mysql2')
+        ->table('db_absen.att_log as presensi')
+        ->select('presensi.pin', DB::raw('DATE(presensi.scan_date) as scan_date'), DB::raw('MIN(TIME(presensi.scan_date)) as earliest_jam_in'))
+        ->whereMonth('presensi.scan_date', $filterMonth)
+        ->whereYear('presensi.scan_date', $filterYear)
+        ->groupBy('presensi.pin', 'presensi.scan_date')
+        ->get();
 
         // Get national holidays for the selected month
         $liburNasional = DB::table('libur_nasional')
@@ -259,7 +241,7 @@ class AttendanceController extends Controller
                         $status_work = 'P';
                     }
 
-                    $attendance = $presensi->where('nip', $k->nip)->where('tgl_presensi', $dateString)->first();
+                    $attendance = $presensi->where('pin', $k->nip)->where('scan_date', $dateString)->first();
                     $isCuti = $this->checkCuti($cuti, $k->nik, $date);
                     $isIzin = $this->checkIzin($izin, $k->nik, $date);
                     $status = $this->getAttendanceStatus($date, $attendance, $isCuti, $isIzin, $work_start, $morning_start, $afternoon_start, $status_work);
@@ -619,22 +601,25 @@ class AttendanceController extends Controller
         $nama_lengkap = $request->nama_lengkap;
         $nip = $request->nip;
 
-        $query = DB::table('presensi')
-            ->selectRaw('DATE(tgl_presensi) as tanggal, presensi.nip, presensi.nik, nama_lengkap, nama_dept, jam_in')
-            ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
-            ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
+        $query = DB::connection('mysql2')
+        ->table('db_absen.att_log as presensi')
+        ->selectRaw('DATE(presensi.scan_date) as tanggal, presensi.pin, karyawan.nik, karyawan.nama_lengkap, department.nama_dept, TIME(presensi.scan_date) as jam_in')
+        ->join('hrmschl.karyawan as karyawan', 'presensi.pin', '=', 'karyawan.nip') // Join karyawan to get nip
+        ->join('hrmschl.department as department', 'karyawan.kode_dept', '=', 'department.kode_dept');
 
         if ($nama_lengkap) {
-            $query->where('nama_lengkap', 'like', '%' . $nama_lengkap . '%');
+            $query->where('karyawan.nama_lengkap', 'like', '%' . $nama_lengkap . '%');
         }
 
         if ($nip) {
-            $query->where('presensi.nip', $nip);
+            $query->where('presensi.pin', $nip);
         }
 
-        $query->orderBy('tgl_presensi', 'asc')
-            ->orderBy('jam_in', 'asc'); // Ensure proper ordering
+        $query->orderBy('presensi.scan_date', 'asc')
+            ->orderBy('jam_in', 'asc'); // Ensure proper ordering by scan_date and jam_in
+
         $presensi = $query->get();
+
 
         // Fetch approved izin data for the relevant dates and NIPs
         $izin = DB::table('pengajuan_izin')
@@ -647,7 +632,7 @@ class AttendanceController extends Controller
         $processedPresensi = [];
         foreach ($presensi as $record) {
             $tanggal = $record->tanggal;
-            $nip = $record->nip;
+            $nip = $record->pin;
             $nik = $record->nik;
             $jam_in = $record->jam_in;
             $time = strtotime($jam_in);
@@ -775,16 +760,19 @@ class AttendanceController extends Controller
         // Define the next day for fetching the data
         $nextDay = Carbon::parse($tanggal)->addDay()->toDateString();
 
-        $query = DB::table('presensi')
-            ->selectRaw('DATE(tgl_presensi) as tanggal, presensi.nip, presensi.nik, nama_lengkap, nama_dept, jam_in')
-            ->join('karyawan', 'presensi.nip', '=', 'karyawan.nip')
-            ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept')
-            ->whereDate('tgl_presensi', $tanggal)
-            ->orderBy('tgl_presensi', 'asc')
-            ->orWhereDate('tgl_presensi', $nextDay) // Include records for the next day
-            ->orderBy('nama_dept', 'asc');
+        $query = DB::connection('mysql2')
+            ->table('db_absen.att_log as presensi')
+            ->selectRaw('DATE(presensi.scan_date) as tanggal, presensi.pin, karyawan.nik, karyawan.nama_lengkap, department.nama_dept, TIME(presensi.scan_date) as jam_in')
+            ->join('hrmschl.karyawan as karyawan', 'presensi.pin', '=', 'karyawan.nip') // Join karyawan to get nip
+            ->join('hrmschl.department as department', 'karyawan.kode_dept', '=', 'department.kode_dept')
+            ->whereRaw('DATE(presensi.scan_date) = ?', [$tanggal]) // Filter only for the current day
+            ->groupBy('presensi.pin', 'tanggal', 'karyawan.nik', 'karyawan.nama_lengkap', 'department.nama_dept','presensi.scan_date')
+            ->orderBy('presensi.scan_date', 'asc')
+            ->orderBy('jam_in', 'asc') // Ensure proper ordering by scan_date and jam_in
+            ->orderBy('department.nama_dept', 'asc');
 
         $presensi = $query->get();
+
 
         // Fetch approved izin data for the relevant dates and NIPs
         $izin = DB::table('pengajuan_izin')
@@ -797,7 +785,7 @@ class AttendanceController extends Controller
         $processedPresensi = [];
         foreach ($presensi as $record) {
             $tanggal = $record->tanggal;
-            $nip = $record->nip;
+            $nip = $record->pin;
             $nik = $record->nik;
             $time = strtotime($record->jam_in);
 

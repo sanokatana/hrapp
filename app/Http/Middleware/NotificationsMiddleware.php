@@ -27,7 +27,8 @@ class NotificationsMiddleware
             // Get the current user's information
             $user = Auth::guard('user')->user();
             $nik = $user->nik;
-            $role = $user->role; // Assuming 'role' is available as an attribute
+            $role = $user->level; // Assuming 'role' is available as an attribute
+
 
             // Check if the user is in a privileged role (Superadmin, HRD, or Management)
             if (in_array($role, ['Superadmin', 'HRD', 'Management'])) {
@@ -35,7 +36,6 @@ class NotificationsMiddleware
                 $izinRequests = Pengajuanizin::select('pengajuan_izin.*', 'karyawan.nama_lengkap')
                     ->join('karyawan', 'pengajuan_izin.nik', '=', 'karyawan.nik')
                     ->where('pengajuan_izin.status_approved', 0)
-                    ->where('pengajuan_izin.status_approved_hrd', 0)
                     ->get();
 
                 $cutiApplications = PengajuanCuti::where('status_approved', 0)
