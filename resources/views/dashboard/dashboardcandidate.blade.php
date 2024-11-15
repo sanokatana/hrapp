@@ -27,7 +27,7 @@ use App\Helpers\DateHelper;
             <div class="card-body">
                 <ul class="steps steps-yellow steps-counter my-1">
                     @foreach ($stages as $stage)
-                    <li class="step-item @if($stage->id == $candidate->current_stage_id) active @endif">
+                    <li class="step-item @if($stage->sequence == $candidate->current_stage_id) active @endif">
                         <div>{{ $stage->name }}</div>
                     </li>
                     @endforeach

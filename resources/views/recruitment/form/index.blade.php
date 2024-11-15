@@ -224,7 +224,7 @@
                                         <option value="TK1">TK1</option>
                                         <option value="TK2">TK2</option>
                                         <option value="TK3">TK3</option>
-                                        <option value="K">K (Menikah)</option>
+                                        <option value="K">K (Kawin)</option>
                                         <option value="K1">K1</option>
                                         <option value="K2">K2</option>
                                         <option value="K3">K3</option>

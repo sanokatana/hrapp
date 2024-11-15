@@ -209,7 +209,7 @@ use App\Helpers\DateHelper;
             left: 0;
             width: 100%;
             height: 100%;
-            background-size: 100px;
+            background-size: 900px;
             background-repeat: no-repeat;
             background-position: center;
             opacity: 0.2;
@@ -423,7 +423,7 @@ use App\Helpers\DateHelper;
                     <td valign="top" style="width: 451px; padding: 0in; height: 18.95pt;">
                         <p class="MsoNormal" style="margin:0in;text-indent:0in;">: @if($candidates->marriage_status === 'Menikah')
                             Menikah
-                            @elseif($candidates->jenis_kelamin === 'Tidak Menikah')
+                            @elseif($candidates->marriage_status === 'Tidak Menikah')
                             Tidak Menikah
                             @endif
                         </p>
