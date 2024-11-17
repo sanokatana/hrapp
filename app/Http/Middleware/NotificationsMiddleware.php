@@ -22,7 +22,7 @@ class NotificationsMiddleware
         if (Auth::guard('user')->check()) {
             $startOfWeek = now()->startOfWeek()->format('m-d');
             $endOfWeek = now()->endOfWeek()->format('m-d');
-            $birthdays = Karyawan::whereRaw("DATE_FORMAT(DOB, '%m-%d') BETWEEN ? AND ?", [$startOfWeek, $endOfWeek])->get();
+            $birthdays = Karyawan::whereRaw("DATE_FORMAT(DOB, '%m-%d') BETWEEN ? AND ?", [$startOfWeek, $endOfWeek])->where('status_kar','Aktif')->get();
 
             // Get the current user's information
             $user = Auth::guard('user')->user();

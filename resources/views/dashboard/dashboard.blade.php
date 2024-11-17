@@ -153,7 +153,7 @@
                             Training
                         </div>
                     </div>
-                    @if($userDept === 'IT')
+                    @if($userDept === 'Information Technology')
                         <div class="item-menu text-center">
                             <div class="menu-icon">
                                 <a href="/presensi/create" class="green" style="font-size: 40px;">
