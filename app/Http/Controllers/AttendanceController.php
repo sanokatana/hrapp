@@ -229,7 +229,7 @@ class AttendanceController extends Controller
 
                     // Set default values if no shift times are available
                     if ($morning_start === null) {
-                        $morning_start = strtotime('06:00:00');
+                        $morning_start = strtotime('07:00:00');
                     }
                     if ($work_start === null) {
                         $work_start = strtotime('08:00:00');
@@ -422,23 +422,33 @@ class AttendanceController extends Controller
             }
         } else if ($attendance) {
             $jam_in = Carbon::parse($attendance->earliest_jam_in);
-            if ($jam_in->lt(Carbon::parse($morning_start))) {
+
+            // If attendance is before morning start
+            if ($jam_in->lt(Carbon::parse($work_start))) {
                 $latest_jam_in_after_morning = Carbon::parse($attendance->latest_jam_in_after_morning ?? $jam_in);
+
+                // Check if there is any valid attendance after the morning start time
                 if ($latest_jam_in_after_morning->gte(Carbon::parse($morning_start))) {
                     return $latest_jam_in_after_morning->gt(Carbon::parse($work_start)) ? 'T' : 'P';
-                } else if ($date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY){
-                    return 'L'; // No valid attendance after morning_start
                 } else {
+                    // Handle weekend case separately
+                    if ($date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY) {
+                        // If there is attendance, return 'P' instead of 'L'
+                        return 'L';
+                    }
                     return ''; // No valid attendance after morning_start
                 }
             } else {
+                // Attendance occurs during the day, before or after morning_start
                 return $jam_in->gte(Carbon::parse($morning_start)) && $jam_in->lt(Carbon::parse($afternoon_start))
                     ? ($jam_in->gt(Carbon::parse($work_start)) ? 'T' : $status_work)
                     : 'T';
             }
         } else {
+            // Handle case when there is no attendance
             return $date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY ? 'L' : '';
         }
+
     }
 
 

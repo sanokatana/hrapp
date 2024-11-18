@@ -63,15 +63,15 @@
                                     <div class="row">
                                         <div class="col-3">
                                             <div class="form-group">
-                                                <input type="text" name="nama_jabatan" id="nama_jabatan" class="form-control" placeholder="Nama Jabatan" value="{{ request('nama_jabatan') }}">
+                                                <input type="text" name="jabatan_nama" id="jabatan_nama" class="form-control" placeholder="Nama Jabatan" value="{{ request('jabatan_nama') }}">
                                             </div>
                                         </div>
                                         <div class="col-3">
                                             <div class="form-group mb-3">
-                                                <select name="kode_dept" id="kode_dept" class="form-select">
+                                                <select name="dept_kode" id="dept_kode" class="form-select">
                                                     <option value="">Department</option>
                                                     @foreach ($department as $d)
-                                                    <option {{ request('kode_dept') == $d->kode_dept ? 'selected' : '' }} value="{{ $d->kode_dept }}">{{ $d->nama_dept }}</option>
+                                                    <option {{ request('dept_kode') == $d->kode_dept ? 'selected' : '' }} value="{{ $d->kode_dept }}">{{ $d->nama_dept }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>

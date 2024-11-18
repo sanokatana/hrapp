@@ -127,7 +127,10 @@ class KaryawanController extends Controller
 
         // Fetch department, jabatan, and location
         $department = DB::table('department')->get();
-        $jabatan = DB::table('jabatan')->get();
+        $jabatan = DB::table('jabatan')
+        ->orderBy('nama_jabatan', 'ASC')
+        ->get();
+
         $location = DB::table('konfigurasi_lokasi')->get();
 
         // Fetch karyawan details

@@ -48,7 +48,7 @@
                     @csrf
                     <div class="form-group boxed">
                         <div class="input-wrapper">
-                            <input type="text" name="nik_or_email" class="form-control" id="nik_or_email" placeholder="NIK or Email">
+                        <input type="text" name="nik_or_email" class="form-control" id="nik_or_email" placeholder="NIK or Email" value="{{ old('nik_or_email') }}">
                             <i class="clear-input">
                                 <ion-icon name="close-circle"></ion-icon>
                             </i>

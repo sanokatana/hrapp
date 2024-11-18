@@ -209,6 +209,8 @@ class ApprovalController extends Controller
             // Check if tgl_jadwal_off should be null
             if ($keputusan !== 'Tukar Jadwal Off') {
                 $tgl_jadwal_off = null; // Set tgl_jadwal_off to null for non-Tukar Jadwal Off cases
+            } else {
+                $tgl_jadwal_off = $request->tgl_jadwal_off;
             }
 
             // Update pengajuan_izin table

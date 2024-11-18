@@ -18,11 +18,14 @@ class AuthController extends Controller
         ];
         $remember = $request->has('remember');
 
-        if(Auth::guard('karyawan')->attempt($credentials, $remember)){
+        if (Auth::guard('karyawan')->attempt($credentials, $remember)) {
             return redirect('/dashboard');
         } else {
-            return redirect('/karlogin')->with(['warning'=>'NIK/Email or Password is incorrect']);
+            return redirect('/karlogin')
+                ->with(['warning' => 'NIK/Email or Password is incorrect'])
+                ->withInput($request->except('password'));
         }
+
     }
 
     public function proseslogincandidate(Request $request)

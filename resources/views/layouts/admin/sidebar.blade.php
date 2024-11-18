@@ -623,6 +623,35 @@
                         </div>
                     </li>
                 @endif
+                @if($userLevel !== 'Admin')
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{request()->is(['performance/notification','performance/notificationEmail']) ? 'show' : ''}}" href="#navbar-base"
+                            data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
+                            <span
+                                class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-info-square"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9h.01" /><path d="M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14z" /><path d="M11 12h1v4h1" /></svg>
+                            </span>
+                            <span class="nav-link-title">
+                                Email & Export
+                            </span>
+                        </a>
+                        <div class="dropdown-menu {{request()->is(['performance/notification','performance/notificationEmail']) ? 'show' : ''}}">
+                            <div class="dropdown-menu-columns">
+                                <div class="dropdown-menu-column">
+                                    <a class="dropdown-item" href="#">
+                                        Dashboard
+                                    </a>
+                                    <a class="dropdown-item {{request()->is(['performance/notification']) ? 'active' : ''}}" href="/performance/notification">
+                                        Check Contract
+                                    </a>
+                                    <a class="dropdown-item {{request()->is(['performance/notificationEmail']) ? 'active' : ''}}" href="/performance/notificationEmail"  href="#">
+                                        Schedule Notif Email
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                @endif
                 @if($userLevel !== 'Management' && $userLevel !== 'Admin')
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {{request()->is(['konfigurasi/libur-nasional', 'konfigurasi/liburkar', 'konfigurasi/lokasikantor']) ? 'show' : ''}}"
