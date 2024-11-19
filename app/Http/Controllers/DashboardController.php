@@ -139,7 +139,6 @@ class DashboardController extends Controller
             ->setBindings([$nip, $bulanini, $tahunini])
             ->get();
 
-
         // Calculate total notifications
         $totalNotif = $this->calculateNotifications($historibulanini, $izin, $bulanini, $tahunini, $nip);
 
@@ -180,27 +179,48 @@ class DashboardController extends Controller
                 }
 
                 if ($shiftId) {
-                    // Fetch the early_time and latest_time from the shifts table
+                    // Fetch the early_time, start_time, latest_time, and status from the shifts table
                     $shiftTimes = DB::table('shift')
                         ->where('id', $shiftId)
                         ->select('early_time', 'latest_time', 'start_time', 'status')
                         ->first();
 
-                    $morning_start = strtotime($shiftTimes->early_time);
-                    $work_start = strtotime($shiftTimes->start_time);
-                    $afternoon_start = strtotime($shiftTimes->latest_time);
+                    if ($shiftTimes) {
+                        // Check if 'early_time', 'start_time', and 'latest_time' are not null
+                        $morning_start = $shiftTimes->early_time ? strtotime($shiftTimes->early_time) : null;
+                        $work_start = $shiftTimes->start_time ? strtotime($shiftTimes->start_time) : null;
+                        $afternoon_start = $shiftTimes->latest_time ? strtotime($shiftTimes->latest_time) : null;
+                    } else {
+                        // Handle missing shift times by setting to null
+                        $morning_start = null;
+                        $work_start = null;
+                        $afternoon_start = null;
+                    }
                 } else {
-                    // Default values if no shift is found
-                    $morning_start = strtotime('05:00:00');
-                    $work_start = strtotime('08:00:00');
-                    $afternoon_start = strtotime('13:00:00');
+                    // Handle missing shift pattern for the day
+                    $morning_start = null;
+                    $work_start = null;
+                    $afternoon_start = null;
                 }
             } else {
-                // Default values if no shift pattern is found
+                // Handle missing shift pattern ID
+                $morning_start = null;
+                $work_start = null;
+                $afternoon_start = null;
+                $status_work = null;
+            }
+
+            // Set default values if no shift times are available
+            if ($morning_start === null) {
                 $morning_start = strtotime('06:00:00');
+            }
+            if ($work_start === null) {
                 $work_start = strtotime('08:00:00');
+            }
+            if ($afternoon_start === null) {
                 $afternoon_start = strtotime('13:00:00');
             }
+
             $isIzin = $this->checkIzin($izin, $nip, $date);
             $item->jam_kerja = $work_start;
             $jam_masuk_time = strtotime($item->jam_masuk);
@@ -212,7 +232,7 @@ class DashboardController extends Controller
             }
 
             if ($jam_masuk_time > $afternoon_start) {
-                $item->jam_masuk = null; // If jam_pulang is before 1 PM, it should be null
+                $item->jam_masuk = null; // If jam_masuk is before 1 PM, it should be null
             }
 
             if ($jam_pulang_time < $afternoon_start) {

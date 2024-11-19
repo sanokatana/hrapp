@@ -211,16 +211,21 @@ use App\Helpers\DateHelper;
                                                     No File
                                                 </a>
                                                 @else
-                                                <a href="#" class="badge bg-info btnDocument" style="width:100px; display:flex; align-items:center; justify-content:center" data-id="{{ $d->id }}" data-photo-url="{{ Storage::url('uploads/karyawan/'.$d->nip . '.' .$d->nama_lengkap. '/'.$d->foto) }}">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" style="margin-right: 5px;" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-file">
-                                                        <path stroke="none" d="M0 0h24V24H0z" fill="none" />
-                                                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                                                        <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h9l5 5v11a2 2 0 0 1 -2 2z" />
-                                                    </svg>
-                                                    Check
-                                                </a>
+                                                <div style="display: flex; flex-direction: column;">
+                                                    @foreach(explode(',', $d->foto) as $file)
+                                                    <a href="#" class="badge bg-info btnDocument" style="margin-bottom: 5px; display:flex; align-items:center; justify-content:center" data-id="{{ $d->id }}" data-photo-url="{{ Storage::url('uploads/karyawan/'.$d->nip . '.' .$d->nama_lengkap. '/'.$file) }}">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" style="margin-right: 5px;" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-file">
+                                                            <path stroke="none" d="M0 0h24V24H0z" fill="none" />
+                                                            <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                                            <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h9l5 5v11a2 2 0 0 1 -2 2z" />
+                                                        </svg>
+                                                        Check {{ $loop->iteration }}
+                                                    </a>
+                                                    @endforeach
+                                                </div>
                                                 @endif
                                             </td>
+
                                             <td>
                                                 @if ($d->status_approved == 1)
                                                 <span class="badge bg-success" style="color: white; width:90px">Approved</span>
@@ -554,7 +559,7 @@ use App\Helpers\DateHelper;
                 }
 
                 // Fetch the PDF template
-                const pdfTemplateResponse = await fetch('{{ route("pdfIzin.template") }}',{
+                const pdfTemplateResponse = await fetch('{{ route("pdfIzin.template") }}', {
                     cache: 'no-cache'
                 });
                 if (!pdfTemplateResponse.ok) {
@@ -741,7 +746,9 @@ use App\Helpers\DateHelper;
                 const pdfBytes = await pdfDoc.save();
 
                 // Create a blob from the PDF bytes
-                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                const blob = new Blob([pdfBytes], {
+                    type: 'application/pdf'
+                });
 
                 // Create a URL for the blob
                 const blobUrl = window.URL.createObjectURL(blob);

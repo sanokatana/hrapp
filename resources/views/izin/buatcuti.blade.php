@@ -12,6 +12,33 @@
     .btn {
      border-radius: 200px
     }
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999; /* Ensure it appears above everything */
+    }
+
+    .loading-overlay span {
+        display: inline-block;
+        width: 50px;
+        height: 50px;
+        border: 5px solid #ffffff;
+        border-top: 5px solid #4989EF;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 </style>
 <!-- App Header -->
 <div class="appHeader bg-primary text-light">
@@ -86,6 +113,9 @@
             </div>
         </form>
     </div>
+</div>
+<div class="loading-overlay" id="loadingOverlay">
+    <span></span>
 </div>
 @endsection
 
@@ -208,7 +238,14 @@
                 });
                 event.preventDefault(); // Prevent form submission
             } else {
-                this.submit(); // Allow form submission
+                // Show the full-screen loading overlay
+                $("#loadingOverlay").css("display", "flex");
+
+                // Disable all buttons to prevent interactions
+                $("button").prop("disabled", true);
+
+                // Allow the form to proceed
+                return true;
             }
         });
     });

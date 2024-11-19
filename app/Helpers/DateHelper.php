@@ -138,6 +138,8 @@ class DateHelper
                 return 'Tidak Masuk Kerja';
             case 'Dt':
                 return 'Datang Terlambat';
+            case 'Ta':
+                return 'Tidak Absen';
             case 'Pa':
                 return 'Pulang Awal';
             case 'Tam':
