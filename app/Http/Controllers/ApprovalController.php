@@ -303,7 +303,7 @@ class ApprovalController extends Controller
             }
         } else {
             // Default to '1' (Approved) if no status_approved is provided
-            $query->where('status_approved_hrd', 1);
+            $query->where('status_approved_hrd', 0);
         }
 
         $cutiapproval = $query->paginate(10);

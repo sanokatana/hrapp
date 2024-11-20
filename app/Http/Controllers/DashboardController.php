@@ -135,7 +135,7 @@ class DashboardController extends Controller
             AND YEAR(scan_date) = ?
             GROUP BY DATE(scan_date), pin) as sub"))
             ->select('sub.tanggal', 'sub.jam_masuk', 'sub.jam_pulang')
-            ->orderBy('sub.tanggal', 'asc')
+            ->orderBy('sub.tanggal', 'desc')
             ->setBindings([$nip, $bulanini, $tahunini])
             ->get();
 
@@ -760,6 +760,7 @@ class DashboardController extends Controller
             ->whereNull('presensi.pin') // Filter for karyawan with no attendance
             ->where('karyawan.grade', '!=', 'NS') // Exclude NS grade
             ->where('jabatan.kode_dept', '!=', 'Management')
+            ->where('status_kar', 'Aktif')
             ->select(
                 'karyawan.*',
                 'jabatan.nama_jabatan',

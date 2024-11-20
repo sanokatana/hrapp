@@ -13,17 +13,20 @@
     .btn {
         border-radius: 200px;
     }
+
     .loading-overlay {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+        background: rgba(0, 0, 0, 0.5);
+        /* Semi-transparent background */
         display: none;
         justify-content: center;
         align-items: center;
-        z-index: 9999; /* Ensure it appears above everything */
+        z-index: 9999;
+        /* Ensure it appears above everything */
     }
 
     .loading-overlay span {
@@ -37,8 +40,13 @@
     }
 
     @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
     }
 </style>
 <!-- App Header -->
@@ -118,15 +126,32 @@
             if (tgl_cuti && tgl_cuti_sampai) {
                 var start = new Date(tgl_cuti);
                 var end = new Date(tgl_cuti_sampai);
-                var diffTime = Math.abs(end - start);
-                var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Including start day
-                $("#jml_hari").val(diffDays);
+
+                // Calculate total days excluding weekends
+                var totalDays = 0;
+                while (start <= end) {
+                    var dayOfWeek = start.getDay();
+                    // Only count weekdays (Monday to Friday)
+                    if (dayOfWeek !== 6 && dayOfWeek !== 0) {
+                        totalDays++;
+                    }
+                    start.setDate(start.getDate() + 1); // Move to the next day
+                }
+
+                $("#jml_hari").val(totalDays);
             } else if (tgl_cuti) {
-                $("#jml_hari").val(1);
+                var singleDay = new Date(tgl_cuti);
+                // Check if it's not a weekend
+                if (singleDay.getDay() !== 6 && singleDay.getDay() !== 0) {
+                    $("#jml_hari").val(1);
+                } else {
+                    $("#jml_hari").val(0);
+                }
             } else {
                 $("#jml_hari").val(0);
             }
         }
+
 
         function restrictDateRange() {
             var selectedOption = $("#id_tipe_cuti").find(':selected');
@@ -137,8 +162,7 @@
                     format: "yyyy-mm-dd",
                     onSelect: function(selectedDate) {
                         var startDate = new Date(selectedDate);
-                        var endDate = new Date(startDate);
-                        endDate.setDate(startDate.getDate() + maxDays - 1);
+                        var endDate = calculateEndDate(startDate, maxDays - 1);
 
                         $("#tgl_cuti_sampai").datepicker('destroy').datepicker({
                             format: "yyyy-mm-dd",
@@ -148,6 +172,23 @@
                     }
                 });
             }
+        }
+
+        // Helper function to calculate the end date excluding weekends
+        function calculateEndDate(startDate, maxDays) {
+            var endDate = new Date(startDate);
+            var countedDays = 0;
+
+            while (countedDays < maxDays) {
+                endDate.setDate(endDate.getDate() + 1);
+                var dayOfWeek = endDate.getDay();
+                // Skip weekends (Saturday and Sunday)
+                if (dayOfWeek !== 6 && dayOfWeek !== 0) {
+                    countedDays++;
+                }
+            }
+
+            return endDate;
         }
 
         $("#id_tipe_cuti").change(function() {
@@ -196,4 +237,3 @@
     });
 </script>
 @endpush
-

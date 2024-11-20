@@ -37,7 +37,7 @@
                             <div class="card-header">
                                 <h3 class="card-title">Notification</h3>
                             </div>
-                            <div class="list-group list-group-flush list-group-hoverable" style="width: max-content;">
+                            <div class="list-group list-group-flush list-group-hoverable" style="width: max-content; max-height: 400px; overflow-y: auto;">
                                 <!-- Birthdays -->
                                 @forelse ($birthdays as $birthday)
                                     <div class="list-group-item">
@@ -108,12 +108,13 @@
                                 <div class="list-group-item">
                                     <div class="row align-items-center">
                                         <div class="col-auto">
-                                            <span class="status-dot status-dot-animated bg-yellow d-block"></span>
+                                            <span class="status-dot status-dot-animated bg-red d-block"></span>
                                         </div>
                                         <div class="col text-truncate">
-                                            <a href="#" class="text-body d-block">Leave Application from {{ $application->nama_karyawan }}</a>
+                                            <a href="#" class="text-body d-block">Cuti Application <b>{{ $application->nama_lengkap }}</b></a>
+                                            <div class="d-block text-secondary text-truncate mt-n1"> Applied on {{ \Carbon\Carbon::parse($application->tgl_create)->format('d M Y') }}</div>
                                             <div class="d-block text-secondary text-truncate mt-n1">
-                                                Applied on {{ \Carbon\Carbon::parse($application->tgl_create)->format('d M Y') }}
+                                                {{ \Carbon\Carbon::parse($application->tgl_cuti)->format('d M Y') }} sampai {{ \Carbon\Carbon::parse($application->tgl_cuti_sampai)->format('d M Y') }}
                                             </div>
                                         </div>
                                         <div class="col-auto">

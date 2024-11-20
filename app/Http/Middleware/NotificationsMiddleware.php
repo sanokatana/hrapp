@@ -7,6 +7,7 @@ use App\Models\PengajuanCuti;
 use App\Models\Pengajuanizin;
 use Closure;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class NotificationsMiddleware
 {
@@ -34,11 +35,13 @@ class NotificationsMiddleware
             if (in_array($role, ['Superadmin', 'HRD', 'Management'])) {
                 // Retrieve all izinRequests and cutiApplications for privileged roles
                 $izinRequests = Pengajuanizin::select('pengajuan_izin.*', 'karyawan.nama_lengkap')
-                    ->join('karyawan', 'pengajuan_izin.nik', '=', 'karyawan.nik')
+                    ->leftJoin('karyawan', 'pengajuan_izin.nik', '=', 'karyawan.nik')
                     ->where('pengajuan_izin.status_approved', 0)
                     ->get();
 
-                $cutiApplications = PengajuanCuti::where('status_approved', 0)
+                $cutiApplications = PengajuanCuti::select('pengajuan_cuti.*', 'karyawan.nama_lengkap')
+                ->leftJoin('karyawan', 'pengajuan_cuti.nik', '=', 'karyawan.nik')
+                    ->where('status_approved', 0)
                     ->where('status_approved_hrd', 0)
                     ->get();
             } else {

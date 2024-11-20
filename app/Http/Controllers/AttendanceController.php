@@ -382,6 +382,10 @@ class AttendanceController extends Controller
                 return $keputusan == 'Sakit' ? 'S' : ($keputusan == 'Ijin' ? 'I' : ($keputusan == 'Mangkir' ? 'MK' : ($keputusan == 'Tugas Luar' ? 'D' : 'C')));
             }
 
+            if ($status == 'Ta') {
+                return  $keputusan == 'Ijin' ? 'I' : ($keputusan == 'Tugas Luar' ? 'D' : 'P');
+            }
+
             if ($status == 'Dt' && $attendance) {
                 $jam_in = Carbon::parse($attendance->earliest_jam_in);
                 if ($jam_in->gte(Carbon::parse($morning_start)) && $jam_in->lt(Carbon::parse($afternoon_start))) {

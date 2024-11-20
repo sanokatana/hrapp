@@ -625,7 +625,7 @@
                 @endif
                 @if($userLevel !== 'Admin')
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{request()->is(['performance/notification','performance/notificationEmail']) ? 'show' : ''}}" href="#navbar-base"
+                        <a class="nav-link dropdown-toggle {{request()->is(['email_export/absensi','email_export/export_absensi']) ? 'show' : ''}}" href="#navbar-base"
                             data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
                             <span
                                 class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
@@ -635,17 +635,14 @@
                                 Email & Export
                             </span>
                         </a>
-                        <div class="dropdown-menu {{request()->is(['performance/notification','performance/notificationEmail']) ? 'show' : ''}}">
+                        <div class="dropdown-menu {{request()->is(['email_export/absensi','email_export/export_absensi']) ? 'show' : ''}}">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
-                                    <a class="dropdown-item" href="#">
-                                        Dashboard
+                                    <a class="dropdown-item {{request()->is(['email_export/absensi']) ? 'active' : ''}}" href="/email_export/absensi">
+                                        Email Absensi
                                     </a>
-                                    <a class="dropdown-item {{request()->is(['performance/notification']) ? 'active' : ''}}" href="/performance/notification">
-                                        Check Contract
-                                    </a>
-                                    <a class="dropdown-item {{request()->is(['performance/notificationEmail']) ? 'active' : ''}}" href="/performance/notificationEmail"  href="#">
-                                        Schedule Notif Email
+                                    <a class="dropdown-item {{request()->is(['email_export/export_absensi']) ? 'active' : ''}}" href="/email_export/export_absensi"  href="#">
+                                        Export
                                     </a>
                                 </div>
                             </div>
