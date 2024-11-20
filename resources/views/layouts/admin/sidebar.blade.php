@@ -553,6 +553,35 @@
                 @endif
                 @if($userLevel !== 'Admin')
                     <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{request()->is(['performance/notification','performance/notificationEmail']) ? 'show' : ''}}" href="#navbar-base"
+                            data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
+                            <span
+                                class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-graph"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 18v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" /><path d="M7 14l3 -3l2 2l3 -3l2 2" /></svg>
+                            </span>
+                            <span class="nav-link-title">
+                                Performance
+                            </span>
+                        </a>
+                        <div class="dropdown-menu {{request()->is(['performance/notification','performance/notificationEmail']) ? 'show' : ''}}">
+                            <div class="dropdown-menu-columns">
+                                <div class="dropdown-menu-column">
+                                    <a class="dropdown-item" href="#">
+                                        Dashboard
+                                    </a>
+                                    <a class="dropdown-item {{request()->is(['performance/notification']) ? 'active' : ''}}" href="/performance/notification">
+                                        Check Contract
+                                    </a>
+                                    <a class="dropdown-item {{request()->is(['performance/notificationEmail']) ? 'active' : ''}}" href="/performance/notificationEmail"  href="#">
+                                        Schedule Notif Email
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                @endif
+                @if($userLevel !== 'Admin')
+                    <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {{request()->is([]) ? 'show' : ''}}" href="#navbar-base"
                             data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
                             <span
@@ -588,35 +617,6 @@
                                     </a>
                                     <a class="dropdown-item" href="#">
                                         Federal Tax
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                @endif
-                @if($userLevel !== 'Admin')
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{request()->is(['performance/notification','performance/notificationEmail']) ? 'show' : ''}}" href="#navbar-base"
-                            data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
-                            <span
-                                class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-graph"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 18v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" /><path d="M7 14l3 -3l2 2l3 -3l2 2" /></svg>
-                            </span>
-                            <span class="nav-link-title">
-                                Performance
-                            </span>
-                        </a>
-                        <div class="dropdown-menu {{request()->is(['performance/notification','performance/notificationEmail']) ? 'show' : ''}}">
-                            <div class="dropdown-menu-columns">
-                                <div class="dropdown-menu-column">
-                                    <a class="dropdown-item" href="#">
-                                        Dashboard
-                                    </a>
-                                    <a class="dropdown-item {{request()->is(['performance/notification']) ? 'active' : ''}}" href="/performance/notification">
-                                        Check Contract
-                                    </a>
-                                    <a class="dropdown-item {{request()->is(['performance/notificationEmail']) ? 'active' : ''}}" href="/performance/notificationEmail"  href="#">
-                                        Schedule Notif Email
                                     </a>
                                 </div>
                             </div>

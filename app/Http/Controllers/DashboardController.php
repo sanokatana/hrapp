@@ -611,535 +611,693 @@ class DashboardController extends Controller
 
     public function dashboardadmin()
     {
-        $hariini = date("Y-m-d");
-        $bulanini = date("m");
-        $tahunini = date("Y");
-
-        $rekappresensi = DB::connection('mysql2') // Assuming db_absen is on mysql2
-            ->table('db_absen.att_log as presensi')
-            ->selectRaw('COUNT(presensi.pin) as jmlhadir, SUM(IF(TIME(presensi.scan_date) > "08:00:00", 1, 0)) as jmlterlambat')
-            ->join('hrmschl.karyawan', 'presensi.pin', '=', 'karyawan.nip')
-            ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini)
-            ->first();
+        $user = Auth::guard('user')->user();
+        $role = $user->level;
 
 
-        $rekapizin = DB::table('pengajuan_izin')
-            ->selectRaw('COUNT(*) as jmlizin')
-            ->where('status_approved', 1)
-            ->where('status_approved_hrd', 1)
-            ->where(function ($query) use ($hariini) {
-                $query->where('tgl_izin', '<=', $hariini)
-                    ->where(function ($subQuery) use ($hariini) {
-                        $subQuery->where('tgl_izin_akhir', '>=', $hariini)
-                            ->orWhereNull('tgl_izin_akhir')
-                            ->orWhere('tgl_izin_akhir', ''); // Handle empty string case
-                    });
-            })
-            ->first();
+        if ($role === 'Admin' || $role === 'Management') {
+            $hariini = date("Y-m-d");
+            $bulanini = date("m");
+            $tahunini = date("Y");
 
-        $rekapcuti = DB::table('pengajuan_cuti')
-            ->selectRaw('COUNT(*) as jmlcuti')
-            ->where('status_approved', 1)
-            ->where('status_approved_hrd', 1)
-            ->where(function ($query) use ($hariini) {
-                $query->where('tgl_cuti', '<=', $hariini)
-                    ->where(function ($subQuery) use ($hariini) {
-                        $subQuery->where('tgl_cuti_sampai', '>=', $hariini)
-                            ->orWhereNull('tgl_cuti_sampai')
-                            ->orWhere('tgl_cuti_sampai', ''); // Handle empty string case
-                    });
-            })
-            ->first();
-
-        $rekapkaryawan = DB::table('karyawan')
-            ->selectRaw('COUNT(karyawan.nip) as jmlkar')
-            ->where('status_kar', 'Aktif')
-            ->first();
-
-        $jmlnoatt = DB::table('karyawan')
-            ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
-                $join->on('karyawan.nip', '=', 'presensi.pin')
-                    ->whereDate(DB::raw('DATE(presensi.scan_date)'), '=', $hariini);
-            })
-            ->where('status_kar', 'Aktif')
-            ->whereNull('presensi.pin')
-            ->count();
+            $rekappresensi = DB::connection('mysql2') // Assuming db_absen is on mysql2
+                ->table('db_absen.att_log as presensi')
+                ->selectRaw('COUNT(presensi.pin) as jmlhadir, SUM(IF(TIME(presensi.scan_date) > "08:00:00", 1, 0)) as jmlterlambat')
+                ->join('hrmschl.karyawan', 'presensi.pin', '=', 'karyawan.nip')
+                ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini)
+                ->first();
 
 
-        // Get historical attendance data for NS employees
-        $historihariNS = DB::connection('mysql2')
-            ->table('db_absen.att_log as presensi')
-            ->join('hrmschl.karyawan', 'presensi.pin', '=', 'karyawan.nip') // Use 'pin' from 'att_log'
-            ->join('hrmschl.jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-            ->join('hrmschl.shift_pattern_cycle', function ($join) {
-                $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
-                    ->on(DB::raw('
-                CASE
-                    WHEN DAYOFWEEK(DATE(presensi.scan_date)) = 1 THEN 7
-                    ELSE DAYOFWEEK(DATE(presensi.scan_date)) - 1
-                END
-            '), '=', 'shift_pattern_cycle.cycle_day');
-            })
-            ->join('hrmschl.shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
-            ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini)
-            ->where('karyawan.grade', 'NS')
-            ->whereBetween(DB::raw('TIME(presensi.scan_date)'), [DB::raw('shift.early_time'), DB::raw('shift.latest_time')])
-            ->orderBy(DB::raw('TIME(presensi.scan_date)'), 'desc')
-            ->select(
-                'presensi.*',
-                'karyawan.nama_lengkap',
-                'karyawan.kode_dept',
-                'jabatan.nama_jabatan',
-                'shift.start_time',
-                DB::raw('DATE(presensi.scan_date) as tgl_presensi'),
-                DB::raw('TIME(presensi.scan_date) as jam_in')
-            )
-            ->get();
+            $rekapizin = DB::table('pengajuan_izin')
+                ->selectRaw('COUNT(*) as jmlizin')
+                ->where('status_approved', 1)
+                ->where('status_approved_hrd', 1)
+                ->where(function ($query) use ($hariini) {
+                    $query->where('tgl_izin', '<=', $hariini)
+                        ->where(function ($subQuery) use ($hariini) {
+                            $subQuery->where('tgl_izin_akhir', '>=', $hariini)
+                                ->orWhereNull('tgl_izin_akhir')
+                                ->orWhere('tgl_izin_akhir', ''); // Handle empty string case
+                        });
+                })
+                ->first();
 
-        $noAttendanceNS = DB::connection('mysql2')
-            ->table('hrmschl.karyawan')
-            ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
-                $join->on('karyawan.nip', '=', 'presensi.pin') // Use 'pin' from 'att_log'
-                    ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini);
-            })
-            ->join('hrmschl.jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-            ->whereNull('presensi.pin') // Filter for karyawan with no attendance
-            ->where('karyawan.grade', 'NS') // Exclude NS grade
-            ->where('jabatan.kode_dept', '!=', 'Management')
-            ->select(
-                'karyawan.*',
-                'jabatan.nama_jabatan',
-                DB::raw('CURRENT_DATE as tgl_presensi'), // Using the current date
-                DB::raw('\'00:00\' as jam_in') // Set jam_in to 00:00 for no attendance
-            )
-            ->get();
+            $rekapcuti = DB::table('pengajuan_cuti')
+                ->selectRaw('COUNT(*) as jmlcuti')
+                ->where('status_approved', 1)
+                ->where('status_approved_hrd', 1)
+                ->where(function ($query) use ($hariini) {
+                    $query->where('tgl_cuti', '<=', $hariini)
+                        ->where(function ($subQuery) use ($hariini) {
+                            $subQuery->where('tgl_cuti_sampai', '>=', $hariini)
+                                ->orWhereNull('tgl_cuti_sampai')
+                                ->orWhere('tgl_cuti_sampai', ''); // Handle empty string case
+                        });
+                })
+                ->first();
+
+            $rekapkaryawan = DB::table('karyawan')
+                ->selectRaw('COUNT(karyawan.nip) as jmlkar')
+                ->where('status_kar', 'Aktif')
+                ->first();
+
+            $jmlnoatt = DB::table('karyawan')
+                ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
+                    $join->on('karyawan.nip', '=', 'presensi.pin')
+                        ->whereDate(DB::raw('DATE(presensi.scan_date)'), '=', $hariini);
+                })
+                ->where('status_kar', 'Aktif')
+                ->whereNull('presensi.pin')
+                ->count();
 
 
-        $historihariNonNS = DB::connection('mysql2')
-            ->table('db_absen.att_log as presensi')
-            ->join('hrmschl.karyawan', 'presensi.pin', '=', 'karyawan.nip') // Use 'pin' from 'att_log'
-            ->join('hrmschl.jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-            ->join('hrmschl.shift_pattern_cycle', function ($join) {
-                $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
-                    ->on(DB::raw('
+            $historihariNonNS = DB::connection('mysql2')
+                ->table('db_absen.att_log as presensi')
+                ->join('hrmschl.karyawan', 'presensi.pin', '=', 'karyawan.nip') // Use 'pin' from 'att_log'
+                ->join('hrmschl.jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+                ->join('hrmschl.shift_pattern_cycle', function ($join) {
+                    $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
+                        ->on(DB::raw('
                     CASE
                         WHEN DAYOFWEEK(DATE(presensi.scan_date)) = 1 THEN 7
                         ELSE DAYOFWEEK(DATE(presensi.scan_date)) - 1
                     END
                 '), '=', 'shift_pattern_cycle.cycle_day');
-            })
-            ->join('hrmschl.shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
-            ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini)
-            ->where('karyawan.grade', '!=', 'NS')
-            ->whereIn(DB::raw('(presensi.pin, presensi.scan_date)'), function ($query) use ($hariini) {
-                $query->select('pin', DB::raw('MIN(scan_date)'))
-                    ->from('db_absen.att_log')
-                    ->whereDate('scan_date', $hariini)
-                    ->groupBy('pin');
-            })
-            ->select(
-                'presensi.*',
-                'karyawan.nama_lengkap',
-                'karyawan.kode_dept',
-                'jabatan.nama_jabatan',
-                'shift.start_time',
-                DB::raw('DATE(presensi.scan_date) as tgl_presensi'),
-                DB::raw('TIME(presensi.scan_date) as jam_in')
-            )
-            ->orderBy(DB::raw('TIME(presensi.scan_date)'), 'DESC') // Optional: sort by earliest time first
-            ->get();
+                })
+                ->join('hrmschl.shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
+                ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini)
+                ->where('karyawan.grade', '!=', 'NS')
+                ->whereIn(DB::raw('(presensi.pin, presensi.scan_date)'), function ($query) use ($hariini) {
+                    $query->select('pin', DB::raw('MIN(scan_date)'))
+                        ->from('db_absen.att_log')
+                        ->whereDate('scan_date', $hariini)
+                        ->groupBy('pin');
+                })
+                ->select(
+                    'presensi.*',
+                    'karyawan.nama_lengkap',
+                    'karyawan.kode_dept',
+                    'jabatan.nama_jabatan',
+                    'shift.start_time',
+                    DB::raw('DATE(presensi.scan_date) as tgl_presensi'),
+                    DB::raw('TIME(presensi.scan_date) as jam_in')
+                )
+                ->orderBy(DB::raw('TIME(presensi.scan_date)'), 'DESC') // Optional: sort by earliest time first
+                ->get();
 
-        // Get the list of karyawan who do not have attendance today
-        $noAttendanceNonNS = DB::connection('mysql2')
-            ->table('hrmschl.karyawan')
-            ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
-                $join->on('karyawan.nip', '=', 'presensi.pin') // Use 'pin' from 'att_log'
-                    ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini);
-            })
-            ->join('hrmschl.jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-            ->whereNull('presensi.pin') // Filter for karyawan with no attendance
-            ->where('karyawan.grade', '!=', 'NS') // Exclude NS grade
-            ->where('jabatan.kode_dept', '!=', 'Management')
-            ->where('status_kar', 'Aktif')
-            ->select(
-                'karyawan.*',
-                'jabatan.nama_jabatan',
-                DB::raw('CURRENT_DATE as tgl_presensi'), // Using the current date
-                DB::raw('\'00:00\' as jam_in') // Set jam_in to 00:00 for no attendance
-            )
-            ->get();
+            // Get the list of karyawan who do not have attendance today
+            $noAttendanceNonNS = DB::connection('mysql2')
+                ->table('hrmschl.karyawan')
+                ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
+                    $join->on('karyawan.nip', '=', 'presensi.pin') // Use 'pin' from 'att_log'
+                        ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini);
+                })
+                ->join('hrmschl.jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+                ->whereNull('presensi.pin') // Filter for karyawan with no attendance
+                ->where('karyawan.grade', '!=', 'NS') // Exclude NS grade
+                ->where('jabatan.kode_dept', '!=', 'Management')
+                ->where('status_kar', 'Aktif')
+                ->select(
+                    'karyawan.*',
+                    'jabatan.nama_jabatan',
+                    DB::raw('CURRENT_DATE as tgl_presensi'), // Using the current date
+                    DB::raw('\'00:00\' as jam_in') // Set jam_in to 00:00 for no attendance
+                )
+                ->get();
 
-        // Subquery to get the earliest jam_in for each employee per day
-        $subquery = DB::connection('mysql2')
-            ->table('db_absen.att_log as presensi')
-            ->select(
-                'presensi.pin',
-                DB::raw('DATE(presensi.scan_date) as tgl_presensi'),
-                DB::raw('TIME(MIN(presensi.scan_date)) as earliest_jam_in'),
-                'shift.start_time'
-            )
-            ->join('karyawan', 'presensi.pin', '=', 'karyawan.nip')
-            ->join('shift_pattern_cycle', function ($join) {
-                $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
-                    ->on(DB::raw('
+
+
+            $KarIzinNow = DB::table('pengajuan_izin')
+                ->join('karyawan', 'pengajuan_izin.nip', '=', 'karyawan.nip')
+                ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
+                ->where(function ($query) use ($hariini) {
+                    $query->where('tgl_izin', '<=', $hariini)
+                        ->where(function ($subQuery) use ($hariini) {
+                            $subQuery->where('tgl_izin_akhir', '>=', $hariini)
+                                ->orWhereNull('tgl_izin_akhir')
+                                ->orWhere('tgl_izin_akhir', ''); // Handle empty string case
+                        });
+                })
+                ->where('karyawan.grade', '!=', 'NS')
+                ->select('karyawan.nama_lengkap', 'pengajuan_izin.tgl_izin', 'pengajuan_izin.tgl_izin_akhir', 'pengajuan_izin.status', 'pengajuan_izin.pukul', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
+                ->get();
+
+
+
+            // Fetch employees who are on cuti today
+            $KarCutiNow = DB::table('pengajuan_cuti')
+                ->join('karyawan', 'pengajuan_cuti.nip', '=', 'karyawan.nip')
+                ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
+                ->leftJoin('tipe_cuti', 'pengajuan_cuti.tipe', '=', 'tipe_cuti.id_tipe_cuti') // Join with tipe_cuti table
+                ->where(function ($query) use ($hariini) {
+                    $query->where('tgl_cuti', '<=', $hariini)
+                        ->where('tgl_cuti_sampai', '>=', $hariini);
+                })
+                ->where('karyawan.grade', '!=', 'NS')
+                ->select('karyawan.nama_lengkap', 'pengajuan_cuti.tgl_cuti', 'pengajuan_cuti.tgl_cuti_sampai', 'pengajuan_cuti.jenis', 'jabatan.nama_jabatan', 'pengajuan_cuti.tipe', 'tipe_cuti.tipe_cuti', 'karyawan.kode_dept') // Select the necessary fields
+                ->get();
+
+            return view('dashboard.admin', compact(
+                'rekapizin',
+                'rekapcuti',
+                'rekappresensi',
+                'rekapkaryawan',
+                'jmlnoatt',
+                'historihariNonNS',
+                'noAttendanceNonNS',
+                'KarIzinNow',
+                'KarCutiNow',
+            ));
+        } else {
+            $hariini = date("Y-m-d");
+            $bulanini = date("m");
+            $tahunini = date("Y");
+
+            $rekappresensi = DB::connection('mysql2') // Assuming db_absen is on mysql2
+                ->table('db_absen.att_log as presensi')
+                ->selectRaw('COUNT(presensi.pin) as jmlhadir, SUM(IF(TIME(presensi.scan_date) > "08:00:00", 1, 0)) as jmlterlambat')
+                ->join('hrmschl.karyawan', 'presensi.pin', '=', 'karyawan.nip')
+                ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini)
+                ->first();
+
+
+            $rekapizin = DB::table('pengajuan_izin')
+                ->selectRaw('COUNT(*) as jmlizin')
+                ->where('status_approved', 1)
+                ->where('status_approved_hrd', 1)
+                ->where(function ($query) use ($hariini) {
+                    $query->where('tgl_izin', '<=', $hariini)
+                        ->where(function ($subQuery) use ($hariini) {
+                            $subQuery->where('tgl_izin_akhir', '>=', $hariini)
+                                ->orWhereNull('tgl_izin_akhir')
+                                ->orWhere('tgl_izin_akhir', ''); // Handle empty string case
+                        });
+                })
+                ->first();
+
+            $rekapcuti = DB::table('pengajuan_cuti')
+                ->selectRaw('COUNT(*) as jmlcuti')
+                ->where('status_approved', 1)
+                ->where('status_approved_hrd', 1)
+                ->where(function ($query) use ($hariini) {
+                    $query->where('tgl_cuti', '<=', $hariini)
+                        ->where(function ($subQuery) use ($hariini) {
+                            $subQuery->where('tgl_cuti_sampai', '>=', $hariini)
+                                ->orWhereNull('tgl_cuti_sampai')
+                                ->orWhere('tgl_cuti_sampai', ''); // Handle empty string case
+                        });
+                })
+                ->first();
+
+            $rekapkaryawan = DB::table('karyawan')
+                ->selectRaw('COUNT(karyawan.nip) as jmlkar')
+                ->where('status_kar', 'Aktif')
+                ->first();
+
+            $jmlnoatt = DB::table('karyawan')
+                ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
+                    $join->on('karyawan.nip', '=', 'presensi.pin')
+                        ->whereDate(DB::raw('DATE(presensi.scan_date)'), '=', $hariini);
+                })
+                ->where('status_kar', 'Aktif')
+                ->whereNull('presensi.pin')
+                ->count();
+
+
+            // Get historical attendance data for NS employees
+            $historihariNS = DB::connection('mysql2')
+                ->table('db_absen.att_log as presensi')
+                ->join('hrmschl.karyawan', 'presensi.pin', '=', 'karyawan.nip') // Use 'pin' from 'att_log'
+                ->join('hrmschl.jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+                ->join('hrmschl.shift_pattern_cycle', function ($join) {
+                    $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
+                        ->on(DB::raw('
+                CASE
+                    WHEN DAYOFWEEK(DATE(presensi.scan_date)) = 1 THEN 7
+                    ELSE DAYOFWEEK(DATE(presensi.scan_date)) - 1
+                END
+            '), '=', 'shift_pattern_cycle.cycle_day');
+                })
+                ->join('hrmschl.shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
+                ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini)
+                ->where('karyawan.grade', 'NS')
+                ->whereBetween(DB::raw('TIME(presensi.scan_date)'), [DB::raw('shift.early_time'), DB::raw('shift.latest_time')])
+                ->orderBy(DB::raw('TIME(presensi.scan_date)'), 'desc')
+                ->select(
+                    'presensi.*',
+                    'karyawan.nama_lengkap',
+                    'karyawan.kode_dept',
+                    'jabatan.nama_jabatan',
+                    'shift.start_time',
+                    DB::raw('DATE(presensi.scan_date) as tgl_presensi'),
+                    DB::raw('TIME(presensi.scan_date) as jam_in')
+                )
+                ->get();
+
+            $noAttendanceNS = DB::connection('mysql2')
+                ->table('hrmschl.karyawan')
+                ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
+                    $join->on('karyawan.nip', '=', 'presensi.pin') // Use 'pin' from 'att_log'
+                        ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini);
+                })
+                ->join('hrmschl.jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+                ->whereNull('presensi.pin') // Filter for karyawan with no attendance
+                ->where('karyawan.grade', 'NS') // Exclude NS grade
+                ->where('jabatan.kode_dept', '!=', 'Management')
+                ->select(
+                    'karyawan.*',
+                    'jabatan.nama_jabatan',
+                    DB::raw('CURRENT_DATE as tgl_presensi'), // Using the current date
+                    DB::raw('\'00:00\' as jam_in') // Set jam_in to 00:00 for no attendance
+                )
+                ->get();
+
+
+            $historihariNonNS = DB::connection('mysql2')
+                ->table('db_absen.att_log as presensi')
+                ->join('hrmschl.karyawan', 'presensi.pin', '=', 'karyawan.nip') // Use 'pin' from 'att_log'
+                ->join('hrmschl.jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+                ->join('hrmschl.shift_pattern_cycle', function ($join) {
+                    $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
+                        ->on(DB::raw('
+                    CASE
+                        WHEN DAYOFWEEK(DATE(presensi.scan_date)) = 1 THEN 7
+                        ELSE DAYOFWEEK(DATE(presensi.scan_date)) - 1
+                    END
+                '), '=', 'shift_pattern_cycle.cycle_day');
+                })
+                ->join('hrmschl.shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
+                ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini)
+                ->where('karyawan.grade', '!=', 'NS')
+                ->whereIn(DB::raw('(presensi.pin, presensi.scan_date)'), function ($query) use ($hariini) {
+                    $query->select('pin', DB::raw('MIN(scan_date)'))
+                        ->from('db_absen.att_log')
+                        ->whereDate('scan_date', $hariini)
+                        ->groupBy('pin');
+                })
+                ->select(
+                    'presensi.*',
+                    'karyawan.nama_lengkap',
+                    'karyawan.kode_dept',
+                    'jabatan.nama_jabatan',
+                    'shift.start_time',
+                    DB::raw('DATE(presensi.scan_date) as tgl_presensi'),
+                    DB::raw('TIME(presensi.scan_date) as jam_in')
+                )
+                ->orderBy(DB::raw('TIME(presensi.scan_date)'), 'DESC') // Optional: sort by earliest time first
+                ->get();
+
+            // Get the list of karyawan who do not have attendance today
+            $noAttendanceNonNS = DB::connection('mysql2')
+                ->table('hrmschl.karyawan')
+                ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
+                    $join->on('karyawan.nip', '=', 'presensi.pin') // Use 'pin' from 'att_log'
+                        ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini);
+                })
+                ->join('hrmschl.jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+                ->whereNull('presensi.pin') // Filter for karyawan with no attendance
+                ->where('karyawan.grade', '!=', 'NS') // Exclude NS grade
+                ->where('jabatan.kode_dept', '!=', 'Management')
+                ->where('status_kar', 'Aktif')
+                ->select(
+                    'karyawan.*',
+                    'jabatan.nama_jabatan',
+                    DB::raw('CURRENT_DATE as tgl_presensi'), // Using the current date
+                    DB::raw('\'00:00\' as jam_in') // Set jam_in to 00:00 for no attendance
+                )
+                ->get();
+
+            // Subquery to get the earliest jam_in for each employee per day
+            $subquery = DB::connection('mysql2')
+                ->table('db_absen.att_log as presensi')
+                ->select(
+                    'presensi.pin',
+                    DB::raw('DATE(presensi.scan_date) as tgl_presensi'),
+                    DB::raw('TIME(MIN(presensi.scan_date)) as earliest_jam_in'),
+                    'shift.start_time'
+                )
+                ->join('karyawan', 'presensi.pin', '=', 'karyawan.nip')
+                ->join('shift_pattern_cycle', function ($join) {
+                    $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
+                        ->on(DB::raw('
                         CASE
                             WHEN DAYOFWEEK(DATE(presensi.scan_date)) = 1 THEN 7
                             ELSE DAYOFWEEK(DATE(presensi.scan_date)) - 1
                         END
                     '), '=', 'shift_pattern_cycle.cycle_day');
-            })
-            ->join('shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
-            ->whereRaw('MONTH(presensi.scan_date) = ?', [$bulanini])
-            ->whereRaw('YEAR(presensi.scan_date) = ?', [$tahunini])
-            ->groupBy('presensi.pin', 'tgl_presensi', 'shift.start_time');
+                })
+                ->join('shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
+                ->whereRaw('MONTH(presensi.scan_date) = ?', [$bulanini])
+                ->whereRaw('YEAR(presensi.scan_date) = ?', [$tahunini])
+                ->groupBy('presensi.pin', 'tgl_presensi', 'shift.start_time');
 
 
 
-        // Leaderboard for lateness for NS employees
-        // Leaderboard for lateness for NS employees
-        $leaderboardTelatNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
-            ->mergeBindings($subquery)
-            ->join('karyawan', 'sub.pin', '=', 'karyawan.nip')
-            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-            ->select(
-                'sub.pin',
-                'karyawan.kode_dept',
-                'jabatan.nama_jabatan',
-                'karyawan.nama_lengkap',
-                DB::raw('SUM(
+            // Leaderboard for lateness for NS employees
+            // Leaderboard for lateness for NS employees
+            $leaderboardTelatNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
+                ->mergeBindings($subquery)
+                ->join('karyawan', 'sub.pin', '=', 'karyawan.nip')
+                ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+                ->select(
+                    'sub.pin',
+                    'karyawan.kode_dept',
+                    'jabatan.nama_jabatan',
+                    'karyawan.nama_lengkap',
+                    DB::raw('SUM(
                 CASE
                     WHEN sub.earliest_jam_in > sub.start_time
                     THEN TIMESTAMPDIFF(MINUTE, sub.start_time, sub.earliest_jam_in)
                     ELSE 0
                 END
             ) as total_late_minutes')
-            )
-            ->where('karyawan.grade', 'NS')
-            ->groupBy('sub.pin', 'karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
-            ->orderBy('total_late_minutes', 'desc')
-            ->limit(10)
-            ->get();
+                )
+                ->where('karyawan.grade', 'NS')
+                ->groupBy('sub.pin', 'karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
+                ->orderBy('total_late_minutes', 'desc')
+                ->limit(10)
+                ->get();
 
-        // Leaderboard for lateness for Non-NS employees
-        $leaderboardTelatNonNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
-            ->mergeBindings($subquery)
-            ->join('karyawan', 'sub.pin', '=', 'karyawan.nip')
-            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-            ->select(
-                'sub.pin',
-                'karyawan.kode_dept',
-                'jabatan.nama_jabatan',
-                'karyawan.nama_lengkap',
-                DB::raw('SUM(
+            // Leaderboard for lateness for Non-NS employees
+            $leaderboardTelatNonNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
+                ->mergeBindings($subquery)
+                ->join('karyawan', 'sub.pin', '=', 'karyawan.nip')
+                ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+                ->select(
+                    'sub.pin',
+                    'karyawan.kode_dept',
+                    'jabatan.nama_jabatan',
+                    'karyawan.nama_lengkap',
+                    DB::raw('SUM(
                 CASE
                     WHEN sub.earliest_jam_in > sub.start_time
                     THEN TIMESTAMPDIFF(MINUTE, sub.start_time, sub.earliest_jam_in)
                     ELSE 0
                 END
             ) as total_late_minutes')
-            )
-            ->where('karyawan.grade', '!=', 'NS')
-            ->groupBy('sub.pin', 'karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
-            ->orderBy('total_late_minutes', 'desc')
-            ->limit(10)
-            ->get();
+                )
+                ->where('karyawan.grade', '!=', 'NS')
+                ->groupBy('sub.pin', 'karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
+                ->orderBy('total_late_minutes', 'desc')
+                ->limit(10)
+                ->get();
 
-        $subquery = DB::connection('mysql2')
-            ->table('db_absen.att_log as presensi')
-            ->select(
-                'presensi.pin as nip',
-                DB::raw('DATE(presensi.scan_date) as tgl_presensi'),
-                DB::raw('MIN(TIME(presensi.scan_date)) as earliest_jam_in'),
-                'shift.start_time',
-                DB::raw(
-                    '
+            $subquery = DB::connection('mysql2')
+                ->table('db_absen.att_log as presensi')
+                ->select(
+                    'presensi.pin as nip',
+                    DB::raw('DATE(presensi.scan_date) as tgl_presensi'),
+                    DB::raw('MIN(TIME(presensi.scan_date)) as earliest_jam_in'),
+                    'shift.start_time',
+                    DB::raw(
+                        '
                     CASE
                         WHEN MIN(TIME(presensi.scan_date)) > shift.start_time THEN 1
                         ELSE 0
                     END as is_late'
+                    )
                 )
-            )
-            ->join('karyawan', 'presensi.pin', '=', 'karyawan.nip')
-            ->join('shift_pattern_cycle', function ($join) {
-                $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
-                    ->on(DB::raw('
+                ->join('karyawan', 'presensi.pin', '=', 'karyawan.nip')
+                ->join('shift_pattern_cycle', function ($join) {
+                    $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
+                        ->on(DB::raw('
                         CASE
                             WHEN DAYOFWEEK(DATE(presensi.scan_date)) = 1 THEN 7
                             ELSE DAYOFWEEK(DATE(presensi.scan_date)) - 1
                         END
                     '), '=', 'shift_pattern_cycle.cycle_day');
-            })
-            ->join('shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
-            ->whereRaw('MONTH(presensi.scan_date) = ?', [$bulanini])
-            ->whereRaw('YEAR(presensi.scan_date) = ?', [$tahunini])
-            ->groupBy('presensi.pin', 'tgl_presensi', 'shift.start_time');
+                })
+                ->join('shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
+                ->whereRaw('MONTH(presensi.scan_date) = ?', [$bulanini])
+                ->whereRaw('YEAR(presensi.scan_date) = ?', [$tahunini])
+                ->groupBy('presensi.pin', 'tgl_presensi', 'shift.start_time');
 
 
 
-        // Query for total lateness count for NS grade
-        // Leaderboard for total lateness count for NS employees
-        $totalLatenessNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
-            ->mergeBindings($subquery)
-            ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
-            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-            ->select(
-                'karyawan.nama_lengkap',
-                'karyawan.kode_dept',
-                'jabatan.nama_jabatan',
-                DB::raw('SUM(sub.is_late) as total_late_count')
-            )
-            ->where('karyawan.grade', 'NS')
-            ->groupBy('karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
-            ->orderBy('total_late_count', 'desc')
-            ->limit(10)
-            ->get();
+            // Query for total lateness count for NS grade
+            // Leaderboard for total lateness count for NS employees
+            $totalLatenessNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
+                ->mergeBindings($subquery)
+                ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
+                ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+                ->select(
+                    'karyawan.nama_lengkap',
+                    'karyawan.kode_dept',
+                    'jabatan.nama_jabatan',
+                    DB::raw('SUM(sub.is_late) as total_late_count')
+                )
+                ->where('karyawan.grade', 'NS')
+                ->groupBy('karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
+                ->orderBy('total_late_count', 'desc')
+                ->limit(10)
+                ->get();
 
-        // Query for total lateness count for Non-NS grade
-        $totalLatenessNonNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
-            ->mergeBindings($subquery)
-            ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
-            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-            ->select(
-                'karyawan.nama_lengkap',
-                'karyawan.kode_dept',
-                'jabatan.nama_jabatan',
-                DB::raw('SUM(sub.is_late) as total_late_count')
-            )
-            ->where('karyawan.grade', '!=', 'NS')
-            ->groupBy('karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
-            ->orderBy('total_late_count', 'desc')
-            ->limit(10)
-            ->get();
+            // Query for total lateness count for Non-NS grade
+            $totalLatenessNonNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
+                ->mergeBindings($subquery)
+                ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
+                ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+                ->select(
+                    'karyawan.nama_lengkap',
+                    'karyawan.kode_dept',
+                    'jabatan.nama_jabatan',
+                    DB::raw('SUM(sub.is_late) as total_late_count')
+                )
+                ->where('karyawan.grade', '!=', 'NS')
+                ->groupBy('karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
+                ->orderBy('total_late_count', 'desc')
+                ->limit(10)
+                ->get();
 
 
 
-        // Query for NS grade on-time leaderboard
-        $subquery = DB::connection('mysql2')
-            ->table('db_absen.att_log as presensi')
-            ->select(
-                'presensi.pin as nip',  // Using 'pin' for 'nip'
-                DB::raw('DATE(presensi.scan_date) as tgl_presensi'),  // Extracting date for tgl_presensi
-                DB::raw('MIN(TIME(presensi.scan_date)) as earliest_jam_in'),  // Extracting time for jam_in
-                'shift.start_time'
-            )
-            ->join('karyawan', 'presensi.pin', '=', 'karyawan.nip')  // Joining on pin to karyawan.nip
-            ->join('shift_pattern_cycle', function ($join) {
-                $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
-                    ->on(DB::raw('
+            // Query for NS grade on-time leaderboard
+            $subquery = DB::connection('mysql2')
+                ->table('db_absen.att_log as presensi')
+                ->select(
+                    'presensi.pin as nip',  // Using 'pin' for 'nip'
+                    DB::raw('DATE(presensi.scan_date) as tgl_presensi'),  // Extracting date for tgl_presensi
+                    DB::raw('MIN(TIME(presensi.scan_date)) as earliest_jam_in'),  // Extracting time for jam_in
+                    'shift.start_time'
+                )
+                ->join('karyawan', 'presensi.pin', '=', 'karyawan.nip')  // Joining on pin to karyawan.nip
+                ->join('shift_pattern_cycle', function ($join) {
+                    $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
+                        ->on(DB::raw('
                         CASE
                             WHEN DAYOFWEEK(DATE(presensi.scan_date)) = 1 THEN 7
                             ELSE DAYOFWEEK(DATE(presensi.scan_date)) - 1
                         END
                     '), '=', 'shift_pattern_cycle.cycle_day');
-            })
-            ->join('shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
-            ->whereRaw('MONTH(presensi.scan_date) = ?', [$bulanini])  // Filtering by month using scan_date
-            ->whereRaw('YEAR(presensi.scan_date) = ?', [$tahunini])  // Filtering by year using scan_date
-            ->groupBy('presensi.pin', 'tgl_presensi', 'shift.start_time');  // Grouping by necessary fields
+                })
+                ->join('shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
+                ->whereRaw('MONTH(presensi.scan_date) = ?', [$bulanini])  // Filtering by month using scan_date
+                ->whereRaw('YEAR(presensi.scan_date) = ?', [$tahunini])  // Filtering by year using scan_date
+                ->groupBy('presensi.pin', 'tgl_presensi', 'shift.start_time');  // Grouping by necessary fields
 
 
-        // Leaderboard for on-time for NS employees
-        $leaderboardOnTimeNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
-            ->mergeBindings($subquery)
-            ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
-            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-            ->select(
-                'sub.nip',
-                'karyawan.kode_dept',
-                'jabatan.nama_jabatan',
-                'karyawan.nama_lengkap',
-                DB::raw('SUM(
+            // Leaderboard for on-time for NS employees
+            $leaderboardOnTimeNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
+                ->mergeBindings($subquery)
+                ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
+                ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+                ->select(
+                    'sub.nip',
+                    'karyawan.kode_dept',
+                    'jabatan.nama_jabatan',
+                    'karyawan.nama_lengkap',
+                    DB::raw('SUM(
         CASE
             WHEN sub.earliest_jam_in <= sub.start_time
             THEN TIMESTAMPDIFF(MINUTE, sub.earliest_jam_in, sub.start_time)
             ELSE 0
         END
     ) as total_on_time')
-            )
-            ->where('karyawan.grade', 'NS')
-            ->groupBy('sub.nip', 'karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
-            ->orderBy('total_on_time', 'desc')
-            ->limit(10)
-            ->get();
+                )
+                ->where('karyawan.grade', 'NS')
+                ->groupBy('sub.nip', 'karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
+                ->orderBy('total_on_time', 'desc')
+                ->limit(10)
+                ->get();
 
-        // Leaderboard for on-time for Non-NS employees
-        $leaderboardOnTimeNonNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
-            ->mergeBindings($subquery)
-            ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
-            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-            ->select(
-                'sub.nip',
-                'karyawan.kode_dept',
-                'jabatan.nama_jabatan',
-                'karyawan.nama_lengkap',
-                DB::raw('SUM(
+            // Leaderboard for on-time for Non-NS employees
+            $leaderboardOnTimeNonNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
+                ->mergeBindings($subquery)
+                ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
+                ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+                ->select(
+                    'sub.nip',
+                    'karyawan.kode_dept',
+                    'jabatan.nama_jabatan',
+                    'karyawan.nama_lengkap',
+                    DB::raw('SUM(
         CASE
             WHEN sub.earliest_jam_in <= sub.start_time
             THEN TIMESTAMPDIFF(MINUTE, sub.earliest_jam_in, sub.start_time)
             ELSE 0
         END
     ) as total_on_time')
-            )
-            ->where('karyawan.grade', '!=', 'NS')
-            ->groupBy('sub.nip', 'karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
-            ->orderBy('total_on_time', 'desc')
-            ->limit(10)
-            ->get();
+                )
+                ->where('karyawan.grade', '!=', 'NS')
+                ->groupBy('sub.nip', 'karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
+                ->orderBy('total_on_time', 'desc')
+                ->limit(10)
+                ->get();
 
 
-        $subquery = DB::connection('mysql2')
-            ->table('db_absen.att_log as presensi')
-            ->select(
-                'presensi.pin as nip',
-                DB::raw('DATE(presensi.scan_date) as tgl_presensi'),
-                DB::raw('MIN(TIME(presensi.scan_date)) as earliest_jam_in'),
-                'shift.start_time',
-                DB::raw(
-                    '
+            $subquery = DB::connection('mysql2')
+                ->table('db_absen.att_log as presensi')
+                ->select(
+                    'presensi.pin as nip',
+                    DB::raw('DATE(presensi.scan_date) as tgl_presensi'),
+                    DB::raw('MIN(TIME(presensi.scan_date)) as earliest_jam_in'),
+                    'shift.start_time',
+                    DB::raw(
+                        '
                     CASE
                         WHEN MIN(TIME(presensi.scan_date)) < shift.start_time THEN 1
                         ELSE 0
                     END as is_ontime'
+                    )
                 )
-            )
-            ->join('karyawan', 'presensi.pin', '=', 'karyawan.nip')
-            ->join('shift_pattern_cycle', function ($join) {
-                $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
-                    ->on(DB::raw('
+                ->join('karyawan', 'presensi.pin', '=', 'karyawan.nip')
+                ->join('shift_pattern_cycle', function ($join) {
+                    $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
+                        ->on(DB::raw('
                         CASE
                             WHEN DAYOFWEEK(DATE(presensi.scan_date)) = 1 THEN 7
                             ELSE DAYOFWEEK(DATE(presensi.scan_date)) - 1
                         END
                     '), '=', 'shift_pattern_cycle.cycle_day');
-            })
-            ->join('shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
-            ->whereRaw('MONTH(presensi.scan_date) = ?', [$bulanini])
-            ->whereRaw('YEAR(presensi.scan_date) = ?', [$tahunini])
-            ->groupBy('presensi.pin', 'tgl_presensi', 'shift.start_time');
+                })
+                ->join('shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
+                ->whereRaw('MONTH(presensi.scan_date) = ?', [$bulanini])
+                ->whereRaw('YEAR(presensi.scan_date) = ?', [$tahunini])
+                ->groupBy('presensi.pin', 'tgl_presensi', 'shift.start_time');
 
 
 
-        // Query for total lateness count for NS grade
-        // Leaderboard for total lateness count for NS employees
-        $totalOnTimeNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
-            ->mergeBindings($subquery)
-            ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
-            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-            ->select(
-                'karyawan.nama_lengkap',
-                'karyawan.kode_dept',
-                'jabatan.nama_jabatan',
-                DB::raw('SUM(sub.is_ontime) as total_on_time')
-            )
-            ->where('karyawan.grade', 'NS')
-            ->where('jabatan.kode_dept', '!=', 'Management')
-            ->groupBy('karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
-            ->orderBy('total_on_time', 'desc')
-            ->limit(10)
-            ->get();
+            // Query for total lateness count for NS grade
+            // Leaderboard for total lateness count for NS employees
+            $totalOnTimeNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
+                ->mergeBindings($subquery)
+                ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
+                ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+                ->select(
+                    'karyawan.nama_lengkap',
+                    'karyawan.kode_dept',
+                    'jabatan.nama_jabatan',
+                    DB::raw('SUM(sub.is_ontime) as total_on_time')
+                )
+                ->where('karyawan.grade', 'NS')
+                ->where('jabatan.kode_dept', '!=', 'Management')
+                ->groupBy('karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
+                ->orderBy('total_on_time', 'desc')
+                ->limit(10)
+                ->get();
 
-        // Query for total lateness count for Non-NS grade
-        $totalOnTimeNonNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
-            ->mergeBindings($subquery)
-            ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
-            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-            ->select(
-                'karyawan.nama_lengkap',
-                'karyawan.kode_dept',
-                'jabatan.nama_jabatan',
-                DB::raw('SUM(sub.is_ontime) as total_on_time')
-            )
-            ->where('karyawan.grade', '!=', 'NS')
-            ->where('jabatan.kode_dept', '!=', 'Management')
-            ->groupBy('karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
-            ->orderBy('total_on_time', 'desc')
-            ->limit(10)
-            ->get();
-
-
-        $KarIzinNow = DB::table('pengajuan_izin')
-            ->join('karyawan', 'pengajuan_izin.nip', '=', 'karyawan.nip')
-            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
-            ->where(function ($query) use ($hariini) {
-                $query->where('tgl_izin', '<=', $hariini)
-                    ->where(function ($subQuery) use ($hariini) {
-                        $subQuery->where('tgl_izin_akhir', '>=', $hariini)
-                            ->orWhereNull('tgl_izin_akhir')
-                            ->orWhere('tgl_izin_akhir', ''); // Handle empty string case
-                    });
-            })
-            ->where('karyawan.grade', '!=', 'NS')
-            ->select('karyawan.nama_lengkap', 'pengajuan_izin.tgl_izin', 'pengajuan_izin.tgl_izin_akhir', 'pengajuan_izin.status', 'pengajuan_izin.pukul', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
-            ->get();
+            // Query for total lateness count for Non-NS grade
+            $totalOnTimeNonNS = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
+                ->mergeBindings($subquery)
+                ->join('karyawan', 'sub.nip', '=', 'karyawan.nip')
+                ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+                ->select(
+                    'karyawan.nama_lengkap',
+                    'karyawan.kode_dept',
+                    'jabatan.nama_jabatan',
+                    DB::raw('SUM(sub.is_ontime) as total_on_time')
+                )
+                ->where('karyawan.grade', '!=', 'NS')
+                ->where('jabatan.kode_dept', '!=', 'Management')
+                ->groupBy('karyawan.nama_lengkap', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
+                ->orderBy('total_on_time', 'desc')
+                ->limit(10)
+                ->get();
 
 
-
-        // Fetch employees who are on cuti today
-        $KarCutiNow = DB::table('pengajuan_cuti')
-            ->join('karyawan', 'pengajuan_cuti.nip', '=', 'karyawan.nip')
-            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
-            ->leftJoin('tipe_cuti', 'pengajuan_cuti.tipe', '=', 'tipe_cuti.id_tipe_cuti') // Join with tipe_cuti table
-            ->where(function ($query) use ($hariini) {
-                $query->where('tgl_cuti', '<=', $hariini)
-                    ->where('tgl_cuti_sampai', '>=', $hariini);
-            })
-            ->where('karyawan.grade', '!=', 'NS')
-            ->select('karyawan.nama_lengkap', 'pengajuan_cuti.tgl_cuti', 'pengajuan_cuti.tgl_cuti_sampai', 'pengajuan_cuti.jenis', 'jabatan.nama_jabatan', 'pengajuan_cuti.tipe', 'tipe_cuti.tipe_cuti', 'karyawan.kode_dept') // Select the necessary fields
-            ->get();
-
-        $KarIzinNowNS = DB::table('pengajuan_izin')
-            ->join('karyawan', 'pengajuan_izin.nip', '=', 'karyawan.nip')
-            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
-            ->where(function ($query) use ($hariini) {
-                $query->where('tgl_izin', '<=', $hariini)
-                    ->where(function ($subQuery) use ($hariini) {
-                        $subQuery->where('tgl_izin_akhir', '>=', $hariini)
-                            ->orWhereNull('tgl_izin_akhir')
-                            ->orWhere('tgl_izin_akhir', ''); // Handle empty string case
-                    });
-            })
-            ->where('karyawan.grade', 'NS')
-            ->select('karyawan.nama_lengkap', 'pengajuan_izin.tgl_izin', 'pengajuan_izin.tgl_izin_akhir', 'pengajuan_izin.status', 'pengajuan_izin.pukul', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
-            ->get();
+            $KarIzinNow = DB::table('pengajuan_izin')
+                ->join('karyawan', 'pengajuan_izin.nip', '=', 'karyawan.nip')
+                ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
+                ->where(function ($query) use ($hariini) {
+                    $query->where('tgl_izin', '<=', $hariini)
+                        ->where(function ($subQuery) use ($hariini) {
+                            $subQuery->where('tgl_izin_akhir', '>=', $hariini)
+                                ->orWhereNull('tgl_izin_akhir')
+                                ->orWhere('tgl_izin_akhir', ''); // Handle empty string case
+                        });
+                })
+                ->where('karyawan.grade', '!=', 'NS')
+                ->select('karyawan.nama_lengkap', 'pengajuan_izin.tgl_izin', 'pengajuan_izin.tgl_izin_akhir', 'pengajuan_izin.status', 'pengajuan_izin.pukul', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
+                ->get();
 
 
-        // Fetch employees who are on cuti today
-        $KarCutiNowNS = DB::table('pengajuan_cuti')
-            ->join('karyawan', 'pengajuan_cuti.nip', '=', 'karyawan.nip')
-            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
-            ->leftJoin('tipe_cuti', 'pengajuan_cuti.tipe', '=', 'tipe_cuti.id_tipe_cuti') // Join with tipe_cuti table
-            ->where(function ($query) use ($hariini) {
-                $query->where('tgl_cuti', '<=', $hariini)
-                    ->where('tgl_cuti_sampai', '>=', $hariini);
-            })
-            ->where('karyawan.grade', 'NS')
-            ->select('karyawan.nama_lengkap', 'pengajuan_cuti.tgl_cuti', 'pengajuan_cuti.tgl_cuti_sampai', 'pengajuan_cuti.jenis', 'jabatan.nama_jabatan', 'pengajuan_cuti.tipe', 'tipe_cuti.tipe_cuti', 'karyawan.kode_dept') // Select the necessary fields
-            ->get();
+
+            // Fetch employees who are on cuti today
+            $KarCutiNow = DB::table('pengajuan_cuti')
+                ->join('karyawan', 'pengajuan_cuti.nip', '=', 'karyawan.nip')
+                ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
+                ->leftJoin('tipe_cuti', 'pengajuan_cuti.tipe', '=', 'tipe_cuti.id_tipe_cuti') // Join with tipe_cuti table
+                ->where(function ($query) use ($hariini) {
+                    $query->where('tgl_cuti', '<=', $hariini)
+                        ->where('tgl_cuti_sampai', '>=', $hariini);
+                })
+                ->where('karyawan.grade', '!=', 'NS')
+                ->select('karyawan.nama_lengkap', 'pengajuan_cuti.tgl_cuti', 'pengajuan_cuti.tgl_cuti_sampai', 'pengajuan_cuti.jenis', 'jabatan.nama_jabatan', 'pengajuan_cuti.tipe', 'tipe_cuti.tipe_cuti', 'karyawan.kode_dept') // Select the necessary fields
+                ->get();
+
+            $KarIzinNowNS = DB::table('pengajuan_izin')
+                ->join('karyawan', 'pengajuan_izin.nip', '=', 'karyawan.nip')
+                ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
+                ->where(function ($query) use ($hariini) {
+                    $query->where('tgl_izin', '<=', $hariini)
+                        ->where(function ($subQuery) use ($hariini) {
+                            $subQuery->where('tgl_izin_akhir', '>=', $hariini)
+                                ->orWhereNull('tgl_izin_akhir')
+                                ->orWhere('tgl_izin_akhir', ''); // Handle empty string case
+                        });
+                })
+                ->where('karyawan.grade', 'NS')
+                ->select('karyawan.nama_lengkap', 'pengajuan_izin.tgl_izin', 'pengajuan_izin.tgl_izin_akhir', 'pengajuan_izin.status', 'pengajuan_izin.pukul', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
+                ->get();
 
 
-        return view('dashboard.dashboardadmin', compact(
-            'rekapizin',
-            'rekapcuti',
-            'rekappresensi',
-            'rekapkaryawan',
-            'jmlnoatt',
-            'historihariNS',
-            'noAttendanceNS',
-            'historihariNonNS',
-            'noAttendanceNonNS',
-            'leaderboardTelatNS',
-            'leaderboardTelatNonNS',
-            'totalOnTimeNS',
-            'totalOnTimeNonNS',
-            'KarIzinNow',
-            'KarCutiNow',
-            'KarIzinNowNS',
-            'KarCutiNowNS',
-            'totalLatenessNS',
-            'totalLatenessNonNS',
-            'leaderboardOnTimeNS',
-            'leaderboardOnTimeNonNS'
-        ));
+            // Fetch employees who are on cuti today
+            $KarCutiNowNS = DB::table('pengajuan_cuti')
+                ->join('karyawan', 'pengajuan_cuti.nip', '=', 'karyawan.nip')
+                ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
+                ->leftJoin('tipe_cuti', 'pengajuan_cuti.tipe', '=', 'tipe_cuti.id_tipe_cuti') // Join with tipe_cuti table
+                ->where(function ($query) use ($hariini) {
+                    $query->where('tgl_cuti', '<=', $hariini)
+                        ->where('tgl_cuti_sampai', '>=', $hariini);
+                })
+                ->where('karyawan.grade', 'NS')
+                ->select('karyawan.nama_lengkap', 'pengajuan_cuti.tgl_cuti', 'pengajuan_cuti.tgl_cuti_sampai', 'pengajuan_cuti.jenis', 'jabatan.nama_jabatan', 'pengajuan_cuti.tipe', 'tipe_cuti.tipe_cuti', 'karyawan.kode_dept') // Select the necessary fields
+                ->get();
+
+            return view('dashboard.dashboardadmin', compact(
+                'rekapizin',
+                'rekapcuti',
+                'rekappresensi',
+                'rekapkaryawan',
+                'jmlnoatt',
+                'historihariNS',
+                'noAttendanceNS',
+                'historihariNonNS',
+                'noAttendanceNonNS',
+                'leaderboardTelatNS',
+                'leaderboardTelatNonNS',
+                'totalOnTimeNS',
+                'totalOnTimeNonNS',
+                'KarIzinNow',
+                'KarCutiNow',
+                'KarIzinNowNS',
+                'KarCutiNowNS',
+                'totalLatenessNS',
+                'totalLatenessNonNS',
+                'leaderboardOnTimeNS',
+                'leaderboardOnTimeNonNS'
+            ));
+        }
     }
 
 

@@ -147,6 +147,23 @@
             }
         });
 
+        // function calculateDays() {
+        //     var tgl_izin = $("#tgl_izin").val();
+        //     var tgl_izin_akhir = $("#tgl_izin_akhir").val();
+
+        //     if (tgl_izin && tgl_izin_akhir) {
+        //         var start = new Date(tgl_izin);
+        //         var end = new Date(tgl_izin_akhir);
+        //         var diffTime = Math.abs(end - start);
+        //         var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Including start day
+        //         $("#jml_hari").val(diffDays);
+        //     } else if (tgl_izin) {
+        //         $("#jml_hari").val(1);
+        //     } else {
+        //         $("#jml_hari").val(0);
+        //     }
+        // }
+
         function calculateDays() {
             var tgl_izin = $("#tgl_izin").val();
             var tgl_izin_akhir = $("#tgl_izin_akhir").val();
@@ -154,14 +171,25 @@
             if (tgl_izin && tgl_izin_akhir) {
                 var start = new Date(tgl_izin);
                 var end = new Date(tgl_izin_akhir);
-                var diffTime = Math.abs(end - start);
-                var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Including start day
+
+                // Count total weekdays
+                var diffDays = 0;
+                while (start <= end) {
+                    var day = start.getDay(); // Get the day of the week (0 = Sunday, 6 = Saturday)
+                    if (day !== 0 && day !== 6) { // Skip Sunday (0) and Saturday (6)
+                        diffDays++;
+                    }
+                    start.setDate(start.getDate() + 1); // Move to the next day
+                }
+
                 $("#jml_hari").val(diffDays);
             } else if (tgl_izin) {
-                $("#jml_hari").val(1);
+                $("#jml_hari").val(1); // Single-day leave
             } else {
-                $("#jml_hari").val(0);
+                $("#jml_hari").val(0); // No date selected
             }
+
+            calculateSisaCutiSetelah();
         }
 
         $("#tgl_izin, #tgl_izin_akhir").change(function() {
