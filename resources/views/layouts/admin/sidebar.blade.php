@@ -444,7 +444,7 @@
                 @endif
                 @if($userLevel !== 'Admin')
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{request()->is(['laporan/attendance', 'laporan/time']) ? 'show' : ''}}"
+                        <a class="nav-link dropdown-toggle {{request()->is(['laporan/attendance', 'laporan/time', 'laporan/exportAttendanceView']) ? 'show' : ''}}"
                             href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button"
                             aria-expanded="false">
                             <span
@@ -468,7 +468,7 @@
                                 Laporan
                             </span>
                         </a>
-                        <div class="dropdown-menu {{request()->is(['laporan/attendance', 'laporan/time']) ? 'show' : ''}}">
+                        <div class="dropdown-menu {{request()->is(['laporan/attendance', 'laporan/time' , 'laporan/exportAttendanceView']) ? 'show' : ''}}">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
                                     <a class="dropdown-item {{request()->is(['laporan/attendance']) ? 'active' : ''}}"
@@ -478,6 +478,9 @@
                                     <a class="dropdown-item {{request()->is(['laporan/time']) ? 'active' : ''}}"
                                         href="/laporan/time">
                                         Time Table
+                                    </a>
+                                    <a class="dropdown-item {{request()->is(['laporan/exportAttendanceView']) ? 'active' : ''}}" href="/laporan/exportAttendanceView"  href="#">
+                                        Export Waktu Absensi
                                     </a>
                                     <a class="dropdown-item" href="#">
                                         Izin
@@ -640,9 +643,6 @@
                                 <div class="dropdown-menu-column">
                                     <a class="dropdown-item {{request()->is(['email_export/absensi']) ? 'active' : ''}}" href="/email_export/absensi">
                                         Email Absensi
-                                    </a>
-                                    <a class="dropdown-item {{request()->is(['email_export/export_absensi']) ? 'active' : ''}}" href="/email_export/export_absensi"  href="#">
-                                        Export
                                     </a>
                                 </div>
                             </div>

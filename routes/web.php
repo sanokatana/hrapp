@@ -299,6 +299,9 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::get('/laporan/time', [LaporanController::class, 'timeindex']);
     Route::get('/laporan/timeExport', [LaporanController::class, 'exportTime']);
 
+    Route::get('/laporan/exportAttendanceView', [LaporanController::class, 'exportAttendanceView']);
+    Route::get('/laporan/exportAttendance', [LaporanController::class, 'exportAttendance']);
+
 
     // routes/web.php
     Route::get('/contracts', [ContractController::class, 'filterContracts']);

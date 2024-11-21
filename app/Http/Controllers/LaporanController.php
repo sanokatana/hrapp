@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Exports\AttendanceExport;
+use App\Exports\AbsenExport;
 use App\Exports\TimeExport;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Models\Karyawan;
 
 class LaporanController extends Controller
 {
@@ -15,8 +17,8 @@ class LaporanController extends Controller
     public function index()
     {
         $years = DB::table('presensi')
-        ->selectRaw('MIN(YEAR(tgl_presensi)) as earliest_year, MAX(YEAR(tgl_presensi)) as latest_year')
-        ->first();
+            ->selectRaw('MIN(YEAR(tgl_presensi)) as earliest_year, MAX(YEAR(tgl_presensi)) as latest_year')
+            ->first();
 
         $earliestYear = $years->earliest_year;
         $latestYear = $years->latest_year;
@@ -439,7 +441,7 @@ class LaporanController extends Controller
                 $latest_jam_in_after_morning = Carbon::parse($attendance->latest_jam_in_after_morning ?? $jam_in);
                 if ($latest_jam_in_after_morning->gte(Carbon::parse($morning_start))) {
                     return $latest_jam_in_after_morning->gt(Carbon::parse($work_start)) ? 'T' : 'P';
-                } else if ($date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY){
+                } else if ($date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY) {
                     return 'L'; // No valid attendance after morning_start
                 } else {
                     return ''; // No valid attendance after morning_start
@@ -556,8 +558,8 @@ class LaporanController extends Controller
     public function timeindex()
     {
         $years = DB::table('presensi')
-        ->selectRaw('MIN(YEAR(tgl_presensi)) as earliest_year, MAX(YEAR(tgl_presensi)) as latest_year')
-        ->first();
+            ->selectRaw('MIN(YEAR(tgl_presensi)) as earliest_year, MAX(YEAR(tgl_presensi)) as latest_year')
+            ->first();
 
         $earliestYear = $years->earliest_year;
         $latestYear = $years->latest_year;
@@ -823,5 +825,143 @@ class LaporanController extends Controller
         }
 
         return Excel::download(new TimeExport($attendanceData), 'attendance.xlsx');
+    }
+
+
+    public function exportAttendanceView(Request $request)
+    {
+        $years = DB::connection('mysql2')
+            ->table('db_absen.att_log')
+            ->selectRaw('MIN(YEAR(scan_date)) as earliest_year, MAX(YEAR(scan_date)) as latest_year')
+            ->first();
+
+        $earliestYear = $years->earliest_year;
+        $latestYear = $years->latest_year;
+
+        $query = Karyawan::query();
+        $query->select('karyawan.*', 'department.nama_dept', 'jabatan.nama_jabatan');
+        $query->leftJoin('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
+        $query->leftJoin('jabatan', 'karyawan.jabatan', '=', 'jabatan.id');
+        $query->orderBy('karyawan.id', 'asc');
+        $query->where('karyawan.status_kar', 'Aktif');
+        $query->orderBy('karyawan.tgl_masuk', 'asc');
+
+        if (!empty($request->nama_karyawan)) {
+            $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama_karyawan . '%');
+        }
+
+        if (!empty($request->kode_dept)) {
+            $query->where('karyawan.kode_dept', $request->kode_dept);
+        }
+
+        if (!empty($request->pt_karyawan)) {
+            $query->where('karyawan.nama_pt', $request->pt_karyawan);
+        }
+
+        if (!empty($request->religion_karyawan)) {
+            $query->where('karyawan.religion', $request->religion_karyawan);
+        }
+
+        if (!empty($request->base)) {
+            $query->where('karyawan.base_poh', $request->base);
+        }
+
+        if (!empty($request->grade_karyawan)) {
+            $query->where('karyawan.grade', $request->grade_karyawan);
+        }
+
+        if (!empty($request->status_karyawan)) {
+            $query->where('karyawan.status_kar', $request->status_karyawan);
+        }
+
+        if (!empty($request->status_employee)) {
+            $query->where('karyawan.employee_status', $request->status_employee);
+        }
+
+        $karyawan = $query->paginate(15)->appends($request->except('page'));
+        $department = DB::table('department')->get();
+        $jabatan = DB::table('jabatan')->get();
+        $location = DB::table('konfigurasi_lokasi')->get();
+
+        // Fetch unique values for the dropdowns
+        $uniquePt = Karyawan::whereNotNull('nama_pt')->distinct()->pluck('nama_pt')->filter();
+        $uniqueReligion = Karyawan::whereNotNull('religion')->distinct()->pluck('religion')->filter();
+        $uniqueBase = Karyawan::whereNotNull('base_poh')->distinct()->pluck('base_poh')->filter();
+        $uniqueGrade = Karyawan::whereNotNull('grade')->distinct()->pluck('grade')->filter();
+        $uniqueStatusKar = Karyawan::whereNotNull('status_kar')->distinct()->pluck('status_kar')->filter();
+        $uniqueEmployeeStatus = Karyawan::whereNotNull('employee_status')->distinct()->pluck('employee_status')->filter();
+        return view('laporan.exportAttendance', compact(
+            'earliestYear',
+            'latestYear',
+            'karyawan',
+            'department',
+            'jabatan',
+            'location',
+            'uniquePt',
+            'uniqueReligion',
+            'uniqueBase',
+            'uniqueGrade',
+            'uniqueStatusKar',
+            'uniqueEmployeeStatus'
+        ));
+    }
+    public function exportAttendance(Request $request)
+    {
+        $filterMonth = $request->input('bulan', Carbon::now()->month);
+        $filterYear = $request->input('tahun', Carbon::now()->year);
+        $karyawanIds = $request->input('karyawan_ids', []);
+
+        // Get selected karyawan data
+        $karyawan = DB::table('karyawan')
+            ->whereIn('id', $karyawanIds)
+            ->get(['nip', 'nama_lengkap', 'kode_dept']);
+
+        // Get presensi data
+        $presensi = DB::connection('mysql2')
+            ->table('db_absen.att_log as presensi')
+            ->select(
+                'presensi.pin',
+                DB::raw('DATE(presensi.scan_date) as scan_date'),
+                DB::raw('CASE
+                    WHEN COUNT(*) = 1 THEN MIN(TIME(presensi.scan_date))
+                    ELSE MIN(TIME(presensi.scan_date))
+                 END as earliest_scan_time'),
+                DB::raw('CASE
+                    WHEN COUNT(*) = 1 THEN MAX(TIME(presensi.scan_date))
+                    ELSE MAX(TIME(presensi.scan_date))
+                 END as latest_scan_time')
+            )
+            ->whereMonth('presensi.scan_date', $filterMonth)
+            ->whereYear('presensi.scan_date', $filterYear)
+            ->when(count($karyawanIds) > 0, function ($query) use ($karyawan) {
+                $query->whereIn('presensi.pin', $karyawan->pluck('nip')->toArray());
+            })
+            ->groupBy('presensi.pin', DB::raw('DATE(presensi.scan_date)'))
+            ->get();
+
+        // Ensure no NULL values
+        $presensi = $presensi->map(function ($record) {
+            $record->earliest_scan_time = $record->earliest_scan_time ?? ''; // Replace null with empty string
+            $record->latest_scan_time = $record->latest_scan_time ?? '';    // Replace null with empty string
+            return $record;
+        });
+
+        // Group presensi by pin and scan_date
+        $presensiGrouped = $presensi->groupBy('pin')->map(function ($records) {
+            return $records->groupBy('scan_date');
+        });
+
+
+        // Map karyawan data to presensi
+        $karyawanPresensi = $karyawan->map(function ($employee) use ($presensiGrouped) {
+            $employeePresensi = $presensiGrouped->get($employee->nip, collect());
+            return [
+                'employee' => $employee,
+                'presensi' => $employeePresensi,
+            ];
+        });
+
+        // Export attendance
+        return Excel::download(new AbsenExport($karyawanPresensi, $filterMonth, $filterYear), 'attendance_times.xlsx');
     }
 }

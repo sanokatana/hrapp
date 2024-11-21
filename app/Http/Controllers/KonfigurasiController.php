@@ -129,11 +129,11 @@ class KonfigurasiController extends Controller
             ->leftJoin('jabatan as j2', 'j1.jabatan_atasan', '=', 'j2.id');
 
         // Apply filters
-        if ($request->filled('nama_jabatan')) {
-            $query->where('j1.nama_jabatan', 'like', '%' . $request->nama_jabatan . '%');
+        if ($request->filled('jabatan_nama')) {
+            $query->where('j1.nama_jabatan', 'like', '%' . $request->jabatan_nama . '%');
         }
-        if ($request->filled('kode_dept')) {
-            $query->where('j1.kode_dept', $request->kode_dept);
+        if ($request->filled('dept_kode')) {
+            $query->where('j1.kode_dept', $request->dept_kode);
         }
         if ($request->filled('nama_kantor')) {
             $query->where('j1.site', $request->nama_kantor);
