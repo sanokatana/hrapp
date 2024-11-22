@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 
 class DashboardController extends Controller
 {
@@ -1345,5 +1348,49 @@ class DashboardController extends Controller
         $statusForm = $candidateData ? $candidateData->status_form : null; // Check if $candidateData is null
 
         return view('dashboard.dashboardcandidate', compact('candidate', 'stages', 'statusForm', 'interview', 'candidateData'));
+    }
+
+
+    public function accountSetting()
+    {
+        $user = Auth::guard('user')->user();
+        $nik = $user->nik;
+
+        $karyawan = DB::table('karyawan')
+            ->select('karyawan.nama_lengkap', 'department.nama_dept as department_name', 'jabatan.nama_jabatan as jabatan_name', 'karyawan.nik', 'karyawan.nip', 'karyawan.email')
+            ->leftJoin('department', 'karyawan.kode_dept', '=', 'department.kode_dept')
+            ->leftJoin('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+            ->where('karyawan.nik', $nik)
+            ->first();
+
+        return view('konfigurasi.setting', compact('karyawan'));
+    }
+
+
+
+
+    public function updatePassword(Request $request)
+    {
+
+        $user = Auth::guard('user')->user();
+        $nik = $user->nik;
+        $user = User::where('nik', $nik)->firstOrFail();
+
+        // Check if a new password is provided and if it matches the confirmation
+        if ($request->filled('password')) {
+            if ($request->input('password') === $request->input('password_confirmation')) {
+                // Hash the new password and update
+                $user->password = Hash::make($request->input('password'));
+            } else {
+                return Redirect::back()->with(['danger' => 'Password confirmation does not match the new password.']);
+            }
+        }
+
+        try {
+            $user->save();
+            return Redirect::back()->with(['success' => 'Profile Berhasil Di Update']);
+        } catch (\Exception $e) {
+            return Redirect::back()->with(['danger' => 'Profile Gagal Di Update']);
+        }
     }
 }

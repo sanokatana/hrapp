@@ -128,6 +128,7 @@ use App\Helpers\DateHelper;
                                                     <option value="0" {{ request('status_approved') === '0' ? 'selected' : '' }}>Pending</option>
                                                     <option value="1" {{ request('status_approved') === '1' ? 'selected' : '' }}>Approved</option>
                                                     <option value="2" {{ request('status_approved') === '2' ? 'selected' : '' }}>Rejected</option>
+                                                    <option value="3" {{ request('status_approved') === '3' ? 'selected' : '' }}>Cancelled</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -138,6 +139,7 @@ use App\Helpers\DateHelper;
                                                     <option value="0" {{ request('status_approved_hrd') === '0' ? 'selected' : '' }}>Pending</option>
                                                     <option value="1" {{ request('status_approved_hrd') === '1' ? 'selected' : '' }}>Approved</option>
                                                     <option value="2" {{ request('status_approved_hrd') === '2' ? 'selected' : '' }}>Rejected</option>
+                                                    <option value="3" {{ request('status_approved_hrd') === '3' ? 'selected' : '' }}>Cancelled</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -231,15 +233,19 @@ use App\Helpers\DateHelper;
                                                 <span class="badge bg-success" style="color: white; width:90px">Approved</span>
                                                 @elseif ($d->status_approved == 0)
                                                 <span class="badge bg-yellow" style="color: white; width:90px">Pending</span>
-                                                @else
+                                                @elseif ($d->status_approved == 2)
                                                 <span class="badge bg-red" style="color: white; width:90px">Rejected</span>
+                                                @else
+                                                <span class="badge bg-red" style="color: white; width:90px">Cancelled</span>
                                                 @endif
                                                 @if ($d->status_approved_hrd == 1)
                                                 <span class="badge bg-success mt-1" style="color: white; width:90px">Approved</span>
                                                 @elseif ($d->status_approved_hrd == 0)
                                                 <span class="badge bg-yellow mt-1" style="color: white; width:90px">Pending</span>
-                                                @else
+                                                @elseif ($d->status_approved_hrd == 2)
                                                 <span class="badge bg-red mt-1" style="color: white; width:90px">Rejected</span>
+                                                @elseif ($d->status_approved_hrd == 3)
+                                                <span class="badge bg-red mt-1" style="color: white; width:90px">Cancelled</span>
                                                 @endif
                                             </td>
                                             <td>{{ $d->keputusan}}</td>
@@ -508,7 +514,7 @@ use App\Helpers\DateHelper;
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
+                confirmButtonText: 'Yes, Batalkan!'
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({

@@ -116,6 +116,14 @@
             <ion-icon name="document-outline" role="img" class="md hydrated" aria-label="image outline"></ion-icon>
             <p style="margin-bottom: 0px;">Pengajuan Cuti</p>
         </a>
+        <a href="/presensi/pembatalanizin" class="dropdown-item bg-danger">
+            <ion-icon name="close-circle-outline"></ion-icon>
+            <p style="margin-bottom: 0px;">Pembatalan Absen</p>
+        </a>
+        <a href="/presensi/pembatalancuti" class="dropdown-item bg-danger">
+            <ion-icon name="close-circle-outline"></ion-icon>
+            <p style="margin-bottom: 0px;">Pembatalan Cuti</p>
+        </a>
     </div>
 </div>
 @endsection

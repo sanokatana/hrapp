@@ -383,8 +383,10 @@ $userDept = $user ? $user->kode_dept : null;
                                         <span class="badge bg-warning">Waiting Approval</span>
                                         @elseif ($d->status_approved == 1)
                                         <span class="badge bg-success">Form Approved</span>
-                                        @else
+                                        @elseif ($d->status_approved == 2)
                                         <span class="badge bg-danger">Form Declined</span>
+                                        @else
+                                        <span class="badge bg-danger">Form Cancelled</span>
                                         @endif
                                     </div>
                                     <div>
@@ -392,8 +394,10 @@ $userDept = $user ? $user->kode_dept : null;
                                         <span class="badge bg-warning">Waiting Approval</span>
                                         @elseif ($d->status_approved_hrd == 1)
                                         <span class="badge bg-success">Form Approved</span>
-                                        @else
+                                        @elseif ($d->status_approved_hrd == 2)
                                         <span class="badge bg-danger">Form Declined</span>
+                                        @else
+                                        <span class="badge bg-danger">Form Cancelled</span>
                                         @endif
                                     </div>
                                 </div>
@@ -435,8 +439,10 @@ $userDept = $user ? $user->kode_dept : null;
                                         <span class="badge bg-warning">Waiting Approval</span>
                                         @elseif ($d->status_approved == 1)
                                         <span class="badge bg-success">Form Approved</span>
-                                        @else
+                                        @elseif ($d->status_approved == 1)
                                         <span class="badge bg-danger">Form Declined</span>
+                                        @else
+                                        <span class="badge bg-danger">Form Cancelled</span>
                                         @endif
                                     </div>
                                     <div class="mb-1">
@@ -444,8 +450,10 @@ $userDept = $user ? $user->kode_dept : null;
                                         <span class="badge bg-warning">Waiting Approval</span>
                                         @elseif ($d->status_approved_hrd == 1)
                                         <span class="badge bg-success">Form Approved</span>
-                                        @else
+                                        @elseif ($d->status_approved_hrd == 2)
                                         <span class="badge bg-danger">Form Declined</span>
+                                        @else
+                                        <span class="badge bg-danger">Form Cancelled</span>
                                         @endif
                                     </div>
                                     <div>
@@ -453,8 +461,10 @@ $userDept = $user ? $user->kode_dept : null;
                                         <span class="badge bg-warning">Waiting Approval</span>
                                         @elseif ($d->status_management == 1)
                                         <span class="badge bg-success">Form Approved</span>
-                                        @else
+                                        @elseif ($d->status_management == 2)
                                         <span class="badge bg-danger">Form Declined</span>
+                                        @else
+                                        <span class="badge bg-danger">Form Cancelled</span>
                                         @endif
                                     </div>
                                 </div>

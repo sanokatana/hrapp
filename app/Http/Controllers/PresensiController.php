@@ -6,6 +6,7 @@ use App\Models\Cuti;
 use App\Models\Pengajuanizin;
 use Carbon\Carbon;
 use App\Helpers\DateHelper;
+use App\Models\PengajuanCuti;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -864,5 +865,81 @@ class PresensiController extends Controller
         }
 
         return view('presensi.notif', ['notif' => $notifications]);
+    }
+
+
+    public function pembatalanizin()
+    {
+        $nik = Auth::guard('karyawan')->user()->nik;
+
+        $historiizin = DB::table('pengajuan_izin')
+            ->where('nik', $nik)
+            ->where('status_approved', '!=', '3')
+            ->where('status_approved_hrd', '!=', '3')
+            ->orderBy('tgl_izin')
+            ->get();
+
+
+        return view('izin.pembatalanizin', compact('historiizin'));
+    }
+
+    public function batalIzin(Request $request)
+    {
+        // Get selected izin IDs from the form
+        $izinIds = $request->input('izin_ids');
+
+        // Check if there are selected izin IDs
+        if ($izinIds) {
+            // Update the selected izin records' status to 3 (batal)
+            Pengajuanizin::whereIn('id', $izinIds)
+                ->update([
+                    'status_approved' => 3,
+                    'status_approved_hrd' => 3
+                ]);
+
+            // Return success response
+            return response()->json(['success' => true]);
+        }
+
+        // If no IDs are selected, return error response
+        return response()->json(['success' => false]);
+    }
+
+    public function pembatalancuti()
+    {
+        $nik = Auth::guard('karyawan')->user()->nik;
+
+        $historicuti = DB::table('pengajuan_cuti')
+            ->where('nik', $nik)
+            ->where('status_approved', '!=', '3')
+            ->where('status_approved_hrd', '!=', '3')
+            ->orderBy('tgl_cuti')
+            ->get();
+
+
+        return view('izin.pembatalancuti', compact('historicuti'));
+    }
+
+    public function batalCuti(Request $request)
+    {
+        // Get selected izin IDs from the form
+        $cutiIds = $request->input('cuti_ids');
+
+        // Check if there are selected izin IDs
+        if ($cutiIds) {
+            // Update the selected izin records' status to 3 (batal)
+            PengajuanCuti::whereIn('id', $cutiIds)
+                ->update([
+                    'status_approved' => 3,
+                    'status_approved_hrd' => 3,
+                    'status_approved_management' => 3
+                ]);
+
+            // Return success response
+            return response()->json(['success' => true]);
+        }
+
+        // If no IDs are selected, return error response
+        return response()->json(['success' => false]);
     }
 }

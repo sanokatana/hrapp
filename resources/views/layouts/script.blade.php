@@ -33,7 +33,6 @@
             });
         });
     }
-
 </script>
 
 @stack('myscript')

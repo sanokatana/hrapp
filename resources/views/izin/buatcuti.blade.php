@@ -9,20 +9,24 @@
     .datepicker-date-display {
         background-color: #4989EF !important;
     }
+
     .btn {
-     border-radius: 200px
+        border-radius: 200px
     }
+
     .loading-overlay {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+        background: rgba(0, 0, 0, 0.5);
+        /* Semi-transparent background */
         display: none;
         justify-content: center;
         align-items: center;
-        z-index: 9999; /* Ensure it appears above everything */
+        z-index: 9999;
+        /* Ensure it appears above everything */
     }
 
     .loading-overlay span {
@@ -36,8 +40,13 @@
     }
 
     @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
     }
 </style>
 <!-- App Header -->
@@ -98,7 +107,7 @@
                 <label for="kar_ganti" class="col-form-label">Karyawan Yang Akan Menggantikan</label>
                 <select name="kar_ganti" id="kar_ganti" class="form-control">
                     @foreach ($employees as $employee)
-                        <option value="{{ $employee->nama_lengkap }}">{{ $employee->nama_lengkap }}</option>
+                    <option value="{{ $employee->nama_lengkap }}">{{ $employee->nama_lengkap }}</option>
                     @endforeach
                 </select>
             </div>
@@ -208,15 +217,42 @@
             var tgl_cuti_sampai = $("#tgl_cuti_sampai").val();
             var jml_hari = $("#jml_hari").val();
             var sisa_cuti_setelah = $("#sisa_cuti_setelah").val();
+            var periode_akhir = "{{ $cutiGet->periode_akhir }}"; // Get periode_akhir from the PHP variable
 
-            if (tgl_cuti == "") {
+            // Convert the periode_akhir and selected dates to Date objects for comparison
+            var periode_akhir_date = new Date(periode_akhir);
+            var tgl_cuti_date = new Date(tgl_cuti);
+            var tgl_cuti_sampai_date = new Date(tgl_cuti_sampai);
+
+            // Check if the selected dates are greater than periode_akhir
+            if (tgl_cuti_date > periode_akhir_date || tgl_cuti_sampai_date > periode_akhir_date) {
                 Swal.fire({
-                    title: 'Oops!',
-                    text: 'Tanggal Harus Diisi',
+                    title: 'Hati Hati!',
+                    html: 'Anda Akan Mengajukan Cuti Di Atas Periode Cuti Anda,<br>Hari Cuti Anda Akan Menggunakan Periode Hak Cuti Selanjutnya',
                     icon: 'warning',
+                    showCancelButton: true, // Show Cancel button
+                    confirmButtonText: 'OK',
+                    cancelButtonText: 'Cancel', // Deny button
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // If the user clicks "OK", proceed to next page
+                        $("#page1").hide();
+                        $("#page2").show();
+
+                        // Populate hidden inputs for the second form
+                        $("#hidden_periode").val(periode);
+                        $("#hidden_sisa_cuti").val(sisa_cuti);
+                        $("#hidden_tgl_cuti").val(tgl_cuti);
+                        $("#hidden_tgl_cuti_sampai").val(tgl_cuti_sampai);
+                        $("#hidden_jml_hari").val(jml_hari);
+                        $("#hidden_sisa_cuti_setelah").val(sisa_cuti_setelah);
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        // If the user clicks "Deny", stay on the current page (do nothing)
+                        return false;
+                    }
                 });
             } else {
-                // Hide Page 1 and Show Page 2
+                // If dates are valid, proceed to the next page
                 $("#page1").hide();
                 $("#page2").show();
 
@@ -261,4 +297,3 @@
     });
 </script>
 @endpush
-

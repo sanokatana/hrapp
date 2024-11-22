@@ -101,6 +101,12 @@ Route::middleware(['auth:karyawan'])->group(function () {
     Route::get('/presensi/buatizin', [PresensiController::class, 'buatizin']);
     Route::post('/presensi/storeizin', [PresensiController::class, 'storeizin']);
 
+    Route::get('/presensi/pembatalanizin', [PresensiController::class, 'pembatalanizin']);
+    Route::post('/presensi/pembatalanizinYes', [PresensiController::class, 'batalIzin']);
+
+    Route::get('/presensi/pembatalancuti', [PresensiController::class, 'pembatalancuti']);
+    Route::post('/presensi/pembatalancutiYes', [PresensiController::class, 'batalCuti']);
+
     // In web.php or your routes file
     Route::get('/presensi/checkFile', [PresensiController::class, 'getFolder']);
 
@@ -121,6 +127,11 @@ Route::middleware(['auth:karyawan'])->group(function () {
 Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::get('/panel/dashboardadmin', [DashboardController::class, 'dashboardadmin']);
     Route::get('/panel/proseslogoutadmin', [AuthController::class, 'proseslogoutadmin']);
+
+
+    Route::get('/panel/accountSetting', [DashboardController::class, 'accountSetting']);
+    Route::post('/update-password', [DashboardController::class, 'updatePassword'])->name('update-password');
+
 
     // Karyawan
     Route::get('/karyawan', [KaryawanController::class, 'index']);

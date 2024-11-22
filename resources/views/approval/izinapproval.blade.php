@@ -215,15 +215,19 @@ use App\Helpers\DateHelper;
                                                 <span class="badge bg-success" style="color: white; width:90px">Approved</span>
                                                 @elseif ($d->status_approved == 0)
                                                 <span class="badge bg-yellow" style="color: white; width:90px">Pending</span>
-                                                @else
+                                                @elseif ($d->status_approved_hrd == 2)
                                                 <span class="badge bg-red" style="color: white; width:90px">Rejected</span>
+                                                @else
+                                                <span class="badge bg-red" style="color: white; width:90px">Cancelled</span>
                                                 @endif
                                                 @if ($d->status_approved_hrd == 1)
                                                 <span class="badge bg-success mt-1" style="color: white; width:90px">Approved</span>
                                                 @elseif ($d->status_approved_hrd == 0)
                                                 <span class="badge bg-yellow mt-1" style="color: white; width:90px">Pending</span>
-                                                @else
+                                                @elseif ($d->status_approved_hrd == 2)
                                                 <span class="badge bg-red mt-1" style="color: white; width:90px">Rejected</span>
+                                                @else
+                                                <span class="badge bg-red" style="color: white; width:90px">Cancelled</span>
                                                 @endif
                                             </td>
                                             <td>
@@ -394,7 +398,7 @@ use App\Helpers\DateHelper;
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
+                confirmButtonText: 'Yes, Batalkan!'
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
@@ -406,8 +410,8 @@ use App\Helpers\DateHelper;
                         success: function(response) {
                             if (response.success) {
                                 Swal.fire(
-                                    'Deleted!',
-                                    'Approval has been cancelled.',
+                                    'Success!',
+                                    'Approval sadah di Batalkan.',
                                     'success'
                                 ).then(() => {
                                     location.reload();
