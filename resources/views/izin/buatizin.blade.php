@@ -75,9 +75,9 @@
                     <option value="Tmk">Tidak Masuk Kerja</option>
                     <option value="Dt">Datang Terlambat</option>
                     <option value="Pa">Pulang Awal</option>
-                    <option value="Ta">Tidak Absen</option>
                     <option value="Tam">Tidak Absen Masuk</option>
                     <option value="Tap">Tidak Absen Pulang</option>
+                    <option value="Ta">Tidak Absen (Masuk & Pulang)</option>
                     <option value="Tjo">Tukar Jadwal Off</option>
                 </select>
             </div>

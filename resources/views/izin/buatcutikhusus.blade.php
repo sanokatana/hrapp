@@ -102,58 +102,94 @@
 
 @push('myscript')
 <script>
-    $(document).ready(function() {
-        function getQueryParam(param) {
-            var urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(param);
-        }
+    $(document).ready(function () {
+    function getQueryParam(param) {
+        var urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
 
-        var idTipeCuti = getQueryParam('id_tipe_cuti');
-        if (idTipeCuti) {
-            $('#id_tipe_cuti').val(idTipeCuti);
-            // Trigger the change event manually
-            $('#id_tipe_cuti').trigger('change');
-        }
+    var idTipeCuti = getQueryParam("id_tipe_cuti");
+    if (idTipeCuti) {
+        $("#id_tipe_cuti").val(idTipeCuti);
+        $("#id_tipe_cuti").trigger("change"); // Trigger the change event manually
+    }
 
-        $(".datepicker").datepicker({
-            format: "yyyy-mm-dd"
-        });
+    $(".datepicker").datepicker({
+        format: "yyyy-mm-dd",
+    });
 
-        function calculateDays() {
-            var tgl_cuti = $("#tgl_cuti").val();
-            var tgl_cuti_sampai = $("#tgl_cuti_sampai").val();
+    function calculateDays() {
+        var tgl_cuti = $("#tgl_cuti").val();
+        var tgl_cuti_sampai = $("#tgl_cuti_sampai").val();
+        var idTipeCuti = $("#id_tipe_cuti").val();
+        var selectedOption = $("#id_tipe_cuti").find(":selected");
+        var maxDays = parseInt(selectedOption.data("jumlah_hari"), 10);
 
-            if (tgl_cuti && tgl_cuti_sampai) {
-                var start = new Date(tgl_cuti);
-                var end = new Date(tgl_cuti_sampai);
+        if (idTipeCuti == 7 || idTipeCuti == 9) {
+            // For Keguguran (45 days) and Melahirkan (90 days), calculate including weekends
+            if (tgl_cuti) {
+                var daysToAdd = idTipeCuti == 7 ? 45 : 90;
+                var startDate = new Date(tgl_cuti);
+                var endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + daysToAdd - 1);
 
-                // Calculate total days excluding weekends
-                var totalDays = 0;
-                while (start <= end) {
-                    var dayOfWeek = start.getDay();
-                    // Only count weekdays (Monday to Friday)
-                    if (dayOfWeek !== 6 && dayOfWeek !== 0) {
-                        totalDays++;
-                    }
-                    start.setDate(start.getDate() + 1); // Move to the next day
+                var endDateFormatted = endDate.toISOString().split("T")[0];
+                $("#tgl_cuti_sampai").val(endDateFormatted);
+                $("#jml_hari").val(daysToAdd);
+            }
+        } else if (tgl_cuti && tgl_cuti_sampai) {
+            // For other types of leave, calculate days excluding weekends
+            var start = new Date(tgl_cuti);
+            var end = new Date(tgl_cuti_sampai);
+            var totalDays = 0;
+
+            while (start <= end) {
+                var dayOfWeek = start.getDay();
+                if (dayOfWeek !== 6 && dayOfWeek !== 0) {
+                    totalDays++;
                 }
+                start.setDate(start.getDate() + 1);
+            }
 
-                $("#jml_hari").val(totalDays);
-            } else if (tgl_cuti) {
-                var singleDay = new Date(tgl_cuti);
-                // Check if it's not a weekend
-                if (singleDay.getDay() !== 6 && singleDay.getDay() !== 0) {
-                    $("#jml_hari").val(1);
-                } else {
-                    $("#jml_hari").val(0);
-                }
-            } else {
-                $("#jml_hari").val(0);
+            // Limit total days to maxDays if specified
+            totalDays = maxDays ? Math.min(totalDays, maxDays) : totalDays;
+            $("#jml_hari").val(totalDays);
+        } else {
+            $("#jml_hari").val(0);
+        }
+    }
+
+    function setEndDateForLockedDays() {
+        var selectedOption = $("#id_tipe_cuti").find(":selected");
+        var maxDays = parseInt(selectedOption.data("jumlah_hari"), 10);
+        var tgl_cuti = $("#tgl_cuti").val();
+
+        if (tgl_cuti && maxDays) {
+            var startDate = new Date(tgl_cuti);
+            var endDate = calculateEndDate(startDate, maxDays - 1);
+
+            var endDateFormatted = endDate.toISOString().split("T")[0];
+            $("#tgl_cuti_sampai").val(endDateFormatted);
+            $("#jml_hari").val(maxDays);
+        }
+    }
+
+    function calculateEndDate(startDate, maxDays) {
+        var endDate = new Date(startDate);
+        var countedDays = 0;
+
+        while (countedDays < maxDays) {
+            endDate.setDate(endDate.getDate() + 1);
+            var dayOfWeek = endDate.getDay();
+            if (dayOfWeek !== 6 && dayOfWeek !== 0) {
+                countedDays++;
             }
         }
 
+        return endDate;
+    }
 
-        function restrictDateRange() {
+    function restrictDateRange() {
             var selectedOption = $("#id_tipe_cuti").find(':selected');
             var maxDays = parseInt(selectedOption.data('jumlah_hari'), 10);
 
@@ -174,66 +210,54 @@
             }
         }
 
-        // Helper function to calculate the end date excluding weekends
-        function calculateEndDate(startDate, maxDays) {
-            var endDate = new Date(startDate);
-            var countedDays = 0;
+    $("#id_tipe_cuti").change(function () {
+        var selectedOption = $(this).find(":selected");
+        var idTipeCuti = $(this).val();
 
-            while (countedDays < maxDays) {
-                endDate.setDate(endDate.getDate() + 1);
-                var dayOfWeek = endDate.getDay();
-                // Skip weekends (Saturday and Sunday)
-                if (dayOfWeek !== 6 && dayOfWeek !== 0) {
-                    countedDays++;
-                }
-            }
-
-            return endDate;
-        }
-
-        $("#id_tipe_cuti").change(function() {
-            var selectedOption = $(this).find(':selected');
-            if (selectedOption.val() !== "") {
-                $("#tgl_cuti, #tgl_cuti_sampai").prop('disabled', false);
-                restrictDateRange();
-            } else {
-                $("#tgl_cuti, #tgl_cuti_sampai").prop('disabled', true);
-                $("#tgl_cuti, #tgl_cuti_sampai").val('');
-                $("#jml_hari").val('');
-            }
-        });
-
-        $("#tgl_cuti, #tgl_cuti_sampai").change(function() {
-            calculateDays();
-        });
-
-        $("#formcutiPage").submit(function(event) {
-            var note = $("#note").val();
-
-            if (note === "") {
-                Swal.fire({
-                    title: 'Oops!',
-                    text: 'Note Keterangan Harus Diisi',
-                    icon: 'warning',
-                });
-                event.preventDefault(); // Prevent form submission
-            } else {
-                // Show the full-screen loading overlay
-                $("#loadingOverlay").css("display", "flex");
-
-                // Enable the disabled fields before submitting
-                $("#tgl_cuti, #tgl_cuti_sampai, #jml_hari").prop('disabled', false);
-
-                // Allow the form to proceed
-                return true;
-            }
-        });
-
-        // Ensure date pickers are initialized properly
-        if (idTipeCuti) {
-            restrictDateRange();
-            $("#tgl_cuti, #tgl_cuti_sampai").prop('disabled', false);
+        if (idTipeCuti == 7 || idTipeCuti == 9) {
+            $("#tgl_cuti_sampai").prop("disabled", true);
+            $("#jml_hari").prop("readonly", true);
+        } else {
+            $("#tgl_cuti_sampai").prop("disabled", false);
+            $("#jml_hari").prop("readonly", false);
         }
     });
+
+    $("#tgl_cuti").change(function () {
+        var idTipeCuti = $("#id_tipe_cuti").val();
+        if (idTipeCuti == 7 || idTipeCuti == 9) {
+            calculateDays();
+        } else {
+            calculateDays();
+        }
+    });
+
+    $("#tgl_cuti_sampai").change(function () {
+        calculateDays();
+    });
+
+    $("#formcutiPage").submit(function (event) {
+        var note = $("#note").val();
+
+        if (note === "") {
+            Swal.fire({
+                title: "Oops!",
+                text: "Note Keterangan Harus Diisi",
+                icon: "warning",
+            });
+            event.preventDefault();
+        } else {
+            $("#loadingOverlay").css("display", "flex");
+            $("#tgl_cuti, #tgl_cuti_sampai, #jml_hari").prop("disabled", false);
+            return true;
+        }
+    });
+
+    if (idTipeCuti) {
+        restrictDateRange();
+        $("#tgl_cuti, #tgl_cuti_sampai").prop('disabled', false);
+    }
+});
+
 </script>
 @endpush
