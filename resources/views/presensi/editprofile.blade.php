@@ -90,15 +90,24 @@
                         icon: 'info',
                     });
                 },
-                error: function() {
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Gagal mengambil sisa cuti',
-                        icon: 'error',
-                    });
+                error: function(xhr) {
+                    if (xhr.status === 404) {
+                        Swal.fire({
+                            title: 'Periode Cuti Tidak Ditemukan!',
+                            text: 'Anda tidak ada Periode Cuti. Mohon hubungi HRD.',
+                            icon: 'error',
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Gagal mengambil sisa cuti',
+                            icon: 'error',
+                        });
+                    }
                 }
             });
         });
     });
+
 </script>
 @endpush

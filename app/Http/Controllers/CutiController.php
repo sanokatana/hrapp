@@ -139,24 +139,28 @@ class CutiController extends Controller
     {
         $today = Carbon::today();
 
-        // Get records where periode_akhir is past today's date
+        // Fetch relevant cuti records and karyawan details
         $cutiRecords = DB::table('cuti')
+            ->join('karyawan', 'cuti.nik', '=', 'karyawan.nik')
+            ->select('cuti.*', 'karyawan.employee_status')
             ->where('periode_akhir', '<', $today)
-            ->where('status', 1) // Assuming only active records need to be checked
+            ->where('status', 1) // Only active records
             ->get();
 
         foreach ($cutiRecords as $record) {
-            // Calculate new period values
             $newPeriode = $record->tahun + 1;
             $newPeriodeAwal = Carbon::parse($record->periode_akhir)->addDay()->format('Y-m-d');
             $newPeriodeAkhir = Carbon::parse($record->periode_akhir)->addYear()->format('Y-m-d');
-            if ($record->sisa_cuti >= 0) {
-                $newSisaCuti = 12;
-            } else {
-                $newSisaCuti = 12 + $record->sisa_cuti;
-            }
 
-            // Insert a new record
+            // Determine entitlement based on employee status
+            $entitlement = $record->employee_status === 'Tetap' ? 15 : 12;
+
+            // Adjust entitlement if sisa_cuti is negative
+            $newSisaCuti = $record->sisa_cuti < 0
+                ? $entitlement - abs($record->sisa_cuti)
+                : $entitlement;
+
+            // Insert a new record for the next period
             DB::table('cuti')->insert([
                 'nik' => $record->nik,
                 'nip' => $record->nip,
@@ -169,7 +173,7 @@ class CutiController extends Controller
                 'updated_at' => now()
             ]);
 
-            // Update the old record's status
+            // Update the current record's status to inactive
             DB::table('cuti')
                 ->where('id', $record->id)
                 ->update(['status' => 0]);
@@ -177,6 +181,7 @@ class CutiController extends Controller
 
         return redirect()->back()->with('success', 'Cuti karyawan has been updated successfully.');
     }
+
 
     public function getEmployeeByNik(Request $request)
     {

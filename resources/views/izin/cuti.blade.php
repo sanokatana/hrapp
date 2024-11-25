@@ -46,13 +46,40 @@
 @push('myscript')
 <script>
     function handleTipeCutiChange() {
-        var select = document.getElementById("id_tipe_cuti");
-        var value = select.options[select.selectedIndex].value;
-        if (value === "Cuti Tahunan") {
-            window.location.href = '/presensi/buatcuti';
-        } else if (value) {
-            window.location.href = '/presensi/buatcutikhusus?id_tipe_cuti=' + value;
-        }
+    var select = document.getElementById("id_tipe_cuti");
+    var value = select.options[select.selectedIndex].value;
+
+    if (value === "Cuti Tahunan") {
+        // AJAX call to check for active cuti
+        $.ajax({
+            url: '/presensi/buatcuti',
+            type: 'GET',
+            success: function(response) {
+                // Redirect to buatcuti if the cuti is valid
+                window.location.href = '/presensi/buatcuti';
+            },
+            error: function(xhr) {
+                // Show SweetAlert message if no active cuti record
+                if (xhr.status === 403) {
+                    Swal.fire({
+                        title: 'Tidak Ada Periode Cuti',
+                        text: xhr.responseJSON.error,
+                        icon: 'error',
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Gagal memuat data cuti. Mohon coba lagi.',
+                        icon: 'error',
+                    });
+                }
+            }
+        });
+    } else if (value) {
+        // Redirect to cuti khusus
+        window.location.href = '/presensi/buatcutikhusus?id_tipe_cuti=' + value;
     }
+}
+
 </script>
 @endpush

@@ -68,7 +68,7 @@
         <form id="formizin">
             @csrf
             <div class="form-group">
-                <input type="text" id="periode" name="periode" class="form-control" placeholder="Periode" value="{{ $periode }}">
+                <input type="text" id="periode" name="periode" class="form-control" placeholder="Periode" value="{{ $periode }}" readonly>
             </div>
             <div class="form-group">
                 <input type="number" id="sisa_cuti" name="sisa_cuti" class="form-control" placeholder="Sisa Cuti" disabled value="{{ $cutiGet->sisa_cuti}}">

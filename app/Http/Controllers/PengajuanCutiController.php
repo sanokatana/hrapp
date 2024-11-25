@@ -16,30 +16,36 @@ class PengajuanCutiController extends Controller
 {
     public function buatcuti()
     {
-        $nip = auth()->user()->nip;
-        $currentEmployee = DB::table('karyawan')->where('nip', $nip)->first();
+        $nik = auth()->user()->nik;
+        $currentEmployee = DB::table('karyawan')->where('nik', $nik)->first();
         $kode_dept = $currentEmployee->kode_dept;
+
         $employees = DB::table('karyawan')
             ->where('kode_dept', $kode_dept)
-            ->where('nip', '!=', $nip)
+            ->where('nik', '!=', $nik)
             ->get();
 
         $cuti = DB::table('cuti')
-            ->where('nip', $nip)
+            ->where('nik', $nik)
             ->where('status', 1)
             ->first();
 
-        $periode = $cuti ? $cuti->tahun : '';
-        $periode_awal = $cuti ? $cuti->periode_awal : '';
-        $periode_akhir = $cuti ? $cuti->periode_akhir : '';
-        $cutiGet = Cuti::where('nip', $nip)
+        if (!$cuti) {
+            return response()->json([
+                'error' => 'Anda tidak memiliki Periode Cuti aktif. Mohon hubungi HRD.',
+            ], 403);
+        }
+
+        $periode = $cuti->tahun ?? '';
+        $periode_awal = $cuti->periode_awal ?? '';
+        $periode_akhir = $cuti->periode_akhir ?? '';
+        $cutiGet = Cuti::where('nik', $nik)
             ->where('tahun', $periode)
             ->first();
 
-
-
         return view('izin.buatcuti', compact('periode', 'periode_awal', 'periode_akhir', 'employees', 'cutiGet'));
     }
+
 
 
     public function storecuti(Request $request)
@@ -127,17 +133,27 @@ class PengajuanCutiController extends Controller
                             Terima Kasih
                         ";
 
-                        // Send the email using Mail::html
                         Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan) {
+                            $ccList = ['human.resources@ciptaharmoni.com', 'al.imron@ciptaharmoni.com'];
+
+                            // Add $email_karyawan to the CC list if it's not empty
+                            // Add $email_karyawan to the CC list if it's not empty
+                            if (!empty($email_karyawan) && filter_var($email_karyawan, FILTER_VALIDATE_EMAIL)) {
+                                $ccList[] = $email_karyawan;
+                            } else {
+                                // Log or handle invalid email_karyawan, if needed
+                                Log::warning("Invalid or empty email_karyawan: {$email_karyawan}");
+                            }
+
                             $message->to($atasan->email)
                                 ->subject("Pengajuan Cuti Baru Dari {$nama_lengkap}")
-                                ->cc(['human.resources@ciptaharmoni.com', 'al.imron@ciptaharmoni.com', $email_karyawan])
-                                ->priority(1);  // Set email priority to high
+                                ->cc($ccList)
+                                ->priority(1);
 
-                            // Set additional headers for importance
-                            $message->getHeaders()->addTextHeader('Importance', 'high');  // Mark as important
-                            $message->getHeaders()->addTextHeader('X-Priority', '1');  // 1 is the highest priority
+                            $message->getHeaders()->addTextHeader('Importance', 'high');
+                            $message->getHeaders()->addTextHeader('X-Priority', '1');
                         });
+
                     }
                 }
 
@@ -263,15 +279,27 @@ class PengajuanCutiController extends Controller
                         Terima Kasih
                     ";
 
-                        Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan) {
-                            $message->to($atasan->email)
-                                ->subject("Pengajuan Cuti Baru Dari {$nama_lengkap}")
-                                ->cc(['human.resources@ciptaharmoni.com', 'al.imron@ciptaharmoni.com', $email_karyawan])
-                                ->priority(1);
+                    Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan) {
+                        $ccList = ['human.resources@ciptaharmoni.com', 'al.imron@ciptaharmoni.com'];
 
-                            $message->getHeaders()->addTextHeader('Importance', 'high');
-                            $message->getHeaders()->addTextHeader('X-Priority', '1');
-                        });
+                        // Add $email_karyawan to the CC list if it's not empty
+                        // Add $email_karyawan to the CC list if it's not empty
+                        if (!empty($email_karyawan) && filter_var($email_karyawan, FILTER_VALIDATE_EMAIL)) {
+                            $ccList[] = $email_karyawan;
+                        } else {
+                            // Log or handle invalid email_karyawan, if needed
+                            Log::warning("Invalid or empty email_karyawan: {$email_karyawan}");
+                        }
+
+                        $message->to($atasan->email)
+                            ->subject("Pengajuan Cuti Baru Dari {$nama_lengkap}")
+                            ->cc($ccList)
+                            ->priority(1);
+
+                        $message->getHeaders()->addTextHeader('Importance', 'high');
+                        $message->getHeaders()->addTextHeader('X-Priority', '1');
+                    });
+
                     }
                 }
 

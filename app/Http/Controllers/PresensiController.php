@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
@@ -116,23 +117,28 @@ class PresensiController extends Controller
 
     public function getSisaCutiProfile(Request $request)
     {
-        $nip = Auth::guard('karyawan')->user()->nip;
+        $nik = Auth::guard('karyawan')->user()->nik;
+
+        // Fetch the active cuti record for the current employee
         $cuti = DB::table('cuti')
-            ->where('nip', $nip)
-            ->where('status', 1)
+            ->where('nik', $nik)
+            ->where('status', 1) // Only active records
             ->first();
 
-        $periode = $cuti ? $cuti->tahun : '';
-        $cutiGet = Cuti::where('nip', $nip)
-            ->where('tahun', $periode)
-            ->first();
-
-        if ($cutiGet) {
-            return response()->json(['sisa_cuti' => $cutiGet->sisa_cuti, 'cutiYear' => $periode]);
+        if ($cuti) {
+            // If cuti exists, return the sisa_cuti and year
+            return response()->json([
+                'sisa_cuti' => $cuti->sisa_cuti,
+                'cutiYear' => $cuti->tahun,
+            ]);
         } else {
-            return response()->json(['sisa_cuti' => 0]);
+            // If no active cuti record, return an error message
+            return response()->json([
+                'error' => 'Anda tidak ada Periode Cuti. Mohon hubungi HRD.',
+            ], 404);
         }
     }
+
 
     public function updateprofile(Request $request)
     {
@@ -492,14 +498,25 @@ class PresensiController extends Controller
 
                     // Send the email using Mail::html
                     Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan) {
-                        $message->to($atasan->email)
+                        $ccList = ['zahran.chandra@ciptaharmoni.com'];
+
+                        // Add $email_karyawan to the CC list if it's not empty
+                        if (!empty($email_karyawan) && filter_var($email_karyawan, FILTER_VALIDATE_EMAIL)) {
+                            $ccList[] = $email_karyawan;
+                        } else {
+                            // Log or handle invalid email_karyawan, if needed
+                            Log::warning("Invalid or empty email_karyawan: {$email_karyawan}");
+                        }
+
+                        $message->to('chandrazahran@gmail.com')
                             ->subject("Pengajuan Izin Baru Dari {$nama_lengkap}")
-                            ->cc(['human.resources@ciptaharmoni.com', $email_karyawan])
+                            ->cc($ccList)
                             ->priority(1)  // Set email priority
                             ->getHeaders()
                             ->addTextHeader('Importance', 'high')  // Mark as important
                             ->addTextHeader('X-Priority', '1');  // 1 is the highest priority
                     });
+
                 }
             }
 
