@@ -105,11 +105,7 @@
 
             <div class="form-group">
                 <label for="kar_ganti" class="col-form-label">Karyawan Yang Akan Menggantikan</label>
-                <select name="kar_ganti" id="kar_ganti" class="form-control">
-                    @foreach ($employees as $employee)
-                    <option value="{{ $employee->nama_lengkap }}">{{ $employee->nama_lengkap }}</option>
-                    @endforeach
-                </select>
+                <input type="text" id="kar_ganti" name="kar_ganti" class="form-control" placeholder="">
             </div>
             <div class="form-group">
                 <label for="note" class="col-form-label">Note (Optional)</label>
