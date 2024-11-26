@@ -5,11 +5,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Exports\AttendanceExport;
 use App\Exports\AbsenExport;
+use App\Exports\CutiExport;
+use App\Exports\IzinExport;
 use App\Exports\TimeExport;
+use App\Models\Jabatan;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Karyawan;
+use Illuminate\Support\Facades\Auth;
 
 class LaporanController extends Controller
 {
@@ -905,6 +909,39 @@ class LaporanController extends Controller
             'uniqueEmployeeStatus'
         ));
     }
+
+    public function attendanceViewAtasan(Request $request)
+    {
+        $years = DB::connection('mysql2')
+            ->table('db_absen.att_log')
+            ->selectRaw('MIN(YEAR(scan_date)) as earliest_year, MAX(YEAR(scan_date)) as latest_year')
+            ->first();
+
+        $earliestYear = $years->earliest_year;
+        $latestYear = $years->latest_year;
+
+        // Get the current user's details
+        $nik = Auth::guard('user')->user()->nik;
+        $currentUser = Karyawan::where('nik', $nik)->first();
+        $currentUserJabatanId = $currentUser->jabatan;
+
+        // Find all jabatan IDs where the current user's jabatan is the atasan
+        $subordinateJabatanIds = Jabatan::where('jabatan_atasan', $currentUserJabatanId)->pluck('id');
+
+        // Get all employees (karyawan) whose jabatan matches any of the subordinate IDs
+        $karyawan = Karyawan::whereIn('jabatan', $subordinateJabatanIds)
+            ->where('status_kar', 'Aktif') // Ensure only active employees are fetched
+            ->orderBy('tgl_masuk', 'asc')
+            ->get();
+
+        return view('laporan.attendanceViewAtasan', compact(
+            'earliestYear',
+            'latestYear',
+            'karyawan'
+        ));
+    }
+
+
     public function exportAttendance(Request $request)
     {
         $filterMonth = $request->input('bulan', Carbon::now()->month);
@@ -963,5 +1000,55 @@ class LaporanController extends Controller
 
         // Export attendance
         return Excel::download(new AbsenExport($karyawanPresensi, $filterMonth, $filterYear), 'attendance_times.xlsx');
+    }
+
+    public function exportIzin()
+    {
+        $years = DB::table('pengajuan_izin')
+            ->selectRaw('MIN(YEAR(tgl_izin)) as earliest_year, MAX(YEAR(tgl_izin_akhir)) as latest_year')
+            ->first();
+
+        $earliestYear = $years->earliest_year;
+        $latestYear = $years->latest_year;
+        return view('laporan.izin', compact('earliestYear', 'latestYear'));
+    }
+
+    public function reportIzin(Request $request)
+    {
+        $bulan = $request->bulan;
+        $tahun = $request->tahun;
+
+        // Validate the inputs
+        if (empty($bulan) || empty($tahun)) {
+            return redirect()->back()->with('danger', 'Bulan dan Tahun harus dipilih!');
+        }
+
+        $fileName = "laporan_pengajuan_izin_{$bulan}_{$tahun}.xlsx";
+        return Excel::download(new IzinExport($bulan, $tahun), $fileName);
+    }
+
+    public function exportCuti()
+    {
+        $years = DB::table('pengajuan_cuti')
+            ->selectRaw('MIN(YEAR(tgl_cuti)) as earliest_year, MAX(YEAR(tgl_cuti_sampai)) as latest_year')
+            ->first();
+
+        $earliestYear = $years->earliest_year;
+        $latestYear = $years->latest_year;
+        return view('laporan.cuti', compact('earliestYear', 'latestYear'));
+    }
+
+    public function reportCuti(Request $request)
+    {
+        $bulan = $request->bulan;
+        $tahun = $request->tahun;
+
+        // Validate the inputs
+        if (empty($bulan) || empty($tahun)) {
+            return redirect()->back()->with('danger', 'Bulan dan Tahun harus dipilih!');
+        }
+
+        $fileName = "laporan_pengajuan_cuti_{$bulan}_{$tahun}.xlsx";
+        return Excel::download(new CutiExport($bulan, $tahun), $fileName);
     }
 }

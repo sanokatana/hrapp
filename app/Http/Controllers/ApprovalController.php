@@ -693,7 +693,9 @@ class ApprovalController extends Controller
     // Check if the user belongs to the Management department
     if ($currentUserKodeDept === 'Management') {
         // Management can only see requests where status_approved = 1 and status_approved_hrd = 1
-        $query->where('status_management', 0);  // Exclude requests where status_management = 1
+        $query->where('status_management', 0)
+          ->where('status_approved', 1)
+          ->where('status_approved_hrd', 1);
     } else {
         // Otherwise, check if the user is an Atasan
         $jabatanAtasan = Jabatan::where('id', $currentUserJabatanId)->value('jabatan_atasan');

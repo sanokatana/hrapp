@@ -314,6 +314,17 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::get('/laporan/exportAttendance', [LaporanController::class, 'exportAttendance']);
 
 
+    Route::get('/laporan/attendanceViewAtasan', [LaporanController::class, 'attendanceViewAtasan']);
+
+
+    Route::get('/laporan/exportIzin', [LaporanController::class, 'exportIzin']);
+    Route::get('/laporan/reportIzin', [LaporanController::class, 'reportIzin']);
+
+
+    Route::get('/laporan/exportCuti', [LaporanController::class, 'exportCuti']);
+    Route::get('/laporan/reportCuti', [LaporanController::class, 'reportCuti']);
+
+
     // routes/web.php
     Route::get('/contracts', [ContractController::class, 'filterContracts']);
     Route::get('/contract/type', [ContractController::class, 'getContractType']);
