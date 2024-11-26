@@ -498,8 +498,9 @@ class PresensiController extends Controller
 
                     // Send the email using Mail::html
                     Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan) {
-                        $ccList = ['zahran.chandra@ciptaharmoni.com'];
+                        $ccList = ['human.resources@ciptaharmoni.com'];
 
+                        // Add $email_karyawan to the CC list if it's not empty
                         // Add $email_karyawan to the CC list if it's not empty
                         if (!empty($email_karyawan) && filter_var($email_karyawan, FILTER_VALIDATE_EMAIL)) {
                             $ccList[] = $email_karyawan;
@@ -508,13 +509,13 @@ class PresensiController extends Controller
                             Log::warning("Invalid or empty email_karyawan: {$email_karyawan}");
                         }
 
-                        $message->to('chandrazahran@gmail.com')
-                            ->subject("Pengajuan Izin Baru Dari {$nama_lengkap}")
+                        $message->to($atasan->email)
+                            ->subject("Pengajuan Cuti Baru Dari {$nama_lengkap}")
                             ->cc($ccList)
-                            ->priority(1)  // Set email priority
-                            ->getHeaders()
-                            ->addTextHeader('Importance', 'high')  // Mark as important
-                            ->addTextHeader('X-Priority', '1');  // 1 is the highest priority
+                            ->priority(1);
+
+                        $message->getHeaders()->addTextHeader('Importance', 'high');
+                        $message->getHeaders()->addTextHeader('X-Priority', '1');
                     });
 
                 }
