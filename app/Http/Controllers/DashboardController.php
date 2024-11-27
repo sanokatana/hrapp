@@ -728,22 +728,26 @@ class DashboardController extends Controller
                 )
                 ->get();
 
-
-
-            $KarIzinNow = DB::table('pengajuan_izin')
+                $KarIzinNow = DB::table('pengajuan_izin')
                 ->join('karyawan', 'pengajuan_izin.nip', '=', 'karyawan.nip')
                 ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
-                ->where(function ($query) use ($hariini) {
-                    $query->where('tgl_izin', '<=', $hariini)
-                        ->where(function ($subQuery) use ($hariini) {
-                            $subQuery->where('tgl_izin_akhir', '>=', $hariini)
-                                ->orWhereNull('tgl_izin_akhir')
-                                ->orWhere('tgl_izin_akhir', ''); // Handle empty string case
-                        });
-                })
-                ->where('karyawan.grade', '!=', 'NS')
-                ->select('karyawan.nama_lengkap', 'pengajuan_izin.tgl_izin', 'pengajuan_izin.tgl_izin_akhir', 'pengajuan_izin.status', 'pengajuan_izin.pukul', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
+                ->where('tgl_izin', '<=', $hariini) // Start date is before or on today
+                ->where('tgl_izin_akhir', '>=', $hariini) // End date is after or on today
+                ->whereNotNull('tgl_izin_akhir') // Exclude null tgl_izin_akhir
+                ->where('tgl_izin_akhir', '!=', '') // Exclude empty tgl_izin_akhir
+                ->where('karyawan.grade', '!=', 'NS') // Exclude grade NS
+                ->select(
+                    'karyawan.nama_lengkap',
+                    'pengajuan_izin.keterangan',
+                    'pengajuan_izin.tgl_izin',
+                    'pengajuan_izin.tgl_izin_akhir',
+                    'pengajuan_izin.status',
+                    'pengajuan_izin.pukul',
+                    'karyawan.kode_dept',
+                    'jabatan.nama_jabatan'
+                )
                 ->get();
+
 
 
 
@@ -757,7 +761,7 @@ class DashboardController extends Controller
                         ->where('tgl_cuti_sampai', '>=', $hariini);
                 })
                 ->where('karyawan.grade', '!=', 'NS')
-                ->select('karyawan.nama_lengkap', 'pengajuan_cuti.tgl_cuti', 'pengajuan_cuti.tgl_cuti_sampai', 'pengajuan_cuti.jenis', 'jabatan.nama_jabatan', 'pengajuan_cuti.tipe', 'tipe_cuti.tipe_cuti', 'karyawan.kode_dept') // Select the necessary fields
+                ->select('karyawan.nama_lengkap', 'pengajuan_cuti.note', 'pengajuan_cuti.tgl_cuti', 'pengajuan_cuti.tgl_cuti_sampai', 'pengajuan_cuti.jenis', 'jabatan.nama_jabatan', 'pengajuan_cuti.tipe', 'tipe_cuti.tipe_cuti', 'karyawan.kode_dept') // Select the necessary fields
                 ->get();
 
             return view('dashboard.admin', compact(
@@ -1218,19 +1222,24 @@ class DashboardController extends Controller
                 ->get();
 
 
-            $KarIzinNow = DB::table('pengajuan_izin')
+                $KarIzinNow = DB::table('pengajuan_izin')
                 ->join('karyawan', 'pengajuan_izin.nip', '=', 'karyawan.nip')
                 ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
-                ->where(function ($query) use ($hariini) {
-                    $query->where('tgl_izin', '<=', $hariini)
-                        ->where(function ($subQuery) use ($hariini) {
-                            $subQuery->where('tgl_izin_akhir', '>=', $hariini)
-                                ->orWhereNull('tgl_izin_akhir')
-                                ->orWhere('tgl_izin_akhir', ''); // Handle empty string case
-                        });
-                })
-                ->where('karyawan.grade', '!=', 'NS')
-                ->select('karyawan.nama_lengkap', 'pengajuan_izin.tgl_izin', 'pengajuan_izin.tgl_izin_akhir', 'pengajuan_izin.status', 'pengajuan_izin.pukul', 'karyawan.kode_dept', 'jabatan.nama_jabatan')
+                ->where('tgl_izin', '<=', $hariini) // Start date is before or on today
+                ->where('tgl_izin_akhir', '>=', $hariini) // End date is after or on today
+                ->whereNotNull('tgl_izin_akhir') // Exclude null tgl_izin_akhir
+                ->where('tgl_izin_akhir', '!=', '') // Exclude empty tgl_izin_akhir
+                ->where('karyawan.grade', '!=', 'NS') // Exclude grade NS
+                ->select(
+                    'karyawan.nama_lengkap',
+                    'pengajuan_izin.keterangan',
+                    'pengajuan_izin.tgl_izin',
+                    'pengajuan_izin.tgl_izin_akhir',
+                    'pengajuan_izin.status',
+                    'pengajuan_izin.pukul',
+                    'karyawan.kode_dept',
+                    'jabatan.nama_jabatan'
+                )
                 ->get();
 
 
@@ -1245,7 +1254,7 @@ class DashboardController extends Controller
                         ->where('tgl_cuti_sampai', '>=', $hariini);
                 })
                 ->where('karyawan.grade', '!=', 'NS')
-                ->select('karyawan.nama_lengkap', 'pengajuan_cuti.tgl_cuti', 'pengajuan_cuti.tgl_cuti_sampai', 'pengajuan_cuti.jenis', 'jabatan.nama_jabatan', 'pengajuan_cuti.tipe', 'tipe_cuti.tipe_cuti', 'karyawan.kode_dept') // Select the necessary fields
+                ->select('karyawan.nama_lengkap', 'pengajuan_cuti.note', 'pengajuan_cuti.tgl_cuti', 'pengajuan_cuti.tgl_cuti_sampai', 'pengajuan_cuti.jenis', 'jabatan.nama_jabatan', 'pengajuan_cuti.tipe', 'tipe_cuti.tipe_cuti', 'karyawan.kode_dept') // Select the necessary fields
                 ->get();
 
             $KarIzinNowNS = DB::table('pengajuan_izin')

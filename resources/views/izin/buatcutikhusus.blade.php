@@ -125,6 +125,8 @@
         var selectedOption = $("#id_tipe_cuti").find(":selected");
         var maxDays = parseInt(selectedOption.data("jumlah_hari"), 10);
 
+        var publicHolidays = @json($publicHolidays);
+
         if (idTipeCuti == 7 || idTipeCuti == 9) {
             // For Keguguran (45 days) and Melahirkan (90 days), calculate including weekends
             if (tgl_cuti) {
@@ -143,9 +145,16 @@
             var end = new Date(tgl_cuti_sampai);
             var totalDays = 0;
 
+            var publicHolidayDates = publicHolidays.map(function(dateStr) {
+                    return new Date(dateStr);
+                });
+
             while (start <= end) {
                 var dayOfWeek = start.getDay();
-                if (dayOfWeek !== 6 && dayOfWeek !== 0) {
+                var isPublicHoliday = publicHolidayDates.some(function(holidayDate) {
+                        return holidayDate.toDateString() === start.toDateString(); // Check if it's a public holiday
+                    });
+                if (dayOfWeek !== 6 && dayOfWeek !== 0 && !isPublicHoliday) {
                     totalDays++;
                 }
                 start.setDate(start.getDate() + 1);

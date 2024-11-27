@@ -43,7 +43,12 @@ class PengajuanCutiController extends Controller
             ->where('tahun', $periode)
             ->first();
 
-        return view('izin.buatcuti', compact('periode', 'periode_awal', 'periode_akhir', 'employees', 'cutiGet'));
+        // Fetch public holidays
+        $publicHolidays = DB::table('libur_nasional')
+            ->pluck('tgl_libur')
+            ->toArray();
+
+        return view('izin.buatcuti', compact('periode', 'periode_awal', 'periode_akhir', 'employees', 'cutiGet', 'publicHolidays'));
     }
 
 
@@ -214,7 +219,12 @@ class PengajuanCutiController extends Controller
 
         $periode = $cuti ? $cuti->tahun : '';
 
-        return view('izin.buatcutikhusus', compact('tipecuti', 'periode'));
+        $publicHolidays = DB::table('libur_nasional')
+            ->pluck('tgl_libur')
+            ->toArray();
+
+
+        return view('izin.buatcutikhusus', compact('tipecuti', 'periode', 'publicHolidays'));
     }
 
     public function storecutikhusus(Request $request)

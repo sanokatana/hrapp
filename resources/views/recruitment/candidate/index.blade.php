@@ -71,7 +71,7 @@
                                                 <select name="title_job" id="title_job" class="form-select">
                                                     <option value="">Job Opening</option>
                                                     @foreach ($job as $d)
-                                                        <option {{ request('title_job') == $d->title ? 'selected' : '' }} value="{{ $d->title }}">{{ $d->title }}</option>
+                                                    <option {{ request('title_job') == $d->title ? 'selected' : '' }} value="{{ $d->title }}">{{ $d->title }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -189,7 +189,7 @@
     </div>
 </div>
 <div class="modal modal-blur fade" id="modal-inputCandidate" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Add Candidate</h5>
@@ -199,7 +199,7 @@
                 <form action="/recruitment/candidate/store" method="POST" id="formCandidate">
                     @csrf
                     <div class="row">
-                        <div class="col-12">
+                        <div class="col-6">
                             <div class="form-label">Nama Candidate</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
@@ -213,9 +213,7 @@
                                 <input type="text" value="" class="form-control" name="nama_candidate" id="nama_candidate" placeholder="John">
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
+                        <div class="col-6">
                             <div class="form-label">Username</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
@@ -228,9 +226,7 @@
                                 <input type="text" value="" class="form-control" name="username" id="username" placeholder="Username">
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
+                        <div class="col-6">
                             <div class="form-label">Email</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
@@ -243,9 +239,7 @@
                                 <input type="text" value="" class="form-control" name="email" id="email" placeholder="@gmail.com">
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
+                        <div class="col-6">
                             <div class="form-label">Job Opening</div>
                             <div class="input-icon mb-3">
                                 <select name="job_opening_id" id="job_opening_id" class="form-select">
@@ -256,9 +250,7 @@
                                 </select>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
+                        <div class="col-6">
                             <div class="form-label">Current Stage</div>
                             <div class="input-icon mb-3">
                                 <select name="current_stage_id" id="current_stage_id" class="form-select">
@@ -269,9 +261,7 @@
                                 </select>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
+                        <div class="col-6">
                             <div class="form-label">Status</div>
                             <div class="input-icon mb-3">
                                 <select name="status" id="status" class="form-select">
@@ -282,9 +272,7 @@
                                 </select>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
+                        <div class="col-6">
                             <div class="form-label">Password</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
@@ -302,6 +290,75 @@
                                     </svg>
                                 </span>
                                 <input type="text" value="" class="form-control" name="password" id="password" placeholder="password">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-label">Notes</div>
+                            <div class="input-icon mb-3">
+                                <span class="input-icon-addon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-note">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M13 20l7 -7" />
+                                        <path d="M13 20v-6a1 1 0 0 1 1 -1h6v-7a2 2 0 0 0 -2 -2h-12a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7" />
+                                    </svg>
+                                </span>
+                                <input type="text" value="" class="form-control" name="notes" id="notes" placeholder="Note">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-label">Interview Date</div>
+                            <div class="input-icon mb-3">
+                                <span class="input-icon-addon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-event">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
+                                        <path d="M16 3l0 4" />
+                                        <path d="M8 3l0 4" />
+                                        <path d="M4 11l16 0" />
+                                        <path d="M8 15h2v2h-2z" />
+                                    </svg>
+                                </span>
+                                <input type="date" value="" class="form-control" name="interview_date" id="interview_date" placeholder="Officer">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-label">Interview Time</div>
+                            <div class="input-icon mb-3">
+                                <span class="input-icon-addon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-2">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M4 4m0 1a1 1 0 0 1 1 -1h14a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-14a1 1 0 0 1 -1 -1z" />
+                                        <path d="M12 7v5l3 3" />
+                                        <path d="M4 12h1" />
+                                        <path d="M19 12h1" />
+                                        <path d="M12 19v1" />
+                                    </svg>
+                                </span>
+                                <input type="time" value="" class="form-control" name="interview_time" id="interview_time" placeholder="Officer">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-label">Interviewer</div>
+                            <div class="input-icon mb-3">
+                                <select name="interviewer" id="interviewer" class="form-select">
+                                    <option value="">Pilih</option>
+                                    @foreach ($interviewer as $d)
+                                    <option {{ Request('nama_lengkap') == $d->nama_lengkap ? 'selected' : '' }} value="{{ $d->nama_lengkap }}">{{ $d->nama_lengkap }} | {{ $d->nama_jabatan }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-label">Interviewer 2</div>
+                            <div class="input-icon mb-3">
+                                <select name="interviewer2" id="interviewer2" class="form-select">
+                                    <option value="">Pilih</option>
+                                    @foreach ($interviewer as $d)
+                                    <option {{ Request('nama_lengkap') == $d->nama_lengkap ? 'selected' : '' }} value="{{ $d->nama_lengkap }}">{{ $d->nama_lengkap }} | {{ $d->nama_jabatan }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                     </div>

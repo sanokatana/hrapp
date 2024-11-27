@@ -323,15 +323,18 @@ use App\Helpers\DateHelper;
                                                                     <div><strong>{{ $d->nama_lengkap }} - {{ $d->kode_dept }}</strong></div>
                                                                     <div>{{ $d->nama_jabatan }}</div>
                                                                     <div>
-                                                                        <b>
+                                                                    <b>
                                                                             @if ($d->tgl_izin == $d->tgl_izin_akhir)
                                                                             {{ DateHelper::formatIndonesianDate($d->tgl_izin) }}
+                                                                            @elseif (!empty($d->tgl_izin_akhir))
+                                                                            {{ DateHelper::formatIndonesianDate($d->tgl_izin) }} - {{ (!empty($d->tgl_izin_akhir) ? DateHelper::formatIndonesianDate($d->tgl_izin_akhir) : '') }}
                                                                             @else
-                                                                            {{ DateHelper::formatIndonesianDate($d->tgl_izin) }} - {{ (!empty($tgl_izin_akhir) ? DateHelper::formatIndonesianDate($tgl_izin_akhir) : '') }}
+                                                                            {{ DateHelper::formatIndonesianDate($d->tgl_izin) }}
                                                                             @endif
                                                                         </b>
                                                                     </div>
-                                                                    <div>{{ DateHelper::getStatusText($d->status) }} - {{ $d->pukul}}</div>
+                                                                    <div>{{ DateHelper::getStatusText($d->status) }} - {{$d->keterangan}}</div>
+                                                                    <div>{{ $d->pukul}}</div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -364,6 +367,7 @@ use App\Helpers\DateHelper;
                                                                             @endif
                                                                         </b>
                                                                     </div>
+                                                                    <div style="word-wrap: break-word; white-space: normal;">{{$d->note}}</div>
                                                                     <div>
                                                                         @if ($d->jenis === 'Cuti Tahunan')
                                                                         Cuti Tahunan
