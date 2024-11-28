@@ -20,14 +20,16 @@ class LaporanController extends Controller
 
     public function index()
     {
-        $years = DB::table('presensi')
-            ->selectRaw('MIN(YEAR(tgl_presensi)) as earliest_year, MAX(YEAR(tgl_presensi)) as latest_year')
+        $years = DB::connection('mysql2')
+            ->table('db_absen.att_log')
+            ->selectRaw('MIN(YEAR(scan_date)) as earliest_year, MAX(YEAR(scan_date)) as latest_year')
             ->first();
 
         $earliestYear = $years->earliest_year;
         $latestYear = $years->latest_year;
         return view('laporan.attendance', compact('earliestYear', 'latestYear'));
     }
+
     public function exportData(Request $request)
     {
 
@@ -39,15 +41,16 @@ class LaporanController extends Controller
                 INSERT INTO hrmschl.presensi (nip, nik, tgl_presensi, jam_in)
                 SELECT
                     al.pin AS nip,
-                    p.pegawai_nip AS nik,
+                    k.nik AS nik, -- Fetch nik from the karyawan table
                     DATE(al.scan_date) AS tgl_presensi,
                     TIME(al.scan_date) AS jam_in
                 FROM
                     db_absen.att_log al
                 LEFT JOIN
-                    db_absen.pegawai p ON al.pin = p.pegawai_pin
+                    hrmschl.karyawan k ON al.pin = k.nip
             ");
         });
+
 
         // Get filter inputs
         $filterMonth = $request->input('bulan', Carbon::now()->month);
@@ -561,8 +564,9 @@ class LaporanController extends Controller
 
     public function timeindex()
     {
-        $years = DB::table('presensi')
-            ->selectRaw('MIN(YEAR(tgl_presensi)) as earliest_year, MAX(YEAR(tgl_presensi)) as latest_year')
+        $years = DB::connection('mysql2')
+            ->table('db_absen.att_log')
+            ->selectRaw('MIN(YEAR(scan_date)) as earliest_year, MAX(YEAR(scan_date)) as latest_year')
             ->first();
 
         $earliestYear = $years->earliest_year;

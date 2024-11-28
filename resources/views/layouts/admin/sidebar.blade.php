@@ -498,7 +498,7 @@
                         </div>
                     </div>
                 </li>
-                @if($userLevel !== 'Admin')
+                @if($userLevel !== 'Management' && $userLevel !== 'Admin')
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle {{request()->is(['recruitment/dashboard','recruitment/pipeline', 'recruitment/candidate', 'recruitment', 'recruitment/jobs', 'recruitment/stages']) ? 'show' : ''}}" href="#navbar-base"
                         data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
@@ -635,7 +635,7 @@
                     </div>
                 </li>
                 @endif
-                @if($userLevel !== 'Admin')
+                @if($userLevel !== 'Management' && $userLevel !== 'Admin')
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle {{request()->is(['email_export/absensi','email_export/export_absensi']) ? 'show' : ''}}" href="#navbar-base"
                         data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">

@@ -944,13 +944,13 @@ class AttendanceController extends Controller
                     INSERT INTO hrmschl.presensi (nip, nik, tgl_presensi, jam_in)
                     SELECT
                         al.pin AS nip,
-                        p.pegawai_nip AS nik,
+                        k.nik AS nik, -- Fetch nik from the karyawan table
                         DATE(al.scan_date) AS tgl_presensi,
                         TIME(al.scan_date) AS jam_in
                     FROM
                         db_absen.att_log al
                     LEFT JOIN
-                        db_absen.pegawai p ON al.pin = p.pegawai_pin
+                        hrmschl.karyawan k ON al.pin = k.nip
                 ");
             });
 

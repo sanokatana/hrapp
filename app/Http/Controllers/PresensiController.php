@@ -652,6 +652,11 @@ class PresensiController extends Controller
             ->whereRaw('YEAR(tgl_izin) = ?', [$tahunini])
             ->get();
 
+
+        $holidays = DB::table('libur_nasional')
+            ->whereRaw('MONTH(tgl_libur) = ?', [$bulanini])
+            ->whereRaw('YEAR(tgl_libur) = ?', [$tahunini])
+            ->pluck('tgl_libur')->toArray();
         // Initialize notifications array
         $notifications = [];
 
@@ -733,7 +738,22 @@ class PresensiController extends Controller
 
             $details = [];
 
-            if (!$hasPresensi && !$isIzin) {
+            $isHoliday = in_array($dateString, $holidays);
+
+            if ($isHoliday) {
+                // Employee is on holiday
+                $notifications[] = [
+                    'tanggal' => $date,
+                    'details' => [
+                        [
+                            'status' => 'Libur Nasional',
+                            'status_class' => 'text-success',
+                            'jam_masuk' => 'No Data',
+                            'jam_pulang' => 'No Data'
+                        ]
+                    ]
+                ];
+            } else if (!$hasPresensi && !$isIzin) {
                 // No presensi and no izin for this date
                 $notifications[] = [
                     'tanggal' => $date,
@@ -746,7 +766,7 @@ class PresensiController extends Controller
                         ]
                     ]
                 ];
-            } else if ($hasPresensi) {
+            }  else if ($hasPresensi) {
                 // Find presensi data for the date
                 $presensiData = $historibulanini->firstWhere('tanggal', $dateString);
                 $jam_masuk_time = strtotime($presensiData->jam_masuk);
