@@ -58,8 +58,8 @@ use App\Helpers\DateHelper;
                                 <b>{{ $izinFormattedDateAkhir }}</b><br>
                                 @endif
                                 <b style="color: red;">{{ $d->jenis }}</b><br>
-                                @if ($d->tipe_cuti)
-                                <b>{{ $d->tipe_cuti }}</b><br>
+                                @if ($d->tipe)
+                                <b>{{ $d->tipe }}</b><br>
                                 @endif
                                 Note - <b class="text-info">{{ $d->note }}</b>
                                 Keputusan - <b class="text-info">{{ $d->keputusan }}</b>

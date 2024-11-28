@@ -139,7 +139,7 @@ class PengajuanCutiController extends Controller
                         ";
 
                         Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan) {
-                            $ccList = ['human.resources@ciptaharmoni.com', 'al.imron@ciptaharmoni.com'];
+                            $ccList = ['human.resources@ciptaharmoni.com', 'al.imron@ciptaharmoni.com', 'mahardika@ciptaharmoni.com'];
 
                             // Add $email_karyawan to the CC list if it's not empty
                             // Add $email_karyawan to the CC list if it's not empty
@@ -290,7 +290,7 @@ class PengajuanCutiController extends Controller
                     ";
 
                     Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan) {
-                        $ccList = ['human.resources@ciptaharmoni.com', 'al.imron@ciptaharmoni.com'];
+                        $ccList = ['human.resources@ciptaharmoni.com', 'al.imron@ciptaharmoni.com', 'mahardika@ciptaharmoni.com'];
 
                         // Add $email_karyawan to the CC list if it's not empty
                         // Add $email_karyawan to the CC list if it's not empty
