@@ -720,6 +720,24 @@ class DashboardController extends Controller
                 ->where('karyawan.grade', '!=', 'NS') // Exclude NS grade
                 ->where('jabatan.kode_dept', '!=', 'Management')
                 ->where('status_kar', 'Aktif')
+                ->whereNotExists(function ($query) use ($hariini) {
+                    $query->select(DB::raw(1))
+                        ->from('hrmschl.pengajuan_izin')
+                        ->whereColumn('pengajuan_izin.nip', 'hrmschl.karyawan.nip')
+                        ->where('pengajuan_izin.tgl_izin', '<=', $hariini) // Start date is before or on today
+                        ->where('pengajuan_izin.tgl_izin_akhir', '>=', $hariini) // End date is after or on today
+                        ->whereNotNull('pengajuan_izin.tgl_izin_akhir') // Exclude null tgl_izin_akhir
+                        ->where('pengajuan_izin.tgl_izin_akhir', '!=', ''); // Exclude empty tgl_izin_akhir
+                })
+                ->whereNotExists(function ($query) use ($hariini) {
+                    $query->select(DB::raw(1))
+                        ->from('hrmschl.pengajuan_cuti')
+                        ->whereColumn('pengajuan_cuti.nip', 'hrmschl.karyawan.nip')
+                        ->where('pengajuan_cuti.tgl_cuti', '<=', $hariini) // Start date is before or on today
+                        ->where('pengajuan_cuti.tgl_cuti_sampai', '>=', $hariini) // End date is after or on today
+                        ->whereNotNull('pengajuan_cuti.tgl_cuti_sampai') // Exclude null tgl_cuti_sampai
+                        ->where('pengajuan_cuti.tgl_cuti_sampai', '!=', ''); // Exclude empty tgl_cuti_sampai
+                })
                 ->select(
                     'karyawan.*',
                     'jabatan.nama_jabatan',
@@ -728,25 +746,6 @@ class DashboardController extends Controller
                 )
                 ->get();
 
-                $KarIzinNow = DB::table('pengajuan_izin')
-                ->join('karyawan', 'pengajuan_izin.nip', '=', 'karyawan.nip')
-                ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
-                ->where('tgl_izin', '<=', $hariini) // Start date is before or on today
-                ->where('tgl_izin_akhir', '>=', $hariini) // End date is after or on today
-                ->whereNotNull('tgl_izin_akhir') // Exclude null tgl_izin_akhir
-                ->where('tgl_izin_akhir', '!=', '') // Exclude empty tgl_izin_akhir
-                ->where('karyawan.grade', '!=', 'NS') // Exclude grade NS
-                ->select(
-                    'karyawan.nama_lengkap',
-                    'pengajuan_izin.keterangan',
-                    'pengajuan_izin.tgl_izin',
-                    'pengajuan_izin.tgl_izin_akhir',
-                    'pengajuan_izin.status',
-                    'pengajuan_izin.pukul',
-                    'karyawan.kode_dept',
-                    'jabatan.nama_jabatan'
-                )
-                ->get();
 
 
 
@@ -926,6 +925,24 @@ class DashboardController extends Controller
                 ->where('karyawan.grade', '!=', 'NS') // Exclude NS grade
                 ->where('jabatan.kode_dept', '!=', 'Management')
                 ->where('status_kar', 'Aktif')
+                ->whereNotExists(function ($query) use ($hariini) {
+                    $query->select(DB::raw(1))
+                        ->from('hrmschl.pengajuan_izin')
+                        ->whereColumn('pengajuan_izin.nip', 'hrmschl.karyawan.nip')
+                        ->where('pengajuan_izin.tgl_izin', '<=', $hariini) // Start date is before or on today
+                        ->where('pengajuan_izin.tgl_izin_akhir', '>=', $hariini) // End date is after or on today
+                        ->whereNotNull('pengajuan_izin.tgl_izin_akhir') // Exclude null tgl_izin_akhir
+                        ->where('pengajuan_izin.tgl_izin_akhir', '!=', ''); // Exclude empty tgl_izin_akhir
+                })
+                ->whereNotExists(function ($query) use ($hariini) {
+                    $query->select(DB::raw(1))
+                        ->from('hrmschl.pengajuan_cuti')
+                        ->whereColumn('pengajuan_cuti.nip', 'hrmschl.karyawan.nip')
+                        ->where('pengajuan_cuti.tgl_cuti', '<=', $hariini) // Start date is before or on today
+                        ->where('pengajuan_cuti.tgl_cuti_sampai', '>=', $hariini) // End date is after or on today
+                        ->whereNotNull('pengajuan_cuti.tgl_cuti_sampai') // Exclude null tgl_cuti_sampai
+                        ->where('pengajuan_cuti.tgl_cuti_sampai', '!=', ''); // Exclude empty tgl_cuti_sampai
+                })
                 ->select(
                     'karyawan.*',
                     'jabatan.nama_jabatan',
@@ -933,6 +950,7 @@ class DashboardController extends Controller
                     DB::raw('\'00:00\' as jam_in') // Set jam_in to 00:00 for no attendance
                 )
                 ->get();
+
 
             // Subquery to get the earliest jam_in for each employee per day
             $subquery = DB::connection('mysql2')
@@ -1222,7 +1240,7 @@ class DashboardController extends Controller
                 ->get();
 
 
-                $KarIzinNow = DB::table('pengajuan_izin')
+            $KarIzinNow = DB::table('pengajuan_izin')
                 ->join('karyawan', 'pengajuan_izin.nip', '=', 'karyawan.nip')
                 ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
                 ->where('tgl_izin', '<=', $hariini) // Start date is before or on today

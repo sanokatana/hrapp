@@ -148,7 +148,7 @@ class RecruitmentController extends Controller
             Mail::html($emailContent, function ($message) use ($email, $nama_candidate, $email_user) {
                 $message->to($email)
                     ->subject("CHL Job Candidacy Invitation for {$nama_candidate}")
-                    ->cc(['zahran.chandra@ciptaharmoni.com'])
+                    ->cc(['human.resources@ciptaharmoni.com', $email_user])
                     ->priority(1);
 
                 // Add importance headers
@@ -690,12 +690,12 @@ class RecruitmentController extends Controller
             'tgl_masuk' => 'required|date',
             'employee_status' => 'required|string',
             'grade' => 'nullable|string|max:255',
-            'base' => 'required|string',
-            'nama_pt' => 'required|string|max:255',
-            'religion' => 'required|string|max:255',
-            'rek_no' => 'required|string|max:255',
-            'bank_name' => 'required|string|max:255',
-            'rek_name' => 'required|string|max:255',
+            'base' => 'nullable|string',
+            'nama_pt' => 'nullable|string|max:255',
+            'religion' => 'nullable|string|max:255',
+            'rek_no' => 'nullable|string|max:255',
+            'bank_name' => 'nullable|string|max:255',
+            'rek_name' => 'nullable|string|max:255',
         ]);
         try {
             if (!$request->filled('nik')) {

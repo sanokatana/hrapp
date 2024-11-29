@@ -216,7 +216,7 @@ use App\Helpers\DateHelper;
                                         <div class="col-md-6 col-xl-6">
                                             <div class="card" style="height: 28rem">
                                                 <div class="card-header">
-                                                    <h3 class="card-title">Staff Hadir Hari Ini</h3>
+                                                    <h3 class="card-title">Karyawan Hadir Hari Ini</h3>
                                                 </div>
                                                 <div class="card-body card-body-scrollable card-body-scrollable-shadow">
                                                     <div class="divide-y">
@@ -283,7 +283,7 @@ use App\Helpers\DateHelper;
                                         <div class="col-md-6 col-xl-6">
                                             <div class="card" style="height: 28rem">
                                                 <div class="card-header">
-                                                    <h3 class="card-title">Staff Tidak Hadir Hari Ini</h3>
+                                                    <h3 class="card-title">Karyawan Mangkir Hari Ini</h3>
                                                 </div>
                                                 <div class="card-body card-body-scrollable card-body-scrollable-shadow">
                                                     <div class="divide-y">
@@ -300,13 +300,13 @@ use App\Helpers\DateHelper;
                                                                     <div>{{ $d->nama_jabatan }}</div>
                                                                     <div><b>{{ DateHelper::formatIndonesianDate($d->tgl_presensi) }}</b></div>
                                                                     <span class="text-danger">
-                                                                        Tidak Hadir
+                                                                        Mangkir
                                                                     </span>
                                                                 </div>
                                                             </div>
                                                             <div class="col-auto">
                                                                 <div class="jam-in mt-3">
-                                                                    <span class="status text-danger">00:00</span>
+                                                                    <span class="status text-danger">0</span>
                                                                 </div>
                                                             </div>
                                                         </div>
