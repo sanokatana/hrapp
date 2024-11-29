@@ -229,14 +229,13 @@
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modal-skContractLabel">Action</h5>
+                <h5 class="modal-title" id="modal-skContractLabel">Peningkatan</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form action="/recruitment/candidate/data/peningkatan" method="POST" enctype="multipart/form-data">
                     @csrf
-                    <input type="hidden" name="id" id="dataCandidate">
-
+                    <input type="hidden" name="dataCandidate" id="dataCandidate">
                     <div class="row">
                         <div class="col-6">
                             <!-- NIK input field -->

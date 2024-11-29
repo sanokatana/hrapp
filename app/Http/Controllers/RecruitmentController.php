@@ -684,6 +684,7 @@ class RecruitmentController extends Controller
     {
         // Validation logic remains unchanged
         $request->validate([
+            'dataCandidate' => 'nullable|string|max:255',
             'nik' => 'nullable|string|max:255',
             'nip' => 'nullable|string|max:255',
             'jabatan' => 'required',
@@ -721,8 +722,10 @@ class RecruitmentController extends Controller
             }
 
 
-            $candidateId = $request->id;
-            $candidateData = DB::table('candidate_data')->where('candidate_id', $candidateId)->first();
+            $candidateDataId = $request->dataCandidate;
+            $candidateData = DB::table('candidate_data')->where('id', $candidateDataId)->first();
+            $candidateDetails = DB::table('candidates')->where('id', $candidateData->candidate_id)->first();
+            $candidateId = $candidateDetails->id;
             $candidateDataKeluarga = DB::table('candidate_data_keluarga')->where('candidate_data_id', $candidateData->id)->get(); // Get all family data
             $jobOpeningId = DB::table('candidates')->where('id', $candidateId)->value('job_opening_id');
             $kodeDept = DB::table('job_openings')->where('id', $jobOpeningId)->value('kode_dept');
@@ -792,28 +795,28 @@ class RecruitmentController extends Controller
             foreach ($candidateDataKeluarga as $familyMember) {
                 switch ($familyMember->uraian) {
                     case 'Istri/Suami':
-                        $fd_si_name = $familyMember->nama_lengkap;
-                        $fd_si_nik = $familyMember->nik;
-                        $fd_si_kota = $familyMember->tempat_lahir;
-                        $fd_si_dob = $familyMember->tgl_lahir;
+                        $fd_si_name = $familyMember->nama_lengkap ?? null;
+                        $fd_si_nik = $familyMember->nik ?? null;
+                        $fd_si_kota = $familyMember->tempat_lahir ?? null;
+                        $fd_si_dob = $familyMember->tgl_lahir ?? null;
                         break;
                     case 'Anak ke 1':
-                        $fd_anak1_name = $familyMember->nama_lengkap;
-                        $fd_anak1_nik = $familyMember->nik;
-                        $fd_anak1_kota = $familyMember->tempat_lahir;
-                        $fd_anak1_dob = $familyMember->tgl_lahir;
+                        $fd_anak1_name = $familyMember->nama_lengkap ?? null;
+                        $fd_anak1_nik = $familyMember->nik ?? null;
+                        $fd_anak1_kota = $familyMember->tempat_lahir ?? null;
+                        $fd_anak1_dob = $familyMember->tgl_lahir ?? null;
                         break;
                     case 'Anak ke 2':
-                        $fd_anak2_name = $familyMember->nama_lengkap;
-                        $fd_anak2_nik = $familyMember->nik;
-                        $fd_anak2_kota = $familyMember->tempat_lahir;
-                        $fd_anak2_dob = $familyMember->tgl_lahir;
+                        $fd_anak2_name = $familyMember->nama_lengkap ?? null;
+                        $fd_anak2_nik = $familyMember->nik ?? null;
+                        $fd_anak2_kota = $familyMember->tempat_lahir ?? null;
+                        $fd_anak2_dob = $familyMember->tgl_lahir ?? null;
                         break;
                     case 'Anak ke 3':
-                        $fd_anak3_name = $familyMember->nama_lengkap;
-                        $fd_anak3_nik = $familyMember->nik;
-                        $fd_anak3_kota = $familyMember->tempat_lahir;
-                        $fd_anak3_dob = $familyMember->tgl_lahir;
+                        $fd_anak3_name = $familyMember->nama_lengkap ?? null;
+                        $fd_anak3_nik = $familyMember->nik ?? null;
+                        $fd_anak3_kota = $familyMember->tempat_lahir ?? null;
+                        $fd_anak3_dob = $familyMember->tgl_lahir ?? null;
                         break;
                 }
             }
@@ -926,10 +929,23 @@ class RecruitmentController extends Controller
 
             return redirect()->back()->with(['success' => 'Data Berhasil Disimpan']);
         } catch (\Exception $e) {
+            // Capture additional context for debugging
+            $errorDetails = [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(), // Full stack trace
+                'input' => request()->all(), // Log input data (sensitive data might need filtering)
+                'candidateData' => $candidateData,
+            ];
 
-            Log::error('Error inserting candidate data', ['message' => $e->getMessage()]);
+            // Log the error with comprehensive details
+            Log::error('Error inserting candidate data', $errorDetails);
+
+            // Return the error message to the user
             return redirect()->back()->with('error', 'Failed to convert candidate to karyawan. ' . $e->getMessage());
         }
+
     }
 
 
