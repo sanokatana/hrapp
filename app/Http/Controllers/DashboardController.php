@@ -746,9 +746,25 @@ class DashboardController extends Controller
                 )
                 ->get();
 
-
-
-
+            $KarIzinNow = DB::table('pengajuan_izin')
+                ->join('karyawan', 'pengajuan_izin.nip', '=', 'karyawan.nip')
+                ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
+                ->where('tgl_izin', '<=', $hariini) // Start date is before or on today
+                ->where('tgl_izin_akhir', '>=', $hariini) // End date is after or on today
+                ->whereNotNull('tgl_izin_akhir') // Exclude null tgl_izin_akhir
+                ->where('tgl_izin_akhir', '!=', '') // Exclude empty tgl_izin_akhir
+                ->where('karyawan.grade', '!=', 'NS') // Exclude grade NS
+                ->select(
+                    'karyawan.nama_lengkap',
+                    'pengajuan_izin.keterangan',
+                    'pengajuan_izin.tgl_izin',
+                    'pengajuan_izin.tgl_izin_akhir',
+                    'pengajuan_izin.status',
+                    'pengajuan_izin.pukul',
+                    'karyawan.kode_dept',
+                    'jabatan.nama_jabatan'
+                )
+                ->get();
 
             // Fetch employees who are on cuti today
             $KarCutiNow = DB::table('pengajuan_cuti')

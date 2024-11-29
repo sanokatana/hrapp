@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Karyawan;
+use App\Models\PengajuanCuti;
+use App\Models\Pengajuanizin;
 use Illuminate\Support\Facades\Auth;
 
 class LaporanController extends Controller
@@ -1006,6 +1008,48 @@ class LaporanController extends Controller
         return Excel::download(new AbsenExport($karyawanPresensi, $filterMonth, $filterYear), 'attendance_times.xlsx');
     }
 
+
+    public function viewIzin(Request $request)
+    {
+        $query = Pengajuanizin::query();
+        $query->join('karyawan',  'pengajuan_izin.nik', '=', 'karyawan.nik');
+        $query->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
+        $query->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id');
+        $query->select('pengajuan_izin.*', 'karyawan.nama_lengkap', 'karyawan.jabatan', 'department.nama_dept', 'jabatan.nama_jabatan')
+            ->where('pengajuan_izin.status', '!=', 'Cuti');
+
+        if (!empty($request->dari) && !empty($request->sampai)) {
+            $query->whereBetween('tgl_create', [$request->dari, $request->sampai]);
+        }
+
+        if (!empty($request->nik)) {
+            $query->where('pengajuan_izin.nik', $request->nik);
+        }
+
+        if (!empty($request->nama_lengkap)) {
+            $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama_lengkap . '%');
+        }
+
+        // Handle the status_approved filter
+        if ($request->has('status_approved')) {
+            if ($request->status_approved === '0' || $request->status_approved === '1' || $request->status_approved === '2' || $request->status_approved === '3') {
+                $query->where('status_approved', $request->status_approved);
+            }
+        }
+
+        // Handle the status_approved_hrd filter
+        if ($request->has('status_approved_hrd')) {
+            if ($request->status_approved_hrd === '0' || $request->status_approved_hrd === '1' || $request->status_approved_hrd === '2' || $request->status_approved_hrd === '3') {
+                $query->where('status_approved_hrd', $request->status_approved_hrd);
+            }
+        }
+
+        $izinapproval = $query->paginate(20)->appends($request->query());
+        $izinapproval->appends($request->all());
+
+        return view('laporan.viewIzin', compact('izinapproval'));
+    }
+
     public function exportIzin()
     {
         $years = DB::table('pengajuan_izin')
@@ -1029,6 +1073,63 @@ class LaporanController extends Controller
 
         $fileName = "laporan_pengajuan_izin_{$bulan}_{$tahun}.xlsx";
         return Excel::download(new IzinExport($bulan, $tahun), $fileName);
+    }
+
+    public function viewCuti(Request $request)
+    {
+        $query = PengajuanCuti::query();
+        $query->join('karyawan', 'pengajuan_cuti.nik', '=', 'karyawan.nik');
+        $query->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
+        $query->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id');
+        $query->leftJoin('tipe_cuti', 'pengajuan_cuti.tipe', '=', 'tipe_cuti.id_tipe_cuti');
+        $query->select('pengajuan_cuti.*', 'karyawan.nama_lengkap', 'karyawan.jabatan', 'department.nama_dept', 'karyawan.tgl_masuk', 'tipe_cuti.tipe_cuti', 'jabatan.nama_jabatan');
+
+        if (!empty($request->dari) && !empty($request->sampai)) {
+            $query->whereBetween('tgl_create', [$request->dari, $request->sampai]);
+        }
+
+        if (!empty($request->nik)) {
+            $query->where('pengajuan_izin.nik', $request->nik);
+        }
+
+        if (!empty($request->nama_lengkap)) {
+            $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama_lengkap . '%');
+        }
+
+        // Handle the status_approved filter
+        if ($request->has('status_approved')) {
+            if ($request->status_approved === '0' || $request->status_approved === '1' || $request->status_approved === '2' || $request->status_approved === '3') {
+                $query->where('status_approved', $request->status_approved);
+            }
+        }
+
+        // Handle the status_approved_hrd filter
+        if ($request->has('status_approved_hrd')) {
+            if ($request->status_approved_hrd === '0' || $request->status_approved_hrd === '1' || $request->status_approved_hrd === '2' || $request->status_approved_hrd === '3') {
+                $query->where('status_approved_hrd', $request->status_approved_hrd);
+            }
+        }
+
+        $cutiapproval = $query->paginate(10);
+        $cutiapproval->appends($request->all());
+
+        // Add sisa_cuti_real for each cuti
+        foreach ($cutiapproval as $d) {
+            // Fetch sisa_cuti from cuti table
+            $cutiRecord = DB::table('cuti')
+                ->where('nik', $d->nik)
+                ->where('tahun', $d->periode)
+                ->first();
+
+            // Calculate sisa_cuti_real
+            if ($cutiRecord) {
+                $d->sisa_cuti_real = $cutiRecord->sisa_cuti;
+            } else {
+                $d->sisa_cuti_real = 0; // or any default value
+            }
+        }
+
+        return view('laporan.viewCuti', compact('cutiapproval'));
     }
 
     public function exportCuti()
