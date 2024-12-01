@@ -211,30 +211,32 @@ use App\Helpers\DateHelper;
                                                 </div>
                                                 <div class="card-body card-body-scrollable card-body-scrollable-shadow">
                                                     <div class="divide-y">
-                                                        @foreach ($historihariNonNS as $d)
+                                                    @foreach ($historihariNonNS as $d)
                                                         <div class="row">
                                                             @php
-                                                            // Extract hours and minutes from the jam_in time and shift's start_time
                                                             $jam_in_time = strtotime($d->jam_in);
                                                             $start_time = strtotime($d->start_time);
                                                             $lateness = '';
-                                                            $jam_5pm = strtotime('17:00:00'); // 5 PM cutoff time
+                                                            $status = '';
 
+                                                            // Check if today is a holiday
+                                                            $is_holiday = !empty($d->tgl_libur);
+
+                                                            if ($is_holiday) {
+                                                            // Skip lateness calculation on holidays
+                                                            $lateness = "On Time (Tanggal Merah)";
+                                                            $status = "On Time";
+                                                            } else {
                                                             // Calculate lateness
                                                             if ($jam_in_time > $start_time) {
-                                                                $hours_diff = floor(($jam_in_time - $start_time) / 3600);
-                                                                $minutes_diff = floor((($jam_in_time - $start_time) % 3600) / 60);
-                                                                $lateness = ($hours_diff > 0 ? $hours_diff . " Jam " : "") . ($minutes_diff > 0 ? $minutes_diff . " Menit" : "");
-
-                                                                // Check if the jam_in is after 5 PM, if so, consider it On Time
-                                                                if ($jam_in_time > $jam_5pm) {
-                                                                    $status = "On Time Pulang";
-                                                                } else {
-                                                                    $status = "Terlambat";
-                                                                }
+                                                            $hours_diff = floor(($jam_in_time - $start_time) / 3600);
+                                                            $minutes_diff = floor((($jam_in_time - $start_time) % 3600) / 60);
+                                                            $lateness = ($hours_diff > 0 ? $hours_diff . " Jam " : "") . ($minutes_diff > 0 ? $minutes_diff . " Menit" : "");
+                                                            $status = "Terlambat";
                                                             } else {
-                                                                $lateness = "On Time";
-                                                                $status = "On Time";
+                                                            $lateness = "On Time";
+                                                            $status = "On Time";
+                                                            }
                                                             }
                                                             @endphp
 
@@ -256,7 +258,7 @@ use App\Helpers\DateHelper;
                                                                     <div>{{ $d->nama_jabatan }}</div>
                                                                     <div><b>{{ DateHelper::formatIndonesianDate($d->tgl_presensi) }}</b></div>
                                                                     <span class="{{ $status == 'Terlambat' ? 'text-danger' : 'text-success' }}">
-                                                                        {{ $status }}
+                                                                        {{ $lateness }}
                                                                     </span>
                                                                 </div>
                                                             </div>

@@ -681,13 +681,16 @@ class DashboardController extends Controller
                 ->join('hrmschl.shift_pattern_cycle', function ($join) {
                     $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
                         ->on(DB::raw('
-                    CASE
-                        WHEN DAYOFWEEK(DATE(presensi.scan_date)) = 1 THEN 7
-                        ELSE DAYOFWEEK(DATE(presensi.scan_date)) - 1
-                    END
-                '), '=', 'shift_pattern_cycle.cycle_day');
+                            CASE
+                                WHEN DAYOFWEEK(DATE(presensi.scan_date)) = 1 THEN 7
+                                ELSE DAYOFWEEK(DATE(presensi.scan_date)) - 1
+                            END
+                        '), '=', 'shift_pattern_cycle.cycle_day');
                 })
                 ->join('hrmschl.shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
+                ->leftJoin('hrmschl.libur_nasional', function ($join) use ($hariini) {
+                    $join->on(DB::raw('DATE(presensi.scan_date)'), '=', 'libur_nasional.tgl_libur');
+                })
                 ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini)
                 ->where('karyawan.grade', '!=', 'NS')
                 ->whereIn(DB::raw('(presensi.pin, presensi.scan_date)'), function ($query) use ($hariini) {
@@ -703,10 +706,12 @@ class DashboardController extends Controller
                     'jabatan.nama_jabatan',
                     'shift.start_time',
                     DB::raw('DATE(presensi.scan_date) as tgl_presensi'),
-                    DB::raw('TIME(presensi.scan_date) as jam_in')
+                    DB::raw('TIME(presensi.scan_date) as jam_in'),
+                    'libur_nasional.tgl_libur' // Include holiday date for validation
                 )
                 ->orderBy(DB::raw('TIME(presensi.scan_date)'), 'DESC') // Optional: sort by earliest time first
                 ->get();
+
 
             // Get the list of karyawan who do not have attendance today
             $noAttendanceNonNS = DB::connection('mysql2')
@@ -737,6 +742,11 @@ class DashboardController extends Controller
                         ->where('pengajuan_cuti.tgl_cuti_sampai', '>=', $hariini) // End date is after or on today
                         ->whereNotNull('pengajuan_cuti.tgl_cuti_sampai') // Exclude null tgl_cuti_sampai
                         ->where('pengajuan_cuti.tgl_cuti_sampai', '!=', ''); // Exclude empty tgl_cuti_sampai
+                })
+                ->whereNotExists(function ($query) use ($hariini) {
+                    $query->select(DB::raw(1))
+                        ->from('hrmschl.libur_nasional')
+                        ->whereDate('libur_nasional.tgl_libur', $hariini); // Exclude holidays
                 })
                 ->select(
                     'karyawan.*',
@@ -902,13 +912,16 @@ class DashboardController extends Controller
                 ->join('hrmschl.shift_pattern_cycle', function ($join) {
                     $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
                         ->on(DB::raw('
-                    CASE
-                        WHEN DAYOFWEEK(DATE(presensi.scan_date)) = 1 THEN 7
-                        ELSE DAYOFWEEK(DATE(presensi.scan_date)) - 1
-                    END
-                '), '=', 'shift_pattern_cycle.cycle_day');
+                            CASE
+                                WHEN DAYOFWEEK(DATE(presensi.scan_date)) = 1 THEN 7
+                                ELSE DAYOFWEEK(DATE(presensi.scan_date)) - 1
+                            END
+                        '), '=', 'shift_pattern_cycle.cycle_day');
                 })
                 ->join('hrmschl.shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
+                ->leftJoin('hrmschl.libur_nasional', function ($join) use ($hariini) {
+                    $join->on(DB::raw('DATE(presensi.scan_date)'), '=', 'libur_nasional.tgl_libur');
+                })
                 ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini)
                 ->where('karyawan.grade', '!=', 'NS')
                 ->whereIn(DB::raw('(presensi.pin, presensi.scan_date)'), function ($query) use ($hariini) {
@@ -924,10 +937,12 @@ class DashboardController extends Controller
                     'jabatan.nama_jabatan',
                     'shift.start_time',
                     DB::raw('DATE(presensi.scan_date) as tgl_presensi'),
-                    DB::raw('TIME(presensi.scan_date) as jam_in')
+                    DB::raw('TIME(presensi.scan_date) as jam_in'),
+                    'libur_nasional.tgl_libur' // Include holiday date for validation
                 )
                 ->orderBy(DB::raw('TIME(presensi.scan_date)'), 'DESC') // Optional: sort by earliest time first
                 ->get();
+
 
             // Get the list of karyawan who do not have attendance today
             $noAttendanceNonNS = DB::connection('mysql2')
@@ -959,6 +974,11 @@ class DashboardController extends Controller
                         ->whereNotNull('pengajuan_cuti.tgl_cuti_sampai') // Exclude null tgl_cuti_sampai
                         ->where('pengajuan_cuti.tgl_cuti_sampai', '!=', ''); // Exclude empty tgl_cuti_sampai
                 })
+                ->whereNotExists(function ($query) use ($hariini) {
+                    $query->select(DB::raw(1))
+                        ->from('hrmschl.libur_nasional')
+                        ->whereDate('libur_nasional.tgl_libur', $hariini); // Exclude holidays
+                })
                 ->select(
                     'karyawan.*',
                     'jabatan.nama_jabatan',
@@ -966,6 +986,7 @@ class DashboardController extends Controller
                     DB::raw('\'00:00\' as jam_in') // Set jam_in to 00:00 for no attendance
                 )
                 ->get();
+
 
 
             // Subquery to get the earliest jam_in for each employee per day

@@ -130,6 +130,8 @@ class PresensiController extends Controller
             return response()->json([
                 'sisa_cuti' => $cuti->sisa_cuti,
                 'cutiYear' => $cuti->tahun,
+                'awal' => $cuti->periode_awal,
+                'akhir' => $cuti->periode_akhir,
             ]);
         } else {
             // If no active cuti record, return an error message
