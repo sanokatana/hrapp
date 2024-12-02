@@ -86,7 +86,7 @@
                 success: function(response) {
                     Swal.fire({
                         title: 'Sisa Cuti',
-                        html: 'Sisa cuti Anda: ' + response.sisa_cuti + ' hari untuk tahun ' + response.cutiYear + '<br> Di periode ' + response.awal + ' sampai <br>' + response.akhir,
+                        html: response.sisa_cuti + ' hari untuk tahun ' + response.cutiYear + '<br> Di periode ' + response.awal + ' sampai <br>' + response.akhir,
                         icon: 'info',
                     });
                 },

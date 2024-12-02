@@ -512,7 +512,7 @@ class PresensiController extends Controller
                         }
 
                         $message->to($atasan->email)
-                            ->subject("Pengajuan Cuti Baru Dari {$nama_lengkap}")
+                            ->subject("Pengajuan Izin Baru Dari {$nama_lengkap}")
                             ->cc($ccList)
                             ->priority(1);
 
