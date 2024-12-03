@@ -822,13 +822,8 @@ class RecruitmentController extends Controller
             }
 
             $documents = DB::table('candidate_data_perlengkapan')
-                ->where('candidate_data_id', $candidateId)
+                ->where('candidate_data_id', $request->dataCandidate)
                 ->first();
-
-            if (!$documents) {
-                // Handle the case where no document data is found
-                return redirect()->back()->with('error', 'No document data found for this candidate.');
-            }
 
             // Check each document status and set the status and file fields accordingly
             $statusPhoto = $documents->photo_anda !== 'No_Document' ? 1 : 0;

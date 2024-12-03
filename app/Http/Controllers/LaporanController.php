@@ -1085,7 +1085,7 @@ class LaporanController extends Controller
         $query->select('pengajuan_cuti.*', 'karyawan.nama_lengkap', 'karyawan.jabatan', 'department.nama_dept', 'karyawan.tgl_masuk', 'tipe_cuti.tipe_cuti', 'jabatan.nama_jabatan');
 
         if (!empty($request->dari) && !empty($request->sampai)) {
-            $query->whereBetween('tgl_create', [$request->dari, $request->sampai]);
+            $query->whereBetween('tgl_cuti', [$request->dari, $request->sampai]);
         }
 
         if (!empty($request->nik)) {

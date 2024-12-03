@@ -467,7 +467,7 @@
                             Laporan
                         </span>
                     </a>
-                    <div class="dropdown-menu {{request()->is(['laporan/viewCuti','laporan/viewIzin','laporan/attendance', 'laporan/time' , 'laporan/exportAttendanceView', 'laporan/attendanceViewAtasan', 'laporan/exportIzin', 'laporan/exportCuti']) ? 'show' : ''}}">
+                    <div class="dropdown-menu {{request()->is(['laporan/viewCuti','laporan/viewIzin','laporan/viewCutiManagementSisa', 'laporan/viewCutiManagement', 'laporan/viewIzinManagement', 'laporan/attendance', 'laporan/time' , 'laporan/exportAttendanceView', 'laporan/attendanceViewAtasan', 'laporan/exportIzin', 'laporan/exportCuti']) ? 'show' : ''}}">
                         <div class="dropdown-menu-columns">
                             <div class="dropdown-menu-column">
                                 @if($userLevel !== 'Admin')
@@ -484,10 +484,11 @@
                                 </a>
                                 <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown"
                                     data-bs-auto-close="false" role="button"
-                                    aria-expanded="{{request()->is(['laporan/viewIzin', 'laporan/exportIzin']) ? 'true' : 'false'}}">
+                                    aria-expanded="{{request()->is(['laporan/viewIzin', 'laporan/exportIzin', 'laporan/viewIzinManagement']) ? 'true' : 'false'}}">
                                     Pengajuan Izin
                                 </a>
-                                <div class="dropdown-menu {{request()->is(['laporan/viewIzin', 'laporan/exportIzin']) ? 'show' : ''}}">
+                                <div class="dropdown-menu {{request()->is(['laporan/viewIzin', 'laporan/exportIzin', 'laporan/viewIzinManagement']) ? 'show' : ''}}">
+                                    @if($userLevel !== 'Management')
                                     <a class="dropdown-item {{request()->is(['laporan/viewIzin']) ? 'active' : ''}}"
                                         href="/laporan/viewIzin">
                                         View
@@ -496,13 +497,20 @@
                                         href="/laporan/exportIzin">
                                         Export
                                     </a>
+                                    @else
+                                    <a class="dropdown-item {{request()->is(['laporan/viewIzinManagement']) ? 'active' : ''}}"
+                                        href="/laporan/viewIzinManagement">
+                                        View
+                                    </a>
+                                    @endif
                                 </div>
                                 <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown"
                                     data-bs-auto-close="false" role="button"
-                                    aria-expanded="{{request()->is(['laporan/viewCuti', 'laporan/exportCuti']) ? 'true' : 'false'}}">
+                                    aria-expanded="{{request()->is(['laporan/viewCuti', 'laporan/exportCuti', 'laporan/viewCutiManagement', 'laporan/viewCutiManagementSisa']) ? 'true' : 'false'}}">
                                     Pengajuan Cuti
                                 </a>
-                                <div class="dropdown-menu {{request()->is(['laporan/viewCuti', 'laporan/exportCuti']) ? 'show' : ''}}">
+                                <div class="dropdown-menu {{request()->is(['laporan/viewCuti', 'laporan/exportCuti', 'laporan/viewCutiManagement']) ? 'show' : ''}}">
+                                    @if($userLevel !== 'Management')
                                     <a class="dropdown-item {{request()->is(['laporan/viewCuti']) ? 'active' : ''}}"
                                         href="/laporan/viewCuti">
                                         View
@@ -511,6 +519,15 @@
                                         href="/laporan/exportCuti">
                                         Export
                                     </a>
+                                    @else
+                                    <a class="dropdown-item {{request()->is(['laporan/viewCutiManagement']) ? 'active' : ''}}"
+                                        href="/laporan/viewCutiManagement">
+                                        View Karyawan Cuti
+                                    </a><a class="dropdown-item {{request()->is(['laporan/viewCutiManagementSisa']) ? 'active' : ''}}"
+                                        href="/laporan/viewCutiManagementSisa">
+                                        Cuti Karyawan
+                                    </a>
+                                    @endif
                                 </div>
                                 @endif
                                 @if($userLevel == 'Admin')
@@ -752,18 +769,30 @@
             }
         }
 
-        // Check local storage for sidebar state
+        // Initialize sidebar state
         const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-        if (isCollapsed) {
+        if (isCollapsed || isCollapsed === null) { // Default to collapsed if no state in localStorage
             sidebar.classList.add('collapsed');
         }
         updateStyles(isCollapsed);
 
         // Toggle sidebar collapse
-        sidebarToggle.addEventListener('click', function() {
+        sidebarToggle.addEventListener('click', function(event) {
+            event.stopPropagation(); // Prevent triggering click outside
             const isCollapsed = sidebar.classList.toggle('collapsed');
             localStorage.setItem('sidebarCollapsed', isCollapsed);
             updateStyles(isCollapsed);
+        });
+
+        // Collapse sidebar when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
+                if (!sidebar.classList.contains('collapsed')) {
+                    sidebar.classList.add('collapsed');
+                    localStorage.setItem('sidebarCollapsed', true);
+                    updateStyles(true);
+                }
+            }
         });
 
         // Remove 'collapsed' class from sidebar when any dropdown item is clicked

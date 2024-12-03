@@ -53,14 +53,11 @@ use App\Helpers\DateHelper;
                                 <table class="table table-vcenter card-table table-striped">
                                     <thead>
                                         <tr style="text-align: center;">
-                                            <th>No.</th>
-                                            <th>NIK.</th>
                                             <th>Nama Karyawan</th>
                                             <th>Jabatan</th>
                                             <th>Periode</th>
-                                            <th>Tanggal Cuti</th>
-                                            <th>Sampai Tanggal</th>
-                                            <th>Jumlah Hari</th>
+                                            <th>Tanggal Cuti <br> Sampai Tanggal</th>
+                                            <th>Jmlh</th>
                                             <th>Kar Pengganti</th>
                                             <th>Note</th>
                                             <th>Jenis Cuti</th>
@@ -72,16 +69,14 @@ use App\Helpers\DateHelper;
                                     <tbody>
                                         @foreach ($cutiapproval as $d)
                                         <tr style="text-align: center;">
-                                            <td>{{ $loop->iteration + $cutiapproval->firstItem() -1}} </td>
-                                            <td>{{ $d->nik }} </td>
                                             <td>{{ $d->nama_lengkap }}</td>
                                             <td>{{ $d->nama_jabatan }}</td>
                                             <td>{{ $d->periode }}</td>
                                             <td>@if ($d->tgl_cuti)
                                                 {{ DateHelper::formatIndonesianDate($d->tgl_cuti) }}
                                                 @endif
-                                            </td>
-                                            <td>@if ($d->tgl_cuti_sampai)
+                                                <br>
+                                                @if ($d->tgl_cuti_sampai)
                                                 {{ DateHelper::formatIndonesianDate($d->tgl_cuti_sampai) }}
                                                 @endif
                                             </td>

@@ -67,8 +67,8 @@
                     <select name="tahun" id="tahun" class="form-control" style="text-align:center">
                         <option value="">Tahun</option>
                         @php
-                        $tahunmulai = 2015;
-                        $tahunskrng = date("Y");
+                        $tahunmulai = 2024;
+                        $tahunskrng = 2025;
                         @endphp
                         @for ($tahun=$tahunmulai; $tahun<= $tahunskrng; $tahun++) <option value="{{ $tahun }}" {{ date("Y") == $tahun ? 'selected' : ''}}>{{ $tahun }}</option>
                             @endfor

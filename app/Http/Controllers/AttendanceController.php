@@ -53,12 +53,12 @@ class AttendanceController extends Controller
 
         // Get presensi data for the selected month
         $presensi = DB::connection('mysql2')
-        ->table('db_absen.att_log as presensi')
-        ->select('presensi.pin', DB::raw('DATE(presensi.scan_date) as scan_date'), DB::raw('MIN(TIME(presensi.scan_date)) as earliest_jam_in'))
-        ->whereMonth('presensi.scan_date', $filterMonth)
-        ->whereYear('presensi.scan_date', $filterYear)
-        ->groupBy('presensi.pin', 'presensi.scan_date')
-        ->get();
+            ->table('db_absen.att_log as presensi')
+            ->select('presensi.pin', DB::raw('DATE(presensi.scan_date) as scan_date'), DB::raw('MIN(TIME(presensi.scan_date)) as earliest_jam_in'))
+            ->whereMonth('presensi.scan_date', $filterMonth)
+            ->whereYear('presensi.scan_date', $filterYear)
+            ->groupBy('presensi.pin', 'presensi.scan_date')
+            ->get();
 
         // Get national holidays for the selected month
         $liburNasional = DB::table('libur_nasional')
@@ -97,9 +97,9 @@ class AttendanceController extends Controller
             ->get();
 
         $liburKaryawan = DB::table('libur_kar')
-        ->whereMonth('month', $filterMonth)
-        ->whereYear('month', $filterYear)
-        ->pluck('id', 'nik');
+            ->whereMonth('month', $filterMonth)
+            ->whereYear('month', $filterYear)
+            ->pluck('id', 'nik');
 
         $liburKarDays = DB::table('libur_kar_day')
             ->whereIn('libur_id', $liburKaryawan)
@@ -297,6 +297,7 @@ class AttendanceController extends Controller
                     ];
                 }
 
+
                 $row['jumlah_telat'] = $jumlahTelat;
                 $row['menit_telat'] = $menitTelat;
                 $row['presentase'] = round(($totalTidakHadir / $totalWorkdays) * 100);
@@ -370,7 +371,12 @@ class AttendanceController extends Controller
     private function getAttendanceStatus($date, $attendance, $isCuti, $isIzin, $work_start, $morning_start, $afternoon_start, $status_work)
     {
         if ($isCuti) {
-            return 'C';
+            if ($date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY) {
+                // If there is attendance, return 'P' instead of 'L'
+                return 'L';
+            } else {
+                return 'C';
+            }
         }
 
         if ($isIzin) {
@@ -448,11 +454,10 @@ class AttendanceController extends Controller
                     ? ($jam_in->gt(Carbon::parse($work_start)) ? 'T' : $status_work)
                     : 'T';
             }
-        } else {
+        }  else {
             // Handle case when there is no attendance
             return $date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY ? 'L' : '';
         }
-
     }
 
 
@@ -616,10 +621,10 @@ class AttendanceController extends Controller
         $nip = $request->nip;
 
         $query = DB::connection('mysql2')
-        ->table('db_absen.att_log as presensi')
-        ->selectRaw('DATE(presensi.scan_date) as tanggal, presensi.pin, karyawan.nik, karyawan.nama_lengkap, department.nama_dept, TIME(presensi.scan_date) as jam_in')
-        ->join('hrmschl.karyawan as karyawan', 'presensi.pin', '=', 'karyawan.nip') // Join karyawan to get nip
-        ->join('hrmschl.department as department', 'karyawan.kode_dept', '=', 'department.kode_dept');
+            ->table('db_absen.att_log as presensi')
+            ->selectRaw('DATE(presensi.scan_date) as tanggal, presensi.pin, karyawan.nik, karyawan.nama_lengkap, department.nama_dept, TIME(presensi.scan_date) as jam_in')
+            ->join('hrmschl.karyawan as karyawan', 'presensi.pin', '=', 'karyawan.nip') // Join karyawan to get nip
+            ->join('hrmschl.department as department', 'karyawan.kode_dept', '=', 'department.kode_dept');
 
         if ($nama_lengkap) {
             $query->where('karyawan.nama_lengkap', 'like', '%' . $nama_lengkap . '%');
@@ -713,7 +718,6 @@ class AttendanceController extends Controller
 
                 // Always overwrite jam_pulang for the previous day if the new jam_in is later
                 $processedPresensi[$key]['jam_pulang'] = $jam_in;
-
             } else {
                 $key = $tanggal . '_' . $nip;
 
@@ -780,7 +784,7 @@ class AttendanceController extends Controller
             ->join('hrmschl.karyawan as karyawan', 'presensi.pin', '=', 'karyawan.nip') // Join karyawan to get nip
             ->join('hrmschl.department as department', 'karyawan.kode_dept', '=', 'department.kode_dept')
             ->whereRaw('DATE(presensi.scan_date) = ?', [$tanggal]) // Filter only for the current day
-            ->groupBy('presensi.pin', 'tanggal', 'karyawan.nik', 'karyawan.nama_lengkap', 'department.nama_dept','presensi.scan_date')
+            ->groupBy('presensi.pin', 'tanggal', 'karyawan.nik', 'karyawan.nama_lengkap', 'department.nama_dept', 'presensi.scan_date')
             ->orderBy('presensi.scan_date', 'asc')
             ->orderBy('jam_in', 'asc') // Ensure proper ordering by scan_date and jam_in
             ->orderBy('department.nama_dept', 'asc');

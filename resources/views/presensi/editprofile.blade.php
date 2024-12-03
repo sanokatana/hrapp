@@ -12,7 +12,9 @@
 </div>
 <!-- * App Header -->
 @endsection
-
+@php
+use App\Helpers\DateHelper;
+@endphp
 @section('content')
 <div class="row" style="margin-top: 4rem;">
     <div class="col">
@@ -86,7 +88,7 @@
                 success: function(response) {
                     Swal.fire({
                         title: 'Sisa Cuti',
-                        html: response.sisa_cuti + ' hari untuk tahun ' + response.cutiYear + '<br> Di periode ' + response.awal + ' sampai <br>' + response.akhir,
+                        html: response.sisa_cuti + ' hari untuk tahun ' + response.cutiYear + '<br> <b>Periode Awal</b>: ' + response.awal + '<br> <b>Periode Akhir</b>: ' + response.akhir,
                         icon: 'info',
                     });
                 },

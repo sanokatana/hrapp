@@ -53,13 +53,10 @@ use App\Helpers\DateHelper;
                                 <table class="table table-vcenter card-table table-striped">
                                     <thead>
                                         <tr style="text-align: center;">
-                                            <th>No.</th>
-                                            <th>NIK.</th>
                                             <th>Nama Karyawan</th>
                                             <th>Jabatan</th>
-                                            <th>Tanggal Izin</th>
-                                            <th>Sampai Tanggal</th>
-                                            <th>Jumlah Hari</th>
+                                            <th>Tanggal Izin <br> Sampai Tanggal</th>
+                                            <th>Jmlh</th>
                                             <th>Tipe Izin</th>
                                             <th>Keterangan</th>
                                             <th>Pukul</th>
@@ -71,16 +68,13 @@ use App\Helpers\DateHelper;
                                     <tbody>
                                         @foreach ($izinapproval as $d)
                                         <tr style="text-align: center;">
-                                            <td>{{ $loop->iteration + $izinapproval->firstItem() -1}} </td>
-                                            <td>{{ $d->nik }} </td>
                                             <td>{{ $d->nama_lengkap }}</td>
                                             <td>{{ $d->nama_jabatan }}</td>
                                             <td>@if ($d->tgl_izin)
-                                                {{ DateHelper::formatIndonesianDate($d->tgl_izin) }}
+                                                <span>{{ DateHelper::formatIndonesianDate($d->tgl_izin) }}<br>
                                                 @endif
-                                            </td>
-                                            <td>@if ($d->tgl_izin_akhir)
-                                                {{ DateHelper::formatIndonesianDate($d->tgl_izin_akhir) }}
+                                                @if ($d->tgl_izin_akhir)
+                                                <span>{{ DateHelper::formatIndonesianDate($d->tgl_izin_akhir) }}</span>
                                                 @endif
                                             </td>
                                             <td>{{ $d->jml_hari }} </td>
@@ -122,6 +116,7 @@ use App\Helpers\DateHelper;
                                                 @else
                                                 <span class="badge bg-red" style="color: white; width:90px">Cancelled</span>
                                                 @endif
+                                                <br>
                                                 @if ($d->status_approved_hrd == 1)
                                                 <span class="badge bg-success mt-1" style="color: white; width:90px">Approved</span>
                                                 @elseif ($d->status_approved_hrd == 0)
@@ -142,6 +137,7 @@ use App\Helpers\DateHelper;
                                                     Batalkan
                                                 </a>
                                                 @endif
+                                                <br>
                                                 <a href="#" class="badge bg-info btnPrint mt-1" style="width:90px" id="btnPrint" data-id="{{ $d->id }}">
                                                     Print
                                                 </a>

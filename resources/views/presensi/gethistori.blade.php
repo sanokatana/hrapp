@@ -20,7 +20,7 @@
 
             // Calculate lateness and determine status
             if ($d->jam_masuk === null) {
-                $status = "Tidak Absen";
+                $status = "Tidak Absen Masuk";
                 $lateness = ""; // No lateness if jam_masuk is null
             } elseif ($jam_masuk_time <= $lateness_threshold) {
                 $status = "On Time";
@@ -43,10 +43,10 @@
                     <div class="jam-row">
                         <div><b>{{ DateHelper::formatIndonesianDate($d->tanggal) }}</b></div>
                         <div
-                            class="status {{ $status == 'Terlambat' ? 'text-danger' : ($status == 'Tidak Absen' ? 'text-danger' : 'text-success') }}">
+                            class="status {{ $status == 'Terlambat' ? 'text-danger' : ($status == 'Tidak Absen Masuk' ? 'text-danger' : 'text-success') }}">
                             <b>{{ $status }}</b>
                         </div>
-                        @if ($status != 'Tidak Absen')
+                        @if ($status != 'Tidak Absen Masuk')
                             <div class="lateness {{ $status == 'Terlambat' ? 'text-warning' : 'text-success' }}">
                                 ({{ $lateness }})
                             </div>
@@ -55,7 +55,7 @@
                     <div class="jam-row">
                         <div class="jam-in mb-1">
                             <span
-                                class="badge {{ $status == 'Tidak Absen' ? 'badge-danger' : ($status == 'Terlambat' ? 'badge-danger' : 'badge-success') }}"
+                                class="badge {{ $status == 'Tidak Absen Masuk' ? 'badge-danger' : ($status == 'Terlambat' ? 'badge-danger' : 'badge-success') }}"
                                 style="width: 70px;">
                                 {{ $d->jam_masuk !== null ? $d->jam_masuk : "No Scan" }}
                             </span>

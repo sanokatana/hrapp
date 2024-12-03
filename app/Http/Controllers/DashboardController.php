@@ -18,6 +18,7 @@ class DashboardController extends Controller
         $bulanini = date("m") * 1;
         $tahunini = date("Y");
         $nip = Auth::guard('karyawan')->user()->nip;
+        $nik = Auth::guard('karyawan')->user()->nik;
         $tgl_presensi = date("Y-m-d"); // Extract the date part for checking existing records
         $scan_date = date("Y-m-d H:i:s"); // Current date and time
 
@@ -144,6 +145,12 @@ class DashboardController extends Controller
 
         // Calculate total notifications
         $totalNotif = $this->calculateNotifications($historibulanini, $izin, $bulanini, $tahunini, $nip);
+
+        $cutiExpiringSoon = DB::table('cuti')
+        ->where('nik', $nik)
+        ->where('status', 1)
+        ->whereBetween('periode_akhir', [now(), now()->addMonths(3)])
+        ->get();
 
 
         // Process the presensi data to adjust for izin
@@ -357,7 +364,7 @@ class DashboardController extends Controller
             ->first();
 
         $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        return view('dashboard.dashboard', compact('arrival', 'departure', 'processedHistoribulanini', 'namabulan', 'bulanini', 'tahunini', 'namaUser', 'rekappresensi', 'historiizin', 'historicuti', 'rekapizin', 'rekapcuti', 'totalNotif'));
+        return view('dashboard.dashboard', compact('arrival', 'cutiExpiringSoon', 'departure', 'processedHistoribulanini', 'namabulan', 'bulanini', 'tahunini', 'namaUser', 'rekappresensi', 'historiizin', 'historicuti', 'rekapizin', 'rekapcuti', 'totalNotif'));
     }
 
     // =============================================== DASHBOARD NOTIF CONTROLLER =============================================== //
@@ -623,46 +630,41 @@ class DashboardController extends Controller
             $bulanini = date("m");
             $tahunini = date("Y");
 
-            $rekappresensi = DB::connection('mysql2') // Assuming db_absen is on mysql2
+            $rekappresensi = DB::connection('mysql2')
                 ->table('db_absen.att_log as presensi')
-                ->selectRaw('COUNT(presensi.pin) as jmlhadir, SUM(IF(TIME(presensi.scan_date) > "08:00:00", 1, 0)) as jmlterlambat')
+                ->selectRaw('COUNT(DISTINCT presensi.pin) as jmlhadir, SUM(IF(TIME(presensi.scan_date) > "08:00:00", 1, 0)) as jmlterlambat')
                 ->join('hrmschl.karyawan', 'presensi.pin', '=', 'karyawan.nip')
                 ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini)
+                ->where('status_kar', 'Aktif')
+                ->where('grade', '!=','NS')
                 ->first();
+
 
 
             $rekapizin = DB::table('pengajuan_izin')
-                ->selectRaw('COUNT(*) as jmlizin')
-                ->where('status_approved', 1)
-                ->where('status_approved_hrd', 1)
-                ->where(function ($query) use ($hariini) {
-                    $query->where('tgl_izin', '<=', $hariini)
-                        ->where(function ($subQuery) use ($hariini) {
-                            $subQuery->where('tgl_izin_akhir', '>=', $hariini)
-                                ->orWhereNull('tgl_izin_akhir')
-                                ->orWhere('tgl_izin_akhir', ''); // Handle empty string case
-                        });
-                })
-                ->first();
+                ->join('karyawan', 'pengajuan_izin.nip', '=', 'karyawan.nip')
+                ->where('tgl_izin', '<=', $hariini) // Start date is before or on today
+                ->where('tgl_izin_akhir', '>=', $hariini) // End date is after or on today
+                ->whereNotNull('tgl_izin_akhir') // Exclude null tgl_izin_akhir
+                ->where('tgl_izin_akhir', '!=', '') // Exclude empty tgl_izin_akhir
+                ->where('karyawan.grade', '!=', 'NS') // Exclude grade NS
+                ->count();
+
 
             $rekapcuti = DB::table('pengajuan_cuti')
-                ->selectRaw('COUNT(*) as jmlcuti')
-                ->where('status_approved', 1)
-                ->where('status_approved_hrd', 1)
-                ->where(function ($query) use ($hariini) {
-                    $query->where('tgl_cuti', '<=', $hariini)
-                        ->where(function ($subQuery) use ($hariini) {
-                            $subQuery->where('tgl_cuti_sampai', '>=', $hariini)
-                                ->orWhereNull('tgl_cuti_sampai')
-                                ->orWhere('tgl_cuti_sampai', ''); // Handle empty string case
-                        });
-                })
-                ->first();
+                ->join('karyawan', 'pengajuan_cuti.nip', '=', 'karyawan.nip')
+                ->where('tgl_cuti', '<=', $hariini) // Start date is before or on today
+                ->where('tgl_cuti_sampai', '>=', $hariini) // End date is after or on today
+                ->whereNotNull('tgl_cuti_sampai') // Exclude null end dates
+                ->where('tgl_cuti_sampai', '!=', '') // Exclude empty end dates
+                ->where('karyawan.grade', '!=', 'NS') // Exclude grade NS
+                ->count();
+
 
             $rekapkaryawan = DB::table('karyawan')
-                ->selectRaw('COUNT(karyawan.nip) as jmlkar')
-                ->where('status_kar', 'Aktif')
-                ->first();
+            ->where('status_kar', 'Aktif')
+            ->where('grade', '!=','NS')
+            ->count();
 
             $jmlnoatt = DB::table('karyawan')
                 ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
@@ -670,6 +672,7 @@ class DashboardController extends Controller
                         ->whereDate(DB::raw('DATE(presensi.scan_date)'), '=', $hariini);
                 })
                 ->where('status_kar', 'Aktif')
+                ->where('grade', '!=','NS')
                 ->whereNull('presensi.pin')
                 ->count();
 
@@ -805,46 +808,41 @@ class DashboardController extends Controller
             $bulanini = date("m");
             $tahunini = date("Y");
 
-            $rekappresensi = DB::connection('mysql2') // Assuming db_absen is on mysql2
+            $rekappresensi = DB::connection('mysql2')
                 ->table('db_absen.att_log as presensi')
-                ->selectRaw('COUNT(presensi.pin) as jmlhadir, SUM(IF(TIME(presensi.scan_date) > "08:00:00", 1, 0)) as jmlterlambat')
+                ->selectRaw('COUNT(DISTINCT presensi.pin) as jmlhadir, SUM(IF(TIME(presensi.scan_date) > "08:00:00", 1, 0)) as jmlterlambat')
                 ->join('hrmschl.karyawan', 'presensi.pin', '=', 'karyawan.nip')
                 ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini)
+                ->where('status_kar', 'Aktif')
+                ->where('grade', '!=','NS')
                 ->first();
+
 
 
             $rekapizin = DB::table('pengajuan_izin')
-                ->selectRaw('COUNT(*) as jmlizin')
-                ->where('status_approved', 1)
-                ->where('status_approved_hrd', 1)
-                ->where(function ($query) use ($hariini) {
-                    $query->where('tgl_izin', '<=', $hariini)
-                        ->where(function ($subQuery) use ($hariini) {
-                            $subQuery->where('tgl_izin_akhir', '>=', $hariini)
-                                ->orWhereNull('tgl_izin_akhir')
-                                ->orWhere('tgl_izin_akhir', ''); // Handle empty string case
-                        });
-                })
-                ->first();
+                ->join('karyawan', 'pengajuan_izin.nip', '=', 'karyawan.nip')
+                ->where('tgl_izin', '<=', $hariini) // Start date is before or on today
+                ->where('tgl_izin_akhir', '>=', $hariini) // End date is after or on today
+                ->whereNotNull('tgl_izin_akhir') // Exclude null tgl_izin_akhir
+                ->where('tgl_izin_akhir', '!=', '') // Exclude empty tgl_izin_akhir
+                ->where('karyawan.grade', '!=', 'NS') // Exclude grade NS
+                ->count();
+
 
             $rekapcuti = DB::table('pengajuan_cuti')
-                ->selectRaw('COUNT(*) as jmlcuti')
-                ->where('status_approved', 1)
-                ->where('status_approved_hrd', 1)
-                ->where(function ($query) use ($hariini) {
-                    $query->where('tgl_cuti', '<=', $hariini)
-                        ->where(function ($subQuery) use ($hariini) {
-                            $subQuery->where('tgl_cuti_sampai', '>=', $hariini)
-                                ->orWhereNull('tgl_cuti_sampai')
-                                ->orWhere('tgl_cuti_sampai', ''); // Handle empty string case
-                        });
-                })
-                ->first();
+                ->join('karyawan', 'pengajuan_cuti.nip', '=', 'karyawan.nip')
+                ->where('tgl_cuti', '<=', $hariini) // Start date is before or on today
+                ->where('tgl_cuti_sampai', '>=', $hariini) // End date is after or on today
+                ->whereNotNull('tgl_cuti_sampai') // Exclude null end dates
+                ->where('tgl_cuti_sampai', '!=', '') // Exclude empty end dates
+                ->where('karyawan.grade', '!=', 'NS') // Exclude grade NS
+                ->count();
+
 
             $rekapkaryawan = DB::table('karyawan')
-                ->selectRaw('COUNT(karyawan.nip) as jmlkar')
-                ->where('status_kar', 'Aktif')
-                ->first();
+            ->where('status_kar', 'Aktif')
+            ->where('grade', '!=','NS')
+            ->count();
 
             $jmlnoatt = DB::table('karyawan')
                 ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
@@ -852,6 +850,7 @@ class DashboardController extends Controller
                         ->whereDate(DB::raw('DATE(presensi.scan_date)'), '=', $hariini);
                 })
                 ->where('status_kar', 'Aktif')
+                ->where('grade', '!=','NS')
                 ->whereNull('presensi.pin')
                 ->count();
 

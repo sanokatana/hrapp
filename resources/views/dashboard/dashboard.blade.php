@@ -5,6 +5,24 @@ use App\Helpers\DateHelper;
 $user = Auth::guard('karyawan')->user();
 $userDept = $user ? $user->kode_dept : null;
 @endphp
+@if ($cutiExpiringSoon && $cutiExpiringSoon->count() > 0)
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Peringatan Cuti',
+            html: `
+                Anda memiliki cuti yang akan berakhir dalam 3 bulan:<br>
+                    @foreach ($cutiExpiringSoon as $cuti)
+                        <strong>Periode Akhir:</strong> {{ DateHelper::formatIndonesiaDate($cuti->periode_akhir) }}
+                    @endforeach
+            `,
+            confirmButtonText: 'OK'
+        });
+    });
+</script>
+@endif
+
 @if ($totalNotif >= 1)
 <script>
     document.addEventListener('DOMContentLoaded', function() {

@@ -42,7 +42,7 @@ use App\Helpers\DateHelper;
                             </div>
                             <div class="col">
                                 <div class="font-weight-medium">
-                                    {{ $rekapkaryawan->jmlkar}}
+                                    {{ $rekapkaryawan }}
                                 </div>
                                 <div class="text-secondary">
                                     Total Karyawan
@@ -147,7 +147,7 @@ use App\Helpers\DateHelper;
                             </div>
                             <div class="col">
                                 <div class="font-weight-medium">
-                                    {{ $rekapizin->jmlizin != null ? $rekapizin->jmlizin : 0}}
+                                    {{ $rekapizin != null ? $rekapizin : 0}}
                                 </div>
                                 <div class="text-secondary">
                                     Total Karyawan Izin
@@ -173,7 +173,7 @@ use App\Helpers\DateHelper;
                             </div>
                             <div class="col">
                                 <div class="font-weight-medium">
-                                    {{ $rekapcuti->jmlcuti != null ? $rekapcuti->jmlcuti : 0}}
+                                    {{ $rekapcuti != null ? $rekapcuti : 0}}
                                 </div>
                                 <div class="text-secondary">
                                     Total Karyawan Cuti

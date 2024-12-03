@@ -130,8 +130,8 @@ class PresensiController extends Controller
             return response()->json([
                 'sisa_cuti' => $cuti->sisa_cuti,
                 'cutiYear' => $cuti->tahun,
-                'awal' => $cuti->periode_awal,
-                'akhir' => $cuti->periode_akhir,
+                'awal' => DateHelper::formatIndonesiaDate($cuti->periode_awal),
+                'akhir' => DateHelper::formatIndonesiaDate($cuti->periode_akhir),
             ]);
         } else {
             // If no active cuti record, return an error message
@@ -279,17 +279,22 @@ class PresensiController extends Controller
                     // Fetch the early_time and latest_time from the shifts table
                     $shiftTimes = DB::table('shift')
                         ->where('id', $shiftId)
-                        ->select('early_time', 'latest_time', 'start_time', 'status')
+                        ->select('early_time', 'latest_time', 'start_time')
                         ->first();
 
-                    $morning_start = strtotime($shiftTimes->early_time);
-                    $work_start = strtotime($shiftTimes->start_time);
-                    $afternoon_start = strtotime($shiftTimes->latest_time);
+                    if ($shiftTimes) {
+                        $morning_start = $shiftTimes->early_time ? strtotime($shiftTimes->early_time) : strtotime('06:00:00');
+                        $afternoon_start = $shiftTimes->latest_time ? strtotime($shiftTimes->latest_time) : strtotime('13:00:00');
+                        $work_start = $shiftTimes->start_time ? strtotime($shiftTimes->start_time) : strtotime('08:00:00'); // Default to 08:00:00 if not set
+                    } else {
+                        $morning_start = strtotime('06:00:00');
+                        $afternoon_start = strtotime('13:00:00');
+                        $work_start = strtotime('08:00:00'); // Default shift start time
+                    }
                 } else {
-                    // Default values if no shift is found
-                    $morning_start = strtotime('05:00:00');
-                    $work_start = strtotime('08:00:00');
+                    $morning_start = strtotime('06:00:00');
                     $afternoon_start = strtotime('13:00:00');
+                    $work_start = strtotime('08:00:00'); // Default shift start time
                 }
             } else {
                 // Default values if no shift pattern is found
@@ -326,6 +331,7 @@ class PresensiController extends Controller
                     $item->jam_pulang = $pukul;
                 }
             }
+
 
             return $item;
         });

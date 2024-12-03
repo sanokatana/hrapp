@@ -70,7 +70,7 @@ use App\Helpers\DateHelper;
                                                         <path d="M10.01 17h.005" />
                                                     </svg>
                                                 </span>
-                                                <input type="text" value="{{ Request('dari')}}" class="form-control" name="dari" id="dari" placeholder="Dari">
+                                                <input type="date" value="{{ Request('dari')}}" class="form-control" name="dari" id="dari" placeholder="Dari">
                                             </div>
                                         </div>
                                         <div class="col-6">
@@ -91,7 +91,7 @@ use App\Helpers\DateHelper;
                                                         <path d="M10.01 17h.005" />
                                                     </svg>
                                                 </span>
-                                                <input type="text" value="{{ Request('sampai')}}" class="form-control" name="sampai" id="sampai" placeholder="Sampai">
+                                                <input type="date" value="{{ Request('sampai')}}" class="form-control" name="sampai" id="sampai" placeholder="Sampai">
                                             </div>
                                         </div>
                                     </div>

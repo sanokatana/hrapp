@@ -42,6 +42,7 @@ class CutiExport implements FromCollection, WithHeadings
                 'pengajuan_cuti.status_management'
             )
             ->whereMonth('pengajuan_cuti.tgl_cuti', $this->bulan)
+            ->orderBy('pengajuan_cuti.tgl_cuti', 'ASC')
             ->whereYear('pengajuan_cuti.tgl_cuti_sampai', $this->tahun)
             ->get();
 
