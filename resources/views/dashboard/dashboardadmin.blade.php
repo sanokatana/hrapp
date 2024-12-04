@@ -124,7 +124,7 @@ use App\Helpers\DateHelper;
                                     {{ $jmlnoatt }}
                                 </div>
                                 <div class="text-secondary">
-                                    Total Tidak Hadir
+                                    Total Mangkir
                                 </div>
                             </div>
                         </div>
@@ -466,7 +466,7 @@ use App\Helpers\DateHelper;
                                                                             @endif
                                                                         </b>
                                                                     </div>
-                                                                    <div>{{ DateHelper::getStatusText($d->status) }} - {{$d->keterangan}}</div>
+                                                                    <div style="word-wrap: break-word; white-space: normal;">{{ DateHelper::getStatusText($d->status) }} - {{$d->keterangan}}</div>
                                                                     <div>{{ $d->pukul}}</div>
                                                                 </div>
                                                             </div>

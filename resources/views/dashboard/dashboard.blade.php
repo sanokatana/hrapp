@@ -5,36 +5,50 @@ use App\Helpers\DateHelper;
 $user = Auth::guard('karyawan')->user();
 $userDept = $user ? $user->kode_dept : null;
 @endphp
-@if ($cutiExpiringSoon && $cutiExpiringSoon->count() > 0)
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Peringatan Cuti',
-            html: `
-                Anda memiliki cuti yang akan berakhir dalam 3 bulan:<br>
-                    @foreach ($cutiExpiringSoon as $cuti)
-                        <strong>Periode Akhir:</strong> {{ DateHelper::formatIndonesiaDate($cuti->periode_akhir) }}
-                    @endforeach
-            `,
-            confirmButtonText: 'OK'
-        });
-    });
-</script>
-@endif
+@php
+    $cutiData = $cutiExpiringSoon && $cutiExpiringSoon->count() > 0
+        ? $cutiExpiringSoon->map(fn($cuti) => [
+            'periode_akhir' => DateHelper::formatIndonesiaDate($cuti->periode_akhir),
+        ])->toArray()
+        : null;
+@endphp
 
-@if ($totalNotif >= 1)
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        Swal.fire({
-            icon: 'info',
-            title: 'Anda ada notifikasi',
-            text: 'Anda memiliki {{ $totalNotif }} notifikasi',
-            confirmButtonText: 'OK'
-        });
+        let cutiData = @json($cutiData);
+        let totalNotif = @json($totalNotif);
+
+        if (cutiData && cutiData.length > 0) {
+            let cutiHtml = 'Anda memiliki cuti yang akan berakhir dalam 3 bulan:<br>';
+            cutiData.forEach(cuti => {
+                cutiHtml += `<strong>Periode Akhir:</strong> ${cuti.periode_akhir}<br>`;
+            });
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Peringatan Cuti',
+                html: cutiHtml,
+                confirmButtonText: 'OK'
+            }).then(() => {
+                if (totalNotif > 0) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Anda ada notifikasi',
+                        text: `Anda memiliki ${totalNotif} notifikasi`,
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        } else if (totalNotif > 0) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Anda ada notifikasi',
+                text: `Anda memiliki ${totalNotif} notifikasi`,
+                confirmButtonText: 'OK'
+            });
+        }
     });
 </script>
-@endif
 <style>
     .rounded-custom {
         border-radius: 10px;

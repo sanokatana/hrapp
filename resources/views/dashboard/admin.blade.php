@@ -124,7 +124,7 @@ use App\Helpers\DateHelper;
                                     {{ $jmlnoatt }}
                                 </div>
                                 <div class="text-secondary">
-                                    Total Tidak Hadir
+                                    Total Mangkir
                                 </div>
                             </div>
                         </div>
