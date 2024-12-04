@@ -6,6 +6,7 @@ use App\Models\Cuti;
 use App\Models\Pengajuanizin;
 use Carbon\Carbon;
 use App\Helpers\DateHelper;
+use App\Models\Karyawan;
 use App\Models\PengajuanCuti;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -774,7 +775,7 @@ class PresensiController extends Controller
                         ]
                     ]
                 ];
-            }  else if ($hasPresensi) {
+            } else if ($hasPresensi) {
                 // Find presensi data for the date
                 $presensiData = $historibulanini->firstWhere('tanggal', $dateString);
                 $jam_masuk_time = strtotime($presensiData->jam_masuk);
@@ -973,12 +974,12 @@ class PresensiController extends Controller
     {
         $cutiIds = $request->input('cuti_ids');
 
+        $email_karyawan = Auth::guard('karyawan')->user()->email;
         if ($cutiIds) {
             DB::beginTransaction();
 
             try {
                 $leaveApplications = PengajuanCuti::whereIn('id', $cutiIds)->get();
-
                 PengajuanCuti::whereIn('id', $cutiIds)
                     ->update([
                         'status_approved' => 3,
@@ -987,6 +988,7 @@ class PresensiController extends Controller
                     ]);
 
                 foreach ($leaveApplications as $leaveApplication) {
+                    $employee = DB::table('karyawan')->where('nik', $leaveApplication->nik)->first();
                     $cutiRecord = DB::table('cuti')
                         ->where('nik', $leaveApplication->nik)
                         ->where('tahun', $leaveApplication->periode)
@@ -1004,7 +1006,7 @@ class PresensiController extends Controller
                     // Email notification logic
                     $emailContent = "
                     Pembatalan Cuti Karyawan<br><br>
-                    Nama : {$leaveApplication->nama_lengkap}<br>
+                    Nama : {$employee->nama_lengkap}<br>
                     Tanggal Pembatalan : " . DateHelper::formatIndonesianDate(now()->toDateString()) . "<br>
                     NIK : {$leaveApplication->nik}<br>
                     NIP : {$leaveApplication->nip}<br>
@@ -1017,26 +1019,52 @@ class PresensiController extends Controller
                     Terima Kasih
                 ";
 
-                    Mail::html($emailContent, function ($message) use ($leaveApplication) {
+                    Mail::html($emailContent, function ($message) use ($leaveApplication, $email_karyawan) {
                         $ccList = [
                             'human.resources@ciptaharmoni.com',
                             'al.imron@ciptaharmoni.com',
                             'mahardika@ciptaharmoni.com',
                         ];
 
-                        if (!empty($leaveApplication->email) && filter_var($leaveApplication->email, FILTER_VALIDATE_EMAIL)) {
-                            $ccList[] = $leaveApplication->email;
+                        if (!empty($email_karyawan) && filter_var($email_karyawan, FILTER_VALIDATE_EMAIL)) {
+                            $ccList[] = $email_karyawan;
                         } else {
-                            Log::warning("Invalid or empty email: {$leaveApplication->email}");
+                            // Log or handle invalid email_karyawan, if needed
+                            Log::warning("Invalid or empty email_karyawan: {$email_karyawan}");
                         }
 
-                        $message->to($leaveApplication->atasan->email)
-                            ->subject("Pembatalan Cuti: {$leaveApplication->nama_lengkap}")
-                            ->cc($ccList)
-                            ->priority(1);
+                        // Find the atasan email
+                        $atasanEmail = null;
+                        if ($leaveApplication->nik) {
+                            // Step 1: Get the current employee's jabatan ID
+                            $employee = DB::table('karyawan')->where('nik', $leaveApplication->nik)->first();
 
-                        $message->getHeaders()->addTextHeader('Importance', 'high');
-                        $message->getHeaders()->addTextHeader('X-Priority', '1');
+                            if ($employee && $employee->jabatan) {
+                                // Step 2: Get the jabatan_atasan ID from the jabatan table
+                                $jabatanAtasan = DB::table('jabatan')->where('id', $employee->jabatan)->value('jabatan_atasan');
+
+                                if ($jabatanAtasan) {
+                                    // Step 3: Find the atasan in the karyawan table
+                                    $atasan = DB::table('karyawan')->where('jabatan', $jabatanAtasan)->first();
+
+                                    if ($atasan && $atasan->email) {
+                                        $atasanEmail = $atasan->email;
+                                    }
+                                }
+                            }
+                        }
+
+                        if ($atasanEmail) {
+                            $message->to($atasanEmail)
+                                ->subject("Pembatalan Cuti: {$employee->nama_lengkap}")
+                                ->cc($ccList)
+                                ->priority(1);
+
+                            $message->getHeaders()->addTextHeader('Importance', 'high');
+                            $message->getHeaders()->addTextHeader('X-Priority', '1');
+                        } else {
+                            Log::warning("Atasan email not found for employee NIK: {$leaveApplication->nik}");
+                        }
                     });
                 }
 
@@ -1045,6 +1073,13 @@ class PresensiController extends Controller
                 return response()->json(['success' => true, 'message' => 'Pengajuan cuti berhasil dibatalkan']);
             } catch (\Exception $e) {
                 DB::rollBack();
+
+                // Log the error
+                Log::error('Error in batalCuti method', [
+                    'error' => $e->getMessage(),
+                    'cuti_ids' => $cutiIds,
+                    'trace' => $e->getTraceAsString(),
+                ]);
 
                 return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
             }
