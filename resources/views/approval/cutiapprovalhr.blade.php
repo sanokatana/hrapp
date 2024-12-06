@@ -53,8 +53,6 @@ use App\Helpers\DateHelper;
                                 <table class="table table-vcenter card-table table-striped">
                                     <thead>
                                         <tr style="text-align: center;">
-                                            <th>No.</th>
-                                            <th>NIK.</th>
                                             <th>Nama Karyawan</th>
                                             <th>Jabatan</th>
                                             <th>Mulai Kerja</th>
@@ -69,15 +67,13 @@ use App\Helpers\DateHelper;
                                             <th>Note</th>
                                             <th>Jenis Cuti</th>
                                             <th>Tipe Cuti</th>
-                                            <th> Manager <br>-------------------<br> HRD <br>-------------------<br> Management</th>
+                                            <th> HRD <br>-------------------<br> Atasan <br>-------------------<br> Management</th>
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach ($cutiapproval as $d)
                                         <tr style="text-align: center;">
-                                            <td>{{ $loop->iteration + $cutiapproval->firstItem() -1}} </td>
-                                            <td>{{ $d->nik }} </td>
                                             <td>{{ $d->nama_lengkap }}</td>
                                             <td>{{ $d->nama_jabatan }}</td>
                                             <td>{{ DateHelper::formatIndonesianDate($d->tgl_masuk) }}</td>
@@ -102,45 +98,47 @@ use App\Helpers\DateHelper;
                                             <td>{{ $d->jenis }}</td>
                                             <td>{{ $d->tipe_cuti }}</td>
                                             <td>
-                                                @if ($d->status_approved == 1)
-                                                <span class="badge bg-success" style="color: white; width:90px">Approved</span>
-                                                @elseif ($d->status_approved == 0)
-                                                <span class="badge bg-yellow" style="color: white; width:90px">Pending</span>
-                                                @elseif ($d->status_approved == 2)
-                                                <span class="badge bg-red" style="color: white; width:90px">Rejected</span>
-                                                @else
-                                                <span class="badge bg-red" style="color: white; width:90px">Cancelled</span>
-                                                @endif
                                                 @if ($d->status_approved_hrd == 1)
-                                                <span class="badge bg-success mt-1" style="color: white; width:90px">Approved</span>
+                                                <span class="badge bg-success" style="color: white; width:120px">Approved</span>
                                                 @elseif ($d->status_approved_hrd == 0)
-                                                <span class="badge bg-yellow mt-1" style="color: white; width:90px">Pending</span>
-                                                @elseif ($d->status_management == 2)
-                                                <span class="badge bg-red mt-1" style="color: white; width:90px">Rejected</span>
+                                                <span class="badge bg-yellow" style="color: white; width:120px">Pending</span>
+                                                @elseif ($d->status_approved_hrd == 2)
+                                                <span class="badge bg-red" style="color: white; width:120px">Rejected</span>
                                                 @else
-                                                <span class="badge bg-red" style="color: white; width:90px">Cancelled</span>
+                                                <span class="badge bg-red" style="color: white; width:120px">Cancelled</span>
                                                 @endif
-                                                @if ($d->status_management == 1)
-                                                <span class="badge bg-success mt-1" style="color: white; width:90px">Approved</span>
-                                                @elseif ($d->status_management == 0)
-                                                <span class="badge bg-yellow mt-1" style="color: white; width:90px">Pending</span>
-                                                @elseif ($d->status_management == 2)
-                                                <span class="badge bg-red mt-1" style="color: white; width:90px">Rejected</span>
+                                                <br>
+                                                @if ($d->status_approved == 1)
+                                                <span class="badge bg-success mt-1" style="color: white; width:120px">Approved</span>
+                                                @elseif ($d->status_approved == 0)
+                                                <span class="badge bg-yellow mt-1" style="color: white; width:120px">Pending</span>
+                                                @elseif ($d->status_approved == 2)
+                                                <span class="badge bg-red mt-1" style="color: white; width:120px">Rejected</span>
                                                 @else
-                                                <span class="badge bg-red" style="color: white; width:90px">Cancelled</span>
+                                                <span class="badge bg-red mt-1" style="color: white; width:120px">Cancelled</span>
+                                                @endif
+                                                <br>
+                                                @if ($d->status_management == 1)
+                                                <span class="badge bg-success mt-1" style="color: white; width:120px">Approved</span>
+                                                @elseif ($d->status_management == 0)
+                                                <span class="badge bg-yellow mt-1" style="color: white; width:120px">Pending</span>
+                                                @elseif ($d->status_management == 2)
+                                                <span class="badge bg-red mt-1" style="color: white; width:120px">Rejected</span>
+                                                @else
+                                                <span class="badge bg-red mt-1" style="color: white; width:120px">Cancelled</span>
                                                 @endif
                                             </td>
                                             <td>
                                                 @if ($d->status_approved_hrd == 0)
-                                                <a href="#" class="badge bg-success btnApprove" style="width:90px; justify-content:space-between" data-id="{{ $d->id }}" data-nik="{{ $d->nik}}" data-periode="{{ $d->periode }}">
+                                                <a href="#" class="badge bg-success btnApprove" style="width:120px; justify-content:space-between" data-id="{{ $d->id }}" data-nik="{{ $d->nik}}" data-periode="{{ $d->periode }}">
                                                     Approve
                                                 </a>
                                                 @else
-                                                <a href="#" class="badge bg-danger btnBatalApprove" style="width:90px" id="btnBatalApprove" data-id="{{ $d->id }}">
+                                                <a href="#" class="badge bg-danger btnBatalApprove" style="width:120px" id="btnBatalApprove" data-id="{{ $d->id }}">
                                                     Batalkan
                                                 </a>
                                                 @endif
-                                                <a href="#" class="badge bg-info btnPrint mt-1" style="width:90px" id="btnPrint" data-id="{{ $d->id }}">
+                                                <a href="#" class="badge bg-info btnPrint mt-1" style="width:120px" id="btnPrint" data-id="{{ $d->id }}">
                                                     Print
                                                 </a>
                                             </td>
@@ -183,7 +181,7 @@ use App\Helpers\DateHelper;
                     <div class="row mt-3">
                         <div class="col-12">
                             <div class="form-group" id="keputusanContainer" style="display: none;">
-                                <input placeholder="Keputusan" class="form-control" type="text"  id="keputusan" name="keputusan"/>
+                                <input placeholder="Keputusan" class="form-control" type="text" id="keputusan" name="keputusan" />
                             </div>
                         </div>
                     </div>
@@ -233,8 +231,8 @@ use App\Helpers\DateHelper;
         $(document).on('click', '.btnApprove', function(e) {
             e.preventDefault();
             var id = $(this).data("id");
-            var nik =  $(this).data("nik");
-            var periode =  $(this).data("periode");
+            var nik = $(this).data("nik");
+            var periode = $(this).data("periode");
             $('#id_cuti_form').val(id);
             $('#nik_cuti_form').val(nik);
             $('#periode_cuti_form').val(periode);
@@ -416,7 +414,9 @@ use App\Helpers\DateHelper;
                 const pdfBytes = await pdfDoc.save();
 
                 // Create a blob from the PDF bytes
-                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                const blob = new Blob([pdfBytes], {
+                    type: 'application/pdf'
+                });
 
                 // Create a URL for the blob
                 const blobUrl = window.URL.createObjectURL(blob);

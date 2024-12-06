@@ -62,7 +62,7 @@ use App\Helpers\DateHelper;
                                             <th>Note</th>
                                             <th>Jenis Cuti</th>
                                             <th>Tipe Cuti</th>
-                                            <th> Manager <br>-------------------<br> HRD <br>-------------------<br> Management</th>
+                                            <th> HRD <br>-------------------<br> Atasan <br>-------------------<br> Management</th>
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
@@ -76,7 +76,8 @@ use App\Helpers\DateHelper;
                                                 {{ DateHelper::formatIndonesianDate($d->tgl_cuti) }}
                                                 @endif
                                                 <br>
-                                                @if ($d->tgl_cuti_sampai)
+                                                @if ($d->tgl_cuti_sampai === $d->tgl_cuti)
+                                                @else
                                                 {{ DateHelper::formatIndonesianDate($d->tgl_cuti_sampai) }}
                                                 @endif
                                             </td>
@@ -86,9 +87,9 @@ use App\Helpers\DateHelper;
                                             <td>{{ $d->jenis }}</td>
                                             <td>{{ $d->tipe_cuti }}</td>
                                             <td>
-                                                @if ($d->status_approved == 1)
+                                                @if ($d->status_approved_hrd == 1)
                                                 <span class="badge bg-success" style="color: white; width:90px">Approved</span>
-                                                @elseif ($d->status_approved == 0)
+                                                @elseif ($d->status_approved_hrd == 0)
                                                 <span class="badge bg-yellow" style="color: white; width:90px">Pending</span>
                                                 @elseif ($d->status_approved == 2)
                                                 <span class="badge bg-red" style="color: white; width:90px">Rejected</span>
@@ -96,14 +97,14 @@ use App\Helpers\DateHelper;
                                                 <span class="badge bg-red" style="color: white; width:90px">Cancelled</span>
                                                 @endif
                                                 <br>
-                                                @if ($d->status_approved_hrd == 1)
+                                                @if ($d->status_approved == 1)
                                                 <span class="badge bg-success mt-1" style="color: white; width:90px">Approved</span>
-                                                @elseif ($d->status_approved_hrd == 0)
+                                                @elseif ($d->status_approved == 0)
                                                 <span class="badge bg-yellow mt-1" style="color: white; width:90px">Pending</span>
                                                 @elseif ($d->status_approved == 2)
                                                 <span class="badge bg-red mt-1" style="color: white; width:90px">Rejected</span>
                                                 @else
-                                                <span class="badge bg-red" style="color: white; width:90px">Cancelled</span>
+                                                <span class="badge bg-red mt-1" style="color: white; width:90px">Cancelled</span>
                                                 @endif
                                                 <br>
                                                 @if ($d->status_management == 1)
@@ -135,43 +136,57 @@ use App\Helpers\DateHelper;
                                                 @endphp
 
                                                 {{-- Logic to prioritize Atasan or Management --}}
+                                                @if ($d->status_approved_hrd == 1)
                                                 @if ($isAtasan && $isManagement)
                                                 {{-- If both roles, prioritize Atasan --}}
                                                 @if ($d->status_approved == 0)
-                                                <a href="#" class="badge bg-success btnApprove" style="width:90px;" data-id="{{ $d->id }}" data-nik="{{ $d->nik }}" data-periode="{{ $d->periode }}">
+                                                <a href="#" class="badge bg-success btnApprove" style="width:120px;" data-id="{{ $d->id }}" data-nik="{{ $d->nik }}" data-periode="{{ $d->periode }}">
                                                     Approve
                                                 </a>
                                                 @else
-                                                <a href="#" class="badge bg-danger btnBatalApprove" style="width:90px;" data-id="{{ $d->id }}">
+                                                <a href="#" class="badge bg-danger btnBatalApprove" style="width:120px;" data-id="{{ $d->id }}">
                                                     Batalkan
                                                 </a>
                                                 @endif
                                                 @elseif ($isAtasan)
                                                 {{-- If only Atasan, show approval button based on status_approved --}}
                                                 @if ($d->status_approved == 0)
-                                                <a href="#" class="badge bg-success btnApprove" style="width:90px;" data-id="{{ $d->id }}" data-nik="{{ $d->nik }}" data-periode="{{ $d->periode }}">
+                                                <a href="#" class="badge bg-success btnApprove" style="width:120px;" data-id="{{ $d->id }}" data-nik="{{ $d->nik }}" data-periode="{{ $d->periode }}">
                                                     Approve
                                                 </a>
                                                 @else
-                                                <a href="#" class="badge bg-danger btnBatalApprove" style="width:90px;" data-id="{{ $d->id }}">
+                                                <a href="#" class="badge bg-danger btnBatalApprove" style="width:120px;" data-id="{{ $d->id }}">
                                                     Batalkan
                                                 </a>
                                                 @endif
+                                                <br>
                                                 @elseif ($isManagement)
                                                 {{-- If only Management, show approval button based on status_management --}}
+                                                @if ($d->status_approved == 1)
                                                 @if ($d->status_management == 0)
-                                                <a href="#" class="badge bg-success btnApprove" style="width:90px;" data-id="{{ $d->id }}" data-nik="{{ $d->nik }}" data-periode="{{ $d->periode }}">
+                                                <a href="#" class="badge bg-success btnApprove" style="width:120px;" data-id="{{ $d->id }}" data-nik="{{ $d->nik }}" data-periode="{{ $d->periode }}">
                                                     Approve
                                                 </a>
                                                 @else
-                                                <a href="#" class="badge bg-danger btnBatalApprove" style="width:90px;" data-id="{{ $d->id }}">
+                                                <a href="#" class="badge bg-danger btnBatalApprove" style="width:120px;" data-id="{{ $d->id }}">
                                                     Batalkan
                                                 </a>
                                                 @endif
+                                                @else
+                                                <a class="badge bg-yellow btnWait" style="width:120px" id="btnWait" name="btnWait" data-id="{{ $d->id }}">
+                                                    Waiting Atasan
+                                                </a>
+                                                <br>
                                                 @endif
-
+                                                @endif
+                                                @else
+                                                <a class="badge bg-yellow btnWait" style="width:120px" id="btnWait" name="btnWait" data-id="{{ $d->id }}">
+                                                    Waiting HRD
+                                                </a>
+                                                <br>
+                                                @endif
                                                 {{-- Print Button --}}
-                                                <a href="#" class="badge bg-info btnPrint mt-1" style="width:90px;" id="btnPrint" data-id="{{ $d->id }}">
+                                                <a href="#" class="badge bg-info btnPrint mt-1" style="width:120px;" id="btnPrint" data-id="{{ $d->id }}">
                                                     Print
                                                 </a>
                                             </td>
@@ -450,6 +465,18 @@ use App\Helpers\DateHelper;
                     'error'
                 );
             }
+        });
+        // Select all elements with the class 'btnBatalApprove'
+        document.querySelectorAll('.btnWait').forEach(function(button) {
+            button.addEventListener('click', function() {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Menunggu Verifikasi',
+                    text: 'Pengajuan ini masih menunggu Verifikasi dan Approval',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#f39c12',
+                });
+            });
         });
     });
 </script>

@@ -448,6 +448,10 @@ class PresensiController extends Controller
             Storage::makeDirectory($folderPath);
         }
 
+        if (empty($tgl_izin_akhir)) {
+            $tgl_izin_akhir = $tgl_izin;
+        }
+
         $filePaths = [];
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {

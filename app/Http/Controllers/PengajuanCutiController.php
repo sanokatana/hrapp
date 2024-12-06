@@ -70,6 +70,10 @@ class PengajuanCutiController extends Controller
         $currentDate = Carbon::now();
         $jenis = "Cuti Tahunan";
 
+        if (empty($tgl_cuti_sampai)) {
+            $tgl_cuti_sampai = $tgl_cuti;
+        }
+
         $data = [
             'nik' => $nik,
             'nip' => $nip,

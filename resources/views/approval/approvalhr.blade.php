@@ -66,7 +66,7 @@ use App\Helpers\DateHelper;
                                             <th>Keterangan</th>
                                             <th>Pukul</th>
                                             <th>Document</th>
-                                            <th>Status Manager <br>-------------------<br> Status HRD </th>
+                                            <th> Status HRD <br>-------------------<br> Status Manager </th>
                                             <th>Keputusan</th>
                                             <th>Aksi</th>
                                         </tr>
@@ -119,37 +119,38 @@ use App\Helpers\DateHelper;
                                             </td>
 
                                             <td>
-                                                @if ($d->status_approved == 1)
-                                                <span class="badge bg-success" style="color: white; width:90px">Approved</span>
-                                                @elseif ($d->status_approved == 0)
-                                                <span class="badge bg-yellow" style="color: white; width:90px">Pending</span>
-                                                @elseif ($d->status_approved == 2)
-                                                <span class="badge bg-red" style="color: white; width:90px">Rejected</span>
-                                                @else
-                                                <span class="badge bg-red" style="color: white; width:90px">Cancelled</span>
-                                                @endif
                                                 @if ($d->status_approved_hrd == 1)
-                                                <span class="badge bg-success mt-1" style="color: white; width:90px">Approved</span>
+                                                <span class="badge bg-success" style="color: white; width:120px">Approved</span>
                                                 @elseif ($d->status_approved_hrd == 0)
-                                                <span class="badge bg-yellow mt-1" style="color: white; width:90px">Pending</span>
+                                                <span class="badge bg-yellow" style="color: white; width:120px">Pending</span>
                                                 @elseif ($d->status_approved_hrd == 2)
-                                                <span class="badge bg-red mt-1" style="color: white; width:90px">Rejected</span>
+                                                <span class="badge bg-red" style="color: white; width:120px">Rejected</span>
                                                 @elseif ($d->status_approved_hrd == 3)
-                                                <span class="badge bg-red mt-1" style="color: white; width:90px">Cancelled</span>
+                                                <span class="badge bg-red" style="color: white; width:120px">Cancelled</span>
+                                                @endif
+                                                <br>
+                                                @if ($d->status_approved == 1)
+                                                <span class="badge bg-success mt-1" style="color: white; width:120px">Approved</span>
+                                                @elseif ($d->status_approved == 0)
+                                                <span class="badge bg-yellow mt-1" style="color: white; width:120px">Pending</span>
+                                                @elseif ($d->status_approved == 2)
+                                                <span class="badge bg-red mt-1" style="color: white; width:120px">Rejected</span>
+                                                @else
+                                                <span class="badge bg-red mt-1" style="color: white; width:120px">Cancelled</span>
                                                 @endif
                                             </td>
                                             <td>{{ $d->keputusan}}</td>
                                             <td>
                                                 @if ($d->status_approved_hrd == 0)
-                                                <a href="#" class="badge bg-success btnApprove" style="width:90px; justify-content:space-between" data-id="{{ $d->id }}">
+                                                <a href="#" class="badge bg-success btnApprove" style="width:120px; justify-content:space-between" data-id="{{ $d->id }}">
                                                     Approve
                                                 </a>
                                                 @else
-                                                <a href="#" class="badge bg-danger btnBatalApprove" style="width:90px" id="btnBatalApprove" data-id="{{ $d->id }}">
+                                                <a href="#" class="badge bg-danger btnBatalApprove" style="width:120px" id="btnBatalApprove" data-id="{{ $d->id }}">
                                                     Batalkan
                                                 </a>
                                                 @endif
-                                                <a href="#" class="badge bg-info btnPrint mt-1" style="width:90px" id="btnPrint" data-id="{{ $d->id }}">
+                                                <a href="#" class="badge bg-info btnPrint mt-1" style="width:120px" id="btnPrint" data-id="{{ $d->id }}">
                                                     Print
                                                 </a>
                                             </td>
