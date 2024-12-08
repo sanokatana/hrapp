@@ -363,8 +363,8 @@ class ApprovalController extends Controller
                 $newSisaCuti = $cutiRecord->sisa_cuti + $leaveApplication->jml_hari;
                 $jmlTunda =
 
-                // Update the cuti record
-                DB::table('cuti')
+                    // Update the cuti record
+                    DB::table('cuti')
                     ->where('nik', $nik)
                     ->where('tahun', $periode)
                     ->update(['sisa_cuti' => $newSisaCuti, 'tunda' => $leaveApplication->jml_hari]);
@@ -735,44 +735,34 @@ class ApprovalController extends Controller
         return view('approval.cutiapproval', compact('cutiapproval'));
     }
 
-
     public function approvecuti(Request $request)
     {
-        // Get the current user's NIK
         $currentUserNik = Auth::guard('user')->user()->nik;
-
-        // Fetch the current user's data to determine their jabatan and department
         $currentUser = Karyawan::where('nik', $currentUserNik)->first();
         $currentUserJabatanId = $currentUser->jabatan;
-
-        // Get the request inputs
         $id = $request->id_cuti_form;
-        $status_approved = $request->status_approved;
+        $status_approved = $request->status_approved; // 1 = Approve, 2 = Decline
         $currentDate = Carbon::now();
 
-        // Fetch the leave application from pengajuan_cuti table
         $leaveApplication = DB::table('pengajuan_cuti')->where('id', $id)->first();
         if (!$leaveApplication) {
             return redirect('/approval/cutiapproval')->with(['error' => 'Pengajuan Cuti tidak ditemukan']);
         }
 
-        // Find the NIK of the karyawan for the leave application
         $karyawanNik = $leaveApplication->nik;
 
-        // Check if the current user is an atasan for the karyawan
+        // Determine the user's role
         $isAtasan = Karyawan::join('jabatan as j1', 'karyawan.jabatan', '=', 'j1.id')
             ->join('jabatan as j2', 'j1.jabatan_atasan', '=', 'j2.id')
             ->where('karyawan.nik', $karyawanNik)
             ->where('j2.id', $currentUserJabatanId)
             ->exists();
 
-        // Check if the current user belongs to the "Management" department
         $isManagement = $currentUser->kode_dept == 'Management';
 
-        // Prepare the fields to update based on the user's role
+        // Update fields based on role
         $updateFields = [];
         if ($isAtasan && $isManagement) {
-            // If the user is both an atasan and in Management
             $updateFields = [
                 'status_approved' => $status_approved,
                 'tgl_status_approved' => $currentDate,
@@ -780,27 +770,22 @@ class ApprovalController extends Controller
                 'tgl_status_management' => $currentDate,
             ];
         } elseif ($isAtasan) {
-            // If the user is only an atasan
             $updateFields = [
                 'status_approved' => $status_approved,
                 'tgl_status_approved' => $currentDate,
             ];
         } elseif ($isManagement) {
-            // If the user is only in Management
             $updateFields = [
                 'status_management' => $status_approved,
                 'tgl_status_management' => $currentDate,
             ];
         }
 
-        // Perform the update if there are fields to update
         if (!empty($updateFields)) {
-            $update = DB::table('pengajuan_cuti')
-                ->where('id', $id)
-                ->update($updateFields);
+            $update = DB::table('pengajuan_cuti')->where('id', $id)->update($updateFields);
 
             if ($update) {
-                // Handle leave status logic
+                // Handle cuti/tunda logic
                 $cutiRecord = DB::table('cuti')
                     ->where('nik', $karyawanNik)
                     ->where('tahun', $leaveApplication->periode)
@@ -810,49 +795,41 @@ class ApprovalController extends Controller
                     $currentTunda = $cutiRecord->tunda;
                     $currentSisa = $cutiRecord->sisa_cuti;
 
-                    if ($status_approved == 2) { // Declined
-                        // Return declined days to `sisa_cuti` and update `tunda`
-                        $newTunda = max($currentTunda, $leaveApplication->jml_hari);
+                    if ($status_approved == 2) { // Declined by Atasan or Management
+                        $exceedingDays = max(0, $leaveApplication->jml_hari - max(0, $currentSisa));
+                        $newTunda = $currentTunda + $exceedingDays;
                         $newSisa = $currentSisa + $leaveApplication->jml_hari;
 
-                        DB::table('cuti')
-                            ->where('nik', $karyawanNik)
-                            ->where('tahun', $leaveApplication->periode)
-                            ->update([
-                                'tunda' => $newTunda,
-                                'sisa_cuti' => $newSisa,
-                            ]);
-                    } elseif ($status_approved == 1) { // Approved
-                        // Deduct approved days from `tunda` and `sisa_cuti`
-                        $newTunda = max(0, $currentTunda - $leaveApplication->jml_hari);
-                        $newSisa = $currentSisa - $leaveApplication->jml_hari;
+                        DB::table('cuti')->where('nik', $karyawanNik)->where('tahun', $leaveApplication->periode)->update([
+                            'tunda' => $newTunda,
+                            'sisa_cuti' => $newSisa,
+                        ]);
 
-                        DB::table('cuti')
-                            ->where('nik', $karyawanNik)
-                            ->where('tahun', $leaveApplication->periode)
-                            ->update([
-                                'tunda' => $newTunda,
-                                'sisa_cuti' => $newSisa,
-                            ]);
-                    }
-
-                    // Update HRD approval fields
-                    DB::table('pengajuan_cuti')
+                        DB::table('pengajuan_cuti')
                         ->where('id', $id)
                         ->update([
-                            'status_approved_hrd' => $status_approved,
-                            'tgl_status_approved_hrd' => $currentDate,
+                            'status_management' => $status_approved,
+                            'tgl_status_management' => $currentDate,
                         ]);
+                    }
+
+                    if ($isManagement && $status_approved == 1) { // Approved by Management
+                        // Remove Tunda only if Management is the final approver
+                        $newTunda = max(0, $currentTunda - $leaveApplication->jml_hari);
+
+                        DB::table('cuti')->where('nik', $karyawanNik)->where('tahun', $leaveApplication->periode)->update([
+                            'tunda' => $newTunda,
+                        ]);
+                    }
                 }
 
                 return redirect('/approval/cutiapproval')->with(['success' => 'Pengajuan Cuti Berhasil Di Update']);
-            } else {
-                return redirect('/approval/cutiapproval')->with(['error' => 'Pengajuan Cuti Gagal Di Update']);
             }
-        } else {
-            return redirect('/approval/cutiapproval')->with(['error' => 'Anda tidak memiliki wewenang untuk menyetujui pengajuan ini']);
         }
+
+        return redirect('/approval/cutiapproval')->with(['error' => 'Anda tidak memiliki wewenang untuk menyetujui pengajuan ini']);
     }
+
 
 
     public function batalapprovecuti($id)

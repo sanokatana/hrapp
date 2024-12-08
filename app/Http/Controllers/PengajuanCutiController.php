@@ -56,31 +56,31 @@ class PengajuanCutiController extends Controller
     public function storecuti(Request $request)
     {
         $nik = Auth::guard('karyawan')->user()->nik;
-        $nip = Auth::guard('karyawan')->user()->nip;
-        $nama_lengkap = Auth::guard('karyawan')->user()->nama_lengkap;
-        $email_karyawan = Auth::guard('karyawan')->user()->email;
-        $periode = $request->periode;
-        $sisa_cuti = $request->sisa_cuti;
-        $tgl_cuti = $request->tgl_cuti;
-        $tgl_cuti_sampai = $request->tgl_cuti_sampai;
-        $jml_hari = $request->jml_hari;
-        $sisa_cuti_setelah = $request->sisa_cuti_setelah;
-        $kar_ganti = $request->kar_ganti;
-        $note = $request->note;
-        $currentDate = Carbon::now();
-        $jenis = "Cuti Tahunan";
+    $nip = Auth::guard('karyawan')->user()->nip;
+    $nama_lengkap = Auth::guard('karyawan')->user()->nama_lengkap;
+    $email_karyawan = Auth::guard('karyawan')->user()->email;
+    $periode = $request->periode;
+    $sisa_cuti = $request->sisa_cuti;
+    $tgl_cuti = new Carbon($request->tgl_cuti);
+    $tgl_cuti_sampai = $request->tgl_cuti_sampai ? new Carbon($request->tgl_cuti_sampai) : $tgl_cuti;
+    $jml_hari = $request->jml_hari;
+    $sisa_cuti_setelah = $request->sisa_cuti_setelah;
+    $kar_ganti = $request->kar_ganti;
+    $note = $request->note;
+    $currentDate = Carbon::now();
+    $jenis = "Cuti Tahunan";
 
-        if (empty($tgl_cuti_sampai)) {
-            $tgl_cuti_sampai = $tgl_cuti;
-        }
+    DB::beginTransaction();
 
+    try {
+        // Save the leave application
         $data = [
             'nik' => $nik,
             'nip' => $nip,
             'periode' => $periode,
             'sisa_cuti' => $sisa_cuti,
-            'tgl_cuti' => $tgl_cuti,
-            'tgl_cuti_sampai' => $tgl_cuti_sampai,
+            'tgl_cuti' => $tgl_cuti->toDateString(),
+            'tgl_cuti_sampai' => $tgl_cuti_sampai->toDateString(),
             'jml_hari' => $jml_hari,
             'sisa_cuti_setelah' => $sisa_cuti_setelah,
             'kar_ganti' => $kar_ganti,
@@ -88,28 +88,43 @@ class PengajuanCutiController extends Controller
             'jenis' => $jenis,
         ];
 
-        // Start a transaction
-        DB::beginTransaction();
+        $simpan = PengajuanCuti::create($data);
 
-        try {
-            // Save the leave application
-            $simpan = PengajuanCuti::create($data);
+        if ($simpan) {
+            // Get the current cuti record for the employee
+            $cuti = DB::table('cuti')
+                ->where('nip', $nip)
+                ->where('tahun', $periode)
+                ->first();
 
-            if ($simpan) {
-                // Update the sisa_cuti in the cuti table
-                $cuti = DB::table('cuti')
+            if ($cuti) {
+                // Update sisa_cuti
+                $new_sisa_cuti = $cuti->sisa_cuti - $jml_hari;
+                DB::table('cuti')
                     ->where('nip', $nip)
                     ->where('tahun', $periode)
-                    ->first();
+                    ->update(['sisa_cuti' => $new_sisa_cuti]);
 
-                if ($cuti) {
-                    $new_sisa_cuti = $cuti->sisa_cuti - $jml_hari;
+                // Check if leave exceeds periode_akhir
+                $periode_akhir = new Carbon($cuti->periode_akhir);
+                if ($tgl_cuti > $periode_akhir || $tgl_cuti_sampai > $periode_akhir) {
+                    // Calculate days beyond periode_akhir
+                    $beyondPeriodeDays = 0;
 
+                    if ($tgl_cuti > $periode_akhir) {
+                        $beyondPeriodeDays += $tgl_cuti_sampai->diffInDays($tgl_cuti) + 1;
+                    } elseif ($tgl_cuti_sampai > $periode_akhir) {
+                        $beyondPeriodeDays += $tgl_cuti_sampai->diffInDays($periode_akhir);
+                    }
+
+                    // Update pinjam field
+                    $new_pinjam = $cuti->pinjam + $beyondPeriodeDays;
                     DB::table('cuti')
                         ->where('nip', $nip)
                         ->where('tahun', $periode)
-                        ->update(['sisa_cuti' => $new_sisa_cuti]);
+                        ->update(['pinjam' => $new_pinjam]);
                 }
+            }
 
                 // Fetch the atasan details
                 $atasanJabatan = DB::table('jabatan')->where('id', Auth::guard('karyawan')->user()->jabatan)->first();

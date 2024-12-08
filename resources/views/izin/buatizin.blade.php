@@ -172,15 +172,8 @@
                 var start = new Date(tgl_izin);
                 var end = new Date(tgl_izin_akhir);
 
-                // Count total weekdays
-                var diffDays = 0;
-                while (start <= end) {
-                    var day = start.getDay(); // Get the day of the week (0 = Sunday, 6 = Saturday)
-                    if (day !== 0 && day !== 6) { // Skip Sunday (0) and Saturday (6)
-                        diffDays++;
-                    }
-                    start.setDate(start.getDate() + 1); // Move to the next day
-                }
+                // Calculate the total days between start and end, inclusive
+                var diffDays = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
 
                 $("#jml_hari").val(diffDays);
             } else if (tgl_izin) {
@@ -191,6 +184,7 @@
 
             calculateSisaCutiSetelah();
         }
+
 
         $("#tgl_izin, #tgl_izin_akhir").change(function() {
             calculateDays();

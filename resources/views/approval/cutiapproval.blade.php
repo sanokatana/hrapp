@@ -173,14 +173,14 @@ use App\Helpers\DateHelper;
                                                 </a>
                                                 @endif
                                                 @else
-                                                <a class="badge bg-yellow btnWait" style="width:120px" id="btnWait" name="btnWait" data-id="{{ $d->id }}">
+                                                <a class="badge bg-orange btnWait" style="width:120px" id="btnWait" name="btnWait" data-id="{{ $d->id }}">
                                                     Waiting Atasan
                                                 </a>
                                                 <br>
                                                 @endif
                                                 @endif
                                                 @else
-                                                <a class="badge bg-yellow btnWait" style="width:120px" id="btnWait" name="btnWait" data-id="{{ $d->id }}">
+                                                <a class="badge bg-orange btnWait" style="width:120px" id="btnWait" name="btnWait" data-id="{{ $d->id }}">
                                                     Waiting HRD
                                                 </a>
                                                 <br>
