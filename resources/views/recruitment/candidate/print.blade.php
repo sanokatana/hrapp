@@ -434,7 +434,7 @@ use App\Helpers\DateHelper;
                         <p class="MsoNormal" style="margin:0in;text-indent:0in;">12. Tanggal Menikah &nbsp;&nbsp;&nbsp; &nbsp;</p>
                     </td>
                     <td valign="top" style="width: 451px; padding: 0in; height: 18.95pt;">
-                        <p class="MsoNormal" style="margin:0in;text-align:justify;text-justify:inter-ideograph; text-indent:0in;"><span class="dotted-line">: {{DateHelper::formatIndonesiaDate($candidates->tgl_menikah)}}</span></p>
+                        <p class="MsoNormal" style="margin:0in;text-align:justify;text-justify:inter-ideograph; text-indent:0in;"><span class="dotted-line">: {{ $candidates->tgl_menikah ? DateHelper::formatIndonesiaDate($candidates->tgl_menikah) : '' }}</span></p>
                     </td>
                 </tr>
                 <tr style="height:18.95pt;">

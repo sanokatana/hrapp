@@ -449,56 +449,69 @@ class ApprovalController extends Controller
 
 
     public function izinapproval(Request $request)
-    {
-        $nik = Auth::guard('user')->user()->nik;
+{
+    $nik = Auth::guard('user')->user()->nik;
 
-        // Get the current user's jabatan id
-        $currentUser = Karyawan::where('nik', $nik)->first();
-        $currentUserJabatanId = $currentUser->jabatan;
-        $currentUserKodeDept = $currentUser->kode_dept;
+    // Get the current user's details
+    $currentUser = Karyawan::where('nik', $nik)->first();
+    $currentUserJabatanId = $currentUser->jabatan;
+    $currentUserKodeDept = $currentUser->kode_dept;
 
-        // Begin query on pengajuan_izin table
-        $query = Pengajuanizin::query();
-        $query->join('karyawan', 'pengajuan_izin.nik', '=', 'karyawan.nik')
-            ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept')
-            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-            ->select('pengajuan_izin.*', 'karyawan.nama_lengkap', 'karyawan.jabatan', 'department.nama_dept', 'jabatan.nama_jabatan');
+    // Base query: Join necessary tables
+    $query = Pengajuanizin::query();
+    $query->join('karyawan', 'pengajuan_izin.nik', '=', 'karyawan.nik')
+        ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept')
+        ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+        ->select('pengajuan_izin.*', 'karyawan.nama_lengkap', 'karyawan.jabatan', 'department.nama_dept', 'jabatan.nama_jabatan');
 
-        // Check if the user belongs to the Management department
-        if ($currentUserKodeDept === 'Management') {
-            // Management can only see requests where status_approved = 1 and status_approved_hrd = 1
+    // Only include pending requests
+    $query->where(function ($q) {
+        $q->where('status_approved', 0)
+            ->orWhere('status_approved_hrd', 0);
+    });
 
-            $query->where(function ($q) {
-                $q->where('status_approved', 0)
-                    ->orWhere('status_approved_hrd', 0);
-            });
-        } else {
-            // Otherwise, check if the user is an Atasan
-            $jabatanAtasan = Jabatan::where('id', $currentUserJabatanId)->value('jabatan_atasan');
+    // Management Logic
+    if ($currentUserKodeDept === 'Management') {
+        // Fetch NIKs of subordinates
+        $subordinateNiks = Karyawan::join('jabatan as j1', 'karyawan.jabatan', '=', 'j1.id')
+            ->join('jabatan as j2', 'j1.jabatan_atasan', '=', 'j2.id')
+            ->where('j2.id', $currentUserJabatanId)
+            ->pluck('karyawan.nik')
+            ->toArray();
 
-            // If the user is an Atasan, only show requests where status_approved is 0 (pending)
-            if ($jabatanAtasan) {
-                $employeeNiks = Karyawan::join('jabatan as j1', 'karyawan.jabatan', '=', 'j1.id')
-                    ->join('jabatan as j2', 'j1.jabatan_atasan', '=', 'j2.id')
-                    ->where('j2.id', $currentUserJabatanId)
-                    ->pluck('karyawan.nik');
+        // Prioritize subordinates' requests by ordering
+        $query->orderByRaw("
+            CASE
+                WHEN pengajuan_izin.nik IN ('" . implode("','", $subordinateNiks) . "') THEN 1
+                ELSE 2
+            END
+        ");
+    } else {
+        // Non-management Logic
+        $jabatanAtasan = Jabatan::where('id', $currentUserJabatanId)->value('jabatan_atasan');
 
-                // Apply filter by NIKs (subordinates only) and only show requests where status_approved is 0 (pending)
-                $query->whereIn('pengajuan_izin.nik', $employeeNiks)
-                    ->where(function ($q) {
-                        $q->where('status_approved', 0)
-                            ->orWhere('status_approved_hrd', 0);
-                    });
-            }
+        // If Atasan, filter requests from subordinates
+        if ($jabatanAtasan) {
+            $employeeNiks = Karyawan::join('jabatan as j1', 'karyawan.jabatan', '=', 'j1.id')
+                ->join('jabatan as j2', 'j1.jabatan_atasan', '=', 'j2.id')
+                ->where('j2.id', $currentUserJabatanId)
+                ->pluck('karyawan.nik');
+
+            $query->whereIn('pengajuan_izin.nik', $employeeNiks);
         }
-
-        // Paginate the results
-        $izinapproval = $query->paginate(10);
-        $izinapproval->appends($request->all());
-
-        // Return the view with the filtered results
-        return view('approval.izinapproval', compact('izinapproval'));
     }
+
+    // Paginate results
+    $izinapproval = $query->paginate(10);
+    $izinapproval->appends($request->all());
+
+    // Debugging Output (optional, for testing only)
+    // dd($query->toSql(), $query->getBindings());
+
+    // Return the view
+    return view('approval.izinapproval', compact('izinapproval'));
+}
+
 
     // In YourController.php
     public function printIzin(Request $request)
