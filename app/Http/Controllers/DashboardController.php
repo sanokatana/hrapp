@@ -934,10 +934,10 @@ class DashboardController extends Controller
                     'karyawan.nama_lengkap',
                     'karyawan.kode_dept',
                     'jabatan.nama_jabatan',
-                    'shift.start_time',
+                    DB::raw('COALESCE(shift.start_time, "08:00:00") as start_time'), // Default start_time to 08:00:00
                     DB::raw('DATE(presensi.scan_date) as tgl_presensi'),
                     DB::raw('TIME(presensi.scan_date) as jam_in'),
-                    'libur_nasional.tgl_libur' // Include holiday date for validation
+                    'libur_nasional.tgl_libur'
                 )
                 ->orderBy(DB::raw('TIME(presensi.scan_date)'), 'DESC') // Optional: sort by earliest time first
                 ->get();

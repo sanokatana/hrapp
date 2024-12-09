@@ -826,14 +826,14 @@ class RecruitmentController extends Controller
                 ->first();
 
             // Check each document status and set the status and file fields accordingly
-            $statusPhoto = $documents->photo_anda !== 'No_Document' ? 1 : 0;
-            $statusKtp = $documents->photo_ktp !== 'No_Document' ? 1 : 0;
-            $statusKk = $documents->photo_kk !== 'No_Document' ? 1 : 0;
-            $statusNpwp = $documents->photo_npwp !== 'No_Document' ? 1 : 0;
-            $statusIjazah = $documents->photo_ijazah !== 'No_Document' ? 1 : 0;
-            $statusSim = $documents->photo_sim !== 'No_Document' ? 1 : 0;
-            $statusSkck = $documents->photo_skck !== 'No_Document' ? 1 : 0;
-            $statusCv = $documents->photo_cv !== 'No_Document' ? 1 : 0;
+            $statusPhoto = ($documents->photo_anda ?? 'No_Document') !== 'No_Document' ? 1 : 0;
+            $statusKtp = ($documents->photo_ktp ?? 'No_Document') !== 'No_Document' ? 1 : 0;
+            $statusKk = ($documents->photo_kk ?? 'No_Document') !== 'No_Document' ? 1 : 0;
+            $statusNpwp = ($documents->photo_npwp ?? 'No_Document') !== 'No_Document' ? 1 : 0;
+            $statusIjazah = ($documents->photo_ijazah ?? 'No_Document') !== 'No_Document' ? 1 : 0;
+            $statusSim = ($documents->photo_sim ?? 'No_Document') !== 'No_Document' ? 1 : 0;
+            $statusSkck = ($documents->photo_skck ?? 'No_Document') !== 'No_Document' ? 1 : 0;
+            $statusCv = ($documents->photo_cv ?? 'No_Document') !== 'No_Document' ? 1 : 0;
 
             $karyawanData = [
                 'nik' => $nik,
@@ -870,7 +870,7 @@ class RecruitmentController extends Controller
                 'kampus' => $latestEducation ? $latestEducation->tempat_sekolah : null,
                 'job_exp' => $jobExpText,
                 'email_personal' => $candidateData->alamat_email,
-                'family_card' => $documents->no_kartu_keluarga,
+                'family_card' => $documents->no_kartu_keluarga ?? '',
                 'no_npwp' => $candidateData->no_npwp,
                 'alamat_npwp' => $candidateData->alamat_npwp,
                 'father_name' => $father_name,

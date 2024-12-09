@@ -40,6 +40,14 @@ class ApprovalController extends Controller
                     ->orWhere('pengajuan_izin.status_approved_hrd', 0);
             });
 
+
+            $query->orderByRaw(
+                'CASE
+                    WHEN pengajuan_izin.status_approved = 0 AND pengajuan_izin.status_approved_hrd = 0 THEN 0
+                    ELSE 1
+                END ASC'
+            );
+
         // Filter by date range
         if (!empty($request->dari) && !empty($request->sampai)) {
             $query->whereBetween('tgl_create', [$request->dari, $request->sampai]);
@@ -285,6 +293,13 @@ class ApprovalController extends Controller
             'karyawan.tgl_masuk',
             'tipe_cuti.tipe_cuti',
             'jabatan.nama_jabatan'
+        );
+
+        $query->orderByRaw(
+            'CASE
+                WHEN status_approved = 0 AND status_approved_hrd = 0 AND status_management = 0 THEN 0
+                ELSE 1
+            END ASC'
         );
 
         // Apply date filter
