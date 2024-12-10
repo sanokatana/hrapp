@@ -37,22 +37,22 @@ $izinFormattedDateAkhir = DateHelper::formatIndonesianDate($d->tgl_cuti_sampai);
 
                 <div class="status-row" style="text-align: right">
                     <div class="mb-1">
-                        @if ($d->status_approved == 0)
+                        @if ($d->status_approved_hrd == 0)
                         <span class="badge bg-warning">Waiting Approval</span>
-                        @elseif ($d->status_approved == 1)
+                        @elseif ($d->status_approved_hrd == 1)
                         <span class="badge bg-success">Form Approved</span>
-                        @elseif ($d->status_approved == 1)
+                        @elseif ($d->status_approved_hrd == 2)
                         <span class="badge bg-danger">Form Declined</span>
                         @else
                         <span class="badge bg-danger">Form Cancelled</span>
                         @endif
                     </div>
                     <div class="mb-1">
-                        @if ($d->status_approved_hrd == 0)
+                        @if ($d->status_approved == 0)
                         <span class="badge bg-warning">Waiting Approval</span>
-                        @elseif ($d->status_approved_hrd == 1)
+                        @elseif ($d->status_approved == 1)
                         <span class="badge bg-success">Form Approved</span>
-                        @elseif ($d->status_approved_hrd == 2)
+                        @elseif ($d->status_approved == 1)
                         <span class="badge bg-danger">Form Declined</span>
                         @else
                         <span class="badge bg-danger">Form Cancelled</span>

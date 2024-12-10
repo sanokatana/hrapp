@@ -179,7 +179,7 @@ use App\Helpers\DateHelper;
                                             <th>Note</th>
                                             <th>Jenis Cuti</th>
                                             <th>Tipe Cuti</th>
-                                            <th> Manager <br>-------------------<br> HRD <br>-------------------<br> Management</th>
+                                            <th> HRD <br>-------------------<br> Manager <br>-------------------<br> Management</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -211,15 +211,6 @@ use App\Helpers\DateHelper;
                                             <td>{{ $d->jenis }}</td>
                                             <td>{{ $d->tipe_cuti }}</td>
                                             <td>
-                                                @if ($d->status_approved == 1)
-                                                <span class="badge bg-success" style="color: white; width:90px">Approved</span>
-                                                @elseif ($d->status_approved == 0)
-                                                <span class="badge bg-yellow" style="color: white; width:90px">Pending</span>
-                                                @elseif ($d->status_approved == 2)
-                                                <span class="badge bg-red" style="color: white; width:90px">Rejected</span>
-                                                @else
-                                                <span class="badge bg-red" style="color: white; width:90px">Cancelled</span>
-                                                @endif
                                                 @if ($d->status_approved_hrd == 1)
                                                 <span class="badge bg-success mt-1" style="color: white; width:90px">Approved</span>
                                                 @elseif ($d->status_approved_hrd == 0)
@@ -229,6 +220,17 @@ use App\Helpers\DateHelper;
                                                 @else
                                                 <span class="badge bg-red" style="color: white; width:90px">Cancelled</span>
                                                 @endif
+                                                <br>
+                                                @if ($d->status_approved == 1)
+                                                <span class="badge bg-success" style="color: white; width:90px">Approved</span>
+                                                @elseif ($d->status_approved == 0)
+                                                <span class="badge bg-yellow" style="color: white; width:90px">Pending</span>
+                                                @elseif ($d->status_approved == 2)
+                                                <span class="badge bg-red" style="color: white; width:90px">Rejected</span>
+                                                @else
+                                                <span class="badge bg-red" style="color: white; width:90px">Cancelled</span>
+                                                @endif
+                                                <br>
                                                 @if ($d->status_management == 1)
                                                 <span class="badge bg-success mt-1" style="color: white; width:90px">Approved</span>
                                                 @elseif ($d->status_management == 0)

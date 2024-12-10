@@ -57,7 +57,9 @@ use App\Helpers\DateHelper;
                                             <th>Jabatan</th>
                                             <th>Periode</th>
                                             <th>Tanggal Cuti <br> Sampai Tanggal</th>
+                                            <th>Sisa Cuti</th>
                                             <th>Jmlh</th>
+                                            <th>Sisa Setelah</th>
                                             <th>Kar Pengganti</th>
                                             <th>Note</th>
                                             <th>Jenis Cuti</th>
@@ -81,7 +83,9 @@ use App\Helpers\DateHelper;
                                                 {{ DateHelper::formatIndonesianDate($d->tgl_cuti_sampai) }}
                                                 @endif
                                             </td>
+                                            <td>{{ $d->sisa_cuti }}</td>
                                             <td>{{ $d->jml_hari }} </td>
+                                            <td>{{ $d->sisa_cuti_setelah}} </td>
                                             <td>{{ $d->kar_ganti}} </td>
                                             <td>{{ $d->note }}</td>
                                             <td>{{ $d->jenis }}</td>
@@ -148,6 +152,7 @@ use App\Helpers\DateHelper;
                                                     Batalkan
                                                 </a>
                                                 @endif
+                                                <br>
                                                 @elseif ($isAtasan)
                                                 {{-- If only Atasan, show approval button based on status_approved --}}
                                                 @if ($d->status_approved == 0)
@@ -172,6 +177,7 @@ use App\Helpers\DateHelper;
                                                     Batalkan
                                                 </a>
                                                 @endif
+                                                <br>
                                                 @else
                                                 <a class="badge bg-orange btnWait" style="width:120px" id="btnWait" name="btnWait" data-id="{{ $d->id }}">
                                                     Waiting Atasan

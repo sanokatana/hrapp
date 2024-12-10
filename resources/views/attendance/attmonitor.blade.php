@@ -85,76 +85,93 @@
 @endsection
 @push('myscript')
 <script>
-    $(document).ready(function() {
-        $('#nama_lengkap').on('input', function() {
-            var nama_lengkap = $(this).val().trim();
+    $(document).ready(function () {
+    let dropdownSelectTriggered = false; // Flag to differentiate dropdown select vs manual input
 
-            if (nama_lengkap.length >= 2) {
-                $.ajax({
-                    url: '/cuti/getEmployeeName',
-                    type: 'GET',
-                    data: {
-                        nama_lengkap: nama_lengkap
-                    },
-                    success: function(response) {
-                        var dropdownMenu = $('#employeeList');
-                        dropdownMenu.empty();
+    // Typing in the input box
+    $('#nama_lengkap').on('input', function () {
+        var nama_lengkap = $(this).val().trim();
 
-                        if (response.length > 0) {
-                            response.forEach(function(employee) {
-                                dropdownMenu.append('<a class="dropdown-item" href="#" data-nip="' + employee.nip + '" data-nama="' + employee.nama_lengkap + '">' + employee.nama_lengkap + '</a>');
-                            });
-
-                            dropdownMenu.show();
-                        } else {
-                            dropdownMenu.hide();
-                        }
-                    }
-                });
-            } else {
-                $('#employeeList').hide();
-            }
-        });
-
-        // Handle dropdown item click
-        $(document).on('click', '#employeeList .dropdown-item', function(e) {
-            e.preventDefault();
-            var selectedName = $(this).data('nama');
-            var selectedNIP = $(this).data('nip');
-
-            $('#nama_lengkap').val(selectedName); // Set the full name in the input field
-            $('#nip').val(selectedNIP); // Set NIP to hidden input field
-
-            $('#employeeList').hide();
-
-            // Trigger change event to fetch attendance data immediately
-            $('#nama_lengkap').trigger('change');
-        });
-
-        $(document).click(function(e) {
-            if (!$(e.target).closest('#employeeList').length && !$(e.target).closest('#nama_lengkap').length) {
-                $('#employeeList').hide();
-            }
-        });
-
-        $("#nama_lengkap").change(function(e) {
-            var nama_lengkap = $(this).val();
-            var nip = $('#nip').val();
-
+        if (nama_lengkap.length >= 2) {
             $.ajax({
+                url: '/cuti/getEmployeeName',
                 type: 'GET',
-                url: '/attendance/get_att',
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    nama_lengkap: nama_lengkap,
-                    nip: nip
-                },
-                cache: false,
-                success: function(respond) {
-                    $("#loadpresensi").html(respond);
+                data: { nama_lengkap: nama_lengkap },
+                success: function (response) {
+                    var dropdownMenu = $('#employeeList');
+                    dropdownMenu.empty();
+
+                    if (response.length > 0) {
+                        response.forEach(function (employee) {
+                            dropdownMenu.append('<a class="dropdown-item" href="#" data-nip="' + employee.nip + '" data-nama="' + employee.nama_lengkap + '">' + employee.nama_lengkap + '</a>');
+                        });
+
+                        dropdownMenu.show();
+                    } else {
+                        dropdownMenu.hide();
+                    }
                 }
             });
-        });
+        } else {
+            $('#employeeList').hide();
+        }
     });
+
+    // Handle dropdown item click
+    $(document).on('click', '#employeeList .dropdown-item', function (e) {
+        e.preventDefault();
+
+        var selectedName = $(this).data('nama');
+        var selectedNIP = $(this).data('nip');
+
+        // Set input fields
+        $('#nama_lengkap').val(selectedName);
+        $('#nip').val(selectedNIP);
+
+        // Hide the dropdown
+        $('#employeeList').hide();
+
+        // Trigger the `change` event manually
+        dropdownSelectTriggered = true;
+        $('#nama_lengkap').trigger('change');
+    });
+
+    // Close dropdown on outside click
+    $(document).click(function (e) {
+        if (!$(e.target).closest('#employeeList').length && !$(e.target).closest('#nama_lengkap').length) {
+            $('#employeeList').hide();
+        }
+    });
+
+    // Handle name change or submission
+    $('#nama_lengkap').on('change keyup', function (e) {
+        // Call `/attendance/get_att` only when:
+        // 1. Dropdown was not the trigger
+        // 2. User presses Enter after typing
+        if (e.type === 'change' || (e.type === 'keyup' && e.key === 'Enter')) {
+            var nama_lengkap = $(this).val().trim();
+            var nip = $('#nip').val();
+
+            if (!dropdownSelectTriggered || e.type === 'keyup') {
+                $.ajax({
+                    type: 'GET',
+                    url: '/attendance/get_att',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        nama_lengkap: nama_lengkap,
+                        nip: nip
+                    },
+                    cache: false,
+                    success: function (respond) {
+                        $('#loadpresensi').html(respond);
+                    }
+                });
+            }
+
+            dropdownSelectTriggered = false; // Reset the flag
+        }
+    });
+});
+
 </script>
 @endpush

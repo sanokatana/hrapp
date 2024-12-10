@@ -174,7 +174,7 @@ use App\Helpers\DateHelper;
                                             <th>Keterangan</th>
                                             <th>Pukul</th>
                                             <th>Document</th>
-                                            <th>Status Manager <br>-------------------<br> Status HRD </th>
+                                            <th> Status HRD <br>-------------------<br> Status Manager </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -226,21 +226,22 @@ use App\Helpers\DateHelper;
                                                 @endif
                                             </td>
                                             <td>
-                                                @if ($d->status_approved == 1)
-                                                <span class="badge bg-success" style="color: white; width:90px">Approved</span>
-                                                @elseif ($d->status_approved == 0)
-                                                <span class="badge bg-yellow" style="color: white; width:90px">Pending</span>
-                                                @elseif ($d->status_approved_hrd == 2)
-                                                <span class="badge bg-red" style="color: white; width:90px">Rejected</span>
-                                                @else
-                                                <span class="badge bg-red" style="color: white; width:90px">Cancelled</span>
-                                                @endif
                                                 @if ($d->status_approved_hrd == 1)
                                                 <span class="badge bg-success mt-1" style="color: white; width:90px">Approved</span>
                                                 @elseif ($d->status_approved_hrd == 0)
                                                 <span class="badge bg-yellow mt-1" style="color: white; width:90px">Pending</span>
                                                 @elseif ($d->status_approved_hrd == 2)
                                                 <span class="badge bg-red mt-1" style="color: white; width:90px">Rejected</span>
+                                                @else
+                                                <span class="badge bg-red" style="color: white; width:90px">Cancelled</span>
+                                                @endif
+                                                <br>
+                                                @if ($d->status_approved == 1)
+                                                <span class="badge bg-success" style="color: white; width:90px">Approved</span>
+                                                @elseif ($d->status_approved == 0)
+                                                <span class="badge bg-yellow" style="color: white; width:90px">Pending</span>
+                                                @elseif ($d->status_approved_hrd == 2)
+                                                <span class="badge bg-red" style="color: white; width:90px">Rejected</span>
                                                 @else
                                                 <span class="badge bg-red" style="color: white; width:90px">Cancelled</span>
                                                 @endif

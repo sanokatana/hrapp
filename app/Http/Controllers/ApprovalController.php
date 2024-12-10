@@ -710,15 +710,28 @@ class ApprovalController extends Controller
             ->leftJoin('tipe_cuti', 'pengajuan_cuti.tipe', '=', 'tipe_cuti.id_tipe_cuti')
             ->select('pengajuan_cuti.*', 'karyawan.nama_lengkap', 'karyawan.jabatan', 'department.nama_dept', 'karyawan.tgl_masuk', 'tipe_cuti.tipe_cuti', 'jabatan.nama_jabatan');
 
+        $query->where(function ($q) {
+            $q->where('status_approved', 0)
+                ->orWhere('status_approved_hrd', 0)
+                ->orWhere('status_management', 0);
+        });
         // Check if the user belongs to the Management department
         if ($currentUserKodeDept === 'Management') {
             // Management can only see requests where status_approved = 1 and status_approved_hrd = 1
 
-            $query->where(function ($q) {
-                $q->where('status_approved', 0)
-                    ->orWhere('status_approved_hrd', 0)
-                    ->orWhere('status_management', 0);
-            });
+            $subordinateNiks = Karyawan::join('jabatan as j1', 'karyawan.jabatan', '=', 'j1.id')
+            ->join('jabatan as j2', 'j1.jabatan_atasan', '=', 'j2.id')
+            ->where('j2.id', $currentUserJabatanId)
+            ->pluck('karyawan.nik')
+            ->toArray();
+
+            // Prioritize subordinates' requests by ordering
+            $query->orderByRaw("
+                CASE
+                    WHEN pengajuan_cuti.nik IN ('" . implode("','", $subordinateNiks) . "') THEN 1
+                    ELSE 2
+                END
+            ");
         } else {
             // Otherwise, check if the user is an Atasan
             $jabatanAtasan = Jabatan::where('id', $currentUserJabatanId)->value('jabatan_atasan');
@@ -731,12 +744,7 @@ class ApprovalController extends Controller
                     ->pluck('karyawan.nik');
 
                 // Apply filter by NIKs (subordinates only) and only show requests where status_approved is 0 (pending)
-                $query->whereIn('pengajuan_cuti.nik', $employeeNiks)
-                    ->where(function ($q) {
-                        $q->where('status_approved', 0)
-                            ->orWhere('status_approved_hrd', 0)
-                            ->orWhere('status_management', 0);
-                    });
+                $query->whereIn('pengajuan_cuti.nik', $employeeNiks);
             }
         }
 
