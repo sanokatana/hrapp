@@ -147,10 +147,10 @@ class DashboardController extends Controller
         $totalNotif = $this->calculateNotifications($historibulanini, $izin, $bulanini, $tahunini, $nip);
 
         $cutiExpiringSoon = DB::table('cuti')
-        ->where('nik', $nik)
-        ->where('status', 1)
-        ->whereBetween('periode_akhir', [now(), now()->addMonths(3)])
-        ->get();
+            ->where('nik', $nik)
+            ->where('status', 1)
+            ->whereBetween('periode_akhir', [now(), now()->addMonths(3)])
+            ->get();
 
 
         // Process the presensi data to adjust for izin
@@ -636,7 +636,7 @@ class DashboardController extends Controller
                 ->join('hrmschl.karyawan', 'presensi.pin', '=', 'karyawan.nip')
                 ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini)
                 ->where('status_kar', 'Aktif')
-                ->where('grade', '!=','NS')
+                ->where('grade', '!=', 'NS')
                 ->first();
 
 
@@ -662,20 +662,55 @@ class DashboardController extends Controller
 
 
             $rekapkaryawan = DB::table('karyawan')
-            ->where('status_kar', 'Aktif')
-            ->where('grade', '!=','NS')
-            ->count();
-
-            $jmlnoatt = DB::table('karyawan')
-                ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
-                    $join->on('karyawan.nip', '=', 'presensi.pin')
-                        ->whereDate(DB::raw('DATE(presensi.scan_date)'), '=', $hariini);
-                })
                 ->where('status_kar', 'Aktif')
-                ->where('grade', '!=','NS')
-                ->whereNull('presensi.pin')
+                ->where('grade', '!=', 'NS')
                 ->count();
 
+            // $jmlnoatt = DB::table('karyawan')
+            //     ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
+            //         $join->on('karyawan.nip', '=', 'presensi.pin')
+            //             ->whereDate(DB::raw('DATE(presensi.scan_date)'), '=', $hariini);
+            //     })
+            //     ->where('status_kar', 'Aktif')
+            //     ->where('grade', '!=', 'NS')
+            //     ->whereNull('presensi.pin')
+            //     ->count();
+
+            $jmlnoatt = DB::connection('mysql2')
+                ->table('hrmschl.karyawan')
+                ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
+                    $join->on('karyawan.nip', '=', 'presensi.pin')
+                        ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini);
+                })
+                ->join('hrmschl.jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+                ->whereNull('presensi.pin') // Employees with no attendance
+                ->where('karyawan.grade', '!=', 'NS') // Exclude NS grade
+                ->where('jabatan.kode_dept', '!=', 'Management') // Exclude Management department
+                ->where('status_kar', 'Aktif') // Only active employees
+                ->whereNotExists(function ($query) use ($hariini) {
+                    $query->select(DB::raw(1))
+                        ->from('hrmschl.pengajuan_izin')
+                        ->whereColumn('pengajuan_izin.nip', 'hrmschl.karyawan.nip')
+                        ->where('pengajuan_izin.tgl_izin', '<=', $hariini)
+                        ->where('pengajuan_izin.tgl_izin_akhir', '>=', $hariini)
+                        ->whereNotNull('pengajuan_izin.tgl_izin_akhir')
+                        ->where('pengajuan_izin.tgl_izin_akhir', '!=', '');
+                })
+                ->whereNotExists(function ($query) use ($hariini) {
+                    $query->select(DB::raw(1))
+                        ->from('hrmschl.pengajuan_cuti')
+                        ->whereColumn('pengajuan_cuti.nip', 'hrmschl.karyawan.nip')
+                        ->where('pengajuan_cuti.tgl_cuti', '<=', $hariini)
+                        ->where('pengajuan_cuti.tgl_cuti_sampai', '>=', $hariini)
+                        ->whereNotNull('pengajuan_cuti.tgl_cuti_sampai')
+                        ->where('pengajuan_cuti.tgl_cuti_sampai', '!=', '');
+                })
+                ->whereNotExists(function ($query) use ($hariini) {
+                    $query->select(DB::raw(1))
+                        ->from('hrmschl.libur_nasional')
+                        ->whereDate('libur_nasional.tgl_libur', $hariini);
+                })
+                ->count(); // Count the records
 
             $historihariNonNS = DB::connection('mysql2')
                 ->table('db_absen.att_log as presensi')
@@ -814,7 +849,7 @@ class DashboardController extends Controller
                 ->join('hrmschl.karyawan', 'presensi.pin', '=', 'karyawan.nip')
                 ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini)
                 ->where('status_kar', 'Aktif')
-                ->where('grade', '!=','NS')
+                ->where('grade', '!=', 'NS')
                 ->first();
 
 
@@ -840,19 +875,56 @@ class DashboardController extends Controller
 
 
             $rekapkaryawan = DB::table('karyawan')
-            ->where('status_kar', 'Aktif')
-            ->where('grade', '!=','NS')
-            ->count();
+                ->where('status_kar', 'Aktif')
+                ->where('grade', '!=', 'NS')
+                ->count();
 
-            $jmlnoatt = DB::table('karyawan')
+            // $jmlnoatt = DB::table('karyawan')
+            //     ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
+            //         $join->on('karyawan.nip', '=', 'presensi.pin')
+            //             ->whereDate(DB::raw('DATE(presensi.scan_date)'), '=', $hariini);
+            //     })
+            //     ->where('status_kar', 'Aktif')
+            //     ->where('grade', '!=', 'NS')
+            //     ->whereNull('presensi.pin')
+            //     ->count();
+
+            $jmlnoatt = DB::connection('mysql2')
+                ->table('hrmschl.karyawan')
                 ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
                     $join->on('karyawan.nip', '=', 'presensi.pin')
-                        ->whereDate(DB::raw('DATE(presensi.scan_date)'), '=', $hariini);
+                        ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini);
                 })
-                ->where('status_kar', 'Aktif')
-                ->where('grade', '!=','NS')
-                ->whereNull('presensi.pin')
-                ->count();
+                ->join('hrmschl.jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+                ->whereNull('presensi.pin') // Employees with no attendance
+                ->where('karyawan.grade', '!=', 'NS') // Exclude NS grade
+                ->where('jabatan.kode_dept', '!=', 'Management') // Exclude Management department
+                ->where('status_kar', 'Aktif') // Only active employees
+                ->whereNotExists(function ($query) use ($hariini) {
+                    $query->select(DB::raw(1))
+                        ->from('hrmschl.pengajuan_izin')
+                        ->whereColumn('pengajuan_izin.nip', 'hrmschl.karyawan.nip')
+                        ->where('pengajuan_izin.tgl_izin', '<=', $hariini)
+                        ->where('pengajuan_izin.tgl_izin_akhir', '>=', $hariini)
+                        ->whereNotNull('pengajuan_izin.tgl_izin_akhir')
+                        ->where('pengajuan_izin.tgl_izin_akhir', '!=', '');
+                })
+                ->whereNotExists(function ($query) use ($hariini) {
+                    $query->select(DB::raw(1))
+                        ->from('hrmschl.pengajuan_cuti')
+                        ->whereColumn('pengajuan_cuti.nip', 'hrmschl.karyawan.nip')
+                        ->where('pengajuan_cuti.tgl_cuti', '<=', $hariini)
+                        ->where('pengajuan_cuti.tgl_cuti_sampai', '>=', $hariini)
+                        ->whereNotNull('pengajuan_cuti.tgl_cuti_sampai')
+                        ->where('pengajuan_cuti.tgl_cuti_sampai', '!=', '');
+                })
+                ->whereNotExists(function ($query) use ($hariini) {
+                    $query->select(DB::raw(1))
+                        ->from('hrmschl.libur_nasional')
+                        ->whereDate('libur_nasional.tgl_libur', $hariini);
+                })
+                ->count(); // Count the records
+
 
 
             // Get historical attendance data for NS employees

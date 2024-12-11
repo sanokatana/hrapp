@@ -400,36 +400,36 @@ $userDept = $user ? $user->kode_dept : null;
                     <li>
                         <div class="item">
                             <div class="in">
-                                <div>
+                                <div style="width:65%">
                                     <b>{{ $izinFormattedDate }}</b><br>
                                     @if ($d->tgl_izin_akhir)
                                     <b class="text-muted">Sampai</b><br>
                                     <b>{{ $izinFormattedDateAkhir }}</b><br>
                                     @endif
                                     <b style="color: red;">{{ DateHelper::getStatusText($d->status) }}</b><br>
-                                    <b class="text-info">{{ $d->keterangan }}</b>
+                                    <b class="text-info">Keterangan - {{ $d->keterangan }}</b>
                                 </div>
                                 <div class="status-row">
-                                    <div class="mb-1">
+                                    <div class="mb-1 text-center">
                                         @if ($d->status_approved_hrd == 0)
-                                        <span class="badge bg-warning">Waiting Approval</span>
+                                        <span class="badge bg-warning" style="width:110px">Approval HR</span>
                                         @elseif ($d->status_approved_hrd == 1)
-                                        <span class="badge bg-success">Form Approved</span>
+                                        <span class="badge bg-success" style="width:110px">Approval HR</span>
                                         @elseif ($d->status_approved_hrd == 2)
-                                        <span class="badge bg-danger">Form Declined</span>
+                                        <span class="badge bg-danger" style="width:110px">Approval HR</span>
                                         @else
-                                        <span class="badge bg-danger">Form Cancelled</span>
+                                        <span class="badge bg-danger">Pembatalan</span>
                                         @endif
                                     </div>
-                                    <div>
+                                    <div class="text-center">
                                         @if ($d->status_approved == 0)
-                                        <span class="badge bg-warning">Waiting Approval</span>
+                                        <span class="badge bg-warning" style="width:110px">Approval Atasan</span>
                                         @elseif ($d->status_approved == 1)
-                                        <span class="badge bg-success">Form Approved</span>
+                                        <span class="badge bg-success" style="width:110px">Approval Atasan</span>
                                         @elseif ($d->status_approved == 2)
-                                        <span class="badge bg-danger">Form Declined</span>
+                                        <span class="badge bg-danger" style="width:110px">Approval Atasan</span>
                                         @else
-                                        <span class="badge bg-danger">Form Cancelled</span>
+                                        <span class="badge bg-danger" style="width:110px">Pembatalan</span>
                                         @endif
                                     </div>
                                 </div>
@@ -450,7 +450,7 @@ $userDept = $user ? $user->kode_dept : null;
                     <li>
                         <div class="item">
                             <div class="in">
-                                <div>
+                                <div style="width:65%">
                                     <b>{{ $izinFormattedDate }}</b><br>
                                     <b class="text-muted">Sampai</b><br>
                                     @if ($d->tgl_cuti_sampai)
@@ -468,35 +468,35 @@ $userDept = $user ? $user->kode_dept : null;
                                 <div class="status-row" style="text-align: right">
                                     <div class="mb-1">
                                         @if ($d->status_approved_hrd == 0)
-                                        <span class="badge bg-warning">Waiting Approval</span>
+                                        <span class="badge bg-warning" style="width:110px">Approval HR</span>
                                         @elseif ($d->status_approved_hrd == 1)
-                                        <span class="badge bg-success">Form Approved</span>
+                                        <span class="badge bg-success" style="width:110px">Approval HR</span>
                                         @elseif ($d->status_approved_hrd == 2)
-                                        <span class="badge bg-danger">Form Declined</span>
+                                        <span class="badge bg-danger" style="width:110px">Approval HR</span>
                                         @else
-                                        <span class="badge bg-danger">Form Cancelled</span>
+                                        <span class="badge bg-danger" style="width:110px">Pembatalan</span>
                                         @endif
                                     </div>
                                     <div class="mb-1">
                                         @if ($d->status_approved == 0)
-                                        <span class="badge bg-warning">Waiting Approval</span>
+                                        <span class="badge bg-warning" style="width:110px">Approval Atasan</span>
                                         @elseif ($d->status_approved == 1)
-                                        <span class="badge bg-success">Form Approved</span>
+                                        <span class="badge bg-success" style="width:110px">Approval Atasan</span>
                                         @elseif ($d->status_approved == 1)
-                                        <span class="badge bg-danger">Form Declined</span>
+                                        <span class="badge bg-danger" style="width:110px">Approval Atasan</span>
                                         @else
-                                        <span class="badge bg-danger">Form Cancelled</span>
+                                        <span class="badge bg-danger" style="width:110px">Pembatalan</span>
                                         @endif
                                     </div>
                                     <div>
                                         @if ($d->status_management == 0)
-                                        <span class="badge bg-warning">Waiting Approval</span>
+                                        <span class="badge bg-warning" style="width:110px">Approval Management</span>
                                         @elseif ($d->status_management == 1)
-                                        <span class="badge bg-success">Form Approved</span>
+                                        <span class="badge bg-success" style="width:110px">Approval Management</span>
                                         @elseif ($d->status_management == 2)
-                                        <span class="badge bg-danger">Form Declined</span>
+                                        <span class="badge bg-danger" style="width:110px">Approval Management</span>
                                         @else
-                                        <span class="badge bg-danger">Form Cancelled</span>
+                                        <span class="badge bg-danger" style="width:110px">Pembatalan</span>
                                         @endif
                                     </div>
                                 </div>

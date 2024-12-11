@@ -9,10 +9,10 @@ use App\Helpers\DateHelper;
             <div class="col">
                 <!-- Page pre-title -->
                 <div class="page-pretitle">
-                    Approval
+                    Laporan
                 </div>
                 <h2 class="page-title">
-                    Approval Pengajuan Cuti HR
+                    Karyawan Cuti
                 </h2>
                 <br>
             </div>

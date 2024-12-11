@@ -152,6 +152,7 @@
                                                 @else
                                                 <span class="badge bg-success" style="color: white">Aktif</span>
                                                 @endif
+                                            </td>
                                             <td>
                                                 <div class="form-group">
                                                     <a href="#" class="edit btn btn-info btn-sm" id="{{ $d->id }}">

@@ -8,6 +8,7 @@ use App\Exports\AbsenExport;
 use App\Exports\CutiExport;
 use App\Exports\IzinExport;
 use App\Exports\TimeExport;
+use App\Models\Cuti;
 use App\Models\Jabatan;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -1155,5 +1156,49 @@ class LaporanController extends Controller
 
         $fileName = "laporan_pengajuan_cuti_{$bulan}_{$tahun}.xlsx";
         return Excel::download(new CutiExport($bulan, $tahun), $fileName);
+    }
+
+    public function viewSisaCuti(Request $request)
+    {
+        // Join cuti table with karyawan table on NIK
+        $query = Cuti::query();
+        $query->select('cuti.*', 'karyawan.nama_lengkap', 'karyawan.tgl_masuk', 'department.nama_dept');
+        $query->join('karyawan', 'cuti.nik', '=', 'karyawan.nik');
+        $query->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
+        // Order by NIK
+        $query->orderBy('nik', 'asc');
+        $query->orderBy('tahun', 'desc');
+
+        // Filter by Nama if provided
+        if (!empty($request->nama_kar)) {
+            $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama_kar . '%');
+        }
+
+        if (!empty($request->kode_dept)) {
+            $query->where('karyawan.kode_dept', $request->kode_dept);
+        }
+
+        if (!empty($request->nik_req)) {
+            $query->where('cuti.nik', 'like', '%' . $request->nik_req . '%');
+        }
+
+        if (!empty($request->tahun_req)) {
+            $query->where('cuti.tahun', 'like', '%' . $request->tahun_req . '%');
+        }
+        if ($request->has('status')) {
+            if ($request->status === '0' || $request->status === '1' || $request->status === '2') {
+                $query->where('status', $request->status);
+            }
+        } else {
+            // Default to '0' (Pending) if no status_approved_hrd is provided
+            $query->where('status', 1);
+        }
+
+        // Paginate the results
+        $cuti = $query->paginate(50)->appends($request->query());
+        $department = DB::table('department')->get();
+
+        // Return the view with the results
+        return view("laporan.viewSisaCuti", compact('cuti', 'department'));
     }
 }
