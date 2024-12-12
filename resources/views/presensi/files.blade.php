@@ -206,9 +206,30 @@
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
                 var fileUrl = this.getAttribute('data-file-url');
-                filePreview.src = fileUrl;
-                modal.style.display = 'block';
-                setTimeout(() => modal.classList.add('show'), 10); // Add animation class with slight delay
+                var fileExtension = fileUrl.split('.').pop().toLowerCase(); // Get file extension
+
+                // If the file is a PDF, show SweetAlert and download it after 2 seconds
+                if (fileExtension === 'pdf') {
+                    Swal.fire({
+                        title: 'Downloading PDF',
+                        text: 'Please wait...',
+                        icon: 'info',
+                        showConfirmButton: false,
+                        timer: 2000 // Set timer for 2 seconds
+                    }).then(() => {
+                        // Trigger the download after SweetAlert closes
+                        window.location.href = fileUrl;
+                    });
+                } else {
+                    // Otherwise, show the image preview (for non-PDF files)
+                    filePreview.style.display = 'block'; // Show image preview
+                    filePreview.src = fileUrl;
+                    document.querySelector('.custom-modal-body').innerHTML = ''; // Clear any existing iframe (for PDFs)
+                    document.querySelector('.custom-modal-body').appendChild(filePreview);
+
+                    modal.style.display = 'block';
+                    setTimeout(() => modal.classList.add('show'), 10); // Add animation class with slight delay
+                }
             });
         });
 
@@ -225,5 +246,6 @@
             }
         });
     });
+
 </script>
 @endpush

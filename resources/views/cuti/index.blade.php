@@ -61,6 +61,9 @@
                                 <a href="#" class="btn btn-primary" id="btnUploadCuti">
                                     Upload Cuti
                                 </a>
+                                <a href="/cuti/export" class="btn btn-primary">
+                                    Export CSV
+                                </a>
                             </div>
                         </div>
                         <div class="row mt-2">

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\SisaCutiExport;
 use App\Models\Cuti;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -272,5 +273,10 @@ class CutiController extends Controller
             Log::error('Error uploading data: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Error uploading data: ' . $e->getMessage());
         }
+    }
+
+    public function export()
+    {
+        return Excel::download(new SisaCutiExport, 'sisa_cuti.xlsx');
     }
 }

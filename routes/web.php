@@ -168,6 +168,7 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::get('/cuti/getEmployeeName', [CutiController::class, 'getEmployeeName'])->name('getEmployeeName');
     Route::post('/cuti/uploadCuti', [CutiController::class, 'uploadCuti']);
     Route::get('/cuti/downloadTemplate', [CutiController::class, 'downloadTemplate']);
+    Route::get('/cuti/export', [CutiController::class, 'export'])->name('export.cuti');
 
     //Department
     Route::get('/department', [DepartmentController::class, 'index']);

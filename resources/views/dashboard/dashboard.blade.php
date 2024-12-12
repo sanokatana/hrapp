@@ -175,7 +175,7 @@ $userDept = $user ? $user->kode_dept : null;
                             </a>
                         </div>
                         <div class="menu-name">
-                            Reimbursement
+                            Reimburse
                         </div>
                     </div>
                     <div class="item-menu text-center">
