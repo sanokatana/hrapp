@@ -66,8 +66,6 @@ class CandidateController extends Controller
     public function candidate_store_form(StoreCandidateRequest $request)
     {
         $data = $request->validated();
-
-        // Add candidate_id manually
         $candidate = Auth::guard('candidate')->user();
         $candidateId = $candidate->id;
         $jobOpeningId = $candidate->job_opening_id;
@@ -89,79 +87,73 @@ class CandidateController extends Controller
         }
 
         // Handle the file upload for 'gambaran_posisi'
-        if ($request->hasFile('gambaran_posisi')) {
-            $file = $request->file('gambaran_posisi');
-            $extension = $file->getClientOriginalExtension();
+        try {
+            if ($request->hasFile('gambaran_posisi')) {
+                $file = $request->file('gambaran_posisi');
+                $extension = $file->getClientOriginalExtension();
 
-            // Generate a unique file name
-            $fileName = $candidateId . "_" . "gambaran_posisi" . "_" . uniqid() . "." . $extension;
+                $fileName = $candidateId . "_gambaran_posisi_" . uniqid() . "." . $extension;
+                $image = $manager->make($file);
+                $image->resize(null, 800, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                });
 
-            // Create an Intervention Image instance
-            $image = $manager->make($file);
+                $quality = 75;
+                do {
+                    $image->save($folderPath . $fileName, $quality);
+                    if (filesize($folderPath . $fileName) > 1048576) {
+                        $quality -= 5;
+                    } else {
+                        break;
+                    }
+                } while ($quality > 0);
 
-            // Resize and compress the image to keep it under 1 MB
-            $image->resize(null, 800, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize(); // Prevent upsizing
-            });
-
-            // Set the initial quality to 75% and save the image until it's under 1 MB
-            $quality = 75;
-            do {
-                $image->save($folderPath . $fileName, $quality);
-                if (filesize($folderPath . $fileName) > 1048576) { // 1 MB in bytes
-                    $quality -= 5; // Reduce quality by 5%
-                } else {
-                    break; // Break if the file is under 1 MB
-                }
-            } while ($quality > 0);
-
-            // Assign the file name to the gambaran_posisi field
-            $data['gambaran_posisi'] = $fileName;
-        } else {
-            $data['gambaran_posisi'] = "No_Document"; // Handle the case where no file is uploaded
+                $data['gambaran_posisi'] = $fileName;
+            } else {
+                $data['gambaran_posisi'] = "No_Document";
+            }
+        } catch (\Exception $e) {
+            Log::error('Error uploading file for gambaran_posisi', ['error' => $e->getMessage()]);
         }
 
         // Function to handle slip uploads
         $slips = ['slip_gaji1', 'slip_gaji2', 'slip_gaji3'];
         foreach ($slips as $slip) {
-            if ($request->hasFile($slip)) {
-                $file = $request->file($slip);
-                $extension = $file->getClientOriginalExtension();
+            try {
+                if ($request->hasFile($slip)) {
+                    $file = $request->file($slip);
+                    $extension = $file->getClientOriginalExtension();
+                    $fileName = ucfirst($slip) . "_" . $candidateId . "_" . uniqid() . "." . $extension;
 
-                // Generate a unique file name for each slip
-                $fileName = ucfirst($slip) . "_" . $candidateId . "_" . uniqid() . "." . $extension;
+                    if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
+                        $image = $manager->make($file);
+                        $image->resize(null, 800, function ($constraint) {
+                            $constraint->aspectRatio();
+                            $constraint->upsize();
+                        });
 
-                // Check if the file is an image
-                if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
-                    // Create an Intervention Image instance
-                    $image = $manager->make($file);
+                        $quality = 75;
+                        do {
+                            $image->save($folderPath . $fileName, $quality);
+                            if (filesize($folderPath . $fileName) > 1048576) {
+                                $quality -= 5;
+                            } else {
+                                break;
+                            }
+                        } while ($quality > 0);
+                    } else {
+                        $file->move($folderPath, $fileName);
+                    }
 
-                    // Resize and compress the image to keep it under 1 MB
-                    $image->resize(null, 800, function ($constraint) {
-                        $constraint->aspectRatio();
-                        $constraint->upsize(); // Prevent upsizing
-                    });
-
-                    // Set the initial quality to 75% and save the image until it's under 1 MB
-                    $quality = 75;
-                    do {
-                        $image->save($folderPath . $fileName, $quality);
-                        if (filesize($folderPath . $fileName) > 1048576) { // 1 MB in bytes
-                            $quality -= 5; // Reduce quality by 5%
-                        } else {
-                            break; // Break if the file is under 1 MB
-                        }
-                    } while ($quality > 0);
+                    $data[$slip] = $fileName;
+                    Log::info('Slip file uploaded', ['slip' => $slip, 'fileName' => $fileName]);
                 } else {
-                    // Store other file types (like PDF) without modification
-                    $file->move($folderPath, $fileName);
+                    $data[$slip] = "No_Document";
+                    Log::info('No file uploaded for slip', ['slip' => $slip]);
                 }
-
-                // Assign the file name to the respective slip field
-                $data[$slip] = $fileName;
-            } else {
-                $data[$slip] = "No_Document"; // Handle the case where no file is uploaded
+            } catch (\Exception $e) {
+                Log::error('Error uploading file for slip', ['slip' => $slip, 'error' => $e->getMessage()]);
             }
         }
 
@@ -170,7 +162,6 @@ class CandidateController extends Controller
         try {
             // Save the candidate data to the database and get the ID
             $candidateDataId = DB::table('candidate_data')->insertGetId($data);
-
             // Prepare and insert family data into candidate_data_keluarga_sendiri
             // Fixed family data for Ayah and Ibu
             $fixedFamilyDataSendiri = [
@@ -192,6 +183,7 @@ class CandidateController extends Controller
                     'keterangan' => $request->input('family1_keterangan_' . $entry['key']),
                 ];
             }
+
 
             // Process dynamically added siblings
             $siblingCount = $request->input('sibling_count'); // Assuming you keep track of sibling count
@@ -413,7 +405,6 @@ class CandidateController extends Controller
 
             // Commit the transaction
             DB::commit();
-
             return redirect()->back()->with(['success' => 'Data Berhasil Disimpan']);
         } catch (\Exception $e) {
 
