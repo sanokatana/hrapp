@@ -694,7 +694,9 @@ class DashboardController extends Controller
                         ->where('pengajuan_izin.tgl_izin', '<=', $hariini)
                         ->where('pengajuan_izin.tgl_izin_akhir', '>=', $hariini)
                         ->whereNotNull('pengajuan_izin.tgl_izin_akhir')
-                        ->where('pengajuan_izin.tgl_izin_akhir', '!=', '');
+                        ->where('pengajuan_izin.tgl_izin_akhir', '!=', '')
+                        ->where('pengajuan_izin.status_approved', 1) // Approved status
+                        ->where('pengajuan_izin.status_approved_hrd', 1); // HRD approved status
                 })
                 ->whereNotExists(function ($query) use ($hariini) {
                     $query->select(DB::raw(1))
@@ -703,7 +705,10 @@ class DashboardController extends Controller
                         ->where('pengajuan_cuti.tgl_cuti', '<=', $hariini)
                         ->where('pengajuan_cuti.tgl_cuti_sampai', '>=', $hariini)
                         ->whereNotNull('pengajuan_cuti.tgl_cuti_sampai')
-                        ->where('pengajuan_cuti.tgl_cuti_sampai', '!=', '');
+                        ->where('pengajuan_cuti.tgl_cuti_sampai', '!=', '')
+                        ->where('pengajuan_cuti.status_approved', 1) // Approved status
+                        ->where('pengajuan_cuti.status_approved_hrd', 1) // HRD approved status
+                        ->where('pengajuan_cuti.status_management', 1); // Management approved status
                 })
                 ->whereNotExists(function ($query) use ($hariini) {
                     $query->select(DB::raw(1))
@@ -711,6 +716,7 @@ class DashboardController extends Controller
                         ->whereDate('libur_nasional.tgl_libur', $hariini);
                 })
                 ->count(); // Count the records
+
 
             $historihariNonNS = DB::connection('mysql2')
                 ->table('db_absen.att_log as presensi')
@@ -770,7 +776,9 @@ class DashboardController extends Controller
                         ->where('pengajuan_izin.tgl_izin', '<=', $hariini) // Start date is before or on today
                         ->where('pengajuan_izin.tgl_izin_akhir', '>=', $hariini) // End date is after or on today
                         ->whereNotNull('pengajuan_izin.tgl_izin_akhir') // Exclude null tgl_izin_akhir
-                        ->where('pengajuan_izin.tgl_izin_akhir', '!=', ''); // Exclude empty tgl_izin_akhir
+                        ->where('pengajuan_izin.tgl_izin_akhir', '!=', '') // Exclude empty tgl_izin_akhir
+                        ->where('pengajuan_izin.status_approved', 1) // Approved status
+                        ->where('pengajuan_izin.status_approved_hrd', 1); // HRD approved status
                 })
                 ->whereNotExists(function ($query) use ($hariini) {
                     $query->select(DB::raw(1))
@@ -779,7 +787,10 @@ class DashboardController extends Controller
                         ->where('pengajuan_cuti.tgl_cuti', '<=', $hariini) // Start date is before or on today
                         ->where('pengajuan_cuti.tgl_cuti_sampai', '>=', $hariini) // End date is after or on today
                         ->whereNotNull('pengajuan_cuti.tgl_cuti_sampai') // Exclude null tgl_cuti_sampai
-                        ->where('pengajuan_cuti.tgl_cuti_sampai', '!=', ''); // Exclude empty tgl_cuti_sampai
+                        ->where('pengajuan_cuti.tgl_cuti_sampai', '!=', '') // Exclude empty tgl_cuti_sampai
+                        ->where('pengajuan_cuti.status_approved', 1) // Approved status
+                        ->where('pengajuan_cuti.status_approved_hrd', 1) // HRD approved status
+                        ->where('pengajuan_cuti.status_management', 1); // Management approved status
                 })
                 ->whereNotExists(function ($query) use ($hariini) {
                     $query->select(DB::raw(1))
@@ -794,6 +805,7 @@ class DashboardController extends Controller
                 )
                 ->get();
 
+
             $KarIzinNow = DB::table('pengajuan_izin')
                 ->join('karyawan', 'pengajuan_izin.nip', '=', 'karyawan.nip')
                 ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with jabatan table
@@ -802,6 +814,8 @@ class DashboardController extends Controller
                 ->whereNotNull('tgl_izin_akhir') // Exclude null tgl_izin_akhir
                 ->where('tgl_izin_akhir', '!=', '') // Exclude empty tgl_izin_akhir
                 ->where('karyawan.grade', '!=', 'NS') // Exclude grade NS
+                ->where('pengajuan_izin.status_approved', 1) // Status approved by supervisor
+                ->where('pengajuan_izin.status_approved_hrd', 1) // Status approved by HR
                 ->select(
                     'karyawan.nama_lengkap',
                     'pengajuan_izin.keterangan',
@@ -824,7 +838,20 @@ class DashboardController extends Controller
                         ->where('tgl_cuti_sampai', '>=', $hariini);
                 })
                 ->where('karyawan.grade', '!=', 'NS')
-                ->select('karyawan.nama_lengkap', 'pengajuan_cuti.note', 'pengajuan_cuti.tgl_cuti', 'pengajuan_cuti.tgl_cuti_sampai', 'pengajuan_cuti.jenis', 'jabatan.nama_jabatan', 'pengajuan_cuti.tipe', 'tipe_cuti.tipe_cuti', 'karyawan.kode_dept') // Select the necessary fields
+                ->where('pengajuan_cuti.status_approved', 1) // Status approved by supervisor
+                ->where('pengajuan_cuti.status_approved_hrd', 1) // Status approved by HR
+                ->where('pengajuan_cuti.status_management', 1) // Status approved by management
+                ->select(
+                    'karyawan.nama_lengkap',
+                    'pengajuan_cuti.note',
+                    'pengajuan_cuti.tgl_cuti',
+                    'pengajuan_cuti.tgl_cuti_sampai',
+                    'pengajuan_cuti.jenis',
+                    'jabatan.nama_jabatan',
+                    'pengajuan_cuti.tipe',
+                    'tipe_cuti.tipe_cuti',
+                    'karyawan.kode_dept'
+                )
                 ->get();
 
             return view('dashboard.admin', compact(
@@ -861,6 +888,8 @@ class DashboardController extends Controller
                 ->whereNotNull('tgl_izin_akhir') // Exclude null tgl_izin_akhir
                 ->where('tgl_izin_akhir', '!=', '') // Exclude empty tgl_izin_akhir
                 ->where('karyawan.grade', '!=', 'NS') // Exclude grade NS
+                ->where('pengajuan_izin.status_approved', 1) // Approved status
+                ->where('pengajuan_izin.status_approved_hrd', 1) // HRD approved status
                 ->count();
 
 
@@ -871,6 +900,9 @@ class DashboardController extends Controller
                 ->whereNotNull('tgl_cuti_sampai') // Exclude null end dates
                 ->where('tgl_cuti_sampai', '!=', '') // Exclude empty end dates
                 ->where('karyawan.grade', '!=', 'NS') // Exclude grade NS
+                ->where('pengajuan_cuti.status_approved', 1) // Approved status
+                ->where('pengajuan_cuti.status_approved_hrd', 1) // HRD approved status
+                ->where('pengajuan_cuti.status_management', 1) // Management approved status
                 ->count();
 
 
@@ -907,7 +939,9 @@ class DashboardController extends Controller
                         ->where('pengajuan_izin.tgl_izin', '<=', $hariini)
                         ->where('pengajuan_izin.tgl_izin_akhir', '>=', $hariini)
                         ->whereNotNull('pengajuan_izin.tgl_izin_akhir')
-                        ->where('pengajuan_izin.tgl_izin_akhir', '!=', '');
+                        ->where('pengajuan_izin.tgl_izin_akhir', '!=', '')
+                        ->where('pengajuan_izin.status_approved', 1) // Approved status
+                        ->where('pengajuan_izin.status_approved_hrd', 1); // HRD approved status
                 })
                 ->whereNotExists(function ($query) use ($hariini) {
                     $query->select(DB::raw(1))
@@ -916,7 +950,10 @@ class DashboardController extends Controller
                         ->where('pengajuan_cuti.tgl_cuti', '<=', $hariini)
                         ->where('pengajuan_cuti.tgl_cuti_sampai', '>=', $hariini)
                         ->whereNotNull('pengajuan_cuti.tgl_cuti_sampai')
-                        ->where('pengajuan_cuti.tgl_cuti_sampai', '!=', '');
+                        ->where('pengajuan_cuti.tgl_cuti_sampai', '!=', '')
+                        ->where('pengajuan_cuti.status_approved', 1) // Approved status
+                        ->where('pengajuan_cuti.status_approved_hrd', 1) // HRD approved status
+                        ->where('pengajuan_cuti.status_management', 1); // Management approved status
                 })
                 ->whereNotExists(function ($query) use ($hariini) {
                     $query->select(DB::raw(1))
@@ -924,6 +961,7 @@ class DashboardController extends Controller
                         ->whereDate('libur_nasional.tgl_libur', $hariini);
                 })
                 ->count(); // Count the records
+
 
 
 
@@ -1034,7 +1072,9 @@ class DashboardController extends Controller
                         ->where('pengajuan_izin.tgl_izin', '<=', $hariini) // Start date is before or on today
                         ->where('pengajuan_izin.tgl_izin_akhir', '>=', $hariini) // End date is after or on today
                         ->whereNotNull('pengajuan_izin.tgl_izin_akhir') // Exclude null tgl_izin_akhir
-                        ->where('pengajuan_izin.tgl_izin_akhir', '!=', ''); // Exclude empty tgl_izin_akhir
+                        ->where('pengajuan_izin.tgl_izin_akhir', '!=', '') // Exclude empty tgl_izin_akhir
+                        ->where('pengajuan_izin.status_approved', 1) // Approved status
+                        ->where('pengajuan_izin.status_approved_hrd', 1); // HRD approved status
                 })
                 ->whereNotExists(function ($query) use ($hariini) {
                     $query->select(DB::raw(1))
@@ -1043,7 +1083,10 @@ class DashboardController extends Controller
                         ->where('pengajuan_cuti.tgl_cuti', '<=', $hariini) // Start date is before or on today
                         ->where('pengajuan_cuti.tgl_cuti_sampai', '>=', $hariini) // End date is after or on today
                         ->whereNotNull('pengajuan_cuti.tgl_cuti_sampai') // Exclude null tgl_cuti_sampai
-                        ->where('pengajuan_cuti.tgl_cuti_sampai', '!=', ''); // Exclude empty tgl_cuti_sampai
+                        ->where('pengajuan_cuti.tgl_cuti_sampai', '!=', '') // Exclude empty tgl_cuti_sampai
+                        ->where('pengajuan_cuti.status_approved', 1) // Approved status
+                        ->where('pengajuan_cuti.status_approved_hrd', 1) // HRD approved status
+                        ->where('pengajuan_cuti.status_management', 1); // Management approved status
                 })
                 ->whereNotExists(function ($query) use ($hariini) {
                     $query->select(DB::raw(1))
@@ -1057,6 +1100,7 @@ class DashboardController extends Controller
                     DB::raw('\'00:00\' as jam_in') // Set jam_in to 00:00 for no attendance
                 )
                 ->get();
+
 
 
 
@@ -1356,6 +1400,8 @@ class DashboardController extends Controller
                 ->whereNotNull('tgl_izin_akhir') // Exclude null tgl_izin_akhir
                 ->where('tgl_izin_akhir', '!=', '') // Exclude empty tgl_izin_akhir
                 ->where('karyawan.grade', '!=', 'NS') // Exclude grade NS
+                ->where('pengajuan_izin.status_approved', 1) // Status approved by supervisor
+                ->where('pengajuan_izin.status_approved_hrd', 1) // Status approved by HR
                 ->select(
                     'karyawan.nama_lengkap',
                     'pengajuan_izin.keterangan',
@@ -1368,8 +1414,6 @@ class DashboardController extends Controller
                 )
                 ->get();
 
-
-
             // Fetch employees who are on cuti today
             $KarCutiNow = DB::table('pengajuan_cuti')
                 ->join('karyawan', 'pengajuan_cuti.nip', '=', 'karyawan.nip')
@@ -1380,7 +1424,20 @@ class DashboardController extends Controller
                         ->where('tgl_cuti_sampai', '>=', $hariini);
                 })
                 ->where('karyawan.grade', '!=', 'NS')
-                ->select('karyawan.nama_lengkap', 'pengajuan_cuti.note', 'pengajuan_cuti.tgl_cuti', 'pengajuan_cuti.tgl_cuti_sampai', 'pengajuan_cuti.jenis', 'jabatan.nama_jabatan', 'pengajuan_cuti.tipe', 'tipe_cuti.tipe_cuti', 'karyawan.kode_dept') // Select the necessary fields
+                ->where('pengajuan_cuti.status_approved', 1) // Status approved by supervisor
+                ->where('pengajuan_cuti.status_approved_hrd', 1) // Status approved by HR
+                ->where('pengajuan_cuti.status_management', 1) // Status approved by management
+                ->select(
+                    'karyawan.nama_lengkap',
+                    'pengajuan_cuti.note',
+                    'pengajuan_cuti.tgl_cuti',
+                    'pengajuan_cuti.tgl_cuti_sampai',
+                    'pengajuan_cuti.jenis',
+                    'jabatan.nama_jabatan',
+                    'pengajuan_cuti.tipe',
+                    'tipe_cuti.tipe_cuti',
+                    'karyawan.kode_dept'
+                )
                 ->get();
 
             $KarIzinNowNS = DB::table('pengajuan_izin')
