@@ -54,7 +54,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Nama Lengkap <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="nama_lengkap" id="nama_lengkap" placeholder="Nama Lengkap">
+                                    <input type="text" class="form-control" name="nama_lengkap" id="nama_lengkap" placeholder="Nama Lengkap" maxlength="255">
                                 </div>
                             </div>
 
@@ -62,7 +62,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Nama Kecil/Panggilan <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="nama_panggilan" id="nama_panggilan" placeholder="Nama Panggilan">
+                                    <input type="text" class="form-control" name="nama_panggilan" id="nama_panggilan" placeholder="Nama Panggilan" maxlength="255">
                                 </div>
                             </div>
 
@@ -98,7 +98,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Tempat Lahir <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="tempat_lahir" id="tempat_lahir">
+                                    <input type="text" class="form-control" name="tempat_lahir" id="tempat_lahir" maxlength="255">
                                 </div>
                             </div>
 
@@ -113,7 +113,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Warga Negara <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="warga_negara" id="warga_negara" placeholder="Warga Negara">
+                                    <input type="text" class="form-control" name="warga_negara" id="warga_negara" placeholder="Warga Negara" maxlength="255">
                                 </div>
                             </div>
 
@@ -121,7 +121,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Alamat Rumah <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <textarea class="form-control" name="alamat_rumah" id="alamat_rumah" rows="2" placeholder="Alamat Rumah"></textarea>
+                                    <textarea class="form-control" name="alamat_rumah" id="alamat_rumah" rows="2" placeholder="Alamat Rumah" maxlength="500"></textarea>
                                 </div>
                             </div>
 
@@ -178,7 +178,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Telpon Rumah/HP <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="telp_rumah_hp" id="telp_rumah_hp" placeholder="Telpon Rumah/HP">
+                                    <input type="text" class="form-control" name="telp_rumah_hp" id="telp_rumah_hp" placeholder="Telpon Rumah/HP" maxlength="50">
                                 </div>
                             </div>
 
@@ -186,7 +186,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">No. KTP/SIM <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="no_ktp_sim" id="no_ktp_sim" placeholder="No. KTP/SIM">
+                                    <input type="text" class="form-control" name="no_ktp_sim" id="no_ktp_sim" placeholder="No. KTP/SIM" maxlength="100">
                                 </div>
                             </div>
 
@@ -202,7 +202,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">No. NPWP <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="no_npwp" placeholder="No. NPWP" id="no_npwp">
+                                    <input type="text" class="form-control" name="no_npwp" placeholder="No. NPWP" id="no_npwp" maxlength="100">
                                 </div>
                             </div>
 
@@ -210,7 +210,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Alamat NPWP <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <textarea class="form-control" name="alamat_npwp" id="alamat_npwp" rows="2" placeholder="Alamat NPWP"></textarea>
+                                    <textarea class="form-control" name="alamat_npwp" id="alamat_npwp" rows="2" placeholder="Alamat NPWP" maxlength="1000"></textarea>
                                 </div>
                             </div>
 
@@ -256,7 +256,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Jabatan saat ini <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="jabatan" id="jabatan" placeholder="Jabatan saat ini">
+                                    <input type="text" class="form-control" name="jabatan" id="jabatan" placeholder="Jabatan saat ini" maxlength="255">
                                 </div>
                             </div>
 
@@ -264,7 +264,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Nama Perusahaan</label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="nama_perusahaan" id="nama_perusahaan" placeholder="Nama Perusahaan">
+                                    <input type="text" class="form-control" name="nama_perusahaan" id="nama_perusahaan" placeholder="Nama Perusahaan" maxlength="255">
                                 </div>
                             </div>
 
@@ -272,7 +272,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Alamat Perusahaan</label>
                                 <div class="col-md-9">
-                                    <textarea class="form-control" name="alamat_perusahaan" id="alamat_perusahaan" rows="2" placeholder="Alamat Perusahaan"></textarea>
+                                    <textarea class="form-control" name="alamat_perusahaan" id="alamat_perusahaan" rows="2" placeholder="Alamat Perusahaan" maxlength="500"></textarea>
                                 </div>
                             </div>
 
@@ -280,7 +280,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Alamat Email <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <input type="email" class="form-control" name="alamat_email" id="alamat_email" placeholder="Alamat Email">
+                                    <input type="email" class="form-control" name="alamat_email" id="alamat_email" placeholder="Alamat Email" maxlength="255">
                                 </div>
                             </div>
 
@@ -790,25 +790,25 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Nama <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="em_nama" id="em_nama">
+                                    <input type="text" class="form-control" name="em_nama" id="em_nama" maxlength="255">
                                 </div>
                             </div>
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Alamat <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="em_alamat" id="em_alamat">
+                                    <input type="text" class="form-control" name="em_alamat" id="em_alamat" maxlength="255">
                                 </div>
                             </div>
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Telpon <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="em_telp" id="em_telp">
+                                    <input type="text" class="form-control" name="em_telp" id="em_telp" maxlength="255">
                                 </div>
                             </div>
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Hubungan <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="em_status" id="em_status">
+                                    <input type="text" class="form-control" name="em_status" id="em_status" maxlength="255">
                                 </div>
                             </div>
 
@@ -818,20 +818,20 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-4 col-form-label">Referensi 1</label>
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" name="nama_referensi1">
+                                    <input type="text" class="form-control" name="nama_referensi1" maxlength="255">
                                 </div>
                             </div>
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-4 col-form-label">Referensi 2</label>
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" name="nama_referensi2">
+                                    <input type="text" class="form-control" name="nama_referensi2" maxlength="255">
                                 </div>
                             </div>
 
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-12 col-form-label">5. Apakah Saudara pernah menderita sakit yang lama ? <span style="color: red;">*</span></label>
                                 <div class="col-md-12">
-                                    <textarea class="form-control" name="sakit_lama" id="sakit_lama" rows="2" placeholder="Alasan"></textarea>
+                                    <textarea class="form-control" name="sakit_lama" id="sakit_lama" rows="2" placeholder="Alasan" maxlength="255"></textarea>
                                 </div>
                             </div>
 
