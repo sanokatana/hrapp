@@ -977,13 +977,29 @@ class PresensiController extends Controller
     public function batalCuti(Request $request)
     {
         $cutiIds = $request->input('cuti_ids');
-
         $email_karyawan = Auth::guard('karyawan')->user()->email;
+
         if ($cutiIds) {
             DB::beginTransaction();
 
             try {
+                // Check if any status is already 3
+                $existingStatus = PengajuanCuti::whereIn('id', $cutiIds)
+                    ->where(function ($query) {
+                        $query->where('status_approved', 3)
+                            ->orWhere('status_approved_hrd', 3)
+                            ->orWhere('status_management', 3);
+                    })
+                    ->exists();
+
+                if ($existingStatus) {
+                    return response()->json(['success' => false, 'message' => 'Cuti ini sudah di batalkan']);
+                }
+
+                // Fetch leave applications
                 $leaveApplications = PengajuanCuti::whereIn('id', $cutiIds)->get();
+
+                // Update statuses to 3
                 PengajuanCuti::whereIn('id', $cutiIds)
                     ->update([
                         'status_approved' => 3,
@@ -1009,19 +1025,19 @@ class PresensiController extends Controller
 
                     // Email notification logic
                     $emailContent = "
-                    Pembatalan Cuti Karyawan<br><br>
-                    Nama : {$employee->nama_lengkap}<br>
-                    Tanggal Pembatalan : " . DateHelper::formatIndonesianDate(now()->toDateString()) . "<br>
-                    NIK : {$leaveApplication->nik}<br>
-                    NIP : {$leaveApplication->nip}<br>
-                    Periode : {$leaveApplication->periode}<br>
-                    Tanggal Cuti : " . DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti) . "<br>
-                    Tanggal Cuti Sampai : " . DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti_sampai) . "<br>
-                    Jumlah Hari : {$leaveApplication->jml_hari}<br>
-                    Sisa Cuti Setelah Pembatalan : {$newSisaCuti}<br><br>
+                        Pembatalan Cuti Karyawan<br><br>
+                        Nama : {$employee->nama_lengkap}<br>
+                        Tanggal Pembatalan : " . DateHelper::formatIndonesianDate(now()->toDateString()) . "<br>
+                        NIK : {$leaveApplication->nik}<br>
+                        NIP : {$leaveApplication->nip}<br>
+                        Periode : {$leaveApplication->periode}<br>
+                        Tanggal Cuti : " . DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti) . "<br>
+                        Tanggal Cuti Sampai : " . DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti_sampai) . "<br>
+                        Jumlah Hari : {$leaveApplication->jml_hari}<br>
+                        Sisa Cuti Setelah Pembatalan : {$newSisaCuti}<br><br>
 
-                    Terima Kasih
-                ";
+                        Terima Kasih
+                    ";
 
                     Mail::html($emailContent, function ($message) use ($leaveApplication, $email_karyawan) {
                         $ccList = [
@@ -1033,24 +1049,16 @@ class PresensiController extends Controller
                         if (!empty($email_karyawan) && filter_var($email_karyawan, FILTER_VALIDATE_EMAIL)) {
                             $ccList[] = $email_karyawan;
                         } else {
-                            // Log or handle invalid email_karyawan, if needed
                             Log::warning("Invalid or empty email_karyawan: {$email_karyawan}");
                         }
 
-                        // Find the atasan email
                         $atasanEmail = null;
                         if ($leaveApplication->nik) {
-                            // Step 1: Get the current employee's jabatan ID
                             $employee = DB::table('karyawan')->where('nik', $leaveApplication->nik)->first();
-
                             if ($employee && $employee->jabatan) {
-                                // Step 2: Get the jabatan_atasan ID from the jabatan table
                                 $jabatanAtasan = DB::table('jabatan')->where('id', $employee->jabatan)->value('jabatan_atasan');
-
                                 if ($jabatanAtasan) {
-                                    // Step 3: Find the atasan in the karyawan table
                                     $atasan = DB::table('karyawan')->where('jabatan', $jabatanAtasan)->first();
-
                                     if ($atasan && $atasan->email) {
                                         $atasanEmail = $atasan->email;
                                     }
@@ -1078,7 +1086,6 @@ class PresensiController extends Controller
             } catch (\Exception $e) {
                 DB::rollBack();
 
-                // Log the error
                 Log::error('Error in batalCuti method', [
                     'error' => $e->getMessage(),
                     'cuti_ids' => $cutiIds,
@@ -1091,4 +1098,5 @@ class PresensiController extends Controller
 
         return response()->json(['success' => false, 'message' => 'Tidak ada pengajuan cuti yang dipilih']);
     }
+
 }

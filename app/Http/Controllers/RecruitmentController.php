@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
@@ -22,6 +23,7 @@ class RecruitmentController extends Controller
         $candidates = DB::table('candidates')
             ->join('job_openings', 'candidates.job_opening_id', '=', 'job_openings.id')
             ->join('hiring_stages', 'candidates.current_stage_id', '=', 'hiring_stages.id')
+            ->orderBy('id', 'asc')
             ->select('candidates.*', 'job_openings.title as job_opening_name', 'hiring_stages.name as hiring_stages_name');
 
 
@@ -51,14 +53,31 @@ class RecruitmentController extends Controller
 
     public function candidate_store(Request $request)
     {
+
+        $request->validate([
+            'nama_candidate' => 'required|string|max:255',
+            'email' => 'required|email', // Ensure email is valid
+            'job_opening_id' => 'required|integer',
+            'interview_date' => 'required|date',
+            'interview_time' => 'required|string',
+            'notes' => 'nullable|string',
+            'interviewer' => 'required|string|max:255',
+            'interviewer2' => 'nullable|string|max:255',
+        ]);
+
+
         $nama_candidate = $request->nama_candidate;
-        $username = $request->username;
         $email = $request->email;
         $job_opening_id = $request->job_opening_id;
-        $current_stage_id = $request->current_stage_id;
-        $status = $request->status;
-        $password = $request->password;
+        $current_stage_id = 1;
+        $status = 'In Process';
         $email_user = Auth::guard('user')->user()->email;
+
+        // Generate username from nama_candidate
+        $username = $this->generateUsername($nama_candidate);
+
+        // Generate a simple random password
+        $password = Str::random(6); // 6-character alphanumeric password
 
         // Fetch the job opening title using the job_opening_id
         $job_opening = DB::table('job_openings')
@@ -94,7 +113,7 @@ class RecruitmentController extends Controller
 
 
         // Send email to the candidate
-        if ($email) {
+        if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $interview_date = $request->interview_date;
             $interview_time = $request->interview_time;
             $interviewer = $request->interviewer2;
@@ -102,38 +121,39 @@ class RecruitmentController extends Controller
             $formattedInterviewDate = DateHelper::formatIndonesianDate($interview_date);
 
             $emailContent = <<<EOD
-            YT. {$nama_candidate}<br><br>
-            Perkenalkan saya Zicki dari HR <b>PT Cipta Harmoni Lestari</b>. Menindaklanjuti lamaran sebelumnya, kami hendak mengundang untuk mengikuti proses <b>Recruitment</b>. Kemudian perhatikan <b>3 tahapan</b> berikut ini:<br><br>
+            Kepada Yth.<br>
+            Bpk/Ibu/Sdr/i {$nama_candidate}<br>
+            Di Tempat<br><br>
+            Dengan hormat,<br>
+            Berdasarkan Aplikasi saudara, dengan ini kami mengundang  anda untuk mengikuti proses <b><i>Recruitment</i> di PT Cipta Harmoni Lestari Group</b> melalui 3 tahapan berikut:<br><br>
 
-            1. Silahkan lengkapi <b>form data administrasi</b> dengan cara akses website portal kami di <a href="http://hrms.ciptaharmoni.com/candidate">hrms.ciptaharmoni.com/candidate</a>. Setelah itu input data dibawah ini:
+            1. Silahkan <b>mengisi data pribadi</b> saudara melalui link website kami <a href="http://hrms.ciptaharmoni.com/candidate">hrms.ciptaharmoni.com/candidate</a> dengan kode akses:
             <ul>
                 <li>Username &nbsp;&nbsp;: {$username}</li>
                 <li>Password &nbsp;&nbsp;&nbsp;: {$password}</li>
-                <li>Berikut link Video tutorial untuk melengkapi form data: https://drive.google.com/file/d/1bFizRnN5JR454qeRknmaGdTtmGMnZMnH/view?usp=drive_link</li>
+                <li>Jika anda mengalami kesulitan dalam pengisiannya bisa di lihat dalam link Video tutorial berikut, https://drive.google.com/file/d/1bFizRnN5JR454qeRknmaGdTtmGMnZMnH/view?usp=drive_link</li>
             </ul>
 
-            2. Selesaikan <b>psikotest online</b> dengan cara akses website portal kami di https://extendedforms.io/form/9a116bdb-1df4-4fba-84e7-b2aa91526cd9/login. Setelah itu ikuti instruksi sebagai berikut:
+            2. Mengikuti <b>psikotest online</b> dengan cara akses website portal kami di https://extendedforms.io/form/9a116bdb-1df4-4fba-84e7-b2aa91526cd9/login dengan langkah dan ketentuan dibawah ini:
             <ul>
                 <li>Login menggunakan PC/ Handphone</li>
-                <li>Waktu Pengerjaan selama 30 menit</li>
-                <li>Jawab dengan jujur, bahkan jika anda tidak menyukai jawabannya</li>
-                <li>Cobalah untuk tidak memilih jawaban netral</li>
+                <li>Durasi waktu pengerjaan selama 30 menit</li>
+                <li>Dijawab dengan jujur, bahkan jika anda tidak menyukai jawabannya</li>
             </ul>
 
-            3. Simak informasi <b>interview</b><br>
-            Berikutnya kami bermaksud mengundang anda untuk mengikuti interview yang akan dilaksanakan pada,<br>
+            3. Informasi <b>jadwal interview</b> yang akan dilaksanakan pada,<br>
             <ul>
                 <li>Hari & Tanggal    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$formattedInterviewDate}</li>
                 <li>Waktu             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$interview_time} - Selesai</li>
-                <li>Posisi            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$position}</li>
+                <li>Posisi di lamar   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$position}</li>
                 <li>Interviewer       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$interviewer}</li>
                 <li>Alamat            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: CHL Group Marketing Lounge,<br>Ruko Sorrento Place No. 18-19 PJQJ+R8G, Jl. Ir.Sukarno, Curug Sangereng, Kec.Klp. Dua, Kabupaten Tangerang, Banten 15810. https://goo.gl/maps/Ko81dv9gxMHmMC7p9 </li>
             </ul>
 
             <b>CATATAN:</b><br>
             <ul>
-                <li>Info kembali melalui WhatsApp HR, jika semua <b>form data administrasi</b> dan <b>psikotest online</b> sudah dilengkapi.</li>
-                <li>Maksimal waktu pengisian form dan test adalah hari ini.</li>
+                <li>Setelah mengisis <b>data pribadi</b> dan mengerjakan <b>psikotest online</b> agar menginformasikan kepada kami via <i>WhatsApp</i> di nomor: 0813 8500 0789</li>
+                <li><b>Data pribadi</b> dan <b>psikotest online</b> agar di isi dihari yang sama pada saat terima email ini</li>
                 <li>Harap hadir 10 menit sebelum jadwal pelaksanaan <b>interview</b>.</li>
             </ul>
 
@@ -141,20 +161,27 @@ class RecruitmentController extends Controller
             Best regards,<br>
             Zicki Darmawan<br>
             HR CHL Group<br>
-            <a href="https://www.ciptaharmoni.com/">www.ciptaharmoni.com</a><br>
+            <a href="https://www.ciptaharmoni.com/">www.ciptaharmoni.com</a><br><br><br><br>
+            <i>Kandidat Markom dan Architect agar menyiapkan bahan prsentasi portopolio dengan membawa laptop pribadi.</i>
         EOD;
 
             // Send email
-            Mail::html($emailContent, function ($message) use ($email, $nama_candidate, $email_user) {
-                $message->to($email)
-                    ->subject("CHL Job Candidacy Invitation for {$nama_candidate}")
-                    ->cc(['human.resources@ciptaharmoni.com', $email_user])
-                    ->priority(1);
+            try {
+                Mail::html($emailContent, function ($message) use ($email, $nama_candidate, $email_user) {
+                    $message->to($email)
+                        ->subject("CHL Job Candidacy Invitation for {$nama_candidate}")
+                        ->cc(['human.resources@ciptaharmoni.com', $email_user])
+                        ->priority(1);
 
-                // Add importance headers
-                $message->getHeaders()->addTextHeader('Importance', 'high');
-                $message->getHeaders()->addTextHeader('X-Priority', '1');
-            });
+                    // Add importance headers
+                    $message->getHeaders()->addTextHeader('Importance', 'high');
+                    $message->getHeaders()->addTextHeader('X-Priority', '1');
+                });
+            } catch (\Exception $e) {
+                return Redirect::back()->with(['warning' => 'Failed to send email: ' . $e->getMessage()]);
+            }
+        } else {
+            return Redirect::back()->with(['warning' => 'Invalid email address.']);
         }
 
         if ($candidateID) {
@@ -164,6 +191,22 @@ class RecruitmentController extends Controller
         }
     }
 
+
+    private function generateUsername($nama_candidate)
+    {
+        $nameParts = explode(' ', strtolower($nama_candidate));
+        $baseUsername = $nameParts[0] . (isset($nameParts[1]) ? '_' . substr($nameParts[1], 0, 1) : '');
+
+        $username = $baseUsername;
+        $iteration = 1;
+
+        while (DB::table('candidates')->where('username', $username)->exists()) {
+            $username = $baseUsername . ($iteration > 1 ? $iteration : '');
+            $iteration++;
+        }
+
+        return $username;
+    }
 
 
     public function candidate_edit(Request $request)
@@ -648,6 +691,7 @@ class RecruitmentController extends Controller
             ->join('candidates', 'candidate_data.candidate_id', '=', 'candidates.id') // Join candidates table
             ->join('job_openings', 'candidates.job_opening_id', '=', 'job_openings.id') // Join job_openings table to get job title
             ->join('hiring_stages', 'candidates.current_stage_id', '=', 'hiring_stages.id') // Join stages table to get the current stage
+            ->orderBy('id', 'asc')
             ->select(
                 'candidate_data.*',
                 'candidates.nama_candidate as candidate_name', // Retrieve candidate name

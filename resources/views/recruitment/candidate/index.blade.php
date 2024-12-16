@@ -214,19 +214,6 @@
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="form-label">Username</div>
-                            <div class="input-icon mb-3">
-                                <span class="input-icon-addon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
-                                        <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                                    </svg>
-                                </span>
-                                <input type="text" value="" class="form-control" name="username" id="username" placeholder="Username">
-                            </div>
-                        </div>
-                        <div class="col-6">
                             <div class="form-label">Email</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
@@ -248,48 +235,6 @@
                                     <option {{ Request('id') == $d->id ? 'selected' : '' }} value="{{ $d->id }}">{{ $d->title }}</option>
                                     @endforeach
                                 </select>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="form-label">Current Stage</div>
-                            <div class="input-icon mb-3">
-                                <select name="current_stage_id" id="current_stage_id" class="form-select">
-                                    <option value="">Pilih</option>
-                                    @foreach ($currentStage as $d)
-                                    <option {{ Request('id') == $d->id ? 'selected' : '' }} value="{{ $d->id }}">{{ $d->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="form-label">Status</div>
-                            <div class="input-icon mb-3">
-                                <select name="status" id="status" class="form-select">
-                                    <option value="">Pilih Status</option>
-                                    <option value="In Process">In Process</option>
-                                    <option value="Hired">Hired</option>
-                                    <option value="Rejected">Rejected</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="form-label">Password</div>
-                            <div class="input-icon mb-3">
-                                <span class="input-icon-addon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-password">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M12 10v4" />
-                                        <path d="M10 13l4 -2" />
-                                        <path d="M10 11l4 2" />
-                                        <path d="M5 10v4" />
-                                        <path d="M3 13l4 -2" />
-                                        <path d="M3 11l4 2" />
-                                        <path d="M19 10v4" />
-                                        <path d="M17 13l4 -2" />
-                                        <path d="M17 11l4 2" />
-                                    </svg>
-                                </span>
-                                <input type="text" value="" class="form-control" name="password" id="password" placeholder="password">
                             </div>
                         </div>
                         <div class="col-6">
@@ -461,7 +406,6 @@
 
         $('#formCandidate').submit(function() {
             var nama_candidate = $('#nama_candidate').val();
-            var username = $('#username').val();
             if (nama_candidate == "") {
                 Swal.fire({
                     title: 'Warning!',
@@ -470,16 +414,6 @@
                     confirmButtonText: 'Ok'
                 }).then(() => {
                     $('#nama_candidate').focus();
-                });
-                return false;
-            } else if (username == "") {
-                Swal.fire({
-                    title: 'Warning!',
-                    text: 'Username Harus Diisi',
-                    icon: 'warning',
-                    confirmButtonText: 'Ok'
-                }).then(() => {
-                    $('#username').focus();
                 });
                 return false;
             }
