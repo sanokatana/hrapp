@@ -1201,4 +1201,142 @@ class LaporanController extends Controller
         // Return the view with the results
         return view("laporan.viewSisaCuti", compact('cuti', 'department'));
     }
+
+    public function showAttendanceTable(Request $request)
+    {
+
+        $years = DB::connection('mysql2')
+            ->table('db_absen.att_log')
+            ->selectRaw('MIN(YEAR(scan_date)) as earliest_year, MAX(YEAR(scan_date)) as latest_year')
+            ->first();
+
+        $earliestYear = $years->earliest_year;
+        $latestYear = $years->latest_year;
+        // Retrieve month and year filters, default to current month and year
+        $filterMonth = $request->input('bulan', Carbon::now()->month);
+        $filterYear = $request->input('tahun', Carbon::now()->year);
+
+        // Total days in the selected month and year
+        $daysInMonth = Carbon::create($filterYear, $filterMonth, 1)->daysInMonth;
+
+        // Initialize arrays for each category
+        $hadir = [];
+        $telat = [];
+        $izin = [];
+        $cuti = [];
+        $mangkir = [];
+
+        // Get total active employees excluding grade 'NS'
+        $totalKaryawan = DB::table('karyawan')
+            ->where('status_kar', 'Aktif')
+            ->where('grade', '!=', 'NS')
+            ->count();
+
+        // Loop through each day of the selected month
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $date = Carbon::create($filterYear, $filterMonth, $day)->format('Y-m-d');
+
+            // Hadir and Telat
+            $rekappresensi = DB::connection('mysql2')
+                ->table(DB::raw('(
+                    SELECT pin, MIN(scan_date) as earliest_scan
+                    FROM db_absen.att_log
+                    WHERE DATE(scan_date) = "' . $date . '"
+                    GROUP BY pin
+                ) as presensi'))
+                ->selectRaw('
+                    COUNT(presensi.pin) as hadir,
+                    COUNT(CASE WHEN TIME(presensi.earliest_scan) > "08:00:00" THEN presensi.pin END) as telat
+                ')
+                ->join('hrmschl.karyawan', 'presensi.pin', '=', 'karyawan.nip')
+                ->where('status_kar', 'Aktif')
+                ->where('grade', '!=', 'NS')
+                ->first();
+
+            $hadir[$day] = $rekappresensi->hadir ?? 0;
+            $telat[$day] = $rekappresensi->telat ?? 0;
+
+
+
+            // Izin
+            $izin[$day] = DB::table('pengajuan_izin')
+                ->join('karyawan', 'pengajuan_izin.nip', '=', 'karyawan.nip')
+                ->where('tgl_izin', '<=', $date)
+                ->where('tgl_izin_akhir', '>=', $date)
+                ->where('pengajuan_izin.status_approved', 1)
+                ->where('pengajuan_izin.status_approved_hrd', 1)
+                ->where('karyawan.grade', '!=', 'NS')
+                ->count();
+
+            // Cuti
+            $cuti[$day] = DB::table('pengajuan_cuti')
+                ->join('karyawan', 'pengajuan_cuti.nip', '=', 'karyawan.nip')
+                ->where('tgl_cuti', '<=', $date)
+                ->where('tgl_cuti_sampai', '>=', $date)
+                ->where('pengajuan_cuti.status_approved', 1)
+                ->where('pengajuan_cuti.status_approved_hrd', 1)
+                ->where('pengajuan_cuti.status_management', 1)
+                ->where('karyawan.grade', '!=', 'NS')
+                ->count();
+
+            // Mangkir
+            $mangkir[$day] = $totalKaryawan - ($hadir[$day] + $izin[$day] + $cuti[$day]);
+        }
+
+        $percentMangkir = [];
+        $percentHadir = [];
+        $percentIzin = [];
+        $percentCuti = [];
+        $percentTelat = [];
+
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            // Mangkir percentage = Mangkir / Total Karyawan * 100
+            $percentMangkir[$day] = round(($mangkir[$day] / $totalKaryawan) * 100, 0);
+
+
+            // Mangkir percentage = Mangkir / Total Karyawan * 100
+            $percentIzin[$day] = round(($izin[$day] / $totalKaryawan) * 100, 0);
+
+
+            $percentCuti[$day] = round(($cuti[$day] / $totalKaryawan) * 100, 0);
+
+            // Hadir percentage = Hadir / Total Karyawan * 100
+            $percentHadir[$day] = round(($hadir[$day] / $totalKaryawan) * 100, 0);
+
+            // Telat percentage = Telat / Hadir * 100 (avoid division by zero)
+            $percentTelat[$day] = $hadir[$day] > 0 ? round(($telat[$day] / $hadir[$day]) * 100, 0) : 0;
+        }
+
+        // Add total percentages
+        $totalPercentHadir = round((array_sum($hadir) / ($totalKaryawan * $daysInMonth)) * 100, 2);
+        $totalPercentMangkir = round((array_sum($mangkir) / ($totalKaryawan * $daysInMonth)) * 100, 2);
+        $totalPercentIzin = round((array_sum($izin) / ($totalKaryawan * $daysInMonth)) * 100, 2);
+        $totalPercentCuti = round((array_sum($cuti) / ($totalKaryawan * $daysInMonth)) * 100, 2);
+        $totalPercentTelat = array_sum($hadir) > 0 ? round((array_sum($telat) / array_sum($hadir)) * 100, 2) : 0;
+
+        // Return the view with filtered results
+        return view('laporan.dailyMonitor', compact(
+            'daysInMonth',
+            'hadir',
+            'telat',
+            'izin',
+            'cuti',
+            'mangkir',
+            'totalKaryawan',
+            'filterMonth',
+            'filterYear',
+            'earliestYear',
+            'latestYear',
+            'totalPercentHadir',
+            'totalPercentMangkir',
+            'totalPercentTelat',
+            'percentHadir',
+            'percentMangkir',
+            'percentCuti',
+            'percentIzin',
+            'totalPercentIzin',
+            'totalPercentCuti',
+            'percentTelat'
+        ));
+    }
 }

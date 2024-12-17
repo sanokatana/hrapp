@@ -40,12 +40,17 @@ class RecruitmentController extends Controller
         }
 
         $candidate = $candidates->get(); // Get results after applying filters
+
         $interviewer = DB::table('karyawan')
             ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with the jabatan table
             ->where('karyawan.status_kar', 'Aktif') // Only active employees
-            ->whereIn('jabatan.jabatan', ['Section Head', 'Head of Department', 'Management']) // Filter by job titles
+            ->where(function($query) {
+                $query->whereIn('jabatan.jabatan', ['Section Head', 'Head of Department', 'Management']) // Filter by job titles
+                    ->orWhere('jabatan.id', 12); // Include jabatan.id = 12
+            })
             ->select('karyawan.*', 'jabatan.nama_jabatan as nama_jabatan') // Select all karyawan fields
             ->get();
+
         $job = DB::table('job_openings')->get();
         $currentStage = DB::table('hiring_stages')->get();
         return view("recruitment.candidate.index", compact('candidate', 'currentStage', 'job', 'interviewer'));
@@ -64,7 +69,6 @@ class RecruitmentController extends Controller
             'interviewer' => 'required|string|max:255',
             'interviewer2' => 'nullable|string|max:255',
         ]);
-
 
         $nama_candidate = $request->nama_candidate;
         $email = $request->email;

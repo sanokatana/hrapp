@@ -327,6 +327,9 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
 
     Route::get('/laporan/viewCutiSisa', [LaporanController::class, 'viewSisaCuti']);
 
+
+    Route::get('/laporan/dailyMonitor', [LaporanController::class, 'showAttendanceTable']);
+
     // routes/web.php
     Route::get('/contracts', [ContractController::class, 'filterContracts']);
     Route::get('/contract/type', [ContractController::class, 'getContractType']);

@@ -435,7 +435,7 @@
                 </li>
                 @endif
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle {{request()->is(['laporan/attendance', 'laporan/time', 'laporan/exportAttendanceView', 'laporan/attendanceViewAtasan','laporan/exportIzin', 'laporan/exportCuti']) ? 'show' : ''}}"
+                    <a class="nav-link dropdown-toggle {{request()->is(['laporan/attendance', 'laporan/dailyMonitor', 'laporan/time', 'laporan/exportAttendanceView', 'laporan/attendanceViewAtasan','laporan/exportIzin', 'laporan/exportCuti']) ? 'show' : ''}}"
                         href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button"
                         aria-expanded="false">
                         <span
@@ -459,7 +459,7 @@
                             Laporan
                         </span>
                     </a>
-                    <div class="dropdown-menu {{request()->is(['laporan/viewCuti','laporan/viewIzin','laporan/viewCutiSisa', 'laporan/viewCutiManagement', 'laporan/viewIzinManagement', 'laporan/attendance', 'laporan/time' , 'laporan/exportAttendanceView', 'laporan/attendanceViewAtasan', 'laporan/exportIzin', 'laporan/exportCuti']) ? 'show' : ''}}">
+                    <div class="dropdown-menu {{request()->is(['laporan/viewCuti','laporan/dailyMonitor','laporan/viewIzin','laporan/viewCutiSisa', 'laporan/viewCutiManagement', 'laporan/viewIzinManagement', 'laporan/attendance', 'laporan/time' , 'laporan/exportAttendanceView', 'laporan/attendanceViewAtasan', 'laporan/exportIzin', 'laporan/exportCuti']) ? 'show' : ''}}">
                         <div class="dropdown-menu-columns">
                             <div class="dropdown-menu-column">
                                 @if($userLevel !== 'Admin')
@@ -470,6 +470,10 @@
                                 <a class="dropdown-item {{request()->is(['laporan/time']) ? 'active' : ''}}"
                                     href="/laporan/time">
                                     Time Table
+                                </a>
+                                <a class="dropdown-item {{request()->is(['laporan/dailyMonitor']) ? 'active' : ''}}"
+                                    href="/laporan/dailyMonitor">
+                                    Daily Monitor
                                 </a>
                                 <a class="dropdown-item {{request()->is(['laporan/exportAttendanceView']) ? 'active' : ''}}" href="/laporan/exportAttendanceView">
                                     Export Waktu Absensi
