@@ -125,7 +125,8 @@ Route::middleware(['auth:karyawan'])->group(function () {
 });
 
 Route::middleware(['auth:user', 'notifications'])->group(function () {
-    Route::get('/panel/dashboardadmin', [DashboardController::class, 'dashboardadmin']);
+    Route::get('/panel/dashboardadmin', [DashboardController::class, 'dashboardadmin'])->name('panel.dashboardadmin');
+
     Route::get('/panel/proseslogoutadmin', [AuthController::class, 'proseslogoutadmin']);
 
 
@@ -329,6 +330,9 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
 
 
     Route::get('/laporan/dailyMonitor', [LaporanController::class, 'showAttendanceTable']);
+
+
+    Route::get('/email/management', [LaporanController::class, 'sendDailyReport']);
 
     // routes/web.php
     Route::get('/contracts', [ContractController::class, 'filterContracts']);

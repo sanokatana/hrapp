@@ -879,8 +879,6 @@ class DashboardController extends Controller
                 ->where('grade', '!=', 'NS')
                 ->first();
 
-
-
             $rekapizin = DB::table('pengajuan_izin')
                 ->join('karyawan', 'pengajuan_izin.nip', '=', 'karyawan.nip')
                 ->where('tgl_izin', '<=', $hariini) // Start date is before or on today

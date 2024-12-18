@@ -19,6 +19,18 @@ use App\Helpers\DateHelper;
         </div>
     </div>
 </div>
+@if(session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            title: 'Berhasil!',
+            text: "{{ session('success') }}",
+            icon: 'success',
+            confirmButtonText: 'Ok'
+        });
+    });
+</script>
+@endif
 <div class="page-body">
     <div class="container-xl">
         <div class="row row-cards">
