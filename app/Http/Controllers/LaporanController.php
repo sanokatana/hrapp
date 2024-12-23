@@ -1351,7 +1351,6 @@ class LaporanController extends Controller
         $totalKaryawan = DB::table('karyawan')
             ->where('status_kar', 'Aktif')
             ->where('grade', '!=', 'NS')
-            ->where('kode_dept', '!=', 'Management') // Exclude Management department
             ->count();
 
         $hadirList = DB::connection('mysql2')
@@ -1361,51 +1360,33 @@ class LaporanController extends Controller
             ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini)
             ->where('karyawan.status_kar', 'Aktif')
             ->where('karyawan.grade', '!=', 'NS')
-            ->where('karyawan.kode_dept', '!=', 'Management')
             ->distinct()
             ->get();
 
         $hadir = $hadirList->count(); // This will count the unique karyawan who have scanned in today
 
-
-
         // Izin (Permission) count
-        // Izin (Permission) count excluding 'Management' department
         $izinList = DB::table('pengajuan_izin')
             ->where('tgl_izin', '<=', $hariini)
             ->where('tgl_izin_akhir', '>=', $hariini)
             ->where('status_approved', 1)
             ->where('status_approved_hrd', 1)
-            ->whereIn('nip', function ($query) {
-                $query->select('nip')
-                    ->from('karyawan')
-                    ->where('status_kar', 'Aktif')
-                    ->where('grade', '!=', 'NS')
-                    ->where('kode_dept', '!=', 'Management'); // Exclude Management department
-            })
             ->pluck('nip');
 
         $izin = $izinList->count();
 
-        // Cuti (Leave) count excluding 'Management' department
+        // Cuti (Leave) count
         $cutiList = DB::table('pengajuan_cuti')
             ->where('tgl_cuti', '<=', $hariini)
             ->where('tgl_cuti_sampai', '>=', $hariini)
             ->where('status_approved', 1)
             ->where('status_approved_hrd', 1)
             ->where('status_management', 1)
-            ->whereIn('nip', function ($query) {
-                $query->select('nip')
-                    ->from('karyawan')
-                    ->where('status_kar', 'Aktif')
-                    ->where('grade', '!=', 'NS')
-                    ->where('kode_dept', '!=', 'Management'); // Exclude Management department
-            })
             ->pluck('nip');
 
         $cuti = $cutiList->count();
 
-        // Telat (Late) employees excluding 'Management' department
+        // Telat (Late) list
         $telatList = DB::connection('mysql2')
             ->table(DB::raw('(
             SELECT pin, MIN(scan_date) as earliest_scan
@@ -1413,14 +1394,12 @@ class LaporanController extends Controller
             WHERE DATE(scan_date) = "' . $hariini . '"
             GROUP BY pin
         ) as presensi'))
-            ->select('karyawan.nip as pin', 'karyawan.nama_lengkap', 'karyawan.kode_dept')
+            ->select('karyawan.nip as pin','karyawan.nik as nik', 'karyawan.nama_lengkap', 'karyawan.kode_dept')
             ->join('hrmschl.karyawan', 'presensi.pin', '=', 'karyawan.nip')
             ->where('status_kar', 'Aktif')
             ->where('grade', '!=', 'NS')
-            ->where('karyawan.kode_dept', '!=', 'Management') // Exclude Management department
             ->whereTime('earliest_scan', '>', '08:00:00')
             ->get();
-
 
         $telat = $telatList->count();
 
@@ -1428,9 +1407,10 @@ class LaporanController extends Controller
         $hadirDanIzinDanCuti = $hadirList->pluck('pin')->merge($izinList)->merge($cutiList);
 
         $mangkirList = DB::table('karyawan')
-            ->select('nip as pin', 'nama_lengkap', 'kode_dept')
+            ->select('nip as pin', 'nama_lengkap', 'kode_dept', 'nik')
             ->where('status_kar', 'Aktif')
             ->where('grade', '!=', 'NS')
+            ->where('kode_dept', '!=', 'Management') // Exclude Management department
             ->whereNotIn('nip', $hadirDanIzinDanCuti)
             ->get();
 
@@ -1438,11 +1418,11 @@ class LaporanController extends Controller
 
         // Generate HTML for lists
         $telatDetails = $telatList->map(function ($item) {
-            return "<li>{$item->nama_lengkap} (NIP: {$item->pin}, Dept: {$item->kode_dept})</li>";
+            return "<li>{$item->nama_lengkap} (NIK: {$item->nik}, Dept: {$item->kode_dept})</li>";
         })->implode('');
 
         $mangkirDetails = $mangkirList->map(function ($item) {
-            return "<li>{$item->nama_lengkap} (NIP: {$item->pin}, Dept: {$item->kode_dept})</li>";
+            return "<li>{$item->nama_lengkap} (NIK: {$item->nik}, Dept: {$item->kode_dept})</li>";
         })->implode('');
 
         // Prepare email content
@@ -1471,8 +1451,8 @@ class LaporanController extends Controller
     ";
 
         // Send email
-        $managementEmails = ['al.imron@ciptaharmoni.com'];
-        $ccList = ['human.resources@ciptaharmoni.com'];
+        $managementEmails = ['zahran.chandra@ciptaharmoni.com'];
+        $ccList = ['zahran.chandra@ciptaharmoni.com'];
         $tanggalHari = DateHelper::formatIndonesianDate($hariini);
 
         foreach ($managementEmails as $email) {
@@ -1490,7 +1470,8 @@ class LaporanController extends Controller
         }
         Session::flash('success', 'Laporan Kehadiran Karyawan Harian berhasil dikirim.');
 
-        // Redirect back to the dashboard
-        return redirect()->route('panel.dashboardadmin');
+    // Redirect back to the dashboard
+    return redirect()->route('panel.dashboardadmin');
+
     }
 }

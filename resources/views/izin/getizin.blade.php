@@ -33,24 +33,24 @@ $izinFormattedDateAkhir = DateHelper::formatIndonesianDate($d->tgl_izin_akhir);
                 <div class="status-row">
                     <div class="mb-1 text-center">
                         @if ($d->status_approved_hrd == 0)
-                        <span class="badge bg-warning" style="width:110px">Approval HR</span>
+                        <span class="badge bg-warning" style="width:120px">Approval HR</span>
                         @elseif ($d->status_approved_hrd == 1)
-                        <span class="badge bg-success" style="width:110px">Approval HR</span>
+                        <span class="badge bg-success" style="width:120px">Approval HR</span>
                         @elseif ($d->status_approved_hrd == 2)
-                        <span class="badge bg-danger" style="width:110px">Approval HR</span>
+                        <span class="badge bg-danger" style="width:120px">Approval HR</span>
                         @else
                         <span class="badge bg-danger">Pembatalan</span>
                         @endif
                     </div>
                     <div class="text-center">
                         @if ($d->status_approved == 0)
-                        <span class="badge bg-warning" style="width:110px">Approval Atasan</span>
+                        <span class="badge bg-warning" style="width:120px">Approval Atasan</span>
                         @elseif ($d->status_approved == 1)
-                        <span class="badge bg-success" style="width:110px">Approval Atasan</span>
+                        <span class="badge bg-success" style="width:120px">Approval Atasan</span>
                         @elseif ($d->status_approved == 2)
-                        <span class="badge bg-danger" style="width:110px">Approval Atasan</span>
+                        <span class="badge bg-danger" style="width:120px">Approval Atasan</span>
                         @else
-                        <span class="badge bg-danger" style="width:110px">Pembatalan</span>
+                        <span class="badge bg-danger" style="width:120px">Pembatalan</span>
                         @endif
                     </div>
                 </div>

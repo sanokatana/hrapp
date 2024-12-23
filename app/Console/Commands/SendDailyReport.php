@@ -3,23 +3,23 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Http\Controllers\CutiController;
+use App\Http\Controllers\DashboardController;
 
-class CekCutiKaryawanCommand extends Command
+class SendDailyReport extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'cuti:check';
+    protected $signature = 'daily:sendreport';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Check and update cuti karyawan records';
+    protected $description = 'Send daily attendance report at 9 AM WIB';
 
     /**
      * Execute the console command.
@@ -28,10 +28,10 @@ class CekCutiKaryawanCommand extends Command
      */
     public function handle()
     {
-        $cutiController = new CutiController();
-        $cutiController->cekCutiKaryawan();
+        $controller = new DashboardController();
+        $controller->sendDailyReport();
 
-        $this->info('Cuti karyawan has been checked and updated.');
+        $this->info('Daily report sent successfully!');
         return 0;
     }
 }

@@ -15,8 +15,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // Schedule the Closure-based command to run daily at 2 AM
-        $schedule->command('cuti:check')->dailyAt('06:00');
+        $schedule->command('daily:sendreport')->dailyAt('09:00')->timezone('Asia/Jakarta');
     }
 
     /**

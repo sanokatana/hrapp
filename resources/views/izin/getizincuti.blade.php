@@ -40,35 +40,35 @@ $izinFormattedDateAkhir = DateHelper::formatIndonesianDate($d->tgl_cuti_sampai);
                 <div class="status-row" style="text-align: right">
                     <div class="mb-1">
                         @if ($d->status_approved_hrd == 0)
-                        <span class="badge bg-warning" style="width:110px">Approval HR</span>
+                        <span class="badge bg-warning" style="width:120px">Approval HR</span>
                         @elseif ($d->status_approved_hrd == 1)
-                        <span class="badge bg-success" style="width:110px">Approval HR</span>
+                        <span class="badge bg-success" style="width:120px">Approval HR</span>
                         @elseif ($d->status_approved_hrd == 2)
-                        <span class="badge bg-danger" style="width:110px">Approval HR</span>
+                        <span class="badge bg-danger" style="width:120px">Approval HR</span>
                         @else
-                        <span class="badge bg-danger" style="width:110px">Pembatalan</span>
+                        <span class="badge bg-danger" style="width:120px">Pembatalan</span>
                         @endif
                     </div>
                     <div class="mb-1">
                         @if ($d->status_approved == 0)
-                        <span class="badge bg-warning" style="width:110px">Approval Atasan</span>
+                        <span class="badge bg-warning" style="width:120px">Approval Atasan</span>
                         @elseif ($d->status_approved == 1)
-                        <span class="badge bg-success" style="width:110px">Approval Atasan</span>
+                        <span class="badge bg-success" style="width:120px">Approval Atasan</span>
                         @elseif ($d->status_approved == 1)
-                        <span class="badge bg-danger" style="width:110px">Approval Atasan</span>
+                        <span class="badge bg-danger" style="width:120px">Approval Atasan</span>
                         @else
-                        <span class="badge bg-danger" style="width:110px">Pembatalan</span>
+                        <span class="badge bg-danger" style="width:120px">Pembatalan</span>
                         @endif
                     </div>
                     <div>
                         @if ($d->status_management == 0)
-                        <span class="badge bg-warning" style="width:110px">Approval Management</span>
+                        <span class="badge bg-warning" style="width:120px">Approval Management</span>
                         @elseif ($d->status_management == 1)
-                        <span class="badge bg-success" style="width:110px">Approval Management</span>
+                        <span class="badge bg-success" style="width:120px">Approval Management</span>
                         @elseif ($d->status_management == 2)
-                        <span class="badge bg-danger" style="width:110px">Approval Management</span>
+                        <span class="badge bg-danger" style="width:120px">Approval Management</span>
                         @else
-                        <span class="badge bg-danger" style="width:110px">Pembatalan</span>
+                        <span class="badge bg-danger" style="width:120px">Pembatalan</span>
                         @endif
                     </div>
                 </div>

@@ -19,9 +19,11 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Artisan::command('cuti:check', function () {
-    $cutiController = new CutiController();
-    $cutiController->cekCutiKaryawan();
+Artisan::command('daily:sendreport', function () {
+    // Access the route/controller method logic
+    $controller = app(\App\Http\Controllers\LaporanController::class);
+    $controller->sendDailyReport();
 
-    $this->info('Cuti karyawan has been checked and updated.');
-})->purpose('Check and update cuti karyawan records');
+    $this->info('Daily report has been sent successfully!');
+})->purpose('Send daily attendance report at 9 AM WIB');
+
