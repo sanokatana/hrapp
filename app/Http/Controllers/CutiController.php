@@ -22,7 +22,10 @@ class CutiController extends Controller
         // Join cuti table with karyawan table on NIK
         $query = Cuti::query();
         $query->select('cuti.*', 'karyawan.nama_lengkap', 'karyawan.tgl_masuk', 'department.nama_dept');
-        $query->join('karyawan', 'cuti.nik', '=', 'karyawan.nik');
+        $query->join('karyawan', function ($join) {
+            $join->on('cuti.nik', '=', 'karyawan.nik')
+                 ->where('karyawan.status_kar', '=', 'Aktif');
+        });
         $query->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
         // Order by NIK
         $query->orderBy('nik', 'asc');
