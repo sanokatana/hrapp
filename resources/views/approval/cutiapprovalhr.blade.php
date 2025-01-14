@@ -97,7 +97,12 @@ use App\Helpers\DateHelper;
                                             <td>{{ $d->sisa_cuti_setelah}} </td>
                                             <td>{{ $d->kar_ganti}} </td>
                                             <td>{{ $d->note }}</td>
-                                            <td>{{ $d->jenis }}</td>
+                                            <td>@if ($d->jenis == 'Cuti Khusus')
+                                            <span class="badge bg-info" style="color: white; width:120px">Cuti Khusus</span>
+                                            @else
+                                            {{$d->jenis}}
+                                            @endif
+                                            </td>
                                             <td>{{ $d->tipe_cuti }}</td>
                                             <td>
                                                 @if ($d->status_approved_hrd == 1)
