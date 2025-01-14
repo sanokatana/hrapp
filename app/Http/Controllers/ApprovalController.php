@@ -24,15 +24,16 @@ class ApprovalController extends Controller
     public function izinapprovalhrd(Request $request)
     {
         $query = Pengajuanizin::query();
-        $query->join('karyawan',  'pengajuan_izin.nik', '=', 'karyawan.nik');
-        $query->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
-        $query->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id');
+        $query->join('karyawan as k1', 'pengajuan_izin.nik', '=', 'k1.nik') // Employee
+            ->join('jabatan as j1', 'k1.jabatan', '=', 'j1.id') // Employee's Jabatan
+            ->leftJoin('jabatan as j2', 'j1.jabatan_atasan', '=', 'j2.id') // Superior's Jabatan
+            ->leftJoin('karyawan as k2', 'j2.id', '=', 'k2.jabatan'); // Superior
+
         $query->select(
             'pengajuan_izin.*',
-            'karyawan.nama_lengkap',
-            'karyawan.jabatan',
-            'department.nama_dept',
-            'jabatan.nama_jabatan'
+            'k1.nama_lengkap',
+            'j1.nama_jabatan',
+            'k2.nama_lengkap as nama_atasan' // Fetch Superior's Name
         )
             ->where('pengajuan_izin.status', '!=', 'Cuti')
             ->where(function ($q) {
@@ -40,35 +41,32 @@ class ApprovalController extends Controller
                     ->orWhere('pengajuan_izin.status_approved_hrd', 0);
             });
 
+        $query->orderByRaw(
+            'CASE
+            WHEN pengajuan_izin.status_approved = 0 AND pengajuan_izin.status_approved_hrd = 0 THEN 0
+            ELSE 1
+        END ASC'
+        );
 
-            $query->orderByRaw(
-                'CASE
-                    WHEN pengajuan_izin.status_approved = 0 AND pengajuan_izin.status_approved_hrd = 0 THEN 0
-                    ELSE 1
-                END ASC'
-            );
-
-        // Filter by date range
+        // Apply filters
         if (!empty($request->dari) && !empty($request->sampai)) {
             $query->whereBetween('tgl_create', [$request->dari, $request->sampai]);
         }
 
-        // Filter by NIK
         if (!empty($request->nik)) {
             $query->where('pengajuan_izin.nik', $request->nik);
         }
 
-        // Filter by employee name
         if (!empty($request->nama_lengkap)) {
-            $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama_lengkap . '%');
+            $query->where('k1.nama_lengkap', 'like', '%' . $request->nama_lengkap . '%');
         }
 
         // Pagination
         $izinapproval = $query->paginate(10)->appends($request->query());
-        $izinapproval->appends($request->all());
 
         return view('approval.approvalhr', compact('izinapproval'));
     }
+
 
 
 
@@ -279,66 +277,70 @@ class ApprovalController extends Controller
 
 
     public function cutiapprovalhrd(Request $request)
-    {
-        $query = PengajuanCuti::query();
-        $query->join('karyawan', 'pengajuan_cuti.nik', '=', 'karyawan.nik');
-        $query->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
-        $query->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id');
-        $query->leftJoin('tipe_cuti', 'pengajuan_cuti.tipe', '=', 'tipe_cuti.id_tipe_cuti');
-        $query->select(
-            'pengajuan_cuti.*',
-            'karyawan.nama_lengkap',
-            'karyawan.jabatan',
-            'department.nama_dept',
-            'karyawan.tgl_masuk',
-            'tipe_cuti.tipe_cuti',
-            'jabatan.nama_jabatan'
-        );
+{
+    $query = PengajuanCuti::query();
+    $query->join('karyawan', 'pengajuan_cuti.nik', '=', 'karyawan.nik');
+    $query->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
+    $query->join('jabatan as current_jabatan', 'karyawan.jabatan', '=', 'current_jabatan.id');
+    $query->leftJoin('jabatan as superior_jabatan', 'current_jabatan.jabatan_atasan', '=', 'superior_jabatan.id');
+    $query->leftJoin('karyawan as superior', 'superior.jabatan', '=', 'superior_jabatan.id');
+    $query->leftJoin('tipe_cuti', 'pengajuan_cuti.tipe', '=', 'tipe_cuti.id_tipe_cuti');
 
-        $query->orderByRaw(
-            'CASE
-                WHEN status_approved = 0 AND status_approved_hrd = 0 AND status_management = 0 THEN 0
-                ELSE 1
-            END ASC'
-        );
+    $query->select(
+        'pengajuan_cuti.*',
+        'karyawan.nama_lengkap',
+        'current_jabatan.nama_jabatan',
+        'department.nama_dept',
+        'karyawan.tgl_masuk',
+        'tipe_cuti.tipe_cuti',
+        'superior.nama_lengkap as nama_atasan'
+    );
 
-        // Apply date filter
-        if (!empty($request->dari) && !empty($request->sampai)) {
-            $query->whereBetween('tgl_Cuti', [$request->dari, $request->sampai]);
-        }
+    $query->orderByRaw(
+        'CASE
+            WHEN status_approved = 0 AND status_approved_hrd = 0 AND status_management = 0 THEN 0
+            ELSE 1
+        END ASC'
+    );
 
-        // Filter by NIK
-        if (!empty($request->nik)) {
-            $query->where('pengajuan_cuti.nik', $request->nik);
-        }
-
-        // Filter by employee name
-        if (!empty($request->nama_lengkap)) {
-            $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama_lengkap . '%');
-        }
-
-        // Exclude rows where none of the statuses are 0
-        $query->where(function ($q) {
-            $q->where('status_approved', 0)
-                ->orWhere('status_approved_hrd', 0)
-                ->orWhere('status_management', 0);
-        });
-
-        // Get paginated results
-        $cutiapproval = $query->paginate(10)->appends($request->all());
-
-        // Add `sisa_cuti_real` for each record
-        foreach ($cutiapproval as $d) {
-            $cutiRecord = DB::table('cuti')
-                ->where('nik', $d->nik)
-                ->where('tahun', $d->periode)
-                ->first();
-
-            $d->sisa_cuti_real = $cutiRecord ? $cutiRecord->sisa_cuti : 0;
-        }
-
-        return view('approval.cutiapprovalhr', compact('cutiapproval'));
+    // Apply date filter
+    if (!empty($request->dari) && !empty($request->sampai)) {
+        $query->whereBetween('tgl_Cuti', [$request->dari, $request->sampai]);
     }
+
+    // Filter by NIK
+    if (!empty($request->nik)) {
+        $query->where('pengajuan_cuti.nik', $request->nik);
+    }
+
+    // Filter by employee name
+    if (!empty($request->nama_lengkap)) {
+        $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama_lengkap . '%');
+    }
+
+    // Exclude rows where none of the statuses are 0
+    $query->where(function ($q) {
+        $q->where('status_approved', 0)
+            ->orWhere('status_approved_hrd', 0)
+            ->orWhere('status_management', 0);
+    });
+
+    // Get paginated results
+    $cutiapproval = $query->paginate(10)->appends($request->all());
+
+    // Add `sisa_cuti_real` for each record
+    foreach ($cutiapproval as $d) {
+        $cutiRecord = DB::table('cuti')
+            ->where('nik', $d->nik)
+            ->where('tahun', $d->periode)
+            ->first();
+
+        $d->sisa_cuti_real = $cutiRecord ? $cutiRecord->sisa_cuti : 0;
+    }
+
+    return view('approval.cutiapprovalhr', compact('cutiapproval'));
+}
+
 
 
 
@@ -449,68 +451,68 @@ class ApprovalController extends Controller
 
 
     public function izinapproval(Request $request)
-{
-    $nik = Auth::guard('user')->user()->nik;
+    {
+        $nik = Auth::guard('user')->user()->nik;
 
-    // Get the current user's details
-    $currentUser = Karyawan::where('nik', $nik)->first();
-    $currentUserJabatanId = $currentUser->jabatan;
-    $currentUserKodeDept = $currentUser->kode_dept;
+        // Get the current user's details
+        $currentUser = Karyawan::where('nik', $nik)->first();
+        $currentUserJabatanId = $currentUser->jabatan;
+        $currentUserKodeDept = $currentUser->kode_dept;
 
-    // Base query: Join necessary tables
-    $query = Pengajuanizin::query();
-    $query->join('karyawan', 'pengajuan_izin.nik', '=', 'karyawan.nik')
-        ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept')
-        ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-        ->select('pengajuan_izin.*', 'karyawan.nama_lengkap', 'karyawan.jabatan', 'department.nama_dept', 'jabatan.nama_jabatan');
+        // Base query: Join necessary tables
+        $query = Pengajuanizin::query();
+        $query->join('karyawan', 'pengajuan_izin.nik', '=', 'karyawan.nik')
+            ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept')
+            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+            ->select('pengajuan_izin.*', 'karyawan.nama_lengkap', 'karyawan.jabatan', 'department.nama_dept', 'jabatan.nama_jabatan');
 
-    // Only include pending requests
-    $query->where(function ($q) {
-        $q->where('status_approved', 0)
-            ->orWhere('status_approved_hrd', 0);
-    });
+        // Only include pending requests
+        $query->where(function ($q) {
+            $q->where('status_approved', 0)
+                ->orWhere('status_approved_hrd', 0);
+        });
 
-    // Management Logic
-    if ($currentUserKodeDept === 'Management') {
-        // Fetch NIKs of subordinates
-        $subordinateNiks = Karyawan::join('jabatan as j1', 'karyawan.jabatan', '=', 'j1.id')
-            ->join('jabatan as j2', 'j1.jabatan_atasan', '=', 'j2.id')
-            ->where('j2.id', $currentUserJabatanId)
-            ->pluck('karyawan.nik')
-            ->toArray();
+        // Management Logic
+        if ($currentUserKodeDept === 'Management') {
+            // Fetch NIKs of subordinates
+            $subordinateNiks = Karyawan::join('jabatan as j1', 'karyawan.jabatan', '=', 'j1.id')
+                ->join('jabatan as j2', 'j1.jabatan_atasan', '=', 'j2.id')
+                ->where('j2.id', $currentUserJabatanId)
+                ->pluck('karyawan.nik')
+                ->toArray();
 
-        // Prioritize subordinates' requests by ordering
-        $query->orderByRaw("
+            // Prioritize subordinates' requests by ordering
+            $query->orderByRaw("
             CASE
                 WHEN pengajuan_izin.nik IN ('" . implode("','", $subordinateNiks) . "') THEN 1
                 ELSE 2
             END
         ");
-    } else {
-        // Non-management Logic
-        $jabatanAtasan = Jabatan::where('id', $currentUserJabatanId)->value('jabatan_atasan');
+        } else {
+            // Non-management Logic
+            $jabatanAtasan = Jabatan::where('id', $currentUserJabatanId)->value('jabatan_atasan');
 
-        // If Atasan, filter requests from subordinates
-        if ($jabatanAtasan) {
-            $employeeNiks = Karyawan::join('jabatan as j1', 'karyawan.jabatan', '=', 'j1.id')
-                ->join('jabatan as j2', 'j1.jabatan_atasan', '=', 'j2.id')
-                ->where('j2.id', $currentUserJabatanId)
-                ->pluck('karyawan.nik');
+            // If Atasan, filter requests from subordinates
+            if ($jabatanAtasan) {
+                $employeeNiks = Karyawan::join('jabatan as j1', 'karyawan.jabatan', '=', 'j1.id')
+                    ->join('jabatan as j2', 'j1.jabatan_atasan', '=', 'j2.id')
+                    ->where('j2.id', $currentUserJabatanId)
+                    ->pluck('karyawan.nik');
 
-            $query->whereIn('pengajuan_izin.nik', $employeeNiks);
+                $query->whereIn('pengajuan_izin.nik', $employeeNiks);
+            }
         }
+
+        // Paginate results
+        $izinapproval = $query->paginate(10);
+        $izinapproval->appends($request->all());
+
+        // Debugging Output (optional, for testing only)
+        // dd($query->toSql(), $query->getBindings());
+
+        // Return the view
+        return view('approval.izinapproval', compact('izinapproval'));
     }
-
-    // Paginate results
-    $izinapproval = $query->paginate(10);
-    $izinapproval->appends($request->all());
-
-    // Debugging Output (optional, for testing only)
-    // dd($query->toSql(), $query->getBindings());
-
-    // Return the view
-    return view('approval.izinapproval', compact('izinapproval'));
-}
 
 
     // In YourController.php
@@ -720,10 +722,10 @@ class ApprovalController extends Controller
             // Management can only see requests where status_approved = 1 and status_approved_hrd = 1
 
             $subordinateNiks = Karyawan::join('jabatan as j1', 'karyawan.jabatan', '=', 'j1.id')
-            ->join('jabatan as j2', 'j1.jabatan_atasan', '=', 'j2.id')
-            ->where('j2.id', $currentUserJabatanId)
-            ->pluck('karyawan.nik')
-            ->toArray();
+                ->join('jabatan as j2', 'j1.jabatan_atasan', '=', 'j2.id')
+                ->where('j2.id', $currentUserJabatanId)
+                ->pluck('karyawan.nik')
+                ->toArray();
 
             // Prioritize subordinates' requests by ordering
             $query->orderByRaw("
@@ -842,11 +844,11 @@ class ApprovalController extends Controller
                         ]);
 
                         DB::table('pengajuan_cuti')
-                        ->where('id', $id)
-                        ->update([
-                            'status_management' => $status_approved,
-                            'tgl_status_management' => $currentDate,
-                        ]);
+                            ->where('id', $id)
+                            ->update([
+                                'status_management' => $status_approved,
+                                'tgl_status_management' => $currentDate,
+                            ]);
                     }
 
                     if ($isManagement && $status_approved == 1) { // Approved by Management

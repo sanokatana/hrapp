@@ -43,6 +43,7 @@ class ContractController extends Controller
 
         // Order the results with Active contracts first
         $query->orderByRaw("CASE WHEN kontrak.status = 'Active' THEN 0 ELSE 1 END");
+        $query->orderBy('kontrak.no_kontrak', 'DESC');
 
         // Paginate the results
         $contract = $query->paginate(50)->appends($request->query());

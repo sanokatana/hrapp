@@ -58,7 +58,7 @@ use App\Helpers\DateHelper;
                                             <th>NIK.</th>
                                             <th>Nama Karyawan</th>
                                             <th>Jabatan</th>
-                                            <th>Department</th>
+                                            <th>Nama Atasan</th>
                                             <th>Tanggal Izin</th>
                                             <th>Sampai Tanggal</th>
                                             <th>Jumlah Hari</th>
@@ -78,7 +78,7 @@ use App\Helpers\DateHelper;
                                             <td>{{ $d->nik }} </td>
                                             <td>{{ $d->nama_lengkap }}</td>
                                             <td>{{ $d->nama_jabatan }}</td>
-                                            <td>{{ $d->nama_dept }}</td> <!-- Display department name -->
+                                            <td>{{ $d->nama_atasan }}</td>
                                             <td>{{ DateHelper::formatIndonesianDate($d->tgl_izin) }} </td>
                                             <td>@if ($d->tgl_izin_akhir)
                                                 {{ DateHelper::formatIndonesianDate($d->tgl_izin_akhir) }}
