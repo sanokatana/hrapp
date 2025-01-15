@@ -15,7 +15,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('daily:sendreport')->dailyAt('09:00')->timezone('Asia/Jakarta');
+        // No need to define the schedule if the system cronjob handles it directly
     }
 
     /**

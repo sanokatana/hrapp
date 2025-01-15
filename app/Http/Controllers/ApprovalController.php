@@ -277,69 +277,71 @@ class ApprovalController extends Controller
 
 
     public function cutiapprovalhrd(Request $request)
-{
-    $query = PengajuanCuti::query();
-    $query->join('karyawan', 'pengajuan_cuti.nik', '=', 'karyawan.nik');
-    $query->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
-    $query->join('jabatan as current_jabatan', 'karyawan.jabatan', '=', 'current_jabatan.id');
-    $query->leftJoin('jabatan as superior_jabatan', 'current_jabatan.jabatan_atasan', '=', 'superior_jabatan.id');
-    $query->leftJoin('karyawan as superior', 'superior.jabatan', '=', 'superior_jabatan.id');
-    $query->leftJoin('tipe_cuti', 'pengajuan_cuti.tipe', '=', 'tipe_cuti.id_tipe_cuti');
+    {
+        $query = PengajuanCuti::query();
+        $query->join('karyawan', 'pengajuan_cuti.nik', '=', 'karyawan.nik');
+        $query->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
+        $query->join('jabatan as current_jabatan', 'karyawan.jabatan', '=', 'current_jabatan.id');
+        $query->leftJoin('jabatan as superior_jabatan', 'current_jabatan.jabatan_atasan', '=', 'superior_jabatan.id');
+        $query->leftJoin('karyawan as superior', 'superior.jabatan', '=', 'superior_jabatan.id');
+        $query->leftJoin('tipe_cuti', 'pengajuan_cuti.tipe', '=', 'tipe_cuti.id_tipe_cuti');
 
-    $query->select(
-        'pengajuan_cuti.*',
-        'karyawan.nama_lengkap',
-        'current_jabatan.nama_jabatan',
-        'department.nama_dept',
-        'karyawan.tgl_masuk',
-        'tipe_cuti.tipe_cuti',
-        'superior.nama_lengkap as nama_atasan'
-    );
+        $query->select(
+            'pengajuan_cuti.*',
+            'karyawan.nama_lengkap',
+            'current_jabatan.nama_jabatan',
+            'department.nama_dept',
+            'karyawan.tgl_masuk',
+            'tipe_cuti.tipe_cuti',
+            'superior.nama_lengkap as nama_atasan'
+        );
 
-    $query->orderByRaw(
-        'CASE
+        $query->orderByRaw(
+            'CASE
             WHEN status_approved = 0 AND status_approved_hrd = 0 AND status_management = 0 THEN 0
             ELSE 1
         END ASC'
-    );
+        );
 
-    // Apply date filter
-    if (!empty($request->dari) && !empty($request->sampai)) {
-        $query->whereBetween('tgl_Cuti', [$request->dari, $request->sampai]);
+        // Apply date filter
+        if (!empty($request->dari) && !empty($request->sampai)) {
+            $query->whereBetween('tgl_Cuti', [$request->dari, $request->sampai]);
+        }
+
+        // Filter by NIK
+        if (!empty($request->nik)) {
+            $query->where('pengajuan_cuti.nik', $request->nik);
+        }
+
+        // Filter by employee name
+        if (!empty($request->nama_lengkap)) {
+            $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama_lengkap . '%');
+        }
+
+        // Exclude rows where none of the statuses are 0
+        $query->where(function ($q) {
+            $q->where('status_approved', 0)
+                ->orWhere('status_approved_hrd', 0)
+                ->orWhere('status_management', 0);
+        });
+
+        $query->where('karyawan.status_kar', 'Aktif');
+
+        // Get paginated results
+        $cutiapproval = $query->paginate(50)->appends($request->all());
+
+        // Add `sisa_cuti_real` for each record
+        foreach ($cutiapproval as $d) {
+            $cutiRecord = DB::table('cuti')
+                ->where('nik', $d->nik)
+                ->where('tahun', $d->periode)
+                ->first();
+
+            $d->sisa_cuti_real = $cutiRecord ? $cutiRecord->sisa_cuti : 0;
+        }
+
+        return view('approval.cutiapprovalhr', compact('cutiapproval'));
     }
-
-    // Filter by NIK
-    if (!empty($request->nik)) {
-        $query->where('pengajuan_cuti.nik', $request->nik);
-    }
-
-    // Filter by employee name
-    if (!empty($request->nama_lengkap)) {
-        $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama_lengkap . '%');
-    }
-
-    // Exclude rows where none of the statuses are 0
-    $query->where(function ($q) {
-        $q->where('status_approved', 0)
-            ->orWhere('status_approved_hrd', 0)
-            ->orWhere('status_management', 0);
-    });
-
-    // Get paginated results
-    $cutiapproval = $query->paginate(10)->appends($request->all());
-
-    // Add `sisa_cuti_real` for each record
-    foreach ($cutiapproval as $d) {
-        $cutiRecord = DB::table('cuti')
-            ->where('nik', $d->nik)
-            ->where('tahun', $d->periode)
-            ->first();
-
-        $d->sisa_cuti_real = $cutiRecord ? $cutiRecord->sisa_cuti : 0;
-    }
-
-    return view('approval.cutiapprovalhr', compact('cutiapproval'));
-}
 
 
 

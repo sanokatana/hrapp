@@ -353,6 +353,17 @@ class PresensiController extends Controller
         return null; // Return null if no match is found
     }
 
+    private function checkCuti($cuti, $nip, $date)
+    {
+        foreach ($cuti as $i) {
+            if ($i->nip === $nip && $date->between(Carbon::parse($i->tgl_cuti), Carbon::parse($i->tgl_cuti_sampai))) {
+                return $i;
+            }
+        }
+        return false;
+    }
+
+
     public function izin()
     {
         $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
@@ -665,6 +676,15 @@ class PresensiController extends Controller
             ->whereRaw('YEAR(tgl_izin) = ?', [$tahunini])
             ->get();
 
+        $cuti = DB::table('pengajuan_cuti')
+            ->select('nip', 'tgl_cuti', 'tgl_cuti_sampai')
+            ->where('nip', $nip)
+            ->where('status_approved', 1)
+            ->where('status_approved_hrd', 1)
+            ->where('status_management', 1)
+            ->whereRaw('MONTH(tgl_cuti) = ? OR MONTH(tgl_cuti_sampai) = ?', [$bulanini, $bulanini])
+            ->whereRaw('YEAR(tgl_cuti) = ? OR YEAR(tgl_cuti_sampai) = ?', [$tahunini, $tahunini])
+            ->get();
 
         $holidays = DB::table('libur_nasional')
             ->whereRaw('MONTH(tgl_libur) = ?', [$bulanini])
@@ -691,6 +711,7 @@ class PresensiController extends Controller
             $date = Carbon::parse($dateString);
             $hasPresensi = $historibulanini->contains('tanggal', $dateString);
             $isIzin = $this->checkIzin($izin, $nip, $date);
+            $isCuti = $this->checkCuti($cuti, $nip, $date);
 
             $shiftPatternId = DB::table('karyawan')
                 ->where('nip', $nip)
@@ -766,7 +787,20 @@ class PresensiController extends Controller
                         ]
                     ]
                 ];
-            } else if (!$hasPresensi && !$isIzin) {
+            } else if ($isCuti) {
+                $notifications[] = [
+                    'tanggal' => $date,
+                    'details' => [
+                        [
+                            'status' => 'Cuti Tahunan',
+                            'status_class' => 'text-primary',
+                            'jam_masuk' => 'No Data',
+                            'jam_pulang' => 'No Data'
+                        ]
+                    ]
+                ];
+
+            }else if (!$hasPresensi && !$isIzin) {
                 // No presensi and no izin for this date
                 $notifications[] = [
                     'tanggal' => $date,

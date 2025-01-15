@@ -103,23 +103,28 @@
                             <div class="col-12 table-responsive">
                                 @php
                                 use Carbon\Carbon;
-                                // Current month and year
-                                $currentYear = date('Y');
-                                $currentMonth = date('m');
+
+                                // Get filtered values or default to the current year and month
+                                $selectedYear = request('tahun', date('Y'));
+                                $selectedMonth = request('bulan', date('m'));
+
+                                // Get the total days in the selected month
+                                $daysInMonth = Carbon::createFromDate($selectedYear, $selectedMonth, 1)->daysInMonth;
                                 @endphp
                                 <table class="table table-hover">
                                     <thead>
                                         <tr style="text-align:center;">
                                             <th style="border: 1px solid black; color: black;">Kategori</th>
-                                            @for($i = 1; $i <= $daysInMonth; $i++)
+                                            @for ($i = 1; $i <= $daysInMonth; $i++)
                                                 @php
-                                                $date=Carbon::createFromDate($currentYear, $currentMonth, $i);
+                                                $date=Carbon::createFromDate($selectedYear, $selectedMonth, $i);
                                                 $isWeekend=$date->isSaturday() || $date->isSunday();
                                                 @endphp
                                                 <th style="border: 1px solid black; text-align: center; {{ $isWeekend ? 'background-color: purple; color: white;' : 'color: black;' }}">
                                                     {{ $i }}
                                                 </th>
                                                 @endfor
+
                                                 <th style="border: 1px solid black; background-color: purple; color: white;">Total</th>
                                         </tr>
                                     </thead>

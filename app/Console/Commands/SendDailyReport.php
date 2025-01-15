@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LaporanController;
 
 class SendDailyReport extends Command
 {
@@ -28,7 +28,7 @@ class SendDailyReport extends Command
      */
     public function handle()
     {
-        $controller = new DashboardController();
+        $controller = new LaporanController();
         $controller->sendDailyReport();
 
         $this->info('Daily report sent successfully!');

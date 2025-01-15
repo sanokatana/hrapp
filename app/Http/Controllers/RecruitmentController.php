@@ -639,15 +639,20 @@ class RecruitmentController extends Controller
     public function candidate_interview_data(Request $request)
     {
         // Fetch interview data with candidate name and stage name
-        $interview = DB::table('interviews')
+        $interviews = DB::table('interviews')
             ->join('candidates', 'interviews.candidate_id', '=', 'candidates.id') // Join candidates table
             ->join('hiring_stages', 'interviews.stage_id', '=', 'hiring_stages.id') // Join stages table
             ->select(
                 'interviews.*',
                 'candidates.nama_candidate as candidate_name', // Retrieve candidate name
                 'hiring_stages.name as stage_name' // Retrieve stage name
-            )
-            ->get();
+            );
+
+        if (!empty($request->nama_candidate)) {
+                $interviews->where('candidates.nama_candidate', 'like', '%' . $request->nama_candidate . '%');
+            }
+
+        $interview = $interviews->get();
 
         return view("recruitment.interview.index", compact('interview'));
     }

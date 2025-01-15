@@ -128,6 +128,16 @@ class DashboardController extends Controller
             ->whereRaw('YEAR(tgl_izin) = ?', [$tahunini])
             ->get();
 
+        $cuti = DB::table('pengajuan_cuti')
+            ->select('nip', 'tgl_cuti', 'tgl_cuti_sampai')
+            ->where('nip', $nip)
+            ->where('status_approved', 1)
+            ->where('status_approved_hrd', 1)
+            ->where('status_management', 1)
+            ->whereRaw('MONTH(tgl_cuti) = ? OR MONTH(tgl_cuti_sampai) = ?', [$bulanini, $bulanini])
+            ->whereRaw('YEAR(tgl_cuti) = ? OR YEAR(tgl_cuti_sampai) = ?', [$tahunini, $tahunini])
+            ->get();
+
         $historibulanini = DB::connection('mysql2')->table(DB::raw("(SELECT
             DATE(scan_date) as tanggal,
             TIME(MIN(scan_date)) as jam_masuk,
@@ -144,7 +154,7 @@ class DashboardController extends Controller
             ->get();
 
         // Calculate total notifications
-        $totalNotif = $this->calculateNotifications($historibulanini, $izin, $bulanini, $tahunini, $nip);
+        $totalNotif = $this->calculateNotifications($historibulanini, $izin, $cuti, $bulanini, $tahunini, $nip);
 
         $cutiExpiringSoon = DB::table('cuti')
             ->where('nik', $nik)
@@ -371,7 +381,7 @@ class DashboardController extends Controller
     // =============================================== DASHBOARD NOTIF CONTROLLER =============================================== //
     // =============================================== DASHBOARD NOTIF CONTROLLER =============================================== //
 
-    private function calculateNotifications($historibulanini, $izin, $bulanini, $tahunini, $nip)
+    private function calculateNotifications($historibulanini, $izin, $cuti, $bulanini, $tahunini, $nip)
     {
         // Initialize notifications array
         $notifications = [];
@@ -395,6 +405,7 @@ class DashboardController extends Controller
 
             $hasPresensi = $historibulanini->contains('tanggal', $dateString);
             $isIzin = $this->checkIzin($izin, $nip, $date);
+            $isCuti = $this->checkCuti($cuti, $nip, $date);
 
             $shiftPatternId = DB::table('karyawan')
                 ->where('nip', $nip)
@@ -469,6 +480,10 @@ class DashboardController extends Controller
                         ]
                     ]
                 ];
+            } else if ($isCuti) {
+
+                continue;
+
             } else if ($hasPresensi) {
                 // Find presensi data for the date
                 $presensiData = $historibulanini->firstWhere('tanggal', $dateString);
@@ -609,6 +624,16 @@ class DashboardController extends Controller
     {
         foreach ($izin as $item) {
             if ($item->nip == $nip && $date->between(Carbon::parse($item->tgl_izin), Carbon::parse($item->tgl_izin_akhir))) {
+                return $item;
+            }
+        }
+        return false;
+    }
+
+    private function checkCuti($cuti, $nip, $date)
+    {
+        foreach ($cuti as $item) {
+            if ($item->nip === $nip && $date->between(Carbon::parse($item->tgl_cuti), Carbon::parse($item->tgl_cuti_sampai))) {
                 return $item;
             }
         }

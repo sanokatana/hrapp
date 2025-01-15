@@ -101,7 +101,7 @@ use App\Helpers\DateHelper;
                                         @if($data->status == 'Completed')
                                         you have passed the <strong>{{ $data->stage_name }}</strong> stage.
                                         @else
-                                        you are in the <strong>{{ $data->stage_name }}</strong> stage.
+                                        you have an <strong>Interview</strong> for the <strong>{{ $data->stage_name }}</strong> stage.
                                         @endif
                                     </div>
                                     <div class="text-secondary">
