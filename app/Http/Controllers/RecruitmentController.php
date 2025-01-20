@@ -782,7 +782,7 @@ class RecruitmentController extends Controller
             $candidateDataKeluarga = DB::table('candidate_data_keluarga')->where('candidate_data_id', $candidateData->id)->get(); // Get all family data
             $jobOpeningId = DB::table('candidates')->where('id', $candidateId)->value('job_opening_id');
             $kodeDept = DB::table('job_openings')->where('id', $jobOpeningId)->value('kode_dept');
-            $sex = ($candidateData->jenis === 'Laki-Laki') ? 'M' : 'F';
+            $sex = ($candidateData->jenis === 'Laki-laki') ? 'M' : 'F';
 
             $taxStatusMap = [
                 'TK' => 'TK',
