@@ -164,6 +164,10 @@ class CutiController extends Controller
                 ? $entitlement - abs($record->sisa_cuti)
                 : $entitlement;
 
+            // Adjust sisa_cuti based on pinjam and tunda
+            $newSisaCuti -= $record->pinjam ?? 0;
+            $newSisaCuti += $record->tunda ?? 0;
+
             // Insert a new record for the next period
             DB::table('cuti')->insert([
                 'nik' => $record->nik,
@@ -185,7 +189,6 @@ class CutiController extends Controller
 
         return redirect()->back()->with('success', 'Cuti karyawan has been updated successfully.');
     }
-
 
     public function getEmployeeByNik(Request $request)
     {

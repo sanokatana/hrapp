@@ -960,6 +960,7 @@ class PresensiController extends Controller
             ->where('nik', $nik)
             ->where('status_approved', '!=', '3')
             ->where('status_approved_hrd', '!=', '3')
+            ->where('tgl_izin_akhir', '>', now())
             ->orderBy('tgl_izin')
             ->get();
 
@@ -1001,6 +1002,7 @@ class PresensiController extends Controller
             ->where('status_approved', '!=', '2')    // Exclude leave already returned
             ->where('status_approved_hrd', '!=', '2') // Exclude leave already returned
             ->where('status_management', '!=', '2')  // Exclude leave already returned
+            ->where('tgl_cuti_sampai', '>', now())
             ->orderBy('tgl_cuti')
             ->get();
 
