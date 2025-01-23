@@ -377,6 +377,7 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::post('/recruitment/candidate/{id}/delete', [RecruitmentController::class, 'candidate_delete']);
     Route::post('/recruitment/candidate/{id}/next', [RecruitmentController::class, 'candidate_next']);
     Route::post('/recruitment/candidate/{id}/reject', [RecruitmentController::class, 'candidate_reject']);
+    Route::post('/recruitment/candidate/{id}/hired', [RecruitmentController::class, 'candidate_hire']);
     Route::post('/recruitment/candidate/{id}/back', [RecruitmentController::class, 'candidate_back']);
     Route::post('/recruitment/candidate/{id}/interview', [RecruitmentController::class, 'candidate_interview']);
     Route::post('/recruitment/candidate/interview/get', [RecruitmentController::class, 'candidate_interview_get']);

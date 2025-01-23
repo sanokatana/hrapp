@@ -79,10 +79,10 @@
                                         <div class="col-3 col-lg-3">
                                             <div class="form-group mb-3">
                                                 <select name="status_candidate" id="status_candidate" class="form-select">
-                                                    <option value="">Status Candidate</option>
-                                                    <option value="In Process">In Process</option>
-                                                    <option value="Hired">Hired</option>
-                                                    <option value="Rejected">Rejected</option>
+                                                    <option {{ request('status_candidate') == "" ? 'selected' : '' }} value="">Status Candidate</option>
+                                                    <option {{ request('status_candidate') == "In Process" ? 'selected' : '' }} value="In Process">In Process</option>
+                                                    <option {{ request('status_candidate') == "Hired" ? 'selected' : '' }} value="Hired">Hired</option>
+                                                    <option {{ request('status_candidate') == "Rejected" ? 'selected' : '' }} value="Rejected">Rejected</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -142,21 +142,18 @@
                                                         </a>
                                                     </div>
                                                     <div>
-                                                        <form action="/recruitment/candidate/{{$d->id}}/delete" method="POST">
-                                                            @csrf
-                                                            <a class="btn btn-success btn-sm karyawan-confirm">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-progress-down">
-                                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                                    <path d="M10 20.777a8.942 8.942 0 0 1 -2.48 -.969" />
-                                                                    <path d="M14 3.223a9.003 9.003 0 0 1 0 17.554" />
-                                                                    <path d="M4.579 17.093a8.961 8.961 0 0 1 -1.227 -2.592" />
-                                                                    <path d="M3.124 10.5c.16 -.95 .468 -1.85 .9 -2.675l.169 -.305" />
-                                                                    <path d="M6.907 4.579a8.954 8.954 0 0 1 3.093 -1.356" />
-                                                                    <path d="M12 9v6" />
-                                                                    <path d="M15 12l-3 3l-3 -3" />
-                                                                </svg>
-                                                            </a>
-                                                        </form>
+                                                        <a href="#" class="karyawan-confirm btn btn-success btn-sm" id="{{ $d->id }}" data-bs-toggle="modal" data-bs-target="#confirmationModal">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-progress-down">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                <path d="M10 20.777a8.942 8.942 0 0 1 -2.48 -.969" />
+                                                                <path d="M14 3.223a9.003 9.003 0 0 1 0 17.554" />
+                                                                <path d="M4.579 17.093a8.961 8.961 0 0 1 -1.227 -2.592" />
+                                                                <path d="M3.124 10.5c.16 -.95 .468 -1.85 .9 -2.675l.169 -.305" />
+                                                                <path d="M6.907 4.579a8.954 8.954 0 0 1 3.093 -1.356" />
+                                                                <path d="M12 9v6" />
+                                                                <path d="M15 12l-3 3l-3 -3" />
+                                                            </svg>
+                                                        </a>
                                                     </div>
                                                     <div>
                                                         <form action="/recruitment/candidate/{{$d->id}}/delete" method="POST">
@@ -184,6 +181,35 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal-confirmCandidate" tabindex="-1" aria-labelledby="modal-confirmCandidateLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-confirmCandidateLabel">Confirm Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>What action would you like to take?</p>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="action" id="actionHire" value="hire">
+                    <label class="form-check-label" for="actionHire">Hire</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="action" id="actionReject" value="reject">
+                    <label class="form-check-label" for="actionReject">Reject</label>
+                </div>
+                <div id="rejectReasonContainer" class="mt-3" style="display: none;">
+                    <label for="rejectReason" class="form-label">Reason for Rejection</label>
+                    <textarea id="rejectReason" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="confirmCandidateAction">Submit</button>
             </div>
         </div>
     </div>
@@ -386,24 +412,6 @@
             });
         });
 
-        $(".karyawan-confirm").click(function(e) {
-            var form = $(this).closest('form');
-            e.preventDefault();
-            Swal.fire({
-                title: "Apakah Yakin?",
-                text: "Candidate Akan Lanjut Menjadi Karyawan",
-                icon: "info",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Confirm"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
-                }
-            });
-        });
-
         $('#formCandidate').submit(function() {
             var nama_candidate = $('#nama_candidate').val();
             if (nama_candidate == "") {
@@ -417,6 +425,76 @@
                 });
                 return false;
             }
+        });
+    });
+
+    $(document).ready(function() {
+        var candidateId = null;
+
+        // Show modal and set candidate ID
+        $('.karyawan-confirm').click(function() {
+            candidateId = $(this).attr('id'); // Get candidate ID
+            $('#modal-confirmCandidate').modal('show');
+        });
+
+        // Toggle reject reason input based on action
+        $('input[name="action"]').change(function() {
+            var action = $(this).val();
+            if (action === 'reject') {
+                $('#rejectReasonContainer').show();
+            } else {
+                $('#rejectReasonContainer').hide();
+            }
+        });
+
+        // Handle form submission
+        $('#confirmCandidateAction').click(function() {
+            var action = $('input[name="action"]:checked').val();
+            var rejectReason = $('#rejectReason').val();
+
+            if (!action) {
+                alert('Please select an action.');
+                return;
+            }
+
+            if (action === 'reject' && rejectReason.trim() === '') {
+                alert('Please provide a reason for rejection.');
+                return;
+            }
+
+            var url = action === 'hire' ?
+                '/recruitment/candidate/' + candidateId + '/hired' :
+                '/recruitment/candidate/' + candidateId + '/reject';
+
+            // AJAX request
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    reject_reason: action === 'reject' ? rejectReason : null
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: response.message,
+                            icon: 'success',
+                            confirmButtonText: 'Ok'
+                        }).then(() => {
+                            window.location.reload(); // Refresh the page to reflect changes
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An error occurred. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'Ok'
+                    });
+                }
+            });
         });
     });
 </script>

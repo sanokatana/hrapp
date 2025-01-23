@@ -176,6 +176,15 @@
                                                     </td>
                                             </tr>
                                             <tr>
+                                                <td style="border: 1px solid black; text-align: center;">Karyawan Mangkir</td>
+                                                @for($i = 1; $i <= $daysInMonth; $i++)
+                                                    <td style="border: 1px solid black; text-align: center;">{{ $mangkir[$i] }}</td>
+                                                    @endfor
+                                                    <td style="border: 1px solid black; text-align: center; background-color: purple; color: white;">
+                                                        {{ $workingDays > 0 ? round($totalMangkir / $workingDays, 0) : 0 }}
+                                                    </td>
+                                            </tr>
+                                            <tr>
                                                 <td style="border: 1px solid black; text-align: center;">Karyawan Telat</td>
                                                 @for($i = 1; $i <= $daysInMonth; $i++)
                                                     <td style="border: 1px solid black; text-align: center;">{{ $telat[$i] }}</td>
@@ -203,15 +212,6 @@
                                                     </td>
                                             </tr>
                                             <tr>
-                                                <td style="border: 1px solid black; text-align: center;">Karyawan Mangkir</td>
-                                                @for($i = 1; $i <= $daysInMonth; $i++)
-                                                    <td style="border: 1px solid black; text-align: center;">{{ $mangkir[$i] }}</td>
-                                                    @endfor
-                                                    <td style="border: 1px solid black; text-align: center; background-color: purple; color: white;">
-                                                        {{ $workingDays > 0 ? round($totalMangkir / $workingDays, 0) : 0 }}
-                                                    </td>
-                                            </tr>
-                                            <tr>
                                                 <td style="border: 1px solid black; text-align: center;">% Karyawan Hadir</td>
                                                 @for($i = 1; $i <= $daysInMonth; $i++)
                                                     <td style="border: 1px solid black; text-align: center;">{{ $percentHadir[$i] }}%</td>
@@ -230,6 +230,15 @@
                                                     </td>
                                             </tr>
                                             <tr>
+                                                <td style="border: 1px solid black; text-align: center;">% Karyawan Telat</td>
+                                                @for($i = 1; $i <= $daysInMonth; $i++)
+                                                    <td style="border: 1px solid black; text-align: center;">{{ $percentTelat[$i] }}%</td>
+                                                    @endfor
+                                                    <td style="border: 1px solid black; text-align: center; background-color: purple; color: white;">
+                                                        {{ $workingDays > 0 ? round($totalPercentTelat / $workingDays, 0) : 0 }}%
+                                                    </td>
+                                            </tr>
+                                            <tr>
                                                 <td style="border: 1px solid black; text-align: center;">% Karyawan Izin</td>
                                                 @for($i = 1; $i <= $daysInMonth; $i++)
                                                     <td style="border: 1px solid black; text-align: center;">{{ $percentIzin[$i] }}%</td>
@@ -245,15 +254,6 @@
                                                     @endfor
                                                     <td style="border: 1px solid black; text-align: center; background-color: purple; color: white;">
                                                         {{ $workingDays > 0 ? round($totalPercentCuti / $workingDays, 0) : 0 }}%
-                                                    </td>
-                                            </tr>
-                                            <tr>
-                                                <td style="border: 1px solid black; text-align: center;">% Karyawan Telat</td>
-                                                @for($i = 1; $i <= $daysInMonth; $i++)
-                                                    <td style="border: 1px solid black; text-align: center;">{{ $percentTelat[$i] }}%</td>
-                                                    @endfor
-                                                    <td style="border: 1px solid black; text-align: center; background-color: purple; color: white;">
-                                                        {{ $workingDays > 0 ? round($totalPercentTelat / $workingDays, 0) : 0 }}%
                                                     </td>
                                             </tr>
 

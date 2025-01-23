@@ -21,9 +21,26 @@ class NotificationsMiddleware
     public function handle($request, Closure $next)
     {
         if (Auth::guard('user')->check()) {
-            $startOfWeek = now()->startOfWeek()->format('m-d');
-            $endOfWeek = now()->endOfWeek()->format('m-d');
-            $birthdays = Karyawan::whereRaw("DATE_FORMAT(DOB, '%m-%d') BETWEEN ? AND ?", [$startOfWeek, $endOfWeek])->where('status_kar','Aktif')->get();
+            $today = now();
+            $nextWeek = now()->addDays(7);
+
+            // Format the dates as month-day (e.g., "01-22")
+            $startDate = $today->format('m-d');
+            $endDate = $nextWeek->format('m-d');
+
+            // Query for birthdays within the range
+            $birthdays = Karyawan::where('status_kar', 'Aktif')
+                ->where(function ($query) use ($startDate, $endDate) {
+                    if ($startDate <= $endDate) {
+                        // Normal case: within the same year
+                        $query->whereRaw("DATE_FORMAT(DOB, '%m-%d') BETWEEN ? AND ?", [$startDate, $endDate]);
+                    } else {
+                        // Overlapping case: spans across December to January
+                        $query->whereRaw("DATE_FORMAT(DOB, '%m-%d') BETWEEN ? AND '12-31'", [$startDate])
+                            ->orWhereRaw("DATE_FORMAT(DOB, '%m-%d') BETWEEN '01-01' AND ?", [$endDate]);
+                    }
+                })
+                ->get();
 
             // Get the current user's information
             $user = Auth::guard('user')->user();

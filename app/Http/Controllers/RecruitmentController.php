@@ -37,6 +37,8 @@ class RecruitmentController extends Controller
 
         if (!empty($request->status_candidate)) {
             $candidates->where('candidates.status', $request->status_candidate);
+        }   else {
+            $candidates->where('candidates.status', 'In Process');
         }
 
         $candidate = $candidates->get(); // Get results after applying filters
@@ -44,7 +46,7 @@ class RecruitmentController extends Controller
         $interviewer = DB::table('karyawan')
             ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join with the jabatan table
             ->where('karyawan.status_kar', 'Aktif') // Only active employees
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->whereIn('jabatan.jabatan', ['Section Head', 'Head of Department', 'Management']) // Filter by job titles
                     ->orWhere('jabatan.id', 12); // Include jabatan.id = 12
             })
@@ -287,15 +289,28 @@ class RecruitmentController extends Controller
 
         // Set the status to rejected
         $candidate->reject_reason = $request->input('reject_reason');
-        $candidate->status = 'rejected';
+        $candidate->status = 'Rejected';
 
         // Save changes
         $candidate->save();
 
-        // Redirect with a success message
-        return redirect()->back()->with('danger', 'Candidate has been rejected.');
+        // Return JSON response for AJAX
+        return response()->json(['status' => 'success', 'message' => 'Candidate has been rejected.']);
     }
 
+    public function candidate_hire($id)
+    {
+        $candidate = Candidate::findOrFail($id);
+
+        // Set the status to hired
+        $candidate->status = 'Hired';
+
+        // Save changes
+        $candidate->save();
+
+        // Return JSON response for AJAX
+        return response()->json(['status' => 'success', 'message' => 'Candidate has been hired.']);
+    }
 
     public function candidate_back($id)
     {
@@ -649,8 +664,8 @@ class RecruitmentController extends Controller
             );
 
         if (!empty($request->nama_candidate)) {
-                $interviews->where('candidates.nama_candidate', 'like', '%' . $request->nama_candidate . '%');
-            }
+            $interviews->where('candidates.nama_candidate', 'like', '%' . $request->nama_candidate . '%');
+        }
 
         $interview = $interviews->get();
 
@@ -721,6 +736,8 @@ class RecruitmentController extends Controller
 
         if (!empty($request->status_candidate)) {
             $datas->where('candidates.status', $request->status_candidate);
+        } else {
+            $datas->where('candidates.status', 'In Process');
         }
 
         $data = $datas->get(); // Get results after applying filters
@@ -993,7 +1010,6 @@ class RecruitmentController extends Controller
             // Return the error message to the user
             return redirect()->back()->with('error', 'Failed to convert candidate to karyawan. ' . $e->getMessage());
         }
-
     }
 
 
@@ -1070,6 +1086,49 @@ class RecruitmentController extends Controller
                 DB::table('candidates')
                     ->where('id', $candidateRealId) // Using the candidate_id from candidate_data
                     ->update(['verify_offer' => 1]);
+
+                // Fetch candidate email and position name
+                $candidateData = DB::table('candidates')
+                    ->where('id', $candidateRealId)
+                    ->first();
+
+                $jobOpening = DB::table('job_openings')
+                    ->where('id', $candidateData->job_opening_id)
+                    ->first();
+
+                $email = $candidateData->email;
+                $nama_candidate = $candidateData->nama_candidate;
+                $nama_posisi = $jobOpening->title;
+
+                // Email content
+                $emailContent = "
+                    Yth. {$nama_candidate},<br><br>
+
+                    Selamat! Kami dengan senang hati menginformasikan bahwa Anda telah berhasil diterima untuk posisi <b>{$nama_posisi}</b> di <b>PT Cipta Harmoni Lestari.</b> Proses seleksi yang Anda jalani menunjukkan komitmen, kemampuan, dan kecocokan yang luar biasa dengan nilai dan tujuan perusahaan kami.<br><br>
+
+                    Kami sangat antusias untuk menyambut Anda di tim kami dan berharap Anda dapat memberikan kontribusi terbaik bagi kesuksesan bersama. Silahkan lengkapi data administrasi dengan klik link https://hrms.ciptaharmoni.com/candidate dan tunggu info selanjutnya terkait penandatanganan kontrak dan informasi lainnya.<br><br>
+
+                    Sekali lagi, selamat atas pencapaian ini. Kami sangat menantikan untuk bekerja bersama Anda.<br><br>
+
+                    Hormat kami,<br>
+                    HR Dept.
+                ";
+
+                // Send the email
+                try {
+                    Mail::html($emailContent, function ($message) use ($email, $nama_candidate, $nama_posisi) {
+                        $message->to($email)
+                            ->subject("Selamat {$nama_candidate} Anda telah berhasil diterima untuk posisi {$nama_posisi}")
+                            ->cc(['human.resources@ciptaharmoni.com', auth()->user()->email])
+                            ->priority(1);
+
+                        // Add importance headers
+                        $message->getHeaders()->addTextHeader('Importance', 'high');
+                        $message->getHeaders()->addTextHeader('X-Priority', '1');
+                    });
+                } catch (\Exception $e) {
+                    return Redirect::back()->with(['warning' => 'Failed to send email: ' . $e->getMessage()]);
+                }
             } elseif ($newStatus === 'Declined') {
                 DB::table('candidates')
                     ->where('id', $candidateRealId) // Using the candidate_id from candidate_data
@@ -1079,6 +1138,7 @@ class RecruitmentController extends Controller
 
         return redirect()->back()->with('success', 'Candidate status updated successfully!');
     }
+
 
 
 
