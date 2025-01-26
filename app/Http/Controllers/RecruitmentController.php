@@ -37,7 +37,7 @@ class RecruitmentController extends Controller
 
         if (!empty($request->status_candidate)) {
             $candidates->where('candidates.status', $request->status_candidate);
-        }   else {
+        } else {
             $candidates->where('candidates.status', 'In Process');
         }
 
@@ -631,25 +631,93 @@ class RecruitmentController extends Controller
         $interviewer = $request->interviewer;
         $interviewer2 = $request->interviewer2;
         $stage_id = $request->stage_id;
-        $data = [
-            'candidate_id' => $id,
-            'interview_date' => $interview_date,
-            'interview_time' => $interview_time,
-            'notes' => $notes,
-            'interviewer' => $interviewer,
-            'interviewer2' => $interviewer2,
-            'stage_id' => $stage_id
-        ];
 
-        $simpan = DB::table('interviews')
-            ->insert($data);
-        if ($simpan) {
+        DB::beginTransaction();
+
+        try {
+            // Mark previous interviews as completed
+            DB::table('interviews')
+                ->where('candidate_id', $id)
+                ->where('status', 'Scheduled')
+                ->update(['status' => 'Completed']);
+
+            // Insert new interview
+            $data = [
+                'candidate_id' => $id,
+                'interview_date' => $interview_date,
+                'interview_time' => $interview_time,
+                'notes' => $notes,
+                'interviewer' => $interviewer,
+                'interviewer2' => $interviewer2,
+                'stage_id' => $stage_id,
+                'status' => 'Scheduled', // New interview is marked as Scheduled
+            ];
+            DB::table('interviews')->insert($data);
+
+            // Update candidate's current stage
             DB::table('candidates')->where('id', $id)->update(['current_stage_id' => $stage_id]);
-            return Redirect::back()->with(['success' => 'Interview Berhasil Di Simpan']);
-        } else {
-            return Redirect::back()->with(['warning' => 'Interview Gagal Di Simpan']);
+
+            // Fetch candidate, job opening, and stage details
+            $candidate = DB::table('candidates')->where('id', $id)->first();
+            $jobOpening = DB::table('job_openings')->where('id', $candidate->job_opening_id)->first();
+            $stage = DB::table('hiring_stages')->where('id', $stage_id)->first();
+
+            // Extract details
+            $email = $candidate->email;
+            $nama_candidate = $candidate->nama_candidate;
+            $nama_posisi = $jobOpening->title;
+            $stage_interview_name = $stage->name;
+
+            $email_user = Auth::guard('user')->user()->email;
+
+            // Format interview date
+            $formattedInterviewDate = DateHelper::formatIndonesianDate($interview_date);
+
+            // Email content
+            $emailContent = <<<EOD
+            Kepada Yth.<br>
+            Bpk/Ibu/Sdr/i <b>{$nama_candidate}</b><br><br>
+
+            Informasi <b>jadwal interview</b> yang akan dilaksanakan pada,<br>
+            <ul>
+                <li>Hari & Tanggal    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$formattedInterviewDate}</li>
+                <li>Waktu             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$interview_time} - Selesai</li>
+                <li>Posisi di lamar   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$nama_posisi}</li>
+                <li>Tahap Interview   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$stage_interview_name}</li>
+                <li>Interviewer       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$interviewer}</li>
+                <li>Alamat            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: CHL Group Marketing Lounge,<br>
+                Ruko Sorrento Place No. 18-19 PJQJ+R8G, Jl. Ir.Sukarno, Curug Sangereng, Kec.Klp. Dua, Kabupaten Tangerang, Banten 15810.
+                <a href='https://goo.gl/maps/Ko81dv9gxMHmMC7p9'>Google Maps</a></li>
+            </ul>
+
+            <br>
+            Best regards,<br>
+            Zicki Darmawan<br>
+            HR CHL Group<br>
+            <a href="https://www.ciptaharmoni.com/">www.ciptaharmoni.com</a><br><br><br><br>
+        EOD;
+
+            // Send email
+            Mail::html($emailContent, function ($message) use ($email, $nama_candidate, $email_user, $stage_interview_name) {
+                $message->to('chandrazahran@gmail.com')
+                    ->subject("CHL Job Candidacy {$stage_interview_name} Invitation for {$nama_candidate}")
+                    ->cc(['zahran.chandra@ciptaharmoni.com'])
+                    ->priority(1);
+
+                // Add importance headers
+                $message->getHeaders()->addTextHeader('Importance', 'high');
+                $message->getHeaders()->addTextHeader('X-Priority', '1');
+            });
+
+            DB::commit();
+            return redirect()->back()->with(['success' => 'Interview berhasil disimpan dan email dikirim.']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with(['warning' => 'Terjadi kesalahan: ' . $e->getMessage()]);
         }
     }
+
+
 
     public function candidate_interview_data(Request $request)
     {

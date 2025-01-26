@@ -8,7 +8,7 @@
 }
 </style>
 <div class="row">
-    <div class="col-6">
+    <div class="col-12">
         <div class="form-label">NIK</div>
         <div class="input-icon mb-3">
             <span class="input-icon-addon">
@@ -26,7 +26,7 @@
             <input type="text" value="{{$contract->nik}}" class="form-control custom-disabled" name="nik" id="nik" placeholder="10101" autocomplete="off" disabled>
         </div>
     </div>
-    <div class="col-6">
+    <div class="col-12">
         <div class="form-label">Nama Karyawan</div>
         <div class="input-icon mb-3">
             <span class="input-icon-addon">
@@ -45,7 +45,7 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-6">
+    <div class="col-12">
         <div class="form-label">No Kontrak</div>
         <div class="input-icon mb-3">
             <span class="input-icon-addon">
@@ -60,7 +60,7 @@
             <input type="text" value="{{$contract->no_kontrak}}" class="form-control custom-disabled" name="no_kontrak" id="no_kontrak" placeholder="No Kontrak" disabled>
         </div>
     </div>
-    <div class="col-6">
+    <div class="col-12">
         <div class="form-label">Contract Type</div>
         <select name="contract_type" id="contract_type" class="form-select custom-disabled" disabled>
             <option {{ $contract->contract_type == '' ? 'selected' : '' }} value="">Choose</option>
@@ -69,8 +69,8 @@
         </select>
     </div>
 </div>
-<div class="row">
-    <div class="col-6">
+<div class="row mt-3">
+    <div class="col-12">
         <div class="form-label">Start Date</div>
         <div class="input-icon mb-3">
             <span class="input-icon-addon">
@@ -88,7 +88,7 @@
             <input type="date" value="{{$contract->start_date}}" class="form-control custom-disabled" name="start_date" id="start_date" placeholder="" disabled>
         </div>
     </div>
-    <div class="col-6">
+    <div class="col-12">
         <div class="form-label">End Date</div>
         <div class="input-icon mb-3">
             <span class="input-icon-addon">
@@ -108,7 +108,7 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-6">
+    <div class="col-12">
         <div class="form-label">Position</div>
         <div class="input-icon mb-3">
             <span class="input-icon-addon">
@@ -124,32 +124,9 @@
             <input type="text" value="{{$contract->position}}" class="form-control custom-disabled" name="position" id="position" placeholder="Position" disabled>
         </div>
     </div>
-    <div class="col-6">
-        <div class="form-label">Salary</div>
-        <div class="input-icon mb-3">
-            <span class="input-icon-addon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="icon icon-tabler icons-tabler-outline icon-tabler-cash-banknote">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
-                    <path d="M3 6m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
-                    <path d="M18 12l.01 0" />
-                    <path d="M6 12l.01 0" />
-                </svg>
-            </span>
-            <input type="text"
-                   value="{{ 'Rp ' . number_format($contract->salary, 0, ',', '.') }}"
-                   class="form-control custom-disabled"
-                   name="salary"
-                   id="salary"
-                   placeholder="Salary"
-                   disabled>
-        </div>
-    </div>
 </div>
 <div class="row">
-    <div class="col-6">
+    <div class="col-12">
         <div class="form-label">Status</div>
         <select name="status" id="status" class="form-select custom-disabled" disabled>
             <option {{ $contract->status == '' ? 'selected' : '' }} value="">Choose</option>
@@ -158,22 +135,5 @@
             <option {{ $contract->status == 'Terminated' ? 'selected' : '' }} value="Terminated">Terminated</option>
             <option {{ $contract->status == 'Expired' ? 'selected' : '' }} value="Expired">Expired</option>
         </select>
-    </div>
-    <div class="col-6">
-        <div class="form-label">Contract File</div>
-        <div class="input-icon mb-3">
-            <span class="input-icon-addon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="icon icon-tabler icons-tabler-outline icon-tabler-file-info">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                    <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-                    <path d="M11 14h1v4h1" />
-                    <path d="M12 11h.01" />
-                </svg>
-            </span>
-            <input type="text" value="{{$contract->contract_file}}" class="form-control custom-disabled" name="contract_file" id="contract_file" placeholder="File" disabled>
-        </div>
     </div>
 </div>

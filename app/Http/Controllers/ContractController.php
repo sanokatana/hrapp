@@ -7,6 +7,7 @@ use App\Helpers\DateHelper;
 use App\Models\Contract;
 use App\Models\SK;
 use Carbon\Carbon;
+use DateTime;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -37,8 +38,14 @@ class ContractController extends Controller
             $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama_karyawan . '%');
         }
 
+        // if (!empty($request->status_kontrak)) {
+        //     $query->where('kontrak.status', 'like', '%' . $request->status_kontrak . '%');
+        // }
+
         if (!empty($request->status_kontrak)) {
-            $query->where('kontrak.status', 'like', '%' . $request->status_kontrak . '%');
+            $query->where('kontrak.status', $request->status_kontrak);
+        } else {
+            $query->where('kontrak.status', 'Active');
         }
 
         // Order the results with Active contracts first
@@ -57,20 +64,16 @@ class ContractController extends Controller
         $name = $user->name;
         $nik = $request->nik;
         $no_kontrak = $request->no_kontrak;
-        $start_date = $request->start_date;
-        $end_date = $request->end_date;
-        $contract_type = $request->contract_type;
+        $start_date = $request->start_date; // Start date in 'Y-m-d' format
+        $end_date_selection = $request->end_date_selection; // The dropdown value
+        $end_date_manual = $request->end_date_manual; // The manual date input
         $position = $request->position;
-        $salary = $request->salary;
         $status = $request->status;
-        $contract_file = $request->contract_file;
         $reasoning = "New Contract";
-        $periode_awal = $request->start_date; // Assuming `periode_awal` is the same as `start_date`
 
-        // Get the day of the week for `periode_awal`
-        $dayOfWeek = date('l', strtotime($periode_awal)); // Get the day in English
+        $periode_awal = $request->start_date;
+        $dayOfWeek = date('l', strtotime($periode_awal));
 
-        // Translate the day to Bahasa Indonesia
         $daysInIndonesian = [
             'Sunday' => 'Minggu',
             'Monday' => 'Senin',
@@ -82,41 +85,39 @@ class ContractController extends Controller
         ];
         $hari_kerja = $daysInIndonesian[$dayOfWeek];
 
-        // If no_kontrak is empty, generate it
+        // Determine the end_date based on the selection
+        if ($end_date_selection === 'manual') {
+            $end_date = $end_date_manual; // Use the manually selected date
+        } else {
+            // Add the selected number of months to the start_date
+            $monthsToAdd = (int)$end_date_selection; // Convert dropdown value to integer
+            $startDateObj = new DateTime($start_date);
+            $startDateObj->modify("+{$monthsToAdd} months"); // Add fixed months
+            $end_date = $startDateObj->format('Y-m-d'); // Format as 'Y-m-d'
+        }
+
+        // Generate no_kontrak if empty
         if (empty($no_kontrak)) {
-            // Get the last contract number (xxx)
             $lastContract = DB::table('kontrak')
                 ->orderBy('id', 'desc')
                 ->value('no_kontrak');
 
-            // Extract the number (xxx) from the last contract
             if ($lastContract) {
                 $parts = explode('/', $lastContract);
-                $lastNumber = (int)$parts[0];
-                $nextNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT); // Increment and pad with leading zeros
+                $lastNumber = (int) $parts[0];
+                $nextNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
             } else {
-                $nextNumber = '001'; // If no previous contract, start with 001
+                $nextNumber = '001';
             }
 
-            // Simplify the user's name to 3 letters
             $nameParts = explode(' ', $name);
-            if (count($nameParts) == 1) {
-                // If there's only one name, take the first 3 letters
-                $simplifiedName = strtoupper(substr($nameParts[0], 0, 3));
-            } else {
-                // Otherwise, take the initials of up to 3 names
-                $simplifiedName = '';
-                foreach ($nameParts as $index => $part) {
-                    $simplifiedName .= strtoupper(substr($part, 0, 1));
-                    if ($index == 2) break; // Only take up to 3 initials
-                }
-            }
+            $simplifiedName = count($nameParts) == 1
+                ? strtoupper(substr($nameParts[0], 0, 3))
+                : strtoupper(substr(implode('', array_map(fn($part) => substr($part, 0, 1), $nameParts)), 0, 3));
 
-            // Get the current month and year
             $currentMonth = date('n');
             $currentYear = date('Y');
 
-            // Convert the month to Roman numerals
             $romanMonths = [
                 1 => 'I',
                 2 => 'II',
@@ -133,7 +134,6 @@ class ContractController extends Controller
             ];
             $romanMonth = $romanMonths[$currentMonth];
 
-            // Generate the no_kontrak value
             $no_kontrak = "{$nextNumber}/SPK-CHL/{$simplifiedName}/{$romanMonth}/{$currentYear}";
         }
 
@@ -142,34 +142,28 @@ class ContractController extends Controller
             'no_kontrak' => $no_kontrak,
             'start_date' => $start_date,
             'end_date' => $end_date,
-            'contract_type' => $contract_type,
+            'contract_type' => 'PKWT',
             'position' => $position,
-            'salary' => $salary,
             'status' => $status,
-            'contract_file' => $contract_file,
             'created_by' => $name,
-            'hari_kerja' => $hari_kerja // Add hari_kerja to the data
+            'hari_kerja' => $hari_kerja
         ];
 
-        // Insert data into kontrak table
-        $id = DB::table('kontrak')->insertGetId($data); // Retrieve the ID of the inserted record
+        $id = DB::table('kontrak')->insertGetId($data);
 
         if ($id) {
-            // Insert the same data into kontrak_history table
             DB::table('kontrak_history')->insert([
-                'kontrak_id' => $id, // Use the retrieved ID
+                'kontrak_id' => $id,
                 'nik' => $nik,
                 'no_kontrak' => $no_kontrak,
                 'start_date' => $start_date,
                 'end_date' => $end_date,
-                'contract_type' => $contract_type,
+                'contract_type' => 'PKWT',
                 'position' => $position,
-                'salary' => $salary,
                 'status' => $status,
                 'changed_by' => $name,
                 'change_reason' => $reasoning,
-                'contract_file' => $contract_file,
-                'hari_kerja' => $hari_kerja // Add hari_kerja to kontrak_history
+                'hari_kerja' => $hari_kerja
             ]);
 
             return Redirect::back()->with(['success' => 'Data Berhasil Disimpan']);
@@ -177,6 +171,7 @@ class ContractController extends Controller
             return Redirect::back()->with(['warning' => 'Data Gagal Disimpan']);
         }
     }
+
 
 
     public function edit(Request $request)
@@ -423,7 +418,7 @@ class ContractController extends Controller
                 $newEndDate = $request->new_end_date;
 
                 // Update the current contract's status to 'Extended'
-                $contract->status = 'Extended';
+                $contract->status = 'Expired';
                 $contract->save();
 
                 $dayOfWeek = date('l', strtotime($newStartDate)); // Get the day in English
@@ -444,8 +439,8 @@ class ContractController extends Controller
                 $name = $user->name;
 
                 $lastContract = DB::table('kontrak')
-                ->orderBy('id', 'desc')
-                ->value('no_kontrak');
+                    ->orderBy('id', 'desc')
+                    ->value('no_kontrak');
 
                 // Extract the number (xxx) from the last contract
                 if ($lastContract) {
@@ -507,7 +502,6 @@ class ContractController extends Controller
                     'status' => 'Active',
                     'created_by' => Auth::guard('user')->user()->name,
                 ]);
-
             } elseif ($request->actionType == 'peningkatan') {
                 // Peningkatan to Tetap
                 $tglSk = $request->tgl_sk;
@@ -631,6 +625,6 @@ class ContractController extends Controller
             ->where('id', $namaJabatan->jabatan_atasan)
             ->first();
         // Pass data to the view
-        return view('contract.print', compact('contract', 'monthsInWords', 'months', 'dateNow', 'dateNow2', 'addressLine1', 'addressLine2', 'dateNow3', 'dateNow4', 'namaJabatan', 'atasanJabatan','dateNow5','dateNow6'));
+        return view('contract.print', compact('contract', 'monthsInWords', 'months', 'dateNow', 'dateNow2', 'addressLine1', 'addressLine2', 'dateNow3', 'dateNow4', 'namaJabatan', 'atasanJabatan', 'dateNow5', 'dateNow6'));
     }
 }

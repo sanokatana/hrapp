@@ -1451,8 +1451,8 @@ class LaporanController extends Controller
     ";
 
         // Send email
-        $managementEmails = ['zahran.chandra@ciptaharmoni.com'];
-        $ccList = ['zahran.chandra@ciptaharmoni.com'];
+        $managementEmails = ['al.imron@ciptaharmoni.com'];
+        $ccList = ['human.resources@ciptaharmoni.com'];
         $tanggalHari = DateHelper::formatIndonesianDate($hariini);
 
         foreach ($managementEmails as $email) {

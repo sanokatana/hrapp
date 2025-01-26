@@ -81,7 +81,7 @@
                                         <div class="col-3 col-lg-3">
                                             <div class="form-group mb-3">
                                                 <select name="status_kontrak" id="status_kontrak" class="form-select">
-                                                    <option value="Pilih" {{ request('status_kontrak') == 'Pilih' ? 'selected' : '' }}>Status</option>
+                                                    <option value="" {{ request('status_kontrak') == '' ? 'selected' : '' }}>Status</option>
                                                     <option value="Active" {{ request('status_kontrak') == 'Active' ? 'selected' : '' }}>Active</option>
                                                     <option value="Terminated" {{ request('status_kontrak') == 'Terminated' ? 'selected' : '' }}>Terminated</option>
                                                     <option value="Expired" {{ request('status_kontrak') == 'Expired' ? 'selected' : '' }}>Expired</option>
@@ -135,16 +135,6 @@
                                             <td>
                                                 <div class="form-group">
                                                     <div class="mb-1">
-                                                        <a href="#" class="edit btn btn-info btn-sm" id="{{ $d->id }}">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-edit">
-                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                                <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                                                                <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                                                                <path d="M16 5l3 3" />
-                                                            </svg>
-                                                        </a>
-                                                    </div>
-                                                    <div class="mb-1">
                                                         <a href="#" class="btn btn-success btn-sm view"
                                                             id="{{ $d->id }}">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="24"
@@ -162,13 +152,22 @@
                                                     <div class="mb-1">
                                                         <a href="#" class="btn btn-primary btn-sm peningkatan"
                                                             id="{{ $d->id }}">
-                                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-rotate-rectangle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.09 4.01l.496 -.495a2 2 0 0 1 2.828 0l7.071 7.07a2 2 0 0 1 0 2.83l-7.07 7.07a2 2 0 0 1 -2.83 0l-7.07 -7.07a2 2 0 0 1 0 -2.83l3.535 -3.535h-3.988" /><path d="M7.05 11.038v-3.988" /></svg>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-rotate-rectangle">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                <path d="M10.09 4.01l.496 -.495a2 2 0 0 1 2.828 0l7.071 7.07a2 2 0 0 1 0 2.83l-7.07 7.07a2 2 0 0 1 -2.83 0l-7.07 -7.07a2 2 0 0 1 0 -2.83l3.535 -3.535h-3.988" />
+                                                                <path d="M7.05 11.038v-3.988" />
+                                                            </svg>
                                                         </a>
                                                     </div>
                                                     <form action="/kontrak/{{$d->id}}/print" method="POST" class="mb-1">
                                                         @csrf
                                                         <a class="btn btn-warning btn-sm print-confirm">
-                                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-printer"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" />
+                                                                <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" />
+                                                                <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" />
+                                                            </svg>
                                                         </a>
                                                     </form>
                                                     <form action="/kontrak/{{$d->id}}/delete" method="POST">
@@ -210,7 +209,7 @@
                 <form action="/kontrak/store" method="POST" id="formContract">
                     @csrf
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-12">
                             <div class="form-label">NIK</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
@@ -226,7 +225,7 @@
                                 <input type="text" value="" class="form-control" name="nik" id="nik" placeholder="10101" autocomplete="off">
                             </div>
                         </div>
-                        <div class="col-6">
+                        <div class="col-12">
                             <div class="form-label">Nama Karyawan</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
@@ -245,7 +244,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-12">
                             <div class="form-label">No Kontrak</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
@@ -258,17 +257,9 @@
                                 <input type="text" value="" class="form-control" name="no_kontrak" id="no_kontrak" placeholder="No Kontrak">
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="form-label">Contract Type</div>
-                            <select name="contract_type" id="contract_type" class="form-select">
-                                <option value="">Choose</option>
-                                <option value="PKWT">PKWT</option>
-                                <option value="PKWTT">PKWTT</option>
-                            </select>
-                        </div>
                     </div>
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-12">
                             <div class="form-label">Start Date</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
@@ -284,7 +275,7 @@
                                 <input type="date" value="" class="form-control" name="start_date" id="start_date" placeholder="">
                             </div>
                         </div>
-                        <div class="col-6">
+                        <!-- <div class="col-12">
                             <div class="form-label">End Date</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
@@ -299,10 +290,30 @@
                                 </span>
                                 <input type="date" value="" class="form-control" name="end_date" id="end_date" placeholder="">
                             </div>
+                        </div> -->
+                        <div class="col-12">
+                            <div class="form-label">End Date</div>
+                            <div class="mb-3">
+                                <select name="end_date_selection" id="end_date_selection" class="form-select">
+                                    <option value="">Choose Duration</option>
+                                    <option value="1">1 Bulan</option>
+                                    <option value="3">3 Bulan</option>
+                                    <option value="4">4 Bulan</option>
+                                    <option value="6">6 Bulan</option>
+                                    <option value="12">12 Bulan</option>
+                                    <option value="manual">Manual</option>
+                                </select>
+                                <input
+                                    type="date"
+                                    class="form-control mt-4 d-none"
+                                    name="end_date_manual"
+                                    id="end_date_manual"
+                                    placeholder="Choose Date">
+                            </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-12">
                             <div class="form-label">Position</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
@@ -316,24 +327,7 @@
                                 <input type="text" value="" class="form-control" name="position" id="position" placeholder="Position">
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="form-label">Salary</div>
-                            <div class="input-icon mb-3">
-                                <span class="input-icon-addon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-cash-banknote">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
-                                        <path d="M3 6m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
-                                        <path d="M18 12l.01 0" />
-                                        <path d="M6 12l.01 0" />
-                                    </svg>
-                                </span>
-                                <input type="text" value="" class="form-control" name="salary" id="salary" placeholder="Salary">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-6">
+                        <div class="col-12">
                             <div class="form-label">Status</div>
                             <select name="status" id="status" class="form-select">
                                 <option value="">Choose</option>
@@ -343,21 +337,6 @@
                                 <option value="Expired">Expired</option>
                                 <option value="Non-Active">Non-Active</option>
                             </select>
-                        </div>
-                        <div class="col-6">
-                            <div class="form-label">Contract File</div>
-                            <div class="input-icon mb-3">
-                                <span class="input-icon-addon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-file-info">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                                        <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-                                        <path d="M11 14h1v4h1" />
-                                        <path d="M12 11h.01" />
-                                    </svg>
-                                </span>
-                                <input type="text" value="" class="form-control" name="contract_file" id="contract_file" placeholder="File">
-                            </div>
                         </div>
                     </div>
                     <div class="row mt-3">
@@ -468,13 +447,25 @@
                     <div id="extendFields" style="display:none;">
                         <div class="form-group mt-3">
                             <label for="new_start_date">New Start Date</label>
-                            <input type="date" class="form-control" id="new_start_date" name="new_start_date">
+                            <input type="date" class="form-control" id="new_start_date" name="new_start_date" placeholder="Enter New Start Date">
                         </div>
+
                         <div class="form-group mt-3">
                             <label for="new_end_date">New End Date</label>
-                            <input type="date" class="form-control" id="new_end_date" name="new_end_date">
+                            <div class="input-group">
+                                <select class="form-select" id="new_end_date_duration">
+                                    <option value="" selected>Choose Duration...</option>
+                                    <option value="1">1 Month</option>
+                                    <option value="3">3 Months</option>
+                                    <option value="4">4 Months</option>
+                                    <option value="6">6 Months</option>
+                                    <option value="12">12 Months</option>
+                                </select>
+                                <input type="date" class="form-control" id="new_end_date" name="new_end_date" placeholder="Calculated End Date" readonly>
+                            </div>
                         </div>
                     </div>
+
 
                     <!-- Peningkatan Fields -->
                     <div id="peningkatanFields" style="display:none;">
@@ -516,7 +507,44 @@
 
 @push('myscript')
 <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const startDateInput = document.getElementById('new_start_date');
+        const durationSelect = document.getElementById('new_end_date_duration');
+        const endDateInput = document.getElementById('new_end_date');
+
+        function calculateEndDate(startDate, months) {
+            if (!startDate || !months) return '';
+
+            const start = new Date(startDate);
+            start.setMonth(start.getMonth() + parseInt(months, 10));
+            // Adjust for overflow (e.g., end of the month edge cases)
+            if (start.getDate() < new Date(startDate).getDate()) {
+                start.setDate(0);
+            }
+            return start.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+        }
+
+        // Recalculate the end date when either the start date or duration changes
+        startDateInput.addEventListener('input', () => {
+            endDateInput.value = calculateEndDate(startDateInput.value, durationSelect.value);
+        });
+
+        durationSelect.addEventListener('change', () => {
+            endDateInput.value = calculateEndDate(startDateInput.value, durationSelect.value);
+        });
+    });
+
+
     $(function() {
+        document.getElementById('end_date_selection').addEventListener('change', function() {
+            const manualInput = document.getElementById('end_date_manual');
+            if (this.value === 'manual') {
+                manualInput.classList.remove('d-none');
+            } else {
+                manualInput.classList.add('d-none');
+                manualInput.value = ''; // Clear the value if not manual
+            }
+        });
 
         $('#btnUploadCSV').click(function() {
             $('#modal-uploadContract').modal("show");
@@ -551,8 +579,8 @@
                     // var salaryInput = $('#salaryedit');
                     // var salary = salaryInput.val().replace(/[^\d]/g, ''); // Remove all non-digit characters
 
-                    let salaryField = document.getElementById('salaryedit');
-                    salaryField.value = salaryField.value.replace(/[^\d]/g, '');
+                    // let salaryField = document.getElementById('salaryedit');
+                    // salaryField.value = salaryField.value.replace(/[^\d]/g, '');
 
                     // Check if reasoning is empty
                     if (reasoning === "") {
@@ -568,24 +596,24 @@
                     }
                 });
 
-                $('#salaryedit').on('input', function(e) {
-                    let value = e.target.value.replace(/[^\d]/g, ''); // Remove all non-digit characters
+                // $('#salaryedit').on('input', function(e) {
+                //     let value = e.target.value.replace(/[^\d]/g, ''); // Remove all non-digit characters
 
-                    if (value) {
-                        e.target.value = 'Rp ' + parseInt(value, 10).toLocaleString('id-ID');
-                    } else {
-                        e.target.value = ''; // Clear the input if there's no value
-                    }
-                });
+                //     if (value) {
+                //         e.target.value = 'Rp ' + parseInt(value, 10).toLocaleString('id-ID');
+                //     } else {
+                //         e.target.value = ''; // Clear the input if there's no value
+                //     }
+                // });
 
                 // Initialize the input field correctly
-                $(document).ready(function() {
-                    let salaryInput = $('#salary');
-                    let initialValue = salaryInput.val().replace(/[^\d]/g, '');
-                    if (initialValue) {
-                        salaryInput.val('Rp ' + parseInt(initialValue, 10).toLocaleString('id-ID'));
-                    }
-                });
+                // $(document).ready(function() {
+                //     let salaryInput = $('#salary');
+                //     let initialValue = salaryInput.val().replace(/[^\d]/g, '');
+                //     if (initialValue) {
+                //         salaryInput.val('Rp ' + parseInt(initialValue, 10).toLocaleString('id-ID'));
+                //     }
+                // });
             } else {
                 console.log('Form Contract not found'); // Debugging
             }
@@ -593,18 +621,19 @@
 
 
 
-        document.getElementById('salary').addEventListener('input', function(e) {
-            // Remove any non-digit characters and format the number as currency
-            let value = e.target.value.replace(/[^\d]/g, ''); // Remove all non-digit characters
+        // document.getElementById('salary').addEventListener('input', function(e) {
+        //     // Remove any non-digit characters and format the number as currency
+        //     let value = e.target.value.replace(/[^\d]/g, ''); // Remove all non-digit characters
 
-            // Convert the cleaned-up string back to an integer
-            if (value) {
-                // Format as currency using Indonesian Rupiah style
-                e.target.value = 'Rp ' + parseInt(value, 10).toLocaleString('id-ID');
-            } else {
-                e.target.value = ''; // Clear the input if there's no value
-            }
-        });
+        //     // Convert the cleaned-up string back to an integer
+        //     if (value) {
+        //         // Format as currency using Indonesian Rupiah style
+        //         e.target.value = 'Rp ' + parseInt(value, 10).toLocaleString('id-ID');
+        //     } else {
+        //         e.target.value = ''; // Clear the input if there's no value
+        //     }
+        // });
+
 
         $('#nik').on('blur', function() {
             var nik = $(this).val();
@@ -751,11 +780,10 @@
         });
 
         $('#formContract').submit(function() {
-            let salaryField = document.getElementById('salary');
-            salaryField.value = salaryField.value.replace(/[^\d]/g, '');
+            // let salaryField = document.getElementById('salary');
+            // salaryField.value = salaryField.value.replace(/[^\d]/g, '');
             var nik = $('#nik').val();
             var no_kontrak = $('#no_kontrak').val();
-            var contract_type = $('#contract_type').val();
             var start_date = $('#start_date').val();
             var reasoning = $('#reasoning').val();
             if (nik == "") {
@@ -766,16 +794,6 @@
                     confirmButtonText: 'Ok'
                 }).then(() => {
                     $('#nik').focus();
-                });
-                return false;
-            } else if (contract_type == "") {
-                Swal.fire({
-                    title: 'Warning!',
-                    text: 'Contract Type Harus Diisi',
-                    icon: 'warning',
-                    confirmButtonText: 'Ok'
-                }).then(() => {
-                    $('#contract_type').focus();
                 });
                 return false;
             } else if (start_date == "") {

@@ -111,7 +111,7 @@
 
                             <!-- Warga Negara -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Warga Negara <span style="color: red;">*</span></label>
+                                <label class="col-md-3 col-form-label">Warga Negara<span style="color: red;">*</span></label>
                                 <div class="col-md-9">
                                     <input type="text" class="form-control" name="warga_negara" id="warga_negara" placeholder="Warga Negara" maxlength="255">
                                 </div>
@@ -119,7 +119,7 @@
 
                             <!-- Alamat Rumah -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Alamat Rumah <span style="color: red;">*</span></label>
+                                <label class="col-md-3 col-form-label">Alamat Rumah (Lengkap)<span style="color: red;">*</span></label>
                                 <div class="col-md-9">
                                     <textarea class="form-control" name="alamat_rumah" id="alamat_rumah" rows="2" placeholder="Alamat Rumah" maxlength="500"></textarea>
                                 </div>
@@ -208,7 +208,7 @@
 
                             <!-- Alamat NPWP -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Alamat NPWP <span style="color: red;">*</span></label>
+                                <label class="col-md-3 col-form-label">Alamat NPWP (Lengkap)<span style="color: red;">*</span></label>
                                 <div class="col-md-9">
                                     <textarea class="form-control" name="alamat_npwp" id="alamat_npwp" rows="2" placeholder="Alamat NPWP" maxlength="1000"></textarea>
                                 </div>
