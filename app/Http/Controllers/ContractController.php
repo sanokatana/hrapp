@@ -604,11 +604,6 @@ class ContractController extends Controller
         // Calculate the difference in months
         $months = $startDate->diffInMonths($endDate);
 
-        // Include the end date if it's part of the same month and year
-        if ($startDate->day <= $endDate->day) {
-            $months += 1;
-        }
-
         // Convert number of months to Indonesian words
         $monthsInWords = DateHelper::convertToIndonesianWords($months);
 

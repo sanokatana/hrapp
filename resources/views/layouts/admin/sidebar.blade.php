@@ -1,4 +1,4 @@
-<aside class="navbar navbar-vertical navbar-expand-lg" data-bs-theme="dark" id="sidebar">
+<aside class="navbar navbar-vertical navbar-expand-lg sidebar-collapsed" data-bs-theme="dark" id="sidebar">
     @php
     $user = Auth::guard('user')->user();
     $userLevel = $user ? $user->level : null;
@@ -11,7 +11,7 @@
 
         <h1 class="navbar-brand navbar-brand-autodark">
             <a href="/">
-                <img src="{{ asset('assets/img/login/logo-pic.png')}}" width="70" height="60" alt="Tabler" class="">
+                <img src="{{ asset('assets/img/login/logo-pic.png')}}" width="70" height="60" alt="Tabler" class="logo-img">
             </a>
         </h1>
         <div class="navbar-nav flex-row d-lg-none">
@@ -159,10 +159,6 @@
             </div>
         </div>
         <div class="collapse navbar-collapse" id="sidebar-menu">
-
-            <button class="btn btn-primary" id="sidebar-toggle" type="button">
-                <span class="navbar-toggler-icon"></span>
-            </button>
             <ul class="navbar-nav pt-lg-3">
                 <li class="nav-item">
                     <a class="nav-link" href="/">
@@ -392,17 +388,17 @@
                             <div class="dropdown-menu-column">
                                 <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown"
                                     data-bs-auto-close="false" role="button" aria-expanded="">
-                                    Shift
+                                    Shift Tracking
                                 </a>
                                 <div
                                     class="dropdown-menu {{request()->is(['attendance/daymonitor', 'attendance/table', 'attendance/att_monitoring']) ? 'show' : ''}}">
                                     <a class="dropdown-item {{request()->is(['attendance/daymonitor']) ? 'active' : ''}}"
                                         href="/attendance/daymonitor">
-                                        Day Monitor
+                                        Daily Monitor
                                     </a>
                                     <a class="dropdown-item {{request()->is(['attendance/att_monitoring']) ? 'active' : ''}}"
                                         href="/attendance/att_monitoring">
-                                        Attendance Monitor
+                                        Employee Monitor
                                     </a>
                                     <a class="dropdown-item {{request()->is(['attendance/table']) ? 'active' : ''}}"
                                         href="/attendance/table">
@@ -412,27 +408,27 @@
                                 <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown"
                                     data-bs-auto-close="false" role="button"
                                     aria-expanded="{{request()->is(['timeatt/daymonitor', 'timeatt/att_monitoring', 'timeatt/table']) ? 'true' : 'false'}}">
-                                    Time
+                                    Time Tracking
                                 </a>
                                 <div
                                     class="dropdown-menu {{request()->is(['timeatt/daymonitor', 'timeatt/att_monitoring', 'timeatt/table']) ? 'show' : ''}}">
                                     <a class="dropdown-item {{request()->is(['timeatt/daymonitor']) ? 'active' : ''}}"
                                         href="/timeatt/daymonitor">
-                                        Time Day
+                                        Daily Monitor
                                     </a>
                                     <a class="dropdown-item {{request()->is(['timeatt/att_monitoring']) ? 'active' : ''}}"
                                         href="/timeatt/att_monitoring">
-                                        Time Monitor
+                                        Employee Monitor
                                     </a>
                                     <a class="dropdown-item {{request()->is(['timeatt/table']) ? 'active' : ''}}"
                                         href="/timeatt/table">
                                         Time Table
                                     </a>
                                 </div>
-                                <a class="dropdown-item {{request()->is(['attendance/database']) ? 'active' : ''}}"
+                                <!-- <a class="dropdown-item {{request()->is(['attendance/database']) ? 'active' : ''}}"
                                     href="/attendance/database">
                                     Update Database
-                                </a>
+                                </a> -->
                             </div>
                         </div>
                     </div>
@@ -467,30 +463,34 @@
                         <div class="dropdown-menu-columns">
                             <div class="dropdown-menu-column">
                                 @if($userLevel !== 'Admin')
-                                <a class="dropdown-item {{request()->is(['laporan/attendance']) ? 'active' : ''}}"
-                                    href="/laporan/attendance">
-                                    Attendance Table
+                                <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown"
+                                    data-bs-auto-close="false" role="button"
+                                    aria-expanded="{{request()->is(['laporan/attendance', 'laporan/time', 'laporan/dailyMonitor']) ? 'true' : 'false'}}">
+                                    Tables
                                 </a>
-                                <a class="dropdown-item {{request()->is(['laporan/time']) ? 'active' : ''}}"
-                                    href="/laporan/time">
-                                    Time Table
-                                </a>
-                                <a class="dropdown-item {{request()->is(['laporan/dailyMonitor']) ? 'active' : ''}}"
-                                    href="/laporan/dailyMonitor">
-                                    Daily Monitor
-                                </a>
-                                <a class="dropdown-item {{request()->is(['laporan/exportAttendanceView']) ? 'active' : ''}}" href="/laporan/exportAttendanceView">
-                                    Export Waktu Absensi
-                                </a>
+                                <div class="dropdown-menu {{request()->is(['laporan/attendance', 'laporan/time', 'laporan/dailyMonitor']) ? 'show' : ''}}">
+                                    <a class="dropdown-item {{request()->is(['laporan/attendance']) ? 'active' : ''}}"
+                                        href="/laporan/attendance">
+                                        Attendance Table
+                                    </a>
+                                    <a class="dropdown-item {{request()->is(['laporan/time']) ? 'active' : ''}}"
+                                        href="/laporan/time">
+                                        Time Table
+                                    </a>
+                                    <a class="dropdown-item {{request()->is(['laporan/dailyMonitor']) ? 'active' : ''}}"
+                                        href="/laporan/dailyMonitor">
+                                        Daily Table
+                                    </a>
+                                </div>
                                 <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown"
                                     data-bs-auto-close="false" role="button"
                                     aria-expanded="{{request()->is(['laporan/viewIzin', 'laporan/exportIzin', 'laporan/viewIzinManagement']) ? 'true' : 'false'}}">
-                                    Pengajuan Izin
+                                    Izin
                                 </a>
                                 <div class="dropdown-menu {{request()->is(['laporan/viewIzin', 'laporan/exportIzin', 'laporan/viewIzinManagement']) ? 'show' : ''}}">
                                     <a class="dropdown-item {{request()->is(['laporan/viewIzin']) ? 'active' : ''}}"
                                         href="/laporan/viewIzin">
-                                        View
+                                        Pengajuan Izin
                                     </a>
                                     <a class="dropdown-item {{request()->is(['laporan/exportIzin']) ? 'active' : ''}}"
                                         href="/laporan/exportIzin">
@@ -500,12 +500,12 @@
                                 <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown"
                                     data-bs-auto-close="false" role="button"
                                     aria-expanded="{{request()->is(['laporan/viewCuti', 'laporan/exportCuti', 'laporan/viewCutiManagement', 'laporan/viewCutiSisa']) ? 'true' : 'false'}}">
-                                    Pengajuan Cuti
+                                    Cuti
                                 </a>
                                 <div class="dropdown-menu {{request()->is(['laporan/viewCuti', 'laporan/exportCuti', 'laporan/viewCutiSisa']) ? 'show' : ''}}">
                                     <a class="dropdown-item {{request()->is(['laporan/viewCuti']) ? 'active' : ''}}"
                                         href="/laporan/viewCuti">
-                                        View Karyawan Cuti
+                                        Pengajuan Cuti
                                     </a>
                                     @if($userLevel === 'Management')
                                     </a><a class="dropdown-item {{request()->is(['laporan/viewCutiSisa']) ? 'active' : ''}}"
@@ -518,6 +518,9 @@
                                         Export
                                     </a>
                                 </div>
+                                <a class="dropdown-item {{request()->is(['laporan/exportAttendanceView']) ? 'active' : ''}}" href="/laporan/exportAttendanceView">
+                                    Export Waktu Absensi
+                                </a>
                                 @endif
                                 @if($userLevel == 'Admin')
                                 <a class="dropdown-item {{request()->is(['laporan/attendanceViewAtasan']) ? 'active' : ''}}" href="/laporan/attendanceViewAtasan" href="#">
@@ -575,15 +578,22 @@
                                         Candidate Interview
                                     </a>
                                 </div>
-                                <a class="dropdown-item {{request()->is(['recruitment']) ? 'active' : ''}}" href="/recruitment">
-                                    Recruitement
-                                </a>
                                 <a class="dropdown-item {{request()->is(['recruitment/jobs']) ? 'active' : ''}} " href="/recruitment/jobs">
                                     Jobs
                                 </a>
-                                <a class="dropdown-item {{request()->is(['recruitment/stages']) ? 'active' : ''}}" href="/recruitment/stages">
-                                    Stages
+                                <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown"
+                                    data-bs-auto-close="false" role="button" aria-expanded="">
+                                    Setting
                                 </a>
+                                <div
+                                    class="dropdown-menu {{request()->is(['recruitment', 'recruitment/stages']) ? 'show' : ''}}">
+                                    <a class="dropdown-item {{request()->is(['recruitment']) ? 'active' : ''}}" href="/recruitment">
+                                        Recruitement
+                                    </a>
+                                    <a class="dropdown-item {{request()->is(['recruitment/stages']) ? 'active' : ''}}" href="/recruitment/stages">
+                                        Stages
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -747,57 +757,51 @@
     </div>
 </aside>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebarToggle = document.getElementById('sidebar-toggle');
-        const sidebar = document.getElementById('sidebar');
-        const logoImage = document.querySelector('.navbar-brand img');
-        const dropdownMenus = document.querySelectorAll('.dropdown-menu');
+    document.addEventListener('DOMContentLoaded', function () {
+    const sidebar = document.getElementById('sidebar');
+    const dropdowns = document.querySelectorAll('.nav-item.dropdown'); // Select all dropdown items
 
-        // Function to update styles based on sidebar state
-        function updateStyles(isCollapsed) {
-            if (isCollapsed) {
-                dropdownMenus.forEach(menu => menu.classList.remove('show')); // Hide all dropdown menus
-                logoImage.style.width = '40px'; // Adjust logo width when collapsed
-                logoImage.style.height = '40px'; // Adjust logo height when collapsed
-            } else {
-                logoImage.style.width = '70px'; // Default logo width
-                logoImage.style.height = '60px'; // Default logo height
-            }
-        }
+    dropdowns.forEach(dropdown => {
+        const dropdownMenu = dropdown.querySelector('.dropdown-menu');
+        const dropdownItems = dropdownMenu.querySelectorAll('a');
 
-        // Initialize sidebar state
-        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-        if (isCollapsed || isCollapsed === null) { // Default to collapsed if no state in localStorage
-            sidebar.classList.add('collapsed');
-        }
-        updateStyles(isCollapsed);
+        dropdownMenu.classList.remove('show'); // Hide all dropdown menus
+        dropdownItems.forEach(item => item.classList.remove('active')); // Remove active class from all items
+    });
 
-        // Toggle sidebar collapse
-        sidebarToggle.addEventListener('click', function(event) {
-            event.stopPropagation(); // Prevent triggering click outside
-            const isCollapsed = sidebar.classList.toggle('collapsed');
-            localStorage.setItem('sidebarCollapsed', isCollapsed);
-            updateStyles(isCollapsed);
-        });
+    // Handle hover event on sidebar to show the dropdown related to active route
+    sidebar.addEventListener('mouseenter', function () {
+        dropdowns.forEach(dropdown => {
+            const dropdownToggle = dropdown.querySelector('.dropdown-toggle'); // Dropdown link
+            const dropdownMenu = dropdown.querySelector('.dropdown-menu'); // Dropdown menu
 
-        // Collapse sidebar when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
-                if (!sidebar.classList.contains('collapsed')) {
-                    sidebar.classList.add('collapsed');
-                    localStorage.setItem('sidebarCollapsed', true);
-                    updateStyles(true);
+            // Check if any of the dropdown items match the current route
+            let isActive = false;
+            const dropdownItems = dropdownMenu.querySelectorAll('a'); // Links inside the dropdown
+
+            dropdownItems.forEach(item => {
+                if (item && window.location.pathname === item.getAttribute('href')) {
+                    item.classList.add('active'); // Mark the link as active
+                    isActive = true;
                 }
-            }
-        });
-
-        // Remove 'collapsed' class from sidebar when any dropdown item is clicked
-        document.querySelectorAll('.nav-item .dropdown-toggle').forEach(item => {
-            item.addEventListener('click', function() {
-                sidebar.classList.remove('collapsed');
-                localStorage.setItem('sidebarCollapsed', false);
-                updateStyles(false);
             });
+
+            if (isActive) {
+                dropdownMenu.classList.add('show'); // Show the dropdown menu
+            }
         });
     });
+
+    // Reset dropdown visibility and active classes when mouse leaves the sidebar
+    sidebar.addEventListener('mouseleave', function () {
+        dropdowns.forEach(dropdown => {
+            const dropdownMenu = dropdown.querySelector('.dropdown-menu');
+            const dropdownItems = dropdownMenu.querySelectorAll('a');
+
+            dropdownMenu.classList.remove('show'); // Hide the dropdown menu
+            dropdownItems.forEach(item => item.classList.remove('active')); // Remove active class
+        });
+    });
+});
+
 </script>

@@ -18646,6 +18646,53 @@ Navbar
         margin-right: 15rem;
     }
 }
+
+#sidebar {
+    width: 60px; /* Collapsed width */
+    transition: width 0.3s;
+}
+
+#sidebar:hover {
+    width: 250px; /* Expanded width */
+}
+
+.sidebar-content {
+    overflow: hidden;
+}
+
+.sidebar-menu ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar-menu ul li {
+    padding: 10px;
+}
+
+.sidebar-menu ul li a {
+    text-decoration: none;
+    color: black;
+}
+
+.sidebar-menu ul li a.active {
+    font-weight: bold;
+}
+
+.logo-img {
+    transition: width 0.3s, height 0.3s;
+}
+
+#sidebar.sidebar-collapsed .logo-img {
+    width: 40px;
+    height: 40px;
+}
+
+#sidebar:hover .logo-img {
+    width: 70px;
+    height: 60px;
+}
+
+
 /* Ensure the button is a square and centered */
 #sidebar-toggle {
     width: 30px; /* Width of the button */
@@ -18767,7 +18814,7 @@ Navbar
 
     .navbar-expand-lg.navbar-vertical~.navbar,
     .navbar-expand-lg.navbar-vertical~.page-wrapper {
-        margin-left: 15rem;
+        margin-left: 4rem;
     }
 
     .navbar-expand-lg.navbar-vertical.navbar-right~.navbar,
@@ -19696,7 +19743,7 @@ Navbar vertical
 @media (min-width: 992px) {
     .navbar-vertical.navbar-expand-lg~.navbar,
     .navbar-vertical.navbar-expand-lg~.page-wrapper {
-        margin-left: 15rem;
+        margin-left: 4rem;
     }
 
     /* When the navbar has the 'collapsed' class */
