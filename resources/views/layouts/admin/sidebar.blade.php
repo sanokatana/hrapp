@@ -757,50 +757,63 @@
     </div>
 </aside>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
     const sidebar = document.getElementById('sidebar');
     const dropdowns = document.querySelectorAll('.nav-item.dropdown'); // Select all dropdown items
+    const minDesktopWidth = 968; // Define the minimum width for desktops
 
-    dropdowns.forEach(dropdown => {
-        const dropdownMenu = dropdown.querySelector('.dropdown-menu');
-        const dropdownItems = dropdownMenu.querySelectorAll('a');
+    // Function to check if the view is desktop
+    function isDesktopView() {
+        return window.innerWidth >= minDesktopWidth;
+    }
 
-        dropdownMenu.classList.remove('show'); // Hide all dropdown menus
-        dropdownItems.forEach(item => item.classList.remove('active')); // Remove active class from all items
-    });
-
-    // Handle hover event on sidebar to show the dropdown related to active route
-    sidebar.addEventListener('mouseenter', function () {
-        dropdowns.forEach(dropdown => {
-            const dropdownToggle = dropdown.querySelector('.dropdown-toggle'); // Dropdown link
-            const dropdownMenu = dropdown.querySelector('.dropdown-menu'); // Dropdown menu
-
-            // Check if any of the dropdown items match the current route
-            let isActive = false;
-            const dropdownItems = dropdownMenu.querySelectorAll('a'); // Links inside the dropdown
-
-            dropdownItems.forEach(item => {
-                if (item && window.location.pathname === item.getAttribute('href')) {
-                    item.classList.add('active'); // Mark the link as active
-                    isActive = true;
-                }
-            });
-
-            if (isActive) {
-                dropdownMenu.classList.add('show'); // Show the dropdown menu
-            }
-        });
-    });
-
-    // Reset dropdown visibility and active classes when mouse leaves the sidebar
-    sidebar.addEventListener('mouseleave', function () {
+    // Remove any "show" and "active" classes on page load (only for desktop)
+    if (isDesktopView()) {
         dropdowns.forEach(dropdown => {
             const dropdownMenu = dropdown.querySelector('.dropdown-menu');
             const dropdownItems = dropdownMenu.querySelectorAll('a');
 
-            dropdownMenu.classList.remove('show'); // Hide the dropdown menu
-            dropdownItems.forEach(item => item.classList.remove('active')); // Remove active class
+            dropdownMenu.classList.remove('show'); // Hide all dropdown menus
+            dropdownItems.forEach(item => item.classList.remove('active')); // Remove active class from all items
         });
+    }
+
+    // Handle hover event on sidebar to show the dropdown related to active route (only for desktop)
+    sidebar.addEventListener('mouseenter', function () {
+        if (isDesktopView()) {
+            dropdowns.forEach(dropdown => {
+                const dropdownToggle = dropdown.querySelector('.dropdown-toggle'); // Dropdown link
+                const dropdownMenu = dropdown.querySelector('.dropdown-menu'); // Dropdown menu
+
+                // Check if any of the dropdown items match the current route
+                let isActive = false;
+                const dropdownItems = dropdownMenu.querySelectorAll('a'); // Links inside the dropdown
+
+                dropdownItems.forEach(item => {
+                    if (item && window.location.pathname === item.getAttribute('href')) {
+                        item.classList.add('active'); // Mark the link as active
+                        isActive = true;
+                    }
+                });
+
+                if (isActive) {
+                    dropdownMenu.classList.add('show'); // Show the dropdown menu
+                }
+            });
+        }
+    });
+
+    // Reset dropdown visibility and active classes when mouse leaves the sidebar (only for desktop)
+    sidebar.addEventListener('mouseleave', function () {
+        if (isDesktopView()) {
+            dropdowns.forEach(dropdown => {
+                const dropdownMenu = dropdown.querySelector('.dropdown-menu');
+                const dropdownItems = dropdownMenu.querySelectorAll('a');
+
+                dropdownMenu.classList.remove('show'); // Hide the dropdown menu
+                dropdownItems.forEach(item => item.classList.remove('active')); // Remove active class
+            });
+        }
     });
 });
 

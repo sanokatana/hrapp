@@ -92,6 +92,61 @@
                             </div>
                         </div>
 
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-md-3 col-form-label">Alamat RT</label>
+                            <div class="col-md-9">
+                                <input type="text" value="{{ $candidateData ? $candidateData->alamat_rt : '' }}"
+                                    class="form-control" name="alamat_rt" placeholder="Warga alamat_rt" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-md-3 col-form-label">Alamat RW</label>
+                            <div class="col-md-9">
+                                <input type="text" value="{{ $candidateData ? $candidateData->alamat_rw : '' }}"
+                                    class="form-control" name="alamat_rw" placeholder="Warga Negara" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-md-3 col-form-label">Kelurahan</label>
+                            <div class="col-md-9">
+                                <input type="text" value="{{ $candidateData ? $candidateData->alamat_kel : '' }}"
+                                    class="form-control" name="alamat_kel" placeholder="Warga Negara" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-md-3 col-form-label">Kecamatan</label>
+                            <div class="col-md-9">
+                                <input type="text" value="{{ $candidateData ? $candidateData->alamat_kec : '' }}"
+                                    class="form-control" name="alamat_kec" placeholder="Warga Negara" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-md-3 col-form-label">Kota</label>
+                            <div class="col-md-9">
+                                <input type="text" value="{{ $candidateData ? $candidateData->alamat_kota : '' }}"
+                                    class="form-control" name="alamat_kota" placeholder="Warga Negara" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-md-3 col-form-label">Provinsi</label>
+                            <div class="col-md-9">
+                                <input type="text" value="{{ $candidateData ? $candidateData->alamat_prov : '' }}"
+                                    class="form-control" name="alamat_prov" placeholder="Warga Negara" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-md-3 col-form-label">POS</label>
+                            <div class="col-md-9">
+                                <input type="text" value="{{ $candidateData ? $candidateData->alamat_pos : '' }}"
+                                    class="form-control" name="alamat_pos" placeholder="Warga Negara" readonly>
+                            </div>
+                        </div>
 
                         <!-- Telpon Rumah/HP -->
                         <div class="row mb-3 align-items-center">

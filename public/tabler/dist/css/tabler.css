@@ -18652,8 +18652,16 @@ Navbar
     transition: width 0.3s;
 }
 
-#sidebar:hover {
-    width: 250px; /* Expanded width */
+@media (max-width: 968px) {
+    #sidebar {
+        width: 100%; /* Full-width on mobile */
+    }
+}
+
+@media (min-width: 970px) {
+    #sidebar:hover {
+        width: 250px; /* Expanded width */
+    }
 }
 
 .sidebar-content {
