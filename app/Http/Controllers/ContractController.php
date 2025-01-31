@@ -93,8 +93,10 @@ class ContractController extends Controller
             $monthsToAdd = (int)$end_date_selection; // Convert dropdown value to integer
             $startDateObj = new DateTime($start_date);
             $startDateObj->modify("+{$monthsToAdd} months"); // Add fixed months
+            $startDateObj->modify("-1 day"); // Subtract one day
             $end_date = $startDateObj->format('Y-m-d'); // Format as 'Y-m-d'
         }
+
 
         // Generate no_kontrak if empty
         if (empty($no_kontrak)) {
@@ -509,7 +511,7 @@ class ContractController extends Controller
                 $diketahui = $request->diketahui;
 
                 // Update the current contract's status to 'Tetap'
-                $contract->status = 'Non-Active';
+                $contract->status = 'Expired';
                 $contract->save();
 
                 $lastContract = DB::table('tb_sk')
@@ -599,10 +601,11 @@ class ContractController extends Controller
 
         // Calculate contract duration in months
         $startDate = Carbon::parse($contract->start_date);
-        $endDate = Carbon::parse($contract->end_date);
+        $endDate = Carbon::parse($contract->end_date)->addDay(); // Add 1 day to include the full last month
 
         // Calculate the difference in months
         $months = $startDate->diffInMonths($endDate);
+
 
         // Convert number of months to Indonesian words
         $monthsInWords = DateHelper::convertToIndonesianWords($months);

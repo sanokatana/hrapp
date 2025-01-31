@@ -508,31 +508,30 @@
 @push('myscript')
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const startDateInput = document.getElementById('new_start_date');
-        const durationSelect = document.getElementById('new_end_date_duration');
-        const endDateInput = document.getElementById('new_end_date');
+    const startDateInput = document.getElementById('new_start_date');
+    const durationSelect = document.getElementById('new_end_date_duration');
+    const endDateInput = document.getElementById('new_end_date');
 
-        function calculateEndDate(startDate, months) {
-            if (!startDate || !months) return '';
+    function calculateEndDate(startDate, months) {
+        if (!startDate || !months) return '';
 
-            const start = new Date(startDate);
-            start.setMonth(start.getMonth() + parseInt(months, 10));
-            // Adjust for overflow (e.g., end of the month edge cases)
-            if (start.getDate() < new Date(startDate).getDate()) {
-                start.setDate(0);
-            }
-            return start.toISOString().split('T')[0]; // Format as YYYY-MM-DD
-        }
+        const start = new Date(startDate);
+        start.setMonth(start.getMonth() + parseInt(months, 10));
+        start.setDate(start.getDate() - 1); // Subtract one day
 
-        // Recalculate the end date when either the start date or duration changes
-        startDateInput.addEventListener('input', () => {
-            endDateInput.value = calculateEndDate(startDateInput.value, durationSelect.value);
-        });
+        return start.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+    }
 
-        durationSelect.addEventListener('change', () => {
-            endDateInput.value = calculateEndDate(startDateInput.value, durationSelect.value);
-        });
+    // Recalculate the end date when either the start date or duration changes
+    startDateInput.addEventListener('input', () => {
+        endDateInput.value = calculateEndDate(startDateInput.value, durationSelect.value);
     });
+
+    durationSelect.addEventListener('change', () => {
+        endDateInput.value = calculateEndDate(startDateInput.value, durationSelect.value);
+    });
+});
+
 
 
     $(function() {
@@ -671,7 +670,7 @@
 
                         if (response.length > 0) {
                             response.forEach(function(employee) {
-                                dropdownMenu.append('<a class="dropdown-item" href="#" data-nik="' + employee.nik + '">' + employee.nama_lengkap + '</a>');
+                                dropdownMenu.append('<a class="dropdown-item" href="#" data-nik="' + employee.nik + '" data-tgl="' + employee.tgl_masuk + '">' + employee.nama_lengkap + '</a>');
                             });
 
                             dropdownMenu.show();
@@ -690,9 +689,11 @@
             e.preventDefault();
             var selectedName = $(this).text();
             var selectedNIK = $(this).data('nik');
+            var selectedTgl = $(this).data('tgl');
 
             $('#nama_lengkap').val(selectedName);
             $('#nik').val(selectedNIK); // Assuming you want to set employee ID to another field like 'nik'
+            $('#start_date').val(selectedTgl); // Assuming you want to set employee ID to another field like 'nik'
 
             $('#employeeList').hide();
         });

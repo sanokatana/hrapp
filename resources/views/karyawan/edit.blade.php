@@ -141,7 +141,7 @@
                 @endforeach
             </select>
         </div>
-        <div class="col-3">
+        <div class="col-3 mt-2">
             <div class="form-label">Nama PT</div>
             <input type="text" value="{{ $karyawan->nama_pt }}" class="form-control" name="nama_pt" id="nama_pt" placeholder="Nama PT">
         </div>

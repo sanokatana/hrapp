@@ -204,7 +204,7 @@ class CutiController extends Controller
         $employee = DB::table('karyawan')
             ->where('nama_lengkap', 'like', '%' . $searchTerm . '%')
             ->where('status_kar', 'Aktif')
-            ->get(['nik', 'nama_lengkap']);
+            ->get(['nik', 'nama_lengkap', 'tgl_masuk']);
         return response()->json($employee);
     }
 
