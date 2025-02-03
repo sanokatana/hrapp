@@ -584,13 +584,17 @@ class ContractController extends Controller
     }
 
 
-    public function printContract($id)
+    public function printContract(Request $request, $id)
     {
         $contract = DB::table('kontrak')
             ->select('kontrak.*', 'karyawan.nama_lengkap', 'karyawan.sex', 'karyawan.nik_ktp', 'karyawan.birthplace', 'karyawan.dob', 'karyawan.address', 'karyawan.jabatan')
             ->join('karyawan', 'kontrak.nik', '=', 'karyawan.nik')
             ->where('kontrak.id', $id)
             ->first();
+
+        if (!$contract) {
+            abort(404, 'Contract not found');
+        }
 
         $dateNow = DateHelper::formatIndonesianDates($contract->start_date);
         $dateNow2 = DateHelper::formatIndonesianDate($contract->dob);
@@ -601,13 +605,8 @@ class ContractController extends Controller
 
         // Calculate contract duration in months
         $startDate = Carbon::parse($contract->start_date);
-        $endDate = Carbon::parse($contract->end_date)->addDay(); // Add 1 day to include the full last month
-
-        // Calculate the difference in months
+        $endDate = Carbon::parse($contract->end_date)->addDay(); // Include the full last month
         $months = $startDate->diffInMonths($endDate);
-
-
-        // Convert number of months to Indonesian words
         $monthsInWords = DateHelper::convertToIndonesianWords($months);
 
         $wrappedAddress = wordwrap($contract->address, 50, "\n", true);
@@ -620,9 +619,28 @@ class ContractController extends Controller
             ->first();
 
         $atasanJabatan = DB::table('jabatan')
-            ->where('id', $namaJabatan->jabatan_atasan)
+            ->where('id', optional($namaJabatan)->jabatan_atasan)
             ->first();
+
+        // Get the type from the request (default to Non-Sales)
+        $type = $request->query('type', 'Non-Sales');
+
         // Pass data to the view
-        return view('contract.print', compact('contract', 'monthsInWords', 'months', 'dateNow', 'dateNow2', 'addressLine1', 'addressLine2', 'dateNow3', 'dateNow4', 'namaJabatan', 'atasanJabatan', 'dateNow5', 'dateNow6'));
+        return view('contract.print', compact(
+            'contract',
+            'monthsInWords',
+            'months',
+            'dateNow',
+            'dateNow2',
+            'addressLine1',
+            'addressLine2',
+            'dateNow3',
+            'dateNow4',
+            'namaJabatan',
+            'atasanJabatan',
+            'dateNow5',
+            'dateNow6',
+            'type'
+        ));
     }
 }

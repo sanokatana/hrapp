@@ -159,9 +159,8 @@
                                                             </svg>
                                                         </a>
                                                     </div>
-                                                    <form action="/kontrak/{{$d->id}}/print" method="POST" class="mb-1">
-                                                        @csrf
-                                                        <a class="btn btn-warning btn-sm print-confirm">
+                                                    <div class="mb-1">
+                                                        <a href="#" class="btn btn-warning btn-sm print-confirm" data-id="{{ $d->id }}">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
                                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                                 <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" />
@@ -169,7 +168,7 @@
                                                                 <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" />
                                                             </svg>
                                                         </a>
-                                                    </form>
+                                                    </div>
                                                     <form action="/kontrak/{{$d->id}}/delete" method="POST">
                                                         @csrf
                                                         <a class="btn btn-danger btn-sm delete-confirm">
@@ -198,6 +197,26 @@
         </div>
     </div>
 </div>
+<!-- Print Selection Modal -->
+<div id="printModal" class="modal modal-blur fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Print Options</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="col-12">
+                <button class="btn btn-primary btn-block print-option w-100" data-type="Sales">Sales</button>
+                </div>
+                <div class="col-12 mt-4">
+                <button class="btn btn-secondary btn-block print-option w-100" data-type="Non-Sales">Non-Sales</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal modal-blur fade" id="modal-inputContract" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -508,29 +527,29 @@
 @push('myscript')
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-    const startDateInput = document.getElementById('new_start_date');
-    const durationSelect = document.getElementById('new_end_date_duration');
-    const endDateInput = document.getElementById('new_end_date');
+        const startDateInput = document.getElementById('new_start_date');
+        const durationSelect = document.getElementById('new_end_date_duration');
+        const endDateInput = document.getElementById('new_end_date');
 
-    function calculateEndDate(startDate, months) {
-        if (!startDate || !months) return '';
+        function calculateEndDate(startDate, months) {
+            if (!startDate || !months) return '';
 
-        const start = new Date(startDate);
-        start.setMonth(start.getMonth() + parseInt(months, 10));
-        start.setDate(start.getDate() - 1); // Subtract one day
+            const start = new Date(startDate);
+            start.setMonth(start.getMonth() + parseInt(months, 10));
+            start.setDate(start.getDate() - 1); // Subtract one day
 
-        return start.toISOString().split('T')[0]; // Format as YYYY-MM-DD
-    }
+            return start.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+        }
 
-    // Recalculate the end date when either the start date or duration changes
-    startDateInput.addEventListener('input', () => {
-        endDateInput.value = calculateEndDate(startDateInput.value, durationSelect.value);
+        // Recalculate the end date when either the start date or duration changes
+        startDateInput.addEventListener('input', () => {
+            endDateInput.value = calculateEndDate(startDateInput.value, durationSelect.value);
+        });
+
+        durationSelect.addEventListener('change', () => {
+            endDateInput.value = calculateEndDate(startDateInput.value, durationSelect.value);
+        });
     });
-
-    durationSelect.addEventListener('change', () => {
-        endDateInput.value = calculateEndDate(startDateInput.value, durationSelect.value);
-    });
-});
 
 
 
@@ -762,23 +781,23 @@
             });
         });
 
-        $(".print-confirm").click(function(e) {
-            var form = $(this).closest('form');
-            e.preventDefault();
-            Swal.fire({
-                title: "Apakah Yakin?",
-                text: "Kontrak Akan Ke Print!",
-                icon: "info",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Continue"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
-                }
-            });
-        });
+        // $(".print-confirm").click(function(e) {
+        //     var form = $(this).closest('form');
+        //     e.preventDefault();
+        //     Swal.fire({
+        //         title: "Apakah Yakin?",
+        //         text: "Kontrak Akan Ke Print!",
+        //         icon: "info",
+        //         showCancelButton: true,
+        //         confirmButtonColor: "#3085d6",
+        //         cancelButtonColor: "#d33",
+        //         confirmButtonText: "Continue"
+        //     }).then((result) => {
+        //         if (result.isConfirmed) {
+        //             form.submit();
+        //         }
+        //     });
+        // });
 
         $('#formContract').submit(function() {
             // let salaryField = document.getElementById('salary');
@@ -820,5 +839,26 @@
             }
         });
     });
+
+    $(document).ready(function() {
+        let contractId = null;
+
+        // Open modal on print button click
+        $(".print-confirm").click(function(e) {
+            e.preventDefault();
+            contractId = $(this).data("id");
+            $("#printModal").modal("show");
+        });
+
+        // Handle Sales or Non-Sales print option
+        $(".print-option").click(function() {
+            let type = $(this).data("type");
+            if (contractId) {
+                let url = "/kontrak/" + contractId + "/print?type=" + type;
+                window.open(url, '_blank'); // Open in new tab
+            }
+        });
+    });
+
 </script>
 @endpush

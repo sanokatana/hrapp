@@ -24,7 +24,7 @@
             color: black;
             font-family: "Arial Rounded MT Bold", sans-serif;
             font-style: normal;
-            font-weight:bold ;
+            font-weight: bold;
             text-decoration: none;
             font-size: 16pt;
         }
@@ -466,7 +466,7 @@
                 Serpong No.8, Pakulonan Barat, Kelapa Dua, Kabupaten Tangerang, Banten.</p>
             <p style="text-indent: 0pt;text-align: left;"><br></p>
             <p style="padding-left: 26pt;text-indent: 0pt;text-align: justify;">untuk selanjutnya disebut <b>‘’PIHAK
-                PERTAMA’’</b> .</p>
+                    PERTAMA’’</b> .</p>
             <p style="text-indent: 0pt;text-align: left;"><br></p>
         </li>
         <li data-list-text="II.">
@@ -501,7 +501,8 @@
                         <td style="width:286pt">
                             <p class="s3"
                                 style="padding-left: 5pt;text-indent: 0pt;line-height: 11pt;text-align: left;">
-                                {{$contract->nik_ktp}}</p>
+                                {{$contract->nik_ktp}}
+                            </p>
                         </td>
                     </tr>
                     <tr style="height:13pt">
@@ -516,7 +517,8 @@
                         <td style="width:286pt">
                             <p class="s3"
                                 style="padding-left: 5pt;text-indent: 0pt;line-height: 11pt;text-align: left;">{{$contract->birthplace}},
-                                {{$dateNow2}}</p>
+                                {{$dateNow2}}
+                            </p>
                         </td>
                     </tr>
                     <tr style="height:24pt">
@@ -993,11 +995,31 @@
             <p style="padding-top: 11pt;padding-left: 97pt;text-indent: -18pt;text-align: justify;">Tenaga kerja wajib
                 berada/hadir di tempat tugasnya tepat pada waktu yang telah ditentukan;</p>
         </li>
-        <li data-list-text="2.">
-            <p style="padding-left: 97pt;text-indent: -18pt;text-align: justify;">&nbsp;Tenaga kerja yang bermaksud datang
-                terlambat ke tempat kerjanya atau meninggalkan pekerjaanya lebih awal dari jam kerja biasanya, maka
-                terlebih dahulu harus mendapatkan persetujuan dari Pejabat Perseroan yang berwenang;</p>
-        </li>
+        @if ($type === 'Sales')
+            <li data-list-text="2.">
+                <p style="padding-left: 97pt;text-indent: -18pt;text-align: justify;">&nbsp;Target penjualan untuk tiap bulannya minimal 2 Unit. Beberapa kebijakan sebagai berikut:</p>
+                <ol id="l10">
+                    <li data-list-text="a)">
+                        <p style="padding-left: 117pt;text-indent: -18pt;text-align: justify;">&nbsp;Apabila tidak tercapai 2 unit perbulannya maka dikenakan sanksi SP1.</p>
+                    </li>
+                    <li data-list-text="b)">
+                        <p style="padding-left: 117pt;text-indent: -18pt;text-align: justify;">&nbsp;Apabila tidak tercapai bulan berikutnya dikenakan sanksi SP2.</p>
+                    </li>
+                    <li data-list-text="c)">
+                        <p style="padding-left: 117pt;text-indent: -18pt;text-align: justify;">Apabila tidak tercapai bulan berikutnya dikenakan sanksi SP3 dan dengan sendirinya perjanjian kerja dinyatakan berakhir.</p>
+                    </li>
+                    <li data-list-text="d)">
+                        <p style="padding-left: 117pt;text-indent: -18pt;text-align: justify;">Jika dalam bulan berjalan target penjualan tercapai, maka salah satu SP akan dihapuskan.</p>
+                    </li>
+                </ol>
+            </li>
+            @else
+            <li data-list-text="2.">
+                <p style="padding-left: 97pt;text-indent: -18pt;text-align: justify;">&nbsp;Tenaga kerja yang bermaksud datang
+                    terlambat ke tempat kerjanya atau meninggalkan pekerjaanya lebih awal dari jam kerja biasanya, maka
+                    terlebih dahulu harus mendapatkan persetujuan dari Pejabat Perseroan yang berwenang;</p>
+            </li>
+            @endif
         <li data-list-text="3.">
             <p style="padding-left: 97pt;text-indent: -18pt;text-align: justify;">&nbsp;Tenaga kerja harus check-in kartu
                 presensi atau lainnya yang disediakan oleh Perusahaan dan melapor pada atasan sebelum jam kerja dimulai
