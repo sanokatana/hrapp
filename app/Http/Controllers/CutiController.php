@@ -208,6 +208,16 @@ class CutiController extends Controller
         return response()->json($employee);
     }
 
+    public function getEmployeeNameNIP(Request $request)
+    {
+        $searchTerm = $request->nama_lengkap;
+        $employee = DB::table('karyawan')
+            ->where('nama_lengkap', 'like', '%' . $searchTerm . '%')
+            ->where('status_kar', 'Aktif')
+            ->get(['nip', 'nama_lengkap', 'tgl_masuk']);
+        return response()->json($employee);
+    }
+
     public function downloadTemplate()
     {
         $filePath = public_path('storage/uploads/cuti/template_cuti.csv');

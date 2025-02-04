@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\DateHelper;
 use App\Models\Candidate;
 use App\Models\Karyawan;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -290,6 +291,7 @@ class RecruitmentController extends Controller
         // Set the status to rejected
         $candidate->reject_reason = $request->input('reject_reason');
         $candidate->status = 'Rejected';
+        $candidate->tgl_reject = Carbon::now();
 
         // Save changes
         $candidate->save();
@@ -304,6 +306,7 @@ class RecruitmentController extends Controller
 
         // Set the status to hired
         $candidate->status = 'Hired';
+        $candidate->tgl_hire = Carbon::now();
 
         // Save changes
         $candidate->save();

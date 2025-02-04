@@ -96,19 +96,19 @@
                             <div class="col-12 table-responsive">
                                 <table class="table table-vcenter card-table table-striped">
                                     <thead>
-                                        <tr>
+                                        <tr style="text-align: center;">
                                             <th>No</th>
                                             <th>Nama Candidate</th>
                                             <th>Job Opening</th>
                                             <th>Current Stage</th>
-                                            <th>Status Form</th>
+                                            <th>Status Form Data</th>
                                             <th>Status</th>
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach ($data as $d)
-                                        <tr>
+                                        <tr style="text-align: center;">
                                             <td>{{ $d->id}}</td>
                                             <td>{{ $d->candidate_name}}</td>
                                             <td>{{ $d->job_title}}</td>

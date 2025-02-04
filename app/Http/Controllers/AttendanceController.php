@@ -619,6 +619,8 @@ class AttendanceController extends Controller
     {
         $nama_lengkap = $request->nama_lengkap;
         $nip = $request->nip;
+        $bulan = $request->bulan;
+        $tahun = $request->tahun;
 
         $query = DB::connection('mysql2')
             ->table('db_absen.att_log as presensi')
@@ -632,6 +634,15 @@ class AttendanceController extends Controller
 
         if ($nip) {
             $query->where('presensi.pin', $nip);
+        }
+
+        if ($bulan && $tahun) {
+            // Convert the bulan and tahun to a start and end date for filtering
+            $startDate = Carbon::createFromFormat('Y-m', $tahun . '-' . str_pad($bulan, 2, '0', STR_PAD_LEFT))->startOfMonth();
+            $endDate = Carbon::createFromFormat('Y-m', $tahun . '-' . str_pad($bulan, 2, '0', STR_PAD_LEFT))->endOfMonth();
+
+            // Apply whereBetween to filter scan_date
+            $query->whereBetween('presensi.scan_date', [$startDate, $endDate]);
         }
 
         $query->orderBy('presensi.scan_date', 'asc')

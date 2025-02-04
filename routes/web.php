@@ -167,6 +167,7 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::get('/cek-cuti-karyawan', [CutiController::class, 'cekCutiKaryawan'])->name('cek.cuti.karyawan');
     Route::get('/cuti/getEmployeeByNik', [CutiController::class, 'getEmployeeByNik']);
     Route::get('/cuti/getEmployeeName', [CutiController::class, 'getEmployeeName'])->name('getEmployeeName');
+    Route::get('/cuti/getEmployeeNameNIP', [CutiController::class, 'getEmployeeNameNIP'])->name('getEmployeeNameNIP');
     Route::post('/cuti/uploadCuti', [CutiController::class, 'uploadCuti']);
     Route::get('/cuti/downloadTemplate', [CutiController::class, 'downloadTemplate']);
     Route::get('/cuti/export', [CutiController::class, 'export'])->name('export.cuti');
