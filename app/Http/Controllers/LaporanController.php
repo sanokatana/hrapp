@@ -1394,7 +1394,7 @@ class LaporanController extends Controller
             WHERE DATE(scan_date) = "' . $hariini . '"
             GROUP BY pin
         ) as presensi'))
-            ->select('karyawan.nip as pin','karyawan.nik as nik', 'karyawan.nama_lengkap', 'karyawan.kode_dept')
+            ->select('karyawan.nip as pin', 'karyawan.nik as nik', 'karyawan.nama_lengkap', 'karyawan.kode_dept')
             ->join('hrmschl.karyawan', 'presensi.pin', '=', 'karyawan.nip')
             ->where('status_kar', 'Aktif')
             ->where('grade', '!=', 'NS')
@@ -1470,8 +1470,163 @@ class LaporanController extends Controller
         }
         Session::flash('success', 'Laporan Kehadiran Karyawan Harian berhasil dikirim.');
 
-    // Redirect back to the dashboard
-    return redirect()->route('panel.dashboardadmin');
+        // Redirect back to the dashboard
+        return redirect()->route('panel.dashboardadmin');
+    }
 
+    public function viewIzinAtasan(Request $request)
+    {
+        // Get selected month and year, default to current month if not selected
+        $bulan = $request->bulan ?? now()->format('Y-m');
+
+        // Extract year and month
+        [$year, $month] = explode('-', $bulan);
+
+        // Query pengajuan_izin for the selected month
+        $izinData = PengajuanIzin::whereYear('tgl_create', $year)
+            ->whereMonth('tgl_create', $month)
+            ->whereNotNull('tgl_status_approved') // Ignore NULL approvals
+            ->get();
+
+        // Prepare atasan data
+        $atasanStats = [];
+
+        foreach ($izinData as $izin) {
+            $nik = $izin->nik;
+
+            // Find karyawan to get their jabatan
+            $karyawan = Karyawan::where('nik', $nik)->first();
+            if (!$karyawan) continue;
+
+            // Find jabatan to get jabatan_atasan
+            $jabatan = Jabatan::where('id', $karyawan->jabatan)->first();
+            if (!$jabatan) continue;
+
+            // Find atasan's information
+            $atasan = Karyawan::where('jabatan', $jabatan->jabatan_atasan)->first();
+            if (!$atasan) continue;
+
+            $atasanjabatan = Jabatan::where('id', $atasan->jabatan)->first();
+            if (!$atasanjabatan) continue;
+
+            // Convert dates to Carbon instances
+            $tglCreate = Carbon::parse($izin->tgl_create);
+            $tglApproved = Carbon::parse($izin->tgl_status_approved);
+
+            // Calculate approval time in days
+            $approvalTime = $tglCreate->diffInDays($tglApproved);
+
+            // Store in atasan stats
+            $atasanId = $atasan->nik;
+            if (!isset($atasanStats[$atasanId])) {
+                $atasanStats[$atasanId] = [
+                    'nik' => $atasan->nik,
+                    'nama_lengkap' => $atasan->nama_lengkap,
+                    'kode_dept' => $atasan->kode_dept,
+                    'nama_jabatan' => $atasanjabatan->nama_jabatan,
+                    'approval_times' => []
+                ];
+            }
+
+            $atasanStats[$atasanId]['approval_times'][] = $approvalTime;
+        }
+
+        // Compute min, max, and average for each atasan
+        foreach ($atasanStats as &$stats) {
+            if (!empty($stats['approval_times'])) {
+                $times = $stats['approval_times'];
+                $stats['min_time'] = min($times);
+                $stats['max_time'] = max($times);
+                $stats['avg_time'] = round(array_sum($times) / count($times), 2);
+            } else {
+                // Handle case where no approvals were recorded
+                $stats['min_time'] = null;
+                $stats['max_time'] = null;
+                $stats['avg_time'] = null;
+            }
+        }
+
+        // Convert to collection for pagination
+        $izinAtasan = collect(array_values($atasanStats));
+
+        return view('laporan.izinAtasan', compact('izinAtasan'));
+    }
+
+    public function viewCutiAtasan(Request $request)
+    {
+        // Get selected month and year, default to current month if not selected
+        $bulan = $request->bulan ?? now()->format('Y-m');
+
+        // Extract year and month
+        [$year, $month] = explode('-', $bulan);
+
+        // Query pengajuan_izin for the selected month
+        $cutiData = PengajuanCuti::whereYear('created_at', $year)
+            ->whereMonth('created_at', $month)
+            ->whereNotNull('tgl_status_approved') // Ignore NULL approvals
+            ->get();
+
+        // Prepare atasan data
+        $atasanStats = [];
+
+        foreach ($cutiData as $cuti) {
+            $nik = $cuti->nik;
+
+            // Find karyawan to get their jabatan
+            $karyawan = Karyawan::where('nik', $nik)->first();
+            if (!$karyawan) continue;
+
+            // Find jabatan to get jabatan_atasan
+            $jabatan = Jabatan::where('id', $karyawan->jabatan)->first();
+            if (!$jabatan) continue;
+
+            // Find atasan's information
+            $atasan = Karyawan::where('jabatan', $jabatan->jabatan_atasan)->first();
+            if (!$atasan) continue;
+
+            $atasanjabatan = Jabatan::where('id', $atasan->jabatan)->first();
+            if (!$atasanjabatan) continue;
+
+            // Convert dates to Carbon instances
+            $tglCreate = Carbon::parse($cuti->created_at);
+            $tglApproved = Carbon::parse($cuti->tgl_status_approved);
+
+            // Calculate approval time in days
+            $approvalTime = $tglCreate->diffInDays($tglApproved);
+
+            // Store in atasan stats
+            $atasanId = $atasan->nik;
+            if (!isset($atasanStats[$atasanId])) {
+                $atasanStats[$atasanId] = [
+                    'nik' => $atasan->nik,
+                    'nama_lengkap' => $atasan->nama_lengkap,
+                    'kode_dept' => $atasan->kode_dept,
+                    'nama_jabatan' => $atasanjabatan->nama_jabatan,
+                    'approval_times' => []
+                ];
+            }
+
+            $atasanStats[$atasanId]['approval_times'][] = $approvalTime;
+        }
+
+        // Compute min, max, and average for each atasan
+        foreach ($atasanStats as &$stats) {
+            if (!empty($stats['approval_times'])) {
+                $times = $stats['approval_times'];
+                $stats['min_time'] = min($times);
+                $stats['max_time'] = max($times);
+                $stats['avg_time'] = round(array_sum($times) / count($times), 2);
+            } else {
+                // Handle case where no approvals were recorded
+                $stats['min_time'] = null;
+                $stats['max_time'] = null;
+                $stats['avg_time'] = null;
+            }
+        }
+
+        // Convert to collection for pagination
+        $cutiAtasan = collect(array_values($atasanStats));
+
+        return view('laporan.cutiAtasan', compact('cutiAtasan'));
     }
 }

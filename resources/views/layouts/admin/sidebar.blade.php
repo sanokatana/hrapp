@@ -459,7 +459,7 @@
                             Laporan
                         </span>
                     </a>
-                    <div class="dropdown-menu {{request()->is(['laporan/viewCuti','laporan/dailyMonitor','laporan/viewIzin','laporan/viewCutiSisa', 'laporan/viewCutiManagement', 'laporan/viewIzinManagement', 'laporan/attendance', 'laporan/time' , 'laporan/exportAttendanceView', 'laporan/attendanceViewAtasan', 'laporan/exportIzin', 'laporan/exportCuti']) ? 'show' : ''}}">
+                    <div class="dropdown-menu {{request()->is(['laporan/viewCuti', 'laporan/viewCutiAtasan', 'laporan/viewIzinAtasan','laporan/dailyMonitor','laporan/viewIzin','laporan/viewCutiSisa', 'laporan/viewCutiManagement', 'laporan/viewIzinManagement', 'laporan/attendance', 'laporan/time' , 'laporan/exportAttendanceView', 'laporan/attendanceViewAtasan', 'laporan/exportIzin', 'laporan/exportCuti']) ? 'show' : ''}}">
                         <div class="dropdown-menu-columns">
                             <div class="dropdown-menu-column">
                                 @if($userLevel !== 'Admin')
@@ -484,13 +484,17 @@
                                 </div>
                                 <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown"
                                     data-bs-auto-close="false" role="button"
-                                    aria-expanded="{{request()->is(['laporan/viewIzin', 'laporan/exportIzin', 'laporan/viewIzinManagement']) ? 'true' : 'false'}}">
+                                    aria-expanded="{{request()->is(['laporan/viewIzin', 'laporan/exportIzin', 'laporan/viewIzinManagement', 'laporan/viewIzinAtasan']) ? 'true' : 'false'}}">
                                     Izin
                                 </a>
-                                <div class="dropdown-menu {{request()->is(['laporan/viewIzin', 'laporan/exportIzin', 'laporan/viewIzinManagement']) ? 'show' : ''}}">
+                                <div class="dropdown-menu {{request()->is(['laporan/viewIzin', 'laporan/exportIzin', 'laporan/viewIzinManagement', 'laporan/viewIzinAtasan']) ? 'show' : ''}}">
                                     <a class="dropdown-item {{request()->is(['laporan/viewIzin']) ? 'active' : ''}}"
                                         href="/laporan/viewIzin">
                                         Pengajuan Izin
+                                    </a>
+                                    <a class="dropdown-item {{request()->is(['laporan/viewIzinAtasan']) ? 'active' : ''}}"
+                                        href="/laporan/viewIzinAtasan">
+                                        Check Approval
                                     </a>
                                     <a class="dropdown-item {{request()->is(['laporan/exportIzin']) ? 'active' : ''}}"
                                         href="/laporan/exportIzin">
@@ -499,13 +503,17 @@
                                 </div>
                                 <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown"
                                     data-bs-auto-close="false" role="button"
-                                    aria-expanded="{{request()->is(['laporan/viewCuti', 'laporan/exportCuti', 'laporan/viewCutiManagement', 'laporan/viewCutiSisa']) ? 'true' : 'false'}}">
+                                    aria-expanded="{{request()->is(['laporan/viewCuti', 'laporan/viewCutiAtasan', 'laporan/exportCuti', 'laporan/viewCutiManagement', 'laporan/viewCutiSisa']) ? 'true' : 'false'}}">
                                     Cuti
                                 </a>
-                                <div class="dropdown-menu {{request()->is(['laporan/viewCuti', 'laporan/exportCuti', 'laporan/viewCutiSisa']) ? 'show' : ''}}">
+                                <div class="dropdown-menu {{request()->is(['laporan/viewCuti', 'laporan/viewCutiAtasan', 'laporan/exportCuti', 'laporan/viewCutiSisa']) ? 'show' : ''}}">
                                     <a class="dropdown-item {{request()->is(['laporan/viewCuti']) ? 'active' : ''}}"
                                         href="/laporan/viewCuti">
                                         Pengajuan Cuti
+                                    </a>
+                                    <a class="dropdown-item {{request()->is(['laporan/viewCutiAtasan']) ? 'active' : ''}}"
+                                        href="/laporan/viewCutiAtasan">
+                                        Check Approval
                                     </a>
                                     @if($userLevel === 'Management')
                                     </a><a class="dropdown-item {{request()->is(['laporan/viewCutiSisa']) ? 'active' : ''}}"

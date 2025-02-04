@@ -319,10 +319,12 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::get('/laporan/attendanceViewAtasan', [LaporanController::class, 'attendanceViewAtasan']);
 
     Route::get('/laporan/viewIzin', [LaporanController::class, 'viewIzin']);
+    Route::get('/laporan/viewIzinAtasan', [LaporanController::class, 'viewIzinAtasan']);
     Route::get('/laporan/exportIzin', [LaporanController::class, 'exportIzin']);
     Route::get('/laporan/reportIzin', [LaporanController::class, 'reportIzin']);
 
     Route::get('/laporan/viewCuti', [LaporanController::class, 'viewCuti']);
+    Route::get('/laporan/viewCutiAtasan', [LaporanController::class, 'viewCutiAtasan']);
     Route::get('/laporan/exportCuti', [LaporanController::class, 'exportCuti']);
     Route::get('/laporan/reportCuti', [LaporanController::class, 'reportCuti']);
 
