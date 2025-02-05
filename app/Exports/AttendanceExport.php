@@ -29,17 +29,19 @@ class AttendanceExport implements FromArray, WithHeadings, WithEvents
                     $department['department'],
                 ];
 
+
+                $rowData[] = $row['totalT'];
+                $rowData[] = $row['presentase'] . '%';
+                $rowData[] = $department['total_jumlah_telat']; // Telat Department
+                $rowData[] = $department['total_presentase'] . '%'; // Presentase Department
+                $rowData[] = $row['menit_telat'];
+
                 // Add attendance days
                 foreach ($row['attendance'] as $day) {
                     $rowData[] = $day['status'];
                 }
 
                 // Add summary data
-                $rowData[] = $row['totalT'];
-                $rowData[] = $row['presentase'] . '%';
-                $rowData[] = $department['total_jumlah_telat']; // Telat Department
-                $rowData[] = $department['total_presentase'] . '%'; // Presentase Department
-                $rowData[] = $row['menit_telat'];
                 $rowData[] = $row['totalP'];
                 $rowData[] = $row['totalT'];
                 $rowData[] = $row['totalOff'];
@@ -64,17 +66,19 @@ class AttendanceExport implements FromArray, WithHeadings, WithEvents
         $daysInMonth = count($this->attendanceData[0]['karyawan'][0]['attendance']);
         $headings = ['Nama Karyawan', 'Department'];
 
+
+        $headings[] = 'Telat';
+        $headings[] = '% Telat';
+        $headings[] = 'Telat Dept';
+        $headings[] = '% Dept';
+        $headings[] = 'Menit Telat';
+
         // Add column headings for each day of the month
         for ($i = 1; $i <= $daysInMonth; $i++) {
             $headings[] = $i;
         }
 
         // Add summary columns
-        $headings[] = 'Telat';
-        $headings[] = 'Presentase T';
-        $headings[] = 'Telat Department';
-        $headings[] = 'Presentase Department';
-        $headings[] = 'Menit Telat';
         $headings[] = 'P';
         $headings[] = 'T';
         $headings[] = 'OFF';
@@ -85,7 +89,7 @@ class AttendanceExport implements FromArray, WithHeadings, WithEvents
         $headings[] = 'H2';
         $headings[] = 'H1';
         $headings[] = 'Mangkir';
-        $headings[] = 'Blank';
+        $headings[] = 'Tdk Absen';
 
         return $headings;
     }
@@ -126,6 +130,26 @@ class AttendanceExport implements FromArray, WithHeadings, WithEvents
                             'color' => ['argb' => 'FFFFFF'], // White text color
                         ],
                     ],
+
+                    'OFF' => [
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'color' => ['argb' => 'FF0000'], // Red
+                        ],
+                        'font' => [
+                            'color' => ['argb' => 'FFFFFF'], // White text color
+                        ],
+                    ],
+
+                    'C' => [
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'color' => ['argb' => '000000'], // Black
+                        ],
+                        'font' => [
+                            'color' => ['argb' => 'FFFFFF'], // White text color
+                        ],
+                    ],
                 ];
 
                 $startRow = 2; // Start row (assuming the first row is for headings)
@@ -140,7 +164,7 @@ class AttendanceExport implements FromArray, WithHeadings, WithEvents
 
                         // Loop through each day's attendance
                         foreach ($employee['attendance'] as $dayIndex => $attendance) {
-                            $cellAddress = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(3 + $dayIndex) . $currentRow;
+                            $cellAddress = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(8 + $dayIndex) . $currentRow;
                             $status = $attendance['status'] ?? 'Blank'; // Get the status for each day
 
                             if (isset($styleArray[$status])) {
@@ -158,8 +182,9 @@ class AttendanceExport implements FromArray, WithHeadings, WithEvents
                     }
 
                     // Merge cells for "Telat Department" and "Presentase Department"
-                    $telatDepartmentColumnIndex = count($this->attendanceData[0]['karyawan'][0]['attendance']) + 5;
-                    $presentaseDepartmentColumnIndex = $telatDepartmentColumnIndex + 1;
+                    $telatDepartmentColumnIndex = 5; // "Telat Department" is now the 5th column
+                    $presentaseDepartmentColumnIndex = 6; // "Presentase Department" is now the 6th column
+
 
                     $sheet->mergeCells(
                         \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($telatDepartmentColumnIndex) . $departmentStartRow . ':' .

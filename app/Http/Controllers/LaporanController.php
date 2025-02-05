@@ -39,23 +39,23 @@ class LaporanController extends Controller
     public function exportData(Request $request)
     {
 
-        DB::statement('TRUNCATE TABLE presensi');
+        // DB::statement('TRUNCATE TABLE presensi');
 
-        // Insert data from att_log in mysql2 connection to hrmschl.presensi in the default connection
-        DB::connection('mysql2')->transaction(function () {
-            DB::connection('mysql2')->statement("
-                INSERT INTO hrmschl.presensi (nip, nik, tgl_presensi, jam_in)
-                SELECT
-                    al.pin AS nip,
-                    k.nik AS nik, -- Fetch nik from the karyawan table
-                    DATE(al.scan_date) AS tgl_presensi,
-                    TIME(al.scan_date) AS jam_in
-                FROM
-                    db_absen.att_log al
-                LEFT JOIN
-                    hrmschl.karyawan k ON al.pin = k.nip
-            ");
-        });
+        // // Insert data from att_log in mysql2 connection to hrmschl.presensi in the default connection
+        // DB::connection('mysql2')->transaction(function () {
+        //     DB::connection('mysql2')->statement("
+        //         INSERT INTO hrmschl.presensi (nip, nik, tgl_presensi, jam_in)
+        //         SELECT
+        //             al.pin AS nip,
+        //             k.nik AS nik, -- Fetch nik from the karyawan table
+        //             DATE(al.scan_date) AS tgl_presensi,
+        //             TIME(al.scan_date) AS jam_in
+        //         FROM
+        //             db_absen.att_log al
+        //         LEFT JOIN
+        //             hrmschl.karyawan k ON al.pin = k.nip
+        //     ");
+        // });
 
 
         // Get filter inputs
@@ -74,13 +74,16 @@ class LaporanController extends Controller
         $totalWorkdays = $this->getTotalWorkdays($filterYear, $filterMonth);
 
         // Get karyawan data with filters, excluding "Security" department
+        // $karyawanQuery = DB::table('karyawan')
+        //     ->where('status_kar', 'Aktif') // Add this condition to filter by status_kar
+        //     ->whereNotIn('kode_dept', function ($query) {
+        //         $query->select('kode_dept')
+        //             ->from('department')
+        //             ->where('grade', '=', 'NS');
+        //     });
+
         $karyawanQuery = DB::table('karyawan')
-            ->where('status_kar', 'Aktif') // Add this condition to filter by status_kar
-            ->whereNotIn('kode_dept', function ($query) {
-                $query->select('kode_dept')
-                    ->from('department')
-                    ->where('grade', '=', 'NS');
-            });
+            ->where('status_kar', 'Aktif');
 
         if ($filterNamaLengkap) {
             $karyawanQuery->where('nama_lengkap', 'like', '%' . $filterNamaLengkap . '%');
@@ -91,11 +94,12 @@ class LaporanController extends Controller
         $karyawan = $karyawanQuery->get()->groupBy('kode_dept');
 
         // Get presensi data for the selected month
-        $presensi = DB::table('presensi')
-            ->select('nip', 'tgl_presensi', DB::raw('MIN(jam_in) as earliest_jam_in'))
-            ->whereMonth('tgl_presensi', $filterMonth)
-            ->whereYear('tgl_presensi', $filterYear)
-            ->groupBy('nip', 'tgl_presensi')
+        $presensi = DB::connection('mysql2')
+            ->table('db_absen.att_log as presensi')
+            ->select('presensi.pin', DB::raw('DATE(presensi.scan_date) as scan_date'), DB::raw('MIN(TIME(presensi.scan_date)) as earliest_jam_in'))
+            ->whereMonth('presensi.scan_date', $filterMonth)
+            ->whereYear('presensi.scan_date', $filterYear)
+            ->groupBy('presensi.pin', 'presensi.scan_date')
             ->get();
 
         // Get national holidays for the selected month
@@ -278,7 +282,7 @@ class LaporanController extends Controller
                         $status_work = 'P';
                     }
 
-                    $attendance = $presensi->where('nip', $k->nip)->where('tgl_presensi', $dateString)->first();
+                    $attendance = $presensi->where('pin', $k->nip)->where('scan_date', $dateString)->first();
                     $isCuti = $this->checkCuti($cuti, $k->nik, $date);
                     $isIzin = $this->checkIzin($izin, $k->nik, $date);
                     $status = $this->getAttendanceStatus($date, $attendance, $isCuti, $isIzin, $work_start, $morning_start, $afternoon_start, $status_work);
@@ -347,7 +351,7 @@ class LaporanController extends Controller
                 $row['totalBlank'] = $totalJumlahBlank;
                 $row['totalMangkir'] = $totalJumlahMangkir;
 
-                $totalJumlahTelat += $jumlahTelat;
+                $totalJumlahTelat += $totalTidakHadir;
                 $totalP += $totalHadir;
                 $totalT += $totalTidakHadir;
                 $totalOff += $totalJumlahOff;
@@ -367,7 +371,7 @@ class LaporanController extends Controller
                 'department' => $department->nama_dept,
                 'karyawan' => $departmentAttendance,
                 'total_jumlah_telat' => $totalJumlahTelat,
-                'total_presentase' => $totalKaryawan ? round(($totalT / ($totalKaryawan * 23)) * 100) : 0
+                'total_presentase' => $totalKaryawan ? round(($totalT / ($totalKaryawan * $totalWorkdays)) * 100) : 0
             ];
         }
 
@@ -380,8 +384,17 @@ class LaporanController extends Controller
         $endOfMonth = $startOfMonth->copy()->endOfMonth();
         $totalWorkdays = 0;
 
+        // Get national holidays for the given month
+        $liburNasional = DB::table('libur_nasional')
+            ->whereMonth('tgl_libur', $month)
+            ->whereYear('tgl_libur', $year)
+            ->pluck('tgl_libur') // Retrieve only the dates
+            ->map(fn($date) => Carbon::parse($date)->toDateString()) // Normalize to Y-m-d format
+            ->toArray();
+
         while ($startOfMonth->lte($endOfMonth)) {
-            if (!$startOfMonth->isWeekend()) {
+            // Exclude weekends and national holidays
+            if (!$startOfMonth->isWeekend() && !in_array($startOfMonth->toDateString(), $liburNasional)) {
                 $totalWorkdays++;
             }
             $startOfMonth->addDay();
@@ -394,7 +407,12 @@ class LaporanController extends Controller
     private function getAttendanceStatus($date, $attendance, $isCuti, $isIzin, $work_start, $morning_start, $afternoon_start, $status_work)
     {
         if ($isCuti) {
-            return 'C';
+            if ($date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY) {
+                // If there is attendance, return 'P' instead of 'L'
+                return 'L';
+            } else {
+                return 'C';
+            }
         }
 
         if ($isIzin) {
@@ -450,24 +468,34 @@ class LaporanController extends Controller
             }
         } else if ($attendance) {
             $jam_in = Carbon::parse($attendance->earliest_jam_in);
-            if ($jam_in->lt(Carbon::parse($morning_start))) {
+
+            // If attendance is before morning start
+            if ($jam_in->lt(Carbon::parse($work_start))) {
                 $latest_jam_in_after_morning = Carbon::parse($attendance->latest_jam_in_after_morning ?? $jam_in);
+
+                // Check if there is any valid attendance after the morning start time
                 if ($latest_jam_in_after_morning->gte(Carbon::parse($morning_start))) {
                     return $latest_jam_in_after_morning->gt(Carbon::parse($work_start)) ? 'T' : 'P';
-                } else if ($date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY) {
-                    return 'L'; // No valid attendance after morning_start
                 } else {
+                    // Handle weekend case separately
+                    if ($date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY) {
+                        // If there is attendance, return 'P' instead of 'L'
+                        return 'L';
+                    }
                     return ''; // No valid attendance after morning_start
                 }
             } else {
+                // Attendance occurs during the day, before or after morning_start
                 return $jam_in->gte(Carbon::parse($morning_start)) && $jam_in->lt(Carbon::parse($afternoon_start))
                     ? ($jam_in->gt(Carbon::parse($work_start)) ? 'T' : $status_work)
                     : 'T';
             }
         } else {
+            // Handle case when there is no attendance
             return $date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY ? 'L' : '';
         }
     }
+
 
 
     // Helper function to determine if the date falls within a leave period
@@ -561,10 +589,6 @@ class LaporanController extends Controller
 
         return implode(' ', $classes);
     }
-
-
-
-
 
     ///////////////////////////////////////////////////////////////////////////////
 

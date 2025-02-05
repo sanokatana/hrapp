@@ -140,15 +140,15 @@
                                         <tr style="text-align:center;">
                                             <th style="border-color: black; border-style: solid; border-width: 1px; color: black">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Nama Karyawan &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</th>
                                             <th style="border-color: black; border-style: solid; border-width: 1px; color: black">Department</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">Telat</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">% Telat</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">Telat Dept</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">% Dept</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">Menit Telat</th>
                                             @for($i = 1; $i <= $daysInMonth; $i++) <th style="border-color: black; border-style: solid; border-width: 1px; color: black" class="{{ $currentMonth == Carbon\Carbon::now()->month && $i == Carbon\Carbon::now()->day ? 'today' : '' }}">
                                                 {{ $i }}
                                                 </th>
                                                 @endfor
-                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">Telat</th>
-                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">Presentase T</th>
-                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">Jumlah Telat</th>
-                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">Presentase</th>
-                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">Menit Telat</th>
                                                 <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">P</th>
                                                 <th style="border-color: black; border-style: solid; border-width: 1px; color: black; background-color : yellow;">T</th>
                                                 <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : red;">OFF</th>
@@ -159,7 +159,7 @@
                                                 <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : pink;">H2</th>
                                                 <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : grey;">H1</th>
                                                 <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : grey;">Mangkir</th>
-                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : grey;">Blank</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : grey;">Tdk Absen</th>
 
                                         </tr>
                                     </thead>
@@ -176,6 +176,13 @@
                                             <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;" rowspan="{{ $rowspan }}">{{ $department['department'] }}</td>
                                             @php $firstRow = false; @endphp
                                             @endif
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalT'] }}</td>
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['presentase'] }}%</td>
+                                            @if ($loop->first)
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;" rowspan="{{ $rowspan }}">{{ $department['total_jumlah_telat'] }}</td>
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;" rowspan="{{ $rowspan }}">{{ $department['total_presentase'] }}%</td>
+                                            @endif
+                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['menit_telat'] }}</td>
                                             @foreach($row['attendance'] as $day)
                                             <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;" class="{{ $day['class'] }}">
                                                 @if($day['status'] == 'T' && ($currentMonth == Carbon\Carbon::now()->month && $i == Carbon\Carbon::now()->day))
@@ -187,13 +194,6 @@
                                                 @endif
                                             </td>
                                             @endforeach
-                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalT'] }}</td>
-                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['presentase'] }}%</td>
-                                            @if ($loop->first)
-                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;" rowspan="{{ $rowspan }}">{{ $department['total_jumlah_telat'] }}</td>
-                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;" rowspan="{{ $rowspan }}">{{ $department['total_presentase'] }}%</td>
-                                            @endif
-                                            <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['menit_telat'] }}</td>
                                             <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalP'] }}</td>
                                             <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalT'] }}</td>
                                             <td style="text-align: center; vertical-align:middle; border-color: black; border-style: solid; border-width: 1px;">{{ $row['totalOff'] }}</td>

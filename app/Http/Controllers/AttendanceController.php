@@ -313,7 +313,7 @@ class AttendanceController extends Controller
                 $row['totalBlank'] = $totalJumlahBlank;
                 $row['totalMangkir'] = $totalJumlahMangkir;
 
-                $totalJumlahTelat += $jumlahTelat;
+                $totalJumlahTelat += $totalTidakHadir;
                 $totalP += $totalHadir;
                 $totalT += $totalTidakHadir;
                 $totalOff += $totalJumlahOff;
@@ -333,7 +333,7 @@ class AttendanceController extends Controller
                 'department' => $department->nama_dept,
                 'karyawan' => $departmentAttendance,
                 'total_jumlah_telat' => $totalJumlahTelat,
-                'total_presentase' => $totalKaryawan ? round(($totalT / ($totalKaryawan * 23)) * 100) : 0
+                'total_presentase' => $totalKaryawan ? round(($totalT / ($totalKaryawan * $totalWorkdays)) * 100) : 0
             ];
         }
 
@@ -357,8 +357,17 @@ class AttendanceController extends Controller
         $endOfMonth = $startOfMonth->copy()->endOfMonth();
         $totalWorkdays = 0;
 
+        // Get national holidays for the given month
+        $liburNasional = DB::table('libur_nasional')
+            ->whereMonth('tgl_libur', $month)
+            ->whereYear('tgl_libur', $year)
+            ->pluck('tgl_libur') // Retrieve only the dates
+            ->map(fn($date) => Carbon::parse($date)->toDateString()) // Normalize to Y-m-d format
+            ->toArray();
+
         while ($startOfMonth->lte($endOfMonth)) {
-            if (!$startOfMonth->isWeekend()) {
+            // Exclude weekends and national holidays
+            if (!$startOfMonth->isWeekend() && !in_array($startOfMonth->toDateString(), $liburNasional)) {
                 $totalWorkdays++;
             }
             $startOfMonth->addDay();
@@ -366,6 +375,7 @@ class AttendanceController extends Controller
 
         return $totalWorkdays;
     }
+
 
     // Helper function to determine attendance status
     private function getAttendanceStatus($date, $attendance, $isCuti, $isIzin, $work_start, $morning_start, $afternoon_start, $status_work)
