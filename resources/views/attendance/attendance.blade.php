@@ -138,14 +138,14 @@
                                 <table class="table table-hover">
                                     <thead>
                                         <tr style="text-align:center;">
-                                            <th style="border-color: black; border-style: solid; border-width: 1px; color: black">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Nama Karyawan &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</th>
-                                            <th style="border-color: black; border-style: solid; border-width: 1px; color: black">Department</th>
-                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">Telat</th>
-                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">% Telat</th>
-                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">Telat Dept</th>
-                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">% Dept</th>
-                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">Menit Telat</th>
-                                            @for($i = 1; $i <= $daysInMonth; $i++) <th style="border-color: black; border-style: solid; border-width: 1px; color: black" class="{{ $currentMonth == Carbon\Carbon::now()->month && $i == Carbon\Carbon::now()->day ? 'today' : '' }}">
+                                            <th style="border-color: black; border-style: solid; border-width: 1px; color: black; background-color : #91967E;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Nama Karyawan &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</th>
+                                            <th style="border-color: black; border-style: solid; border-width: 1px; color: black; background-color : #91967E;">Department</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: black; background-color :rgb(236, 233, 58);">Telat</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: black; background-color : rgb(236, 233, 58);">% Telat</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: black; background-color : rgb(236, 233, 58);">Telat Dept</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: black; background-color : rgb(236, 233, 58);">% Dept</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: black; background-color : rgb(236, 233, 58);">Menit Telat</th>
+                                            @for($i = 1; $i <= $daysInMonth; $i++) <th style="border-color: black; border-style: solid; border-width: 1px; color: black; background-color : #DADADA;" class="{{ $currentMonth == Carbon\Carbon::now()->month && $i == Carbon\Carbon::now()->day ? 'today' : '' }}">
                                                 {{ $i }}
                                                 </th>
                                                 @endfor
