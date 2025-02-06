@@ -25,7 +25,7 @@ class DashboardController extends Controller
         // Join karyawan and jabatan tables to get nama_jabatan
         $namaUser = DB::table('karyawan')
             ->leftJoin('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-            ->where('karyawan.nip', $nip)
+            ->where('karyawan.nik', $nik)
             ->select('karyawan.*', 'jabatan.nama_jabatan')
             ->first();
 

@@ -432,7 +432,7 @@
 
                         if (response.length > 0) {
                             response.forEach(function(employee) {
-                                dropdownMenu.append('<a class="dropdown-item" href="#" data-nik="' + employee.nik + '">' + employee.nama_lengkap + '</a>');
+                                dropdownMenu.append('<a class="dropdown-item" href="#" data-nik="' + employee.nik + '" data-pawal="' + employee.tgl_masuk + '">' + employee.nama_lengkap + '</a>');
                             });
 
                             dropdownMenu.show();
@@ -451,10 +451,25 @@
             e.preventDefault();
             var selectedName = $(this).text();
             var selectedNIK = $(this).data('nik');
+            var tglMasuk = $(this).data('pawal');
+
+            if (tglMasuk) {
+                var periodeAwal = new Date(tglMasuk);
+                var periodeAkhir = new Date(periodeAwal);
+                periodeAkhir.setFullYear(periodeAkhir.getFullYear() + 1);
+                periodeAkhir.setDate(periodeAkhir.getDate() - 1); // Subtract one day for correct end date
+
+                var formattedPeriodeAwal = periodeAwal.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+                var formattedPeriodeAkhir = periodeAkhir.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+                var tahun = periodeAwal.getFullYear(); // Extract year from tgl_masuk
+
+                $('#periode_awal').val(formattedPeriodeAwal);
+                $('#periode_akhir').val(formattedPeriodeAkhir);
+                $('#tahun').val(tahun); // Set the extracted year
+            }
 
             $('#nama_lengkap').val(selectedName);
-            $('#nik').val(selectedNIK); // Assuming you want to set employee ID to another field like 'nik'
-
+            $('#nik').val(selectedNIK);
             $('#employeeList').hide();
         });
 

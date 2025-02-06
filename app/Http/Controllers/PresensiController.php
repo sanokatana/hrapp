@@ -111,8 +111,8 @@ class PresensiController extends Controller
     public function editprofile()
     {
 
-        $nip = Auth::guard('karyawan')->user()->nip;
-        $karyawan = DB::table('karyawan')->where('nip', $nip)->first();
+        $nik = Auth::guard('karyawan')->user()->nik;
+        $karyawan = DB::table('karyawan')->where('nik', $nik)->first();
         return view('presensi.editprofile', compact('karyawan'));
     }
 
