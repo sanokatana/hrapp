@@ -505,14 +505,14 @@ class PresensiController extends Controller
                         Pengajuan Absensi Karyawan<br><br>
                         Nama : {$nama_lengkap}<br>
                         Tanggal : {$currentDate->toDateString()}<br>
-                        Pukul : {$currentDate->format('H:i')}<br>
+                        Waktu Bikin: {$currentDate->format('H:i')}<br>
                         NIK : {$nik}<br>
                         NIP : {$nip}<br>
                         Tanggal Izin : " . DateHelper::formatIndonesianDate($tgl_izin) . "<br>
                         Tanggal Izin Sampai : " . (!empty($tgl_izin_akhir) ? DateHelper::formatIndonesianDate($tgl_izin_akhir) : '') . "<br>
                         Jumlah Hari : {$jml_hari}<br>
                         Status : " . DateHelper::getStatusText($status) . "<br>
-                        Pukul : {$pukul}<br>
+                        Waktu Izin: {$pukul}<br>
                         Keterangan : {$keterangan}<br><br>
 
                         Mohon Cek Di hrms.ciptaharmoni.com/panel<br><br>
@@ -521,8 +521,8 @@ class PresensiController extends Controller
                     ";
 
                     // Send the email using Mail::html
-                    Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan) {
-                        $ccList = ['human.resources@ciptaharmoni.com', 'mahardika@ciptaharmoni.com'];
+                    Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan, $currentDate) {
+                        $ccList = ['mahardika@ciptaharmoni.com'];
 
                         // Add $email_karyawan to the CC list if it's not empty
                         // Add $email_karyawan to the CC list if it's not empty
@@ -533,8 +533,8 @@ class PresensiController extends Controller
                             Log::warning("Invalid or empty email_karyawan: {$email_karyawan}");
                         }
 
-                        $message->to($atasan->email)
-                            ->subject("Pengajuan Izin Baru Dari {$nama_lengkap}")
+                        $message->to('human.resources@ciptaharmoni.com')
+                            ->subject("Pengajuan Izin Baru Dari {$nama_lengkap} - {$currentDate->toDateString()}")
                             ->cc($ccList)
                             ->priority(1);
 
