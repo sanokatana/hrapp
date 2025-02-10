@@ -1389,24 +1389,34 @@ class LaporanController extends Controller
 
         $hadir = $hadirList->count(); // This will count the unique karyawan who have scanned in today
 
-        // Izin (Permission) count
+        // Izin List
         $izinList = DB::table('pengajuan_izin')
+            ->join('karyawan', 'pengajuan_izin.nip', '=', 'karyawan.nip')
             ->where('tgl_izin', '<=', $hariini)
             ->where('tgl_izin_akhir', '>=', $hariini)
-            ->where('status_approved', 1)
-            ->where('status_approved_hrd', 1)
-            ->pluck('nip');
+            ->select('karyawan.nama_lengkap', 'pengajuan_izin.status', 'pengajuan_izin.keterangan')
+            ->get()
+            ->map(function ($item) {
+                $statusMap = [
+                    'Dt' => 'Datang Terlambat',
+                    'Tam' => 'Tidak Absen Masuk',
+                    'Tap' => 'Tidak Absen Pulang',
+                    'Tjo' => 'Tukar Jadwal Off',
+                    'Tmk' => 'Tidak Masuk Kerja'
+                ];
+                $item->status = $statusMap[$item->status] ?? $item->status;
+                return $item;
+            });
 
         $izin = $izinList->count();
 
-        // Cuti (Leave) count
+        // Cuti List
         $cutiList = DB::table('pengajuan_cuti')
+            ->join('karyawan', 'pengajuan_cuti.nip', '=', 'karyawan.nip')
             ->where('tgl_cuti', '<=', $hariini)
             ->where('tgl_cuti_sampai', '>=', $hariini)
-            ->where('status_approved', 1)
-            ->where('status_approved_hrd', 1)
-            ->where('status_management', 1)
-            ->pluck('nip');
+            ->select('karyawan.nama_lengkap', 'pengajuan_cuti.note', 'pengajuan_cuti.jenis')
+            ->get();
 
         $cuti = $cutiList->count();
 
@@ -1449,6 +1459,14 @@ class LaporanController extends Controller
             return "<li>{$item->nama_lengkap} (NIK: {$item->nik}, Dept: {$item->kode_dept})</li>";
         })->implode('');
 
+        $izinDetails = $izinList->map(function ($item) {
+            return "<li>{$item->nama_lengkap} - <strong>{$item->status}</strong> ({$item->keterangan})</li>";
+        })->implode('');
+
+        $cutiDetails = $cutiList->map(function ($item) {
+            return "<li>{$item->nama_lengkap} - <strong>{$item->jenis}</strong> ({$item->note})</li>";
+        })->implode('');
+
         // Prepare email content
         $emailContent = "
         <h1>Laporan Kehadiran Karyawan - {$hariini}</h1>
@@ -1467,6 +1485,14 @@ class LaporanController extends Controller
         <h3>Yang Telat:</h3>
         <ul>
             {$telatDetails}
+        </ul>
+        <h3>Yang Izin:</h3>
+        <ul>
+            {$izinDetails}
+        </ul>
+        <h3>Yang Cuti:</h3>
+        <ul>
+            {$cutiDetails}
         </ul>
         <br>
         <p>Silakan cek detail di <a href='https://hrms.ciptaharmoni.com/panel'>HRMS Panel</a>.</p>

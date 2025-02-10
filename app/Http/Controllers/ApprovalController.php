@@ -184,7 +184,7 @@ class ApprovalController extends Controller
 
             // Count the number of attachments
             $lampiranCount = 0;
-            if ($foto && $foto !== 'No Document') {
+            if ($foto && $foto !== 'No_Document') {
                 $fotoFiles = explode(',', $foto); // Split by comma to get an array of file names
                 $lampiranCount = count($fotoFiles); // Count the number of files
             }
