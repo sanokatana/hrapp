@@ -393,7 +393,7 @@ class CandidateController extends Controller
 
             $stage = DB::table('hiring_stages')
                 ->where('recruitment_type_id', $recruitmentTypeId)
-                ->where('type', 'Form Filled')
+                ->where('type', 'Test Interview')
                 ->first();
 
             // If the stage is found, update the candidate's current_stage_id

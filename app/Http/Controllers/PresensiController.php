@@ -534,7 +534,7 @@ class PresensiController extends Controller
                         }
 
                         $message->to('human.resources@ciptaharmoni.com')
-                            ->subject("Pengajuan Izin Baru Dari {$nama_lengkap} - {$currentDate->toDateString()}")
+                            ->subject("Pengajuan Izin Baru Dari {$nama_lengkap} - {$currentDate->format('Y-m-d H:i:s')}")
                             ->cc($ccList)
                             ->priority(1);
 
