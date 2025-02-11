@@ -98,19 +98,27 @@
     <!-- Base Js File -->
     <script src="{{ asset('assets/js/base.js')}}"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        function togglePassword() {
-            const passwordField = document.getElementById('password');
-            const passwordIcon = document.querySelector('.toggle-password ion-icon');
-            if (passwordField.type === 'password') {
-                passwordField.type = 'text';
-                passwordIcon.setAttribute('name', 'eye-off-outline');
-            } else {
-                passwordField.type = 'password';
-                passwordIcon.setAttribute('name', 'eye-outline');
+        document.querySelector("form").addEventListener("submit", function(event) {
+            let input = document.getElementById("nik_or_email").value.trim();
+            let nikFormat = /^\d{4}-\d{8}$/; // Format: 4 digits - 8 digits (e.g., 0242-20251204)
+
+            if (input.includes("@")) {
+                // It's an email, so allow submission
+                return true;
+            } else if (!nikFormat.test(input)) {
+                // If not an email and doesn't match NIK format, show an alert
+                event.preventDefault(); // Prevent form submission
+                Swal.fire({
+                    icon: "error",
+                    title: "Format NIK / Email anda Salah",
+                    text: "Gunakan format NIK: xxxx-xxxxxxxx at au masukkan email yang valid!",
+                });
             }
-        }
+        });
     </script>
+
 </body>
 
 </html>

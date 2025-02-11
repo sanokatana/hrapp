@@ -27,6 +27,7 @@
         overflow-y: auto; /* Enable vertical scrolling */
         padding: 10px; /* Optional: Add padding if needed */
         box-sizing: border-box; /* Ensure padding doesn't affect height calculation */
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling */
     }
 </style>
 <!-- * App Header -->

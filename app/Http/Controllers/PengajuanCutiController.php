@@ -56,75 +56,75 @@ class PengajuanCutiController extends Controller
     public function storecuti(Request $request)
     {
         $nik = Auth::guard('karyawan')->user()->nik;
-    $nip = Auth::guard('karyawan')->user()->nip;
-    $nama_lengkap = Auth::guard('karyawan')->user()->nama_lengkap;
-    $email_karyawan = Auth::guard('karyawan')->user()->email;
-    $periode = $request->periode;
-    $sisa_cuti = $request->sisa_cuti;
-    $tgl_cuti = new Carbon($request->tgl_cuti);
-    $tgl_cuti_sampai = $request->tgl_cuti_sampai ? new Carbon($request->tgl_cuti_sampai) : $tgl_cuti;
-    $jml_hari = $request->jml_hari;
-    $sisa_cuti_setelah = $request->sisa_cuti_setelah;
-    $kar_ganti = $request->kar_ganti;
-    $note = $request->note;
-    $currentDate = Carbon::now();
-    $jenis = "Cuti Tahunan";
+        $nip = Auth::guard('karyawan')->user()->nip;
+        $nama_lengkap = Auth::guard('karyawan')->user()->nama_lengkap;
+        $email_karyawan = Auth::guard('karyawan')->user()->email;
+        $periode = $request->periode;
+        $sisa_cuti = $request->sisa_cuti;
+        $tgl_cuti = new Carbon($request->tgl_cuti);
+        $tgl_cuti_sampai = $request->tgl_cuti_sampai ? new Carbon($request->tgl_cuti_sampai) : $tgl_cuti;
+        $jml_hari = $request->jml_hari;
+        $sisa_cuti_setelah = $request->sisa_cuti_setelah;
+        $kar_ganti = $request->kar_ganti;
+        $note = $request->note;
+        $currentDate = Carbon::now();
+        $jenis = "Cuti Tahunan";
 
-    DB::beginTransaction();
+        DB::beginTransaction();
 
-    try {
-        // Save the leave application
-        $data = [
-            'nik' => $nik,
-            'nip' => $nip,
-            'periode' => $periode,
-            'sisa_cuti' => $sisa_cuti,
-            'tgl_cuti' => $tgl_cuti->toDateString(),
-            'tgl_cuti_sampai' => $tgl_cuti_sampai->toDateString(),
-            'jml_hari' => $jml_hari,
-            'sisa_cuti_setelah' => $sisa_cuti_setelah,
-            'kar_ganti' => $kar_ganti,
-            'note' => $note,
-            'jenis' => $jenis,
-        ];
+        try {
+            // Save the leave application
+            $data = [
+                'nik' => $nik,
+                'nip' => $nip,
+                'periode' => $periode,
+                'sisa_cuti' => $sisa_cuti,
+                'tgl_cuti' => $tgl_cuti->toDateString(),
+                'tgl_cuti_sampai' => $tgl_cuti_sampai->toDateString(),
+                'jml_hari' => $jml_hari,
+                'sisa_cuti_setelah' => $sisa_cuti_setelah,
+                'kar_ganti' => $kar_ganti,
+                'note' => $note,
+                'jenis' => $jenis,
+            ];
 
-        $simpan = PengajuanCuti::create($data);
+            $simpan = PengajuanCuti::create($data);
 
-        if ($simpan) {
-            // Get the current cuti record for the employee
-            $cuti = DB::table('cuti')
-                ->where('nip', $nip)
-                ->where('tahun', $periode)
-                ->first();
-
-            if ($cuti) {
-                // Update sisa_cuti
-                $new_sisa_cuti = $cuti->sisa_cuti - $jml_hari;
-                DB::table('cuti')
+            if ($simpan) {
+                // Get the current cuti record for the employee
+                $cuti = DB::table('cuti')
                     ->where('nip', $nip)
                     ->where('tahun', $periode)
-                    ->update(['sisa_cuti' => $new_sisa_cuti]);
+                    ->first();
 
-                // Check if leave exceeds periode_akhir
-                $periode_akhir = new Carbon($cuti->periode_akhir);
-                if ($tgl_cuti > $periode_akhir || $tgl_cuti_sampai > $periode_akhir) {
-                    // Calculate days beyond periode_akhir
-                    $beyondPeriodeDays = 0;
-
-                    if ($tgl_cuti > $periode_akhir) {
-                        $beyondPeriodeDays += $tgl_cuti_sampai->diffInDays($tgl_cuti) + 1;
-                    } elseif ($tgl_cuti_sampai > $periode_akhir) {
-                        $beyondPeriodeDays += $tgl_cuti_sampai->diffInDays($periode_akhir);
-                    }
-
-                    // Update pinjam field
-                    $new_pinjam = $cuti->pinjam + $beyondPeriodeDays;
+                if ($cuti) {
+                    // Update sisa_cuti
+                    $new_sisa_cuti = $cuti->sisa_cuti - $jml_hari;
                     DB::table('cuti')
                         ->where('nip', $nip)
                         ->where('tahun', $periode)
-                        ->update(['pinjam' => $new_pinjam]);
+                        ->update(['sisa_cuti' => $new_sisa_cuti]);
+
+                    // Check if leave exceeds periode_akhir
+                    $periode_akhir = new Carbon($cuti->periode_akhir);
+                    if ($tgl_cuti > $periode_akhir || $tgl_cuti_sampai > $periode_akhir) {
+                        // Calculate days beyond periode_akhir
+                        $beyondPeriodeDays = 0;
+
+                        if ($tgl_cuti > $periode_akhir) {
+                            $beyondPeriodeDays += $tgl_cuti_sampai->diffInDays($tgl_cuti) + 1;
+                        } elseif ($tgl_cuti_sampai > $periode_akhir) {
+                            $beyondPeriodeDays += $tgl_cuti_sampai->diffInDays($periode_akhir);
+                        }
+
+                        // Update pinjam field
+                        $new_pinjam = $cuti->pinjam + $beyondPeriodeDays;
+                        DB::table('cuti')
+                            ->where('nip', $nip)
+                            ->where('tahun', $periode)
+                            ->update(['pinjam' => $new_pinjam]);
+                    }
                 }
-            }
 
                 // Fetch the atasan details
                 $atasanJabatan = DB::table('jabatan')->where('id', Auth::guard('karyawan')->user()->jabatan)->first();
@@ -157,10 +157,9 @@ class PengajuanCutiController extends Controller
                             Terima Kasih
                         ";
 
-                        Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan) {
-                            $ccList = ['human.resources@ciptaharmoni.com', 'al.imron@ciptaharmoni.com', 'mahardika@ciptaharmoni.com'];
+                        Mail::html($emailContent, function ($message) use ($currentDate, $nama_lengkap, $email_karyawan) {
+                            $ccList = ['mahardika@ciptaharmoni.com'];
 
-                            // Add $email_karyawan to the CC list if it's not empty
                             // Add $email_karyawan to the CC list if it's not empty
                             if (!empty($email_karyawan) && filter_var($email_karyawan, FILTER_VALIDATE_EMAIL)) {
                                 $ccList[] = $email_karyawan;
@@ -169,15 +168,14 @@ class PengajuanCutiController extends Controller
                                 Log::warning("Invalid or empty email_karyawan: {$email_karyawan}");
                             }
 
-                            $message->to($atasan->email)
-                                ->subject("Pengajuan Cuti Baru Dari {$nama_lengkap}")
+                            $message->to('human.resources@ciptaharmoni.com')
+                                ->subject("Pengajuan Cuti Baru Dari {$nama_lengkap} - {$currentDate->format('Y-m-d H:i:s')}")
                                 ->cc($ccList)
                                 ->priority(1);
 
                             $message->getHeaders()->addTextHeader('Importance', 'high');
                             $message->getHeaders()->addTextHeader('X-Priority', '1');
                         });
-
                     }
                 }
 
@@ -308,27 +306,26 @@ class PengajuanCutiController extends Controller
                         Terima Kasih
                     ";
 
-                    Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan) {
-                        $ccList = ['human.resources@ciptaharmoni.com', 'al.imron@ciptaharmoni.com', 'mahardika@ciptaharmoni.com'];
+                        Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan) {
+                            $ccList = ['human.resources@ciptaharmoni.com', 'al.imron@ciptaharmoni.com', 'mahardika@ciptaharmoni.com'];
 
-                        // Add $email_karyawan to the CC list if it's not empty
-                        // Add $email_karyawan to the CC list if it's not empty
-                        if (!empty($email_karyawan) && filter_var($email_karyawan, FILTER_VALIDATE_EMAIL)) {
-                            $ccList[] = $email_karyawan;
-                        } else {
-                            // Log or handle invalid email_karyawan, if needed
-                            Log::warning("Invalid or empty email_karyawan: {$email_karyawan}");
-                        }
+                            // Add $email_karyawan to the CC list if it's not empty
+                            // Add $email_karyawan to the CC list if it's not empty
+                            if (!empty($email_karyawan) && filter_var($email_karyawan, FILTER_VALIDATE_EMAIL)) {
+                                $ccList[] = $email_karyawan;
+                            } else {
+                                // Log or handle invalid email_karyawan, if needed
+                                Log::warning("Invalid or empty email_karyawan: {$email_karyawan}");
+                            }
 
-                        $message->to($atasan->email)
-                            ->subject("Pengajuan Cuti Baru Dari {$nama_lengkap}")
-                            ->cc($ccList)
-                            ->priority(1);
+                            $message->to($atasan->email)
+                                ->subject("Pengajuan Cuti Baru Dari {$nama_lengkap}")
+                                ->cc($ccList)
+                                ->priority(1);
 
-                        $message->getHeaders()->addTextHeader('Importance', 'high');
-                        $message->getHeaders()->addTextHeader('X-Priority', '1');
-                    });
-
+                            $message->getHeaders()->addTextHeader('Importance', 'high');
+                            $message->getHeaders()->addTextHeader('X-Priority', '1');
+                        });
                     }
                 }
 

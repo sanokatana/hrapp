@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\DateHelper;
+use App\Mail\CutiApprovalNotification;
 use App\Models\Jabatan;
 use App\Models\Karyawan;
 use App\Models\PengajuanCuti;
@@ -204,7 +205,7 @@ class ApprovalController extends Controller
                 Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $currentDate, $foto, $nip) {
 
                     $message->to($atasan->email)
-                        ->subject("Pengajuan Izin Baru Dari {$nama_lengkap} - {$currentDate->toDateString()}")
+                        ->subject("Pengajuan Izin Baru Dari {$nama_lengkap} - {$currentDate->format('Y-m-d H:i:s')}")
                         ->priority(1);
 
                     $message->getHeaders()->addTextHeader('Importance', 'high');
@@ -252,6 +253,79 @@ class ApprovalController extends Controller
 
         return view('approval.success', ['message' => 'Leave request has been processed successfully.']);
     }
+
+    public function approveViaTokenCuti($token, Request $request)
+    {
+        $leaveApplication = DB::table('pengajuan_cuti')->where('approval_token', $token)->first();
+
+        if (!$leaveApplication) {
+            return view('approval.error', ['message' => 'Invalid or expired approval link.']);
+        }
+
+        $karyawan = DB::table('karyawan')->where('nik', $leaveApplication->nik)->first();
+        $atasanJabatan = DB::table('jabatan')->where('id', $karyawan->jabatan)->first();
+        $atasanJabatanId = $atasanJabatan->jabatan_atasan;
+        $atasan = DB::table('karyawan')->where('jabatan', $atasanJabatanId)->first();
+
+        $status = $request->query('status'); // 1 = Approved, 2 = Denied
+        $currentDate = now();
+
+        // Check if the approval is atasan or management level
+        if ($leaveApplication->status_approved == 0) {
+            // This is an Atasan approval
+            $newToken = Str::random(40);
+            $updateData = [
+                'status_approved' => $status,
+                'tgl_status_approved' => $currentDate,
+                'approval_token' => ($status == 1) ? $newToken : null, // Generate new token only if approved
+            ];
+
+            // If the atasan is Al.Imron, Setia, or Andreas, update status_management too
+            if (in_array($atasan->email, ['al.imron@ciptaharmoni.com', 'setia.rusli@ciptaharmoni.com', 'andreas.audyanto@ciptaharmoni.com'])) {
+                $updateData['status_management'] = $status;
+                $updateData['tgl_status_management'] = $currentDate;
+            }
+
+            DB::table('pengajuan_cuti')->where('id', $leaveApplication->id)->update($updateData);
+
+            // Generate new approve and deny URLs for management
+            $approveUrl = url("/approve/cuti/$newToken?status=1");
+            $denyUrl = url("/approve/cuti/$newToken?status=2");
+            $leaveApplication->nama_karyawan = $karyawan->nama_lengkap;
+
+            // Send email only if it's not Al.Imron approving
+            if (!in_array($atasan->email, ['al.imron@ciptaharmoni.com'])) {
+                $managementEmails = [];
+
+                if (in_array($atasan->email, ['setia.rusli@ciptaharmoni.com', 'andreas.audyanto@ciptaharmoni.com'])) {
+                    $managementEmails = ['al.imron@ciptaharmoni.com']; // Only notify Al.Imron
+                    $showApprovalButtons = false;
+                } else {
+                    $managementEmails = [
+                        'al.imron@ciptaharmoni.com',
+                        'setia.rusli@ciptaharmoni.com',
+                        'andreas.audyanto@ciptaharmoni.com',
+                        'komarudin.djunaedi@ciptaharmoni.com'
+                    ];
+                    $showApprovalButtons = true;
+                }
+
+                Mail::to($managementEmails)->send(new CutiApprovalNotification($leaveApplication, $approveUrl, $denyUrl, $showApprovalButtons));
+            }
+        } else {
+            // This is a Management approval
+            DB::table('pengajuan_cuti')
+                ->where('id', $leaveApplication->id)
+                ->update([
+                    'status_management' => $status,
+                    'tgl_status_management' => $currentDate,
+                    'approval_token' => null, // Remove token after final approval
+                ]);
+        }
+
+        return view('approval.success', ['message' => 'Leave request has been processed successfully.']);
+    }
+
 
 
 
@@ -528,9 +602,6 @@ class ApprovalController extends Controller
         return view('approval.cutiapprovalhr', compact('cutiapproval'));
     }
 
-
-
-
     public function approvecutihrd(Request $request)
     {
         $id = $request->id_cuti_form;
@@ -544,40 +615,120 @@ class ApprovalController extends Controller
             ->where('id', $id)
             ->update([
                 'status_approved_hrd' => $status_approved_hrd,
-                'tgl_status_approved_hrd' => $currentDate
+                'tgl_status_approved_hrd' => $currentDate,
+                'keputusan' => $keputusan
             ]);
 
-        if ($update) {
+        $leaveApplication = DB::table('pengajuan_cuti')->where('id', $id)->first();
 
-            $leaveApplication = DB::table('pengajuan_cuti')->where('id', $id)->first();
+        if ($leaveApplication && $status_approved_hrd == 2) {
+            $cutiRecord = DB::table('cuti')->where('nik', $nik)->where('tahun', $periode)->first();
+            $newSisaCuti = $cutiRecord->sisa_cuti + $leaveApplication->jml_hari;
 
-            if ($leaveApplication->status_approved_hrd == 2) {
-                // Get the cuti record for this user and period
-                $cutiRecord = DB::table('cuti')
-                    ->where('nik', $nik)
-                    ->where('tahun', $periode)
-                    ->first();
-
-                DB::table('pengajuan_cuti')
-                    ->where('id', $id)
-                    ->update([
-                        'keputusan' => $keputusan
-                    ]);
-                // Calculate the new sisa_cuti
-                $newSisaCuti = $cutiRecord->sisa_cuti + $leaveApplication->jml_hari;
-                $jmlTunda =
-
-                    // Update the cuti record
-                    DB::table('cuti')
-                    ->where('nik', $nik)
-                    ->where('tahun', $periode)
-                    ->update(['sisa_cuti' => $newSisaCuti, 'tunda' => $leaveApplication->jml_hari]);
-            }
-            return redirect('/approval/cutiapprovalhrd')->with(['success' => 'Pengajuan Cuti Berhasil Di Update']);
-        } else {
-            return redirect('/approval/cutiapprovalhrd')->with(['error' => 'Pengajuan Cuti Gagal Di Update']);
+            DB::table('cuti')
+                ->where('nik', $nik)
+                ->where('tahun', $periode)
+                ->update(['sisa_cuti' => $newSisaCuti, 'tunda' => $leaveApplication->jml_hari]);
         }
+
+        // Send Email Notification if approved
+        if ($update && $status_approved_hrd == 1) {
+            $karyawan = DB::table('karyawan')->where('nik', $nik)->first();
+            $atasanJabatan = DB::table('jabatan')->where('id', $karyawan->jabatan)->first();
+            $atasan = DB::table('karyawan')->where('jabatan', $atasanJabatan->jabatan_atasan)->first();
+
+            if ($atasan && $atasan->email) {
+                $token = Str::random(40);
+                DB::table('pengajuan_cuti')->where('id', $id)->update(['approval_token' => $token]);
+
+                $approveUrl = url("/approve/cuti/$token?status=1");
+                $denyUrl = url("/approve/cuti/$token?status=2");
+                $emailContent = "
+                    Approved By HRD <br>
+                    Pengajuan Cuti Karyawan<br><br>
+                    Nama : {$karyawan->nama_lengkap}<br>
+                    NIK : {$nik}<br>
+                    Periode Cuti : {$periode}<br>
+                    Sisa Cuti : {$leaveApplication->sisa_cuti}<br>
+                    Tanggal Cuti : " . DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti) . "<br>
+                    Tanggal Cuti Sampai : " . (!empty($tgl_izin_akhir) ? DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti_sampai) : '') . "<br>
+                    Jumlah Hari : {$leaveApplication->jml_hari}<br>
+                    Sisa Cuti Setelah : {$leaveApplication->sisa_cuti_setelah}<br>
+                    Karywan Pengganti : {$leaveApplication->kar_ganti}<br>
+                    Note : {$leaveApplication->note}<br><br>
+                    <a href='{$approveUrl}' style='padding:10px 20px; background:green; color:white; text-decoration:none;'>Accept</a>
+                    <a href='{$denyUrl}' style='padding:10px 20px; background:red; color:white; text-decoration:none; margin-left:10px;'>Deny</a>
+                    <br><br>
+                    Atau Mohon Cek Di <a href='hrms.ciptaharmoni.com/panel'>HRMS</a><br><br>
+                    Terima Kasih
+                ";
+
+                try {
+                    Mail::html($emailContent, function ($message) use ($atasan, $karyawan, $currentDate) {
+                        $message->to($atasan->email)
+                            ->subject("Pengajuan Cuti Baru Dari {$karyawan->nama_lengkap} - {$currentDate->format('Y-m-d H:i:s')}")
+                            ->priority(1);
+                        $message->getHeaders()->addTextHeader('Importance', 'high');
+                        $message->getHeaders()->addTextHeader('X-Priority', '1');
+                    });
+                } catch (\Exception $e) {
+                    Log::error("Failed to send email: " . $e->getMessage());
+                }
+            }
+        }
+
+        return redirect('/approval/cutiapprovalhrd')->with([
+            'success' => $update ? 'Pengajuan Cuti Berhasil Di Update' : 'Pengajuan Cuti Gagal Di Update'
+        ]);
     }
+
+
+    // public function approvecutihrd(Request $request)
+    // {
+    //     $id = $request->id_cuti_form;
+    //     $nik = $request->nik_cuti_form;
+    //     $periode = $request->periode_cuti_form;
+    //     $keputusan = $request->keputusan;
+    //     $status_approved_hrd = $request->status_approved_hrd;
+    //     $currentDate = Carbon::now();
+
+    //     $update = DB::table('pengajuan_cuti')
+    //         ->where('id', $id)
+    //         ->update([
+    //             'status_approved_hrd' => $status_approved_hrd,
+    //             'tgl_status_approved_hrd' => $currentDate
+    //         ]);
+
+    //     if ($update) {
+
+    //         $leaveApplication = DB::table('pengajuan_cuti')->where('id', $id)->first();
+
+    //         if ($leaveApplication->status_approved_hrd == 2) {
+    //             // Get the cuti record for this user and period
+    //             $cutiRecord = DB::table('cuti')
+    //                 ->where('nik', $nik)
+    //                 ->where('tahun', $periode)
+    //                 ->first();
+
+    //             DB::table('pengajuan_cuti')
+    //                 ->where('id', $id)
+    //                 ->update([
+    //                     'keputusan' => $keputusan
+    //                 ]);
+    //             // Calculate the new sisa_cuti
+    //             $newSisaCuti = $cutiRecord->sisa_cuti + $leaveApplication->jml_hari;
+
+    //                 // Update the cuti record
+    //                 DB::table('cuti')
+    //                 ->where('nik', $nik)
+    //                 ->where('tahun', $periode)
+    //                 ->update(['sisa_cuti' => $newSisaCuti, 'tunda' => $leaveApplication->jml_hari]);
+    //         }
+    //         return redirect('/approval/cutiapprovalhrd')->with(['success' => 'Pengajuan Cuti Berhasil Di Approve']);
+    //     } else {
+    //         return redirect('/approval/cutiapprovalhrd')->with(['error' => 'Pengajuan Cuti Gagal Di Approve']);
+    //     }
+    // }
 
     public function batalapprovecutihrd($id)
     {
@@ -938,7 +1089,7 @@ class ApprovalController extends Controller
         }
 
         // Paginate the results
-        $cutiapproval = $query->paginate(10);
+        $cutiapproval = $query->paginate(50);
         $cutiapproval->appends($request->all());
 
         foreach ($cutiapproval as $d) {

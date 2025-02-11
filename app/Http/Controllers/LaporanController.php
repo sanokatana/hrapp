@@ -1394,7 +1394,7 @@ class LaporanController extends Controller
             ->join('karyawan', 'pengajuan_izin.nip', '=', 'karyawan.nip')
             ->where('tgl_izin', '<=', $hariini)
             ->where('tgl_izin_akhir', '>=', $hariini)
-            ->select('karyawan.nama_lengkap', 'pengajuan_izin.status', 'pengajuan_izin.keterangan')
+            ->select('karyawan.nama_lengkap', 'pengajuan_izin.status', 'pengajuan_izin.keterangan', 'pengajuan_izin.nip')
             ->get()
             ->map(function ($item) {
                 $statusMap = [
@@ -1415,7 +1415,7 @@ class LaporanController extends Controller
             ->join('karyawan', 'pengajuan_cuti.nip', '=', 'karyawan.nip')
             ->where('tgl_cuti', '<=', $hariini)
             ->where('tgl_cuti_sampai', '>=', $hariini)
-            ->select('karyawan.nama_lengkap', 'pengajuan_cuti.note', 'pengajuan_cuti.jenis')
+            ->select('karyawan.nama_lengkap', 'pengajuan_cuti.note', 'pengajuan_cuti.jenis', 'pengajuan_cuti.nip')
             ->get();
 
         $cuti = $cutiList->count();
@@ -1438,25 +1438,37 @@ class LaporanController extends Controller
         $telat = $telatList->count();
 
         // Mangkir (Absent without leave) list
-        $hadirDanIzinDanCuti = $hadirList->pluck('pin')->merge($izinList)->merge($cutiList);
+        $hadirDanIzinDanCuti = $hadirList->pluck('pin')->map(fn($pin) => (string) $pin)
+            ->merge($izinList->pluck('nip')->map(fn($nip) => (string) $nip))
+            ->merge($cutiList->pluck('nip')->map(fn($nip) => (string) $nip));
+
 
         $mangkirList = DB::table('karyawan')
             ->select('nip as pin', 'nama_lengkap', 'kode_dept', 'nik')
             ->where('status_kar', 'Aktif')
             ->where('grade', '!=', 'NS')
             ->where('kode_dept', '!=', 'Management') // Exclude Management department
-            ->whereNotIn('nip', $hadirDanIzinDanCuti)
+            ->whereNotIn('nip', $hadirDanIzinDanCuti) // Exclude hadir, izin, and cuti employees
             ->get();
+
 
         $mangkir = $mangkirList->count();
 
-        // Generate HTML for lists
-        $telatDetails = $telatList->map(function ($item) {
-            return "<li>{$item->nama_lengkap} (NIK: {$item->nik}, Dept: {$item->kode_dept})</li>";
+        $telatGrouped = $telatList->groupBy('kode_dept');
+        $telatDetails = $telatGrouped->map(function ($items, $dept) {
+            $listItems = $items->map(function ($item) {
+                return "<li>{$item->nama_lengkap} (NIK: {$item->nik})</li>";
+            })->implode('');
+            return "<h4>Dept: {$dept}</h4><ul>{$listItems}</ul>";
         })->implode('');
 
-        $mangkirDetails = $mangkirList->map(function ($item) {
-            return "<li>{$item->nama_lengkap} (NIK: {$item->nik}, Dept: {$item->kode_dept})</li>";
+        // Group Mangkir by Department
+        $mangkirGrouped = $mangkirList->groupBy('kode_dept');
+        $mangkirDetails = $mangkirGrouped->map(function ($items, $dept) {
+            $listItems = $items->map(function ($item) {
+                return "<li>{$item->nama_lengkap} (NIK: {$item->nik})</li>";
+            })->implode('');
+            return "<h4>Dept: {$dept}</h4><ul>{$listItems}</ul>";
         })->implode('');
 
         $izinDetails = $izinList->map(function ($item) {
