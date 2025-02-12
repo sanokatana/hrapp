@@ -14,14 +14,6 @@
 <!-- * App Header -->
 
 <style>
-    .webcam-capture,
-    .webcam-capture video {
-        display: inline-block;
-        width: 100% !important;
-        margin: auto;
-        border-radius: 15px;
-    }
-
     #map {
         height: 200px;
     }
@@ -34,7 +26,6 @@
 <div class="row" style="margin-top: 70px">
     <div class="col">
         <input type="hidden" id="lokasi">
-        <div class="webcam-capture"></div>
     </div>
 </div>
 <div class="row">
@@ -52,19 +43,17 @@
     <div class="col form-button-group2">
         @if ($cek > 0)
         <button id="takeabsen" class="btn btn-danger btn-block">
-            <ion-icon name="camera-outline"></ion-icon>
+            <ion-icon name="log-out-outline"></ion-icon>
             Absen Pulang
         </button>
         @else
         <button id="takeabsen" class="btn btn-primary btn-block">
-            <ion-icon name="camera-outline"></ion-icon>
+            <ion-icon name="log-in-outline"></ion-icon>
             Absen Masuk
         </button>
         @endif
     </div>
 </div>
-
-
 
 <audio id="notifikasi_in">
     <source src="{{ asset('assets/sound/notifikasi_in.mp3') }}" type="audio/mpeg">
@@ -75,6 +64,7 @@
 <audio id="radius_sound">
     <source src="{{ asset('assets/sound/radius.mp3') }}" type="audio/mpeg">
 </audio>
+
 @endsection
 
 @push('myscript')
@@ -82,15 +72,7 @@
     var notifikasi_in = document.getElementById('notifikasi_in');
     var notifikasi_out = document.getElementById('notifikasi_out');
 
-    Webcam.set({
-        height: 300,
-        width: 640,
-        image_format: 'jpeg',
-        jpeg_quality: 80
-    });
-
-    Webcam.attach('.webcam-capture');
-
+    // Get location
     var lokasi = document.getElementById('lokasi');
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
@@ -108,20 +90,19 @@
         L.marker([position.coords.latitude, position.coords.longitude]).addTo(map);
     }
 
-    function errorCallback() {}
+    function errorCallback() {
+        console.error("Failed to get location");
+    }
 
     $("#takeabsen").click(function(e) {
-        Webcam.snap(function(uri) {
-            image = uri;
-        });
         var lokasi = $("#lokasi").val();
         var no_mesin = $("#no_mesin").val();
+
         $.ajax({
             type: 'POST',
             url: '/presensi/store',
             data: {
                 _token: "{{ csrf_token() }}",
-                image: image,
                 lokasi: lokasi,
                 no_mesin: no_mesin
             },
@@ -135,14 +116,14 @@
                         notifikasi_out.play();
                     }
                     Swal.fire({
-                        title: 'Berhasil !',
+                        title: 'Berhasil!',
                         text: status[1],
                         icon: 'success',
                     })
                     setTimeout("location.href='/dashboard'", 3000);
                 } else {
                     Swal.fire({
-                        title: 'Error !',
+                        title: 'Error!',
                         text: status[1],
                         icon: 'error',
                     })
@@ -151,5 +132,4 @@
         });
     });
 </script>
-
 @endpush

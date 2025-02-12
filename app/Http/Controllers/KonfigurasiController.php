@@ -139,7 +139,7 @@ class KonfigurasiController extends Controller
             $query->where('j1.site', $request->nama_kantor);
         }
 
-        $jabatan = $query->paginate(10)->appends($request->all());
+        $jabatan = $query->paginate(25)->appends($request->all());
 
         $department = DB::table('department')->get();
         $jabat = DB::table('jabatan')->orderBy('nama_jabatan', 'asc')->get();

@@ -22,8 +22,11 @@ class PresensiController extends Controller
     public function create()
     {
         $hariini = date("Y-m-d");
-        $nik = Auth::guard('karyawan')->user()->nik;
-        $cek = DB::table('presensi')->where('tgl_presensi', $hariini)->where('nik', $nik)->count();
+        $nip = Auth::guard('karyawan')->user()->nip;
+        $cek = DB::connection('mysql2')->table('att_log')
+            ->whereDate('scan_date', $hariini)
+            ->where('pin', $nip)
+            ->count();
 
         // Retrieve all location configurations
         $lok_kantor = DB::table('konfigurasi_lokasi')->get();
@@ -33,7 +36,6 @@ class PresensiController extends Controller
 
     public function store(Request $request)
     {
-        $nik = Auth::guard('karyawan')->user()->nik;
         $base = Auth::guard('karyawan')->user()->base_poh;
         $nip = Auth::guard('karyawan')->user()->nip;
         $tgl_presensi = date("Y-m-d");
@@ -65,13 +67,13 @@ class PresensiController extends Controller
         // Set inoutmode based on whether an entry exists
         $inoutmode = $existingRecord ? 2 : 1;
 
-        $image = $request->image;
-        $folderPath = "public/uploads/absensi/";
-        $formatName = $nip . "-" . $tgl_presensi . "-in";
-        $image_parts = explode(";base64", $image);
-        $image_base64 = base64_decode($image_parts[1]);
-        $fileName = $formatName . ".png";
-        $file = $folderPath . $fileName;
+        // $image = $request->image;
+        // $folderPath = "public/uploads/absensi/";
+        // $formatName = $nip . "-" . $tgl_presensi . "-in";
+        // $image_parts = explode(";base64", $image);
+        // $image_base64 = base64_decode($image_parts[1]);
+        // $fileName = $formatName . ".png";
+        // $file = $folderPath . $fileName;
 
         $data = [
             'sn' => $sn,
@@ -87,7 +89,7 @@ class PresensiController extends Controller
         $simpan = DB::connection('mysql2')->table('att_log')->insert($data);
         if ($simpan) {
             echo "success|Terima Kasih, Selamat Bekerja|in";
-            Storage::put($file, $image_base64);
+            // Storage::put($file, $image_base64);
         } else {
             echo "error|Maaf Gagal Absen Hubungi Tim IT|in";
         }

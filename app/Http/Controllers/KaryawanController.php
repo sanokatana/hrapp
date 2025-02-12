@@ -62,7 +62,7 @@ class KaryawanController extends Controller
             $query->where('karyawan.employee_status', $request->status_employee);
         }
 
-        $karyawan = $query->paginate(15)->appends($request->except('page'));
+        $karyawan = $query->paginate(25)->appends($request->except('page'));
         $shift = ShiftPattern::all(); // Assuming you have a Shift model and you want all shifts
         $department = DB::table('department')->get();
         $jabatan = DB::table('jabatan')->get();
