@@ -37,6 +37,7 @@ class StoreCandidateRequest extends FormRequest
             'alamat_npwp' => 'nullable|string|max:1000',
             'status_pajak' => 'nullable|string|max:10',
             'tax_status' => 'nullable|string|max:10',
+            'marriage_status' => 'nullable|string|max:100',
             'tgl_menikah' => 'nullable|date',
             'jabatan' => 'nullable|string|max:255',
             'nama_perusahaan' => 'nullable|string|max:255',

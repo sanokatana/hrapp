@@ -153,6 +153,11 @@ class ApprovalController extends Controller
             $updateData['tgl_jadwal_off'] = $request->tgl_jadwal_off;
         }
 
+        if ($status_approved_hrd == 2) {
+            $updateData['status_approved'] = 2;
+            $updateData['tgl_status_approved'] = $currentDate;
+        }
+
         // Perform the update
         $update = DB::table('pengajuan_izin')->where('id', $id)->update($updateData);
 
@@ -205,7 +210,7 @@ class ApprovalController extends Controller
                 Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $currentDate, $foto, $nip) {
 
                     $message->to($atasan->email)
-                        ->subject("Pengajuan Izin Baru Dari {$nama_lengkap} - {$currentDate->format('Y-m-d H:i:s')}")
+                        ->subject("Pengajuan Izin Dari {$nama_lengkap} - {$currentDate->format('Y-m-d H:i:s')}")
                         ->priority(1);
 
                     $message->getHeaders()->addTextHeader('Importance', 'high');

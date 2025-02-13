@@ -1006,7 +1006,7 @@
     function saveNumericValue(input) {
         // Remove 'Rp' and format to number
         let value = input.value.replace(/[^\d]/g, ''); // Remove non-digit characters
-        input.value = value ? parseFloat(value).toFixed(2) : '';
+        input.value = value ? parseFloat(value).toFixed(0) : '';
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -1285,8 +1285,8 @@
         }
     });
 
-    $(function() {
-        $('#formCandidate').submit(function(event) {
+    $(document).ready(function() {
+        $('#formCandidate').on('submit', function(event) {
             event.preventDefault(); // Prevent the form from submitting by default
 
             var fields = [
@@ -1518,9 +1518,66 @@
                     return false; // Stop further execution and show the alert
                 }
             }
-            console.log($(this).serializeArray());
+            Swal.fire({
+                title: "Apakah Anda yakin?",
+                text: "Pastikan semua data sudah benar sebelum mengirim.",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Ya, Simpan!",
+                cancelButtonText: "Batal"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "POST",
+                        url: $('#formCandidate').attr('action'),
+                        data: $('#formCandidate').serialize(),
+                        dataType: "json",
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: "Berhasil!",
+                                    text: "Data berhasil disimpan.",
+                                    icon: "success",
+                                    confirmButtonText: "OK"
+                                }).then(() => {
+                                    location.reload(); // Reload to clear form
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: "Gagal!",
+                                    text: response.message || "Terjadi kesalahan. Silakan coba lagi.",
+                                    icon: "error",
+                                    confirmButtonText: "Coba Lagi"
+                                });
+                            }
+                        },
+                        error: function(xhr) {
+                            let message = "Terjadi kesalahan. Silakan coba lagi.";
 
-            this.submit();
+                            if (xhr.status === 422) {
+                                // Handle Laravel validation errors
+                                let errors = xhr.responseJSON.errors;
+                                let errorMessages = "";
+                                $.each(errors, function(key, value) {
+                                    errorMessages += value[0] + "\n";
+                                });
+
+                                message = errorMessages;
+                            } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                                // Show cleaned error message from backend
+                                message = xhr.responseJSON.message;
+                            }
+
+                            Swal.fire({
+                                title: "Error!",
+                                text: message,
+                                icon: "error",
+                                confirmButtonText: "OK"
+                            });
+                        }
+                    });
+                }
+            });
         });
     });
 </script>

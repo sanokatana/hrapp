@@ -420,13 +420,35 @@ class CandidateController extends Controller
 
             // Commit the transaction
             DB::commit();
-            return redirect()->back()->with(['success' => 'Data Berhasil Disimpan']);
-        } catch (\Exception $e) {
+            return response()->json(['success' => true, 'message' => 'Data Berhasil Disimpan']);
 
+        } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error inserting candidate data', ['message' => $e->getMessage()]);
-            return redirect()->back()->with(['danger' => 'Data Gagal Disimpan']);
+
+            // Log the full error details (for debugging)
+            Log::error('Error inserting candidate data', ['error' => $e->getMessage()]);
+
+            // Sanitize message to hide SQL queries but keep useful details
+            $errorMessage = $e->getMessage();
+
+            if (str_contains($errorMessage, 'SQLSTATE')) {
+                if (str_contains($errorMessage, 'Incorrect date value')) {
+                    $errorMessage = 'Format tanggal tidak valid. Periksa kembali input tanggal.';
+                } elseif (str_contains($errorMessage, 'Duplicate entry')) {
+                    $errorMessage = 'Data sudah ada. Pastikan tidak ada duplikasi.';
+                } elseif (str_contains($errorMessage, 'cannot be null')) {
+                    $errorMessage = 'Ada data yang wajib diisi tetapi kosong. Periksa kembali.';
+                } else {
+                    $errorMessage = 'Terjadi kesalahan saat menyimpan data. Periksa input Anda.';
+                }
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => $errorMessage
+            ], 500);
         }
+
     }
 
     public function files()

@@ -1402,7 +1402,9 @@ class LaporanController extends Controller
                     'Tam' => 'Tidak Absen Masuk',
                     'Tap' => 'Tidak Absen Pulang',
                     'Tjo' => 'Tukar Jadwal Off',
-                    'Tmk' => 'Tidak Masuk Kerja'
+                    'Tmk' => 'Tidak Masuk Kerja',
+                    'Pa' => 'Pulang Awal',
+                    'Ta' => 'Tidak Absen (Masuk & Pulang)'
                 ];
                 $item->status = $statusMap[$item->status] ?? $item->status;
                 return $item;
