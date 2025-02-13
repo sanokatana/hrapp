@@ -162,14 +162,14 @@ class RecruitmentController extends Controller
                 <li>Setelah mengisis <b>data pribadi</b> dan mengerjakan <b>psikotest online</b> agar menginformasikan kepada kami via <i>WhatsApp</i> di nomor: 0813 8500 0789</li>
                 <li><b>Data pribadi</b> dan <b>psikotest online</b> agar di isi dihari yang sama pada saat terima email ini</li>
                 <li>Harap hadir 10 menit sebelum jadwal pelaksanaan <b>interview</b>.</li>
+                <li>Kandidat <b>Markom</b> dan <b>Architect</b> agar menyiapkan bahan <b>presentasi</b> portopolio dengan membawa <b>laptop</b> pribadi.</li>
             </ul>
 
             <br><br><br>
             Best regards,<br>
             Zicki Darmawan<br>
             HR CHL Group<br>
-            <a href="https://www.ciptaharmoni.com/">www.ciptaharmoni.com</a><br><br><br><br>
-            <i>Kandidat Markom dan Architect agar menyiapkan bahan prsentasi portopolio dengan membawa laptop pribadi.</i>
+            <a href="https://www.ciptaharmoni.com/">www.ciptaharmoni.com</a><br>
         EOD;
 
             // Send email

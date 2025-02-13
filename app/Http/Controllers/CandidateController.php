@@ -74,8 +74,6 @@ class CandidateController extends Controller
         $candidateUser = $candidate->nama_candidate;
         $data['candidate_id'] = $candidateId;
 
-        $currentDate = Carbon::now();
-
         $manager = new ImageManager();
 
         // Create the folder path
@@ -91,23 +89,29 @@ class CandidateController extends Controller
             if ($request->hasFile('gambaran_posisi')) {
                 $file = $request->file('gambaran_posisi');
                 $extension = $file->getClientOriginalExtension();
-
                 $fileName = $candidateId . "_gambaran_posisi_" . uniqid() . "." . $extension;
-                $image = $manager->make($file);
-                $image->resize(null, 800, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                });
 
-                $quality = 75;
-                do {
-                    $image->save($folderPath . $fileName, $quality);
-                    if (filesize($folderPath . $fileName) > 1048576) {
-                        $quality -= 5;
-                    } else {
-                        break;
-                    }
-                } while ($quality > 0);
+                // Check if the file is an image
+                if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
+                    $image = $manager->make($file);
+                    $image->resize(null, 800, function ($constraint) {
+                        $constraint->aspectRatio();
+                        $constraint->upsize();
+                    });
+
+                    $quality = 75;
+                    do {
+                        $image->save($folderPath . $fileName, $quality);
+                        if (filesize($folderPath . $fileName) > 1048576) {
+                            $quality -= 5;
+                        } else {
+                            break;
+                        }
+                    } while ($quality > 0);
+                } else {
+                    // Move the PDF or DOCX file without processing
+                    $file->move($folderPath, $fileName);
+                }
 
                 $data['gambaran_posisi'] = $fileName;
             } else {
@@ -117,16 +121,21 @@ class CandidateController extends Controller
             Log::error('Error uploading file for gambaran_posisi', ['error' => $e->getMessage()]);
         }
 
+
         // Function to handle slip uploads
+        $allowedImages = ['jpg', 'jpeg', 'png'];
+        $allowedDocs = ['pdf', 'docx'];
+
         $slips = ['slip_gaji1', 'slip_gaji2', 'slip_gaji3'];
         foreach ($slips as $slip) {
             try {
                 if ($request->hasFile($slip)) {
                     $file = $request->file($slip);
-                    $extension = $file->getClientOriginalExtension();
+                    $extension = strtolower($file->getClientOriginalExtension()); // Normalize to lowercase
                     $fileName = ucfirst($slip) . "_" . $candidateId . "_" . uniqid() . "." . $extension;
 
-                    if (in_array($extension, ['jpg', 'jpeg', 'png'])) {
+                    if (in_array($extension, $allowedImages)) {
+                        // Process and compress images
                         $image = $manager->make($file);
                         $image->resize(null, 800, function ($constraint) {
                             $constraint->aspectRatio();
@@ -142,8 +151,13 @@ class CandidateController extends Controller
                                 break;
                             }
                         } while ($quality > 0);
-                    } else {
+                    } elseif (in_array($extension, $allowedDocs)) {
+                        // Move PDFs and DOCX files without modifying them
                         $file->move($folderPath, $fileName);
+                    } else {
+                        // Invalid file type
+                        Log::error('Invalid file type for slip', ['slip' => $slip, 'file' => $file->getClientOriginalName()]);
+                        return back()->withErrors([$slip => 'Invalid file type. Allowed types: jpg, jpeg, png, pdf, docx']);
                     }
 
                     $data[$slip] = $fileName;
@@ -156,6 +170,7 @@ class CandidateController extends Controller
                 Log::error('Error uploading file for slip', ['slip' => $slip, 'error' => $e->getMessage()]);
             }
         }
+
 
         DB::beginTransaction();
 

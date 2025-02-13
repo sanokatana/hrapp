@@ -71,13 +71,13 @@ class StoreCandidateRequest extends FormRequest
             'nama_referensi1' => 'nullable|string|max:255',
             'nama_referensi2' => 'nullable|string|max:255',
             'sakit_lama' => 'nullable|string|max:255',
-            'gambaran_posisi' => 'nullable|file|mimes:jpg,png,pdf|max:10240', // Adjust as needed
+            'gambaran_posisi' => 'nullable|file|mimes:jpg,png,pdf,docx|max:10240', // Adjust as needed
             'masa_percobaan' => 'nullable|string|max:100',
             'proses_bi' => 'nullable|string|max:100',
             'mulai_kerja' => 'nullable|date',
-            'slip_gaji1' => 'nullable|file|mimes:jpg,png,pdf|max:10240',
-            'slip_gaji2' => 'nullable|file|mimes:jpg,png,pdf|max:10240',
-            'slip_gaji3' => 'nullable|file|mimes:jpg,png,pdf|max:10240',
+            'slip_gaji1' => 'nullable|file|mimes:jpg,png,pdf,docx|max:10240',
+            'slip_gaji2' => 'nullable|file|mimes:jpg,png,pdf,docx|max:10240',
+            'slip_gaji3' => 'nullable|file|mimes:jpg,png,pdf,docx|max:10240',
 
             // Salary and financial details
             'gaji_pokok' => 'nullable|numeric|min:0|max:9999999999999.99', // For decimal(15,2)
