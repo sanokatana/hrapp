@@ -483,7 +483,6 @@ class DashboardController extends Controller
             } else if ($isCuti) {
 
                 continue;
-
             } else if ($hasPresensi) {
                 // Find presensi data for the date
                 $presensiData = $historibulanini->firstWhere('tanggal', $dateString);
@@ -673,6 +672,8 @@ class DashboardController extends Controller
                 ->whereNotNull('tgl_izin_akhir') // Exclude null tgl_izin_akhir
                 ->where('tgl_izin_akhir', '!=', '') // Exclude empty tgl_izin_akhir
                 ->where('karyawan.grade', '!=', 'NS') // Exclude grade NS
+                ->whereNotIn('pengajuan_izin.status_approved', [3]) // Exclude status_approved = 3
+                ->whereNotIn('pengajuan_izin.status_approved_hrd', [3]) // Exclude status_approved_hrd = 3
                 ->count();
 
 
@@ -692,15 +693,6 @@ class DashboardController extends Controller
                 ->where('kode_dept', '!=', 'Management')
                 ->count();
 
-            // $jmlnoatt = DB::table('karyawan')
-            //     ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
-            //         $join->on('karyawan.nip', '=', 'presensi.pin')
-            //             ->whereDate(DB::raw('DATE(presensi.scan_date)'), '=', $hariini);
-            //     })
-            //     ->where('status_kar', 'Aktif')
-            //     ->where('grade', '!=', 'NS')
-            //     ->whereNull('presensi.pin')
-            //     ->count();
 
             $jmlnoatt = DB::connection('mysql2')
                 ->table('hrmschl.karyawan')
@@ -709,9 +701,20 @@ class DashboardController extends Controller
                         ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini);
                 })
                 ->join('hrmschl.jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-                ->whereNull('presensi.pin') // Employees with no attendance
+                ->join('hrmschl.shift_pattern_cycle', function ($join) use ($hariini) {
+                    $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
+                        ->on(DB::raw("
+                            CASE
+                                WHEN DAYOFWEEK(DATE('$hariini')) = 1 THEN 7
+                                ELSE DAYOFWEEK(DATE('$hariini')) - 1
+                            END
+                        "), '=', 'shift_pattern_cycle.cycle_day');
+                })
+                ->join('hrmschl.shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
+                ->whereNull('presensi.pin') // No attendance
                 ->where('karyawan.grade', '!=', 'NS') // Exclude NS grade
                 ->where('jabatan.kode_dept', '!=', 'Management') // Exclude Management department
+                ->where('karyawan.nik', '!=', '0017-20181101') // Exclude specific management
                 ->where('status_kar', 'Aktif') // Only active employees
                 ->whereNotExists(function ($query) use ($hariini) {
                     $query->select(DB::raw(1))
@@ -721,8 +724,6 @@ class DashboardController extends Controller
                         ->where('pengajuan_izin.tgl_izin_akhir', '>=', $hariini)
                         ->whereNotNull('pengajuan_izin.tgl_izin_akhir')
                         ->where('pengajuan_izin.tgl_izin_akhir', '!=', '');
-                        // ->where('pengajuan_izin.status_approved', 1) // Approved status
-                        // ->where('pengajuan_izin.status_approved_hrd', 1); // HRD approved status
                 })
                 ->whereNotExists(function ($query) use ($hariini) {
                     $query->select(DB::raw(1))
@@ -732,15 +733,13 @@ class DashboardController extends Controller
                         ->where('pengajuan_cuti.tgl_cuti_sampai', '>=', $hariini)
                         ->whereNotNull('pengajuan_cuti.tgl_cuti_sampai')
                         ->where('pengajuan_cuti.tgl_cuti_sampai', '!=', '');
-                        // ->where('pengajuan_cuti.status_approved', 1) // Approved status
-                        // ->where('pengajuan_cuti.status_approved_hrd', 1) // HRD approved status
-                        // ->where('pengajuan_cuti.status_management', 1); // Management approved status
                 })
                 ->whereNotExists(function ($query) use ($hariini) {
                     $query->select(DB::raw(1))
                         ->from('hrmschl.libur_nasional')
                         ->whereDate('libur_nasional.tgl_libur', $hariini);
                 })
+                ->where(DB::raw('TIME(shift.start_time)'), '<=', now()->format('H:i:s')) // Only count absent after shift starts
                 ->count(); // Count the records
 
 
@@ -787,47 +786,55 @@ class DashboardController extends Controller
             $noAttendanceNonNS = DB::connection('mysql2')
                 ->table('hrmschl.karyawan')
                 ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
-                    $join->on('karyawan.nip', '=', 'presensi.pin') // Use 'pin' from 'att_log'
+                    $join->on('karyawan.nip', '=', 'presensi.pin')
                         ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini);
                 })
                 ->join('hrmschl.jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-                ->whereNull('presensi.pin') // Filter for karyawan with no attendance
+                ->join('hrmschl.shift_pattern_cycle', function ($join) use ($hariini) {
+                    $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
+                        ->on(DB::raw("
+                        CASE
+                            WHEN DAYOFWEEK(DATE('$hariini')) = 1 THEN 7
+                            ELSE DAYOFWEEK(DATE('$hariini')) - 1
+                        END
+                    "), '=', 'shift_pattern_cycle.cycle_day');
+                })
+                ->join('hrmschl.shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
+                ->whereNull('presensi.pin') // No attendance
                 ->where('karyawan.grade', '!=', 'NS') // Exclude NS grade
                 ->where('jabatan.kode_dept', '!=', 'Management')
+                ->where('karyawan.nik', '!=', '0017-20181101') // Exclude certain management
                 ->where('status_kar', 'Aktif')
                 ->whereNotExists(function ($query) use ($hariini) {
                     $query->select(DB::raw(1))
                         ->from('hrmschl.pengajuan_izin')
                         ->whereColumn('pengajuan_izin.nip', 'hrmschl.karyawan.nip')
-                        ->where('pengajuan_izin.tgl_izin', '<=', $hariini) // Start date is before or on today
-                        ->where('pengajuan_izin.tgl_izin_akhir', '>=', $hariini) // End date is after or on today
-                        ->whereNotNull('pengajuan_izin.tgl_izin_akhir') // Exclude null tgl_izin_akhir
-                        ->where('pengajuan_izin.tgl_izin_akhir', '!=', ''); // Exclude empty tgl_izin_akhir
-                        // ->where('pengajuan_izin.status_approved', 1) // Approved status
-                        // ->where('pengajuan_izin.status_approved_hrd', 1); // HRD approved status
+                        ->where('pengajuan_izin.tgl_izin', '<=', $hariini)
+                        ->where('pengajuan_izin.tgl_izin_akhir', '>=', $hariini)
+                        ->whereNotNull('pengajuan_izin.tgl_izin_akhir')
+                        ->where('pengajuan_izin.tgl_izin_akhir', '!=', '');
                 })
                 ->whereNotExists(function ($query) use ($hariini) {
                     $query->select(DB::raw(1))
                         ->from('hrmschl.pengajuan_cuti')
                         ->whereColumn('pengajuan_cuti.nip', 'hrmschl.karyawan.nip')
-                        ->where('pengajuan_cuti.tgl_cuti', '<=', $hariini) // Start date is before or on today
-                        ->where('pengajuan_cuti.tgl_cuti_sampai', '>=', $hariini) // End date is after or on today
-                        ->whereNotNull('pengajuan_cuti.tgl_cuti_sampai') // Exclude null tgl_cuti_sampai
-                        ->where('pengajuan_cuti.tgl_cuti_sampai', '!=', ''); // Exclude empty tgl_cuti_sampai
-                        // ->where('pengajuan_cuti.status_approved', 1) // Approved status
-                        // ->where('pengajuan_cuti.status_approved_hrd', 1) // HRD approved status
-                        // ->where('pengajuan_cuti.status_management', 1); // Management approved status
+                        ->where('pengajuan_cuti.tgl_cuti', '<=', $hariini)
+                        ->where('pengajuan_cuti.tgl_cuti_sampai', '>=', $hariini)
+                        ->whereNotNull('pengajuan_cuti.tgl_cuti_sampai')
+                        ->where('pengajuan_cuti.tgl_cuti_sampai', '!=', '');
                 })
                 ->whereNotExists(function ($query) use ($hariini) {
                     $query->select(DB::raw(1))
                         ->from('hrmschl.libur_nasional')
-                        ->whereDate('libur_nasional.tgl_libur', $hariini); // Exclude holidays
+                        ->whereDate('libur_nasional.tgl_libur', $hariini);
                 })
+                ->where(DB::raw('TIME(shift.start_time)'), '<=', now()->format('H:i:s')) // Only mark as absent if shift time has passed
                 ->select(
                     'karyawan.*',
                     'jabatan.nama_jabatan',
-                    DB::raw('CURRENT_DATE as tgl_presensi'), // Using the current date
-                    DB::raw('\'00:00\' as jam_in') // Set jam_in to 00:00 for no attendance
+                    DB::raw('DATE("' . $hariini . '") as tgl_presensi'),
+                    DB::raw('TIME(shift.start_time) as shift_start_time'), // Get shift start time
+                    DB::raw('\'00:00\' as jam_in')
                 )
                 ->get();
 
@@ -914,6 +921,8 @@ class DashboardController extends Controller
                 ->where('karyawan.grade', '!=', 'NS') // Exclude grade NS
                 // ->where('pengajuan_izin.status_approved', 1) // Approved status
                 // ->where('pengajuan_izin.status_approved_hrd', 1) // HRD approved status
+                ->whereNotIn('pengajuan_izin.status_approved', [3]) // Exclude status_approved = 3
+                ->whereNotIn('pengajuan_izin.status_approved_hrd', [3]) // Exclude status_approved_hrd = 3
                 ->count();
 
 
@@ -936,16 +945,6 @@ class DashboardController extends Controller
                 ->where('kode_dept', '!=', 'Management')
                 ->count();
 
-            // $jmlnoatt = DB::table('karyawan')
-            //     ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
-            //         $join->on('karyawan.nip', '=', 'presensi.pin')
-            //             ->whereDate(DB::raw('DATE(presensi.scan_date)'), '=', $hariini);
-            //     })
-            //     ->where('status_kar', 'Aktif')
-            //     ->where('grade', '!=', 'NS')
-            //     ->whereNull('presensi.pin')
-            //     ->count();
-
             $jmlnoatt = DB::connection('mysql2')
                 ->table('hrmschl.karyawan')
                 ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
@@ -953,10 +952,20 @@ class DashboardController extends Controller
                         ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini);
                 })
                 ->join('hrmschl.jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-                ->whereNull('presensi.pin') // Employees with no attendance
+                ->join('hrmschl.shift_pattern_cycle', function ($join) use ($hariini) {
+                    $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
+                        ->on(DB::raw("
+                        CASE
+                            WHEN DAYOFWEEK(DATE('$hariini')) = 1 THEN 7
+                            ELSE DAYOFWEEK(DATE('$hariini')) - 1
+                        END
+                    "), '=', 'shift_pattern_cycle.cycle_day');
+                })
+                ->join('hrmschl.shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
+                ->whereNull('presensi.pin') // No attendance
                 ->where('karyawan.grade', '!=', 'NS') // Exclude NS grade
                 ->where('jabatan.kode_dept', '!=', 'Management') // Exclude Management department
-                ->where('karyawan.nik', '!=', '0017-20181101') // Exclude Management department
+                ->where('karyawan.nik', '!=', '0017-20181101') // Exclude specific management
                 ->where('status_kar', 'Aktif') // Only active employees
                 ->whereNotExists(function ($query) use ($hariini) {
                     $query->select(DB::raw(1))
@@ -966,8 +975,6 @@ class DashboardController extends Controller
                         ->where('pengajuan_izin.tgl_izin_akhir', '>=', $hariini)
                         ->whereNotNull('pengajuan_izin.tgl_izin_akhir')
                         ->where('pengajuan_izin.tgl_izin_akhir', '!=', '');
-                        // ->where('pengajuan_izin.status_approved', 1) // Approved status
-                        // ->where('pengajuan_izin.status_approved_hrd', 1); // HRD approved status
                 })
                 ->whereNotExists(function ($query) use ($hariini) {
                     $query->select(DB::raw(1))
@@ -977,19 +984,14 @@ class DashboardController extends Controller
                         ->where('pengajuan_cuti.tgl_cuti_sampai', '>=', $hariini)
                         ->whereNotNull('pengajuan_cuti.tgl_cuti_sampai')
                         ->where('pengajuan_cuti.tgl_cuti_sampai', '!=', '');
-                        // ->where('pengajuan_cuti.status_approved', 1) // Approved status
-                        // ->where('pengajuan_cuti.status_approved_hrd', 1) // HRD approved status
-                        // ->where('pengajuan_cuti.status_management', 1); // Management approved status
                 })
                 ->whereNotExists(function ($query) use ($hariini) {
                     $query->select(DB::raw(1))
                         ->from('hrmschl.libur_nasional')
                         ->whereDate('libur_nasional.tgl_libur', $hariini);
                 })
+                ->where(DB::raw('TIME(shift.start_time)'), '<=', now()->format('H:i:s')) // Only count absent after shift starts
                 ->count(); // Count the records
-
-
-
 
             // Get historical attendance data for NS employees
             $historihariNS = DB::connection('mysql2')
@@ -1083,52 +1085,57 @@ class DashboardController extends Controller
             $noAttendanceNonNS = DB::connection('mysql2')
                 ->table('hrmschl.karyawan')
                 ->leftJoin('db_absen.att_log as presensi', function ($join) use ($hariini) {
-                    $join->on('karyawan.nip', '=', 'presensi.pin') // Use 'pin' from 'att_log'
+                    $join->on('karyawan.nip', '=', 'presensi.pin')
                         ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini);
                 })
                 ->join('hrmschl.jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-                ->whereNull('presensi.pin') // Filter for karyawan with no attendance
+                ->join('hrmschl.shift_pattern_cycle', function ($join) use ($hariini) {
+                    $join->on('shift_pattern_cycle.pattern_id', '=', 'karyawan.shift_pattern_id')
+                        ->on(DB::raw("
+                        CASE
+                            WHEN DAYOFWEEK(DATE('$hariini')) = 1 THEN 7
+                            ELSE DAYOFWEEK(DATE('$hariini')) - 1
+                        END
+                    "), '=', 'shift_pattern_cycle.cycle_day');
+                })
+                ->join('hrmschl.shift', 'shift_pattern_cycle.shift_id', '=', 'shift.id')
+                ->whereNull('presensi.pin') // No attendance
                 ->where('karyawan.grade', '!=', 'NS') // Exclude NS grade
                 ->where('jabatan.kode_dept', '!=', 'Management')
-                ->where('karyawan.nik', '!=', '0017-20181101') // Exclude Management department
+                ->where('karyawan.nik', '!=', '0017-20181101') // Exclude certain management
                 ->where('status_kar', 'Aktif')
                 ->whereNotExists(function ($query) use ($hariini) {
                     $query->select(DB::raw(1))
                         ->from('hrmschl.pengajuan_izin')
                         ->whereColumn('pengajuan_izin.nip', 'hrmschl.karyawan.nip')
-                        ->where('pengajuan_izin.tgl_izin', '<=', $hariini) // Start date is before or on today
-                        ->where('pengajuan_izin.tgl_izin_akhir', '>=', $hariini) // End date is after or on today
-                        ->whereNotNull('pengajuan_izin.tgl_izin_akhir') // Exclude null tgl_izin_akhir
-                        ->where('pengajuan_izin.tgl_izin_akhir', '!=', ''); // Exclude empty tgl_izin_akhir
-                        // ->where('pengajuan_izin.status_approved', 1) // Approved status
-                        // ->where('pengajuan_izin.status_approved_hrd', 1); // HRD approved status
+                        ->where('pengajuan_izin.tgl_izin', '<=', $hariini)
+                        ->where('pengajuan_izin.tgl_izin_akhir', '>=', $hariini)
+                        ->whereNotNull('pengajuan_izin.tgl_izin_akhir')
+                        ->where('pengajuan_izin.tgl_izin_akhir', '!=', '');
                 })
                 ->whereNotExists(function ($query) use ($hariini) {
                     $query->select(DB::raw(1))
                         ->from('hrmschl.pengajuan_cuti')
                         ->whereColumn('pengajuan_cuti.nip', 'hrmschl.karyawan.nip')
-                        ->where('pengajuan_cuti.tgl_cuti', '<=', $hariini) // Start date is before or on today
-                        ->where('pengajuan_cuti.tgl_cuti_sampai', '>=', $hariini) // End date is after or on today
-                        ->whereNotNull('pengajuan_cuti.tgl_cuti_sampai') // Exclude null tgl_cuti_sampai
-                        ->where('pengajuan_cuti.tgl_cuti_sampai', '!=', ''); // Exclude empty tgl_cuti_sampai
-                        // ->where('pengajuan_cuti.status_approved', 1) // Approved status
-                        // ->where('pengajuan_cuti.status_approved_hrd', 1) // HRD approved status
-                        // ->where('pengajuan_cuti.status_management', 1); // Management approved status
+                        ->where('pengajuan_cuti.tgl_cuti', '<=', $hariini)
+                        ->where('pengajuan_cuti.tgl_cuti_sampai', '>=', $hariini)
+                        ->whereNotNull('pengajuan_cuti.tgl_cuti_sampai')
+                        ->where('pengajuan_cuti.tgl_cuti_sampai', '!=', '');
                 })
                 ->whereNotExists(function ($query) use ($hariini) {
                     $query->select(DB::raw(1))
                         ->from('hrmschl.libur_nasional')
-                        ->whereDate('libur_nasional.tgl_libur', $hariini); // Exclude holidays
+                        ->whereDate('libur_nasional.tgl_libur', $hariini);
                 })
+                ->where(DB::raw('TIME(shift.start_time)'), '<=', now()->format('H:i:s')) // Only mark as absent if shift time has passed
                 ->select(
                     'karyawan.*',
                     'jabatan.nama_jabatan',
-                    DB::raw('CURRENT_DATE as tgl_presensi'), // Using the current date
-                    DB::raw('\'00:00\' as jam_in') // Set jam_in to 00:00 for no attendance
+                    DB::raw('DATE("' . $hariini . '") as tgl_presensi'),
+                    DB::raw('TIME(shift.start_time) as shift_start_time'), // Get shift start time
+                    DB::raw('\'00:00\' as jam_in')
                 )
                 ->get();
-
-
 
 
             // Subquery to get the earliest jam_in for each employee per day
@@ -1429,6 +1436,8 @@ class DashboardController extends Controller
                 ->where('karyawan.grade', '!=', 'NS') // Exclude grade NS
                 // ->where('pengajuan_izin.status_approved', 1) // Status approved by supervisor
                 // ->where('pengajuan_izin.status_approved_hrd', 1) // Status approved by HR
+                ->whereNotIn('pengajuan_izin.status_approved', [3]) // Exclude status_approved = 3
+                ->whereNotIn('pengajuan_izin.status_approved_hrd', [3]) // Exclude status_approved_hrd = 3
                 ->select(
                     'karyawan.nama_lengkap',
                     'pengajuan_izin.keterangan',
