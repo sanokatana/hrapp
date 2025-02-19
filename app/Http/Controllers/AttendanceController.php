@@ -12,11 +12,22 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class AttendanceController extends Controller
 {
+
     public function index(Request $request)
     {
 
         $filterMonth = $request->input('bulan', Carbon::now()->month);
         $filterYear = $request->input('tahun', Carbon::now()->year);
+
+        // Add a cache key for the last update check
+        $lastUpdateKey = "last_update_{$filterMonth}_{$filterYear}";
+
+        // Check if there's new data by comparing timestamps
+        $shouldRefreshCache = $this->shouldRefreshCache($filterMonth, $filterYear, $lastUpdateKey);
+
+        if ($shouldRefreshCache) {
+            $this->clearAttendanceCache($filterMonth, $filterYear);
+        }
 
         // Get the departments excluding "Security"
         $departments = cache()->remember('departments', 60, function () {
@@ -42,7 +53,7 @@ class AttendanceController extends Controller
 
         // Get presensi data for the selected month
         // In your index method, update the presensi caching section:
-        $presensi = cache()->remember("presensi_{$filterMonth}_{$filterYear}", 60 * 24, function () use ($filterMonth, $filterYear) {
+        $presensi = cache()->remember("presensi_{$filterMonth}_{$filterYear}", 60, function () use ($filterMonth, $filterYear) {
             $records = DB::connection('mysql2')
                 ->table('db_absen.att_log as presensi')
                 ->select([
@@ -70,7 +81,7 @@ class AttendanceController extends Controller
         });
 
         // Get national holidays for the selected month
-        $liburNasional = cache()->remember("libur_nasional_{$filterMonth}_{$filterYear}", 60 * 24, function() use ($filterMonth, $filterYear) {
+        $liburNasional = cache()->remember("libur_nasional_{$filterMonth}_{$filterYear}", 60, function () use ($filterMonth, $filterYear) {
             return DB::table('libur_nasional')
                 ->whereMonth('tgl_libur', $filterMonth)
                 ->whereYear('tgl_libur', $filterYear)
@@ -79,7 +90,7 @@ class AttendanceController extends Controller
         });
 
         // Cache leave data
-        $cuti = cache()->remember("cuti_{$filterMonth}_{$filterYear}", 60 * 24, function() use ($filterMonth, $filterYear) {
+        $cuti = cache()->remember("cuti_{$filterMonth}_{$filterYear}", 60, function () use ($filterMonth, $filterYear) {
             return DB::table('pengajuan_cuti')
                 ->select('nik', 'tgl_cuti', 'tgl_cuti_sampai')
                 ->where('status_approved', 1)
@@ -94,7 +105,7 @@ class AttendanceController extends Controller
         });
 
         // Cache izin data
-        $izin = cache()->remember("izin_{$filterMonth}_{$filterYear}", 60 * 24, function() use ($filterMonth, $filterYear) {
+        $izin = cache()->remember("izin_{$filterMonth}_{$filterYear}", 60, function () use ($filterMonth, $filterYear) {
             return DB::table('pengajuan_izin')
                 ->select('nik', 'tgl_izin', 'tgl_izin_akhir', 'status', 'keputusan', 'pukul')
                 ->where('status_approved', 1)
@@ -107,9 +118,8 @@ class AttendanceController extends Controller
                 })
                 ->get();
         });
-
         // Cache employee holiday data
-        $liburKaryawan = cache()->remember("libur_karyawan_{$filterMonth}_{$filterYear}", 60 * 24, function() use ($filterMonth, $filterYear) {
+        $liburKaryawan = cache()->remember("libur_karyawan_{$filterMonth}_{$filterYear}", 60, function () use ($filterMonth, $filterYear) {
             return DB::table('libur_kar')
                 ->whereMonth('month', $filterMonth)
                 ->whereYear('month', $filterYear)
@@ -150,12 +160,81 @@ class AttendanceController extends Controller
         return view('attendance.attendance', $data);
     }
 
+    private function shouldRefreshCache($month, $year, $lastUpdateKey)
+    {
+        // Get the last update time from cache
+        $lastUpdate = cache()->get($lastUpdateKey);
+
+        // Check for new data in relevant tables
+        $latestUpdate = $this->getLatestUpdate($month, $year);
+
+        // If there's no last update time or new data is found, update the cache
+        if (!$lastUpdate || $latestUpdate > $lastUpdate) {
+            cache()->put($lastUpdateKey, now(), now()->addHours(24));
+            return true;
+        }
+
+        return false;
+    }
+
+    private function getLatestUpdate($month, $year)
+    {
+        // Get the latest update timestamp from all relevant tables
+        $latest = now()->startOfMonth();
+
+        // Check attendance data
+        $attendanceUpdate = DB::connection('mysql2')
+            ->table('db_absen.att_log')
+            ->whereMonth('scan_date', $month)
+            ->whereYear('scan_date', $year)
+            ->max('scan_date');
+
+        // Check leave data
+        $leaveUpdate = DB::table('pengajuan_cuti')
+            ->whereMonth('tgl_cuti', $month)
+            ->whereYear('tgl_cuti', $year)
+            ->max('created_at');
+
+        // Check permission data
+        $permissionUpdate = DB::table('pengajuan_izin')
+            ->whereMonth('tgl_izin', $month)
+            ->whereYear('tgl_izin', $year)
+            ->max('tgl_create');
+
+        // Compare all timestamps and return the latest
+        $timestamps = array_filter([
+            $attendanceUpdate ? Carbon::parse($attendanceUpdate) : null,
+            $leaveUpdate ? Carbon::parse($leaveUpdate) : null,
+            $permissionUpdate ? Carbon::parse($permissionUpdate) : null,
+        ]);
+
+        return empty($timestamps) ? $latest : max($timestamps);
+    }
+
+    private const CACHE_PREFIX = 'attendance_';
+    private function getCacheKey($type, $month, $year, $additional = '')
+    {
+        return self::CACHE_PREFIX . "{$type}_{$month}_{$year}_{$additional}";
+    }
+
+    private function clearAttendanceCache($month, $year)
+    {
+        // Clear all relevant cache keys
+        cache()->forget("presensi_{$month}_{$year}");
+        cache()->forget($this->getCacheKey('departments', $month, $year));
+        cache()->forget("libur_nasional_{$month}_{$year}");
+        cache()->forget("cuti_{$month}_{$year}");
+        cache()->forget("izin_{$month}_{$year}");
+        cache()->forget("libur_karyawan_{$month}_{$year}");
+        cache()->forget("karyawan_data_{$month}_{$year}_" . md5(''));
+    }
+
     private function getKaryawanData(Request $request, $filterMonth, $filterYear)
     {
         $cacheKey = "karyawan_data_{$filterMonth}_{$filterYear}_" .
             md5($request->input('nama_lengkap') . $request->input('kode_dept'));
 
-        return cache()->remember($cacheKey, now()->addHours(24), function () use ($request) {
+        return cache()->remember($cacheKey, now()->addHours(1), function () use ($request) {
             return DB::table('karyawan')
                 ->where('status_kar', 'Aktif')
                 ->when($request->input('nama_lengkap'), function ($query, $name) {
@@ -179,6 +258,12 @@ class AttendanceController extends Controller
 
     private function processLargeDataSet($departments, $karyawan, $presensi, $filterMonth, $filterYear, $daysInMonth, $totalWorkdays, $liburNasional, $cuti, $izin, $liburKaryawan, $liburKarDays)
     {
+        // Pre-process holiday data for faster lookups
+        $holidayDates = $liburNasional->flip()->toArray();
+        $employeeHolidays = $liburKarDays->flip()->toArray();
+        $leaveCache = $this->buildLeaveCache($cuti);
+        $permissionCache = $this->buildPermissionCache($izin);
+
         return collect($departments)->map(function ($department) use (
             $karyawan,
             $presensi,
@@ -186,37 +271,46 @@ class AttendanceController extends Controller
             $filterYear,
             $daysInMonth,
             $totalWorkdays,
-            $liburNasional,
-            $cuti,
-            $izin,
-            $liburKaryawan,
-            $liburKarDays
+            $holidayDates,
+            $leaveCache,
+            $permissionCache,
+            $employeeHolidays
         ) {
             $departmentKaryawan = $karyawan->get($department->kode_dept, collect());
             $totals = $this->initializeTotals();
-
-            // Process employees in chunks of 100
-            $chunks = $departmentKaryawan->chunk(100);
             $departmentAttendance = collect();
 
+            // Process all employees in parallel using chunks
+            $chunks = $departmentKaryawan->chunk(100);
             foreach ($chunks as $chunk) {
-                foreach ($chunk as $employee) {
-                    $employeeData = $this->processEmployeeAttendance(
+                $chunkResults = $chunk->map(function ($employee) use (
+                    $presensi,
+                    $filterMonth,
+                    $filterYear,
+                    $daysInMonth,
+                    $holidayDates,
+                    $leaveCache,
+                    $permissionCache,
+                    $employeeHolidays,
+                    $totalWorkdays
+                ) {
+                    return $this->processEmployeeAttendance(
                         $employee,
                         $presensi,
                         $filterMonth,
                         $filterYear,
                         $daysInMonth,
-                        $liburNasional,
-                        $cuti,
-                        $izin,
-                        $liburKaryawan,
-                        $liburKarDays,
+                        $holidayDates,
+                        $leaveCache,
+                        $permissionCache,
+                        $employeeHolidays,
                         $totalWorkdays
                     );
+                });
 
-                    $departmentAttendance->push($employeeData['row']);
-                    $this->updateDepartmentTotals($totals, $employeeData['totals']);
+                $departmentAttendance = $departmentAttendance->concat($chunkResults->pluck('row'));
+                foreach ($chunkResults as $result) {
+                    $this->updateDepartmentTotals($totals, $result['totals']);
                 }
             }
 
@@ -230,7 +324,7 @@ class AttendanceController extends Controller
         })->values()->all();
     }
 
-    private function processEmployeeAttendance($employee, $presensi, $filterMonth, $filterYear, $daysInMonth, $liburNasional, $cuti, $izin, $liburKaryawan, $liburKarDays, $totalWorkdays)
+    private function processEmployeeAttendance($employee, $presensi, $filterMonth, $filterYear, $daysInMonth, $holidayDates, $leaveCache, $permissionCache, $employeeHolidays, $totalWorkdays)
     {
         $totals = $this->initializeTotals();
         $row = [
@@ -238,31 +332,51 @@ class AttendanceController extends Controller
             'attendance' => []
         ];
 
-        // Get employee's shift data
+        // Cache shift data for the entire month
         $shiftData = $this->getEmployeeShiftData($employee, $filterMonth);
+        $employeePresensi = $presensi->get($employee->nip, collect());
 
-        // Process each day
-        for ($i = 1; $i <= $daysInMonth; $i++) {
-            $date = Carbon::create($filterYear, $filterMonth, $i);
-            $dateString = $date->toDateString();
+        // Pre-calculate dates for the month
+        $dates = collect(range(1, $daysInMonth))->map(function ($day) use ($filterYear, $filterMonth) {
+            return Carbon::create($filterYear, $filterMonth, $day);
+        });
 
-            $dayData = $this->processDayAttendance(
-                $date,
-                $employee,
-                $presensi,
-                $shiftData,
-                $liburNasional,
-                $cuti,
-                $izin,
-                $liburKarDays
-            );
+        foreach ($dates as $date) {
+            $dateString = $date->format('Y-m-d');
+
+            // Quick holiday checks
+            if (isset($holidayDates[$dateString])) {
+                $status = 'LN';
+            } elseif (isset($employeeHolidays[$dateString])) {
+                $status = 'L';
+            } else {
+                // Process regular attendance
+                $attendance = $employeePresensi->firstWhere('scan_date', $dateString);
+                $shiftTimes = $this->getShiftTimes($date, $shiftData);
+
+                $status = $this->getAttendanceStatus(
+                    $date,
+                    $attendance,
+                    $this->checkCuti($leaveCache, $employee->nik, $date),
+                    $this->checkIzin($permissionCache, $employee->nik, $date),
+                    $shiftTimes['work_start'],
+                    $shiftTimes['morning_start'],
+                    $shiftTimes['afternoon_start'],
+                    $shiftTimes['status_work']
+                );
+
+                // Update totals
+                $this->updateTotals($totals, [
+                    'status' => $status,
+                    'attendance' => $attendance,
+                    'shift_times' => $shiftTimes
+                ]);
+            }
 
             $row['attendance'][] = [
-                'status' => $dayData['status'],
-                'class' => $this->determineAttendanceClass($date, $dayData['status'])
+                'status' => $status,
+                'class' => $this->determineAttendanceClass($date, $status)
             ];
-
-            $this->updateTotals($totals, $dayData);
         }
 
         $row = array_merge($row, $this->calculateEmployeeTotals($totals, $totalWorkdays));
@@ -337,47 +451,47 @@ class AttendanceController extends Controller
         });
     }
 
-    private function processDayAttendance($date, $employee, $presensi, $shiftData, $liburNasional, $cuti, $izin, $liburKarDays)
-    {
-        $dateString = $date->toDateString();
+    // private function processDayAttendance($date, $employee, $presensi, $shiftData, $liburNasional, $cuti, $izin, $liburKarDays)
+    // {
+    //     $dateString = $date->toDateString();
 
-        // Get employee's attendance for this date
-        $employeePresensi = $presensi->get($employee->nip);
-        $attendance = $employeePresensi ? $employeePresensi->firstWhere('scan_date', $dateString) : null;
+    //     // Get employee's attendance for this date
+    //     $employeePresensi = $presensi->get($employee->nip);
+    //     $attendance = $employeePresensi ? $employeePresensi->firstWhere('scan_date', $dateString) : null;
 
-        // Get shift times
-        $shiftTimes = $this->getShiftTimes($date, $shiftData);
+    //     // Get shift times
+    //     $shiftTimes = $this->getShiftTimes($date, $shiftData);
 
-        // Check various conditions
-        $isCuti = $this->checkCuti($cuti, $employee->nik, $date);
-        $isIzin = $this->checkIzin($izin, $employee->nik, $date);
+    //     // Check various conditions
+    //     $isCuti = $this->checkCuti($cuti, $employee->nik, $date);
+    //     $isIzin = $this->checkIzin($izin, $employee->nik, $date);
 
-        // Get attendance status
-        $status = $this->getAttendanceStatus(
-            $date,
-            $attendance,
-            $isCuti,
-            $isIzin,
-            $shiftTimes['work_start'],
-            $shiftTimes['morning_start'],
-            $shiftTimes['afternoon_start'],
-            $shiftTimes['status_work']
-        );
+    //     // Get attendance status
+    //     $status = $this->getAttendanceStatus(
+    //         $date,
+    //         $attendance,
+    //         $isCuti,
+    //         $isIzin,
+    //         $shiftTimes['work_start'],
+    //         $shiftTimes['morning_start'],
+    //         $shiftTimes['afternoon_start'],
+    //         $shiftTimes['status_work']
+    //     );
 
-        // Override status for holidays
-        if ($liburNasional->contains($dateString)) {
-            $status = 'LN';
-        }
-        if ($liburKarDays->contains($dateString)) {
-            $status = 'L';
-        }
+    //     // Override status for holidays
+    //     if ($liburNasional->contains($dateString)) {
+    //         $status = 'LN';
+    //     }
+    //     if ($liburKarDays->contains($dateString)) {
+    //         $status = 'L';
+    //     }
 
-        return [
-            'status' => $status,
-            'attendance' => $attendance,
-            'shift_times' => $shiftTimes
-        ];
-    }
+    //     return [
+    //         'status' => $status,
+    //         'attendance' => $attendance,
+    //         'shift_times' => $shiftTimes
+    //     ];
+    // }
 
     private function getShiftTimes($date, $shiftData)
     {
@@ -652,28 +766,57 @@ class AttendanceController extends Controller
     }
 
     // Helper function to determine if the date falls within a leave period
-    private function checkCuti($cuti, $nik, $date)
+    private function buildLeaveCache($cuti)
     {
-        foreach ($cuti as $c) {
-            if ($c->nik == $nik && $date->between(Carbon::parse($c->tgl_cuti), Carbon::parse($c->tgl_cuti_sampai))) {
-                return true;
+        $cache = [];
+        foreach ($cuti as $leave) {
+            $start = Carbon::parse($leave->tgl_cuti);
+            $end = Carbon::parse($leave->tgl_cuti_sampai);
+            $key = $leave->nik;
+
+            if (!isset($cache[$key])) {
+                $cache[$key] = [];
+            }
+
+            $current = $start->copy();
+            while ($current->lte($end)) {
+                $cache[$key][$current->format('Y-m-d')] = true;
+                $current->addDay();
             }
         }
-        return false;
+        return $cache;
     }
 
-    // Helper function to determine if the date falls within an izin period
-    private function checkIzin($izin, $nik, $date)
+    private function buildPermissionCache($izin)
     {
-        foreach ($izin as $i) {
-            $start = Carbon::parse($i->tgl_izin);
-            $end = Carbon::parse($i->tgl_izin_akhir);
+        $cache = [];
+        foreach ($izin as $permission) {
+            $start = Carbon::parse($permission->tgl_izin);
+            $end = Carbon::parse($permission->tgl_izin_akhir);
+            $key = $permission->nik;
 
-            if ($i->nik == $nik && $date->between($start, $end)) {
-                return $i; // Return the full object, not just true
+            if (!isset($cache[$key])) {
+                $cache[$key] = [];
+            }
+
+            $current = $start->copy();
+            while ($current->lte($end)) {
+                $cache[$key][$current->format('Y-m-d')] = $permission;
+                $current->addDay();
             }
         }
-        return null; // Return null if no match is found
+        return $cache;
+    }
+
+    // Updated helper methods
+    private function checkCuti($leaveCache, $nik, $date)
+    {
+        return isset($leaveCache[$nik][$date->format('Y-m-d')]);
+    }
+
+    private function checkIzin($permissionCache, $nik, $date)
+    {
+        return $permissionCache[$nik][$date->format('Y-m-d')] ?? null;
     }
 
     // Updated function to determine CSS classes for attendance cell
