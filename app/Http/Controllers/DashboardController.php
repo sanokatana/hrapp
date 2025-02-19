@@ -684,6 +684,9 @@ class DashboardController extends Controller
                 ->whereNotNull('tgl_cuti_sampai') // Exclude null end dates
                 ->where('tgl_cuti_sampai', '!=', '') // Exclude empty end dates
                 ->where('karyawan.grade', '!=', 'NS') // Exclude grade NS
+                ->whereNotIn('pengajuan_cuti.status_approved', [3]) // Exclude status_approved = 3
+                ->whereNotIn('pengajuan_cuti.status_approved_hrd', [3]) // Exclude status_approved_hrd = 3
+                ->whereNotIn('pengajuan_cuti.status_management', [3]) // Exclude status_approved_hrd = 3
                 ->count();
 
 
@@ -871,6 +874,9 @@ class DashboardController extends Controller
                         ->where('tgl_cuti_sampai', '>=', $hariini);
                 })
                 ->where('karyawan.grade', '!=', 'NS')
+                ->whereNotIn('pengajuan_cuti.status_approved', [3]) // Exclude status_approved = 3
+                ->whereNotIn('pengajuan_cuti.status_approved_hrd', [3]) // Exclude status_approved_hrd = 3
+                ->whereNotIn('pengajuan_cuti.status_management', [3]) // Exclude status_approved_hrd = 3
                 // ->where('pengajuan_cuti.status_approved', 1) // Status approved by supervisor
                 // ->where('pengajuan_cuti.status_approved_hrd', 1) // Status approved by HR
                 // ->where('pengajuan_cuti.status_management', 1) // Status approved by management
@@ -933,6 +939,9 @@ class DashboardController extends Controller
                 ->whereNotNull('tgl_cuti_sampai') // Exclude null end dates
                 ->where('tgl_cuti_sampai', '!=', '') // Exclude empty end dates
                 ->where('karyawan.grade', '!=', 'NS') // Exclude grade NS
+                ->whereNotIn('pengajuan_cuti.status_approved', [3]) // Exclude status_approved = 3
+                ->whereNotIn('pengajuan_cuti.status_approved_hrd', [3]) // Exclude status_approved_hrd = 3
+                ->whereNotIn('pengajuan_cuti.status_management', [3]) // Exclude status_approved_hrd = 3
                 // ->where('pengajuan_cuti.status_approved', 1) // Approved status
                 // ->where('pengajuan_cuti.status_approved_hrd', 1) // HRD approved status
                 // ->where('pengajuan_cuti.status_management', 1) // Management approved status
@@ -1460,6 +1469,9 @@ class DashboardController extends Controller
                         ->where('tgl_cuti_sampai', '>=', $hariini);
                 })
                 ->where('karyawan.grade', '!=', 'NS')
+                ->whereNotIn('pengajuan_cuti.status_approved', [3]) // Exclude status_approved = 3
+                ->whereNotIn('pengajuan_cuti.status_approved_hrd', [3]) // Exclude status_approved_hrd = 3
+                ->whereNotIn('pengajuan_cuti.status_management', [3]) // Exclude status_approved_hrd = 3
                 // ->where('pengajuan_cuti.status_approved', 1) // Status approved by supervisor
                 // ->where('pengajuan_cuti.status_approved_hrd', 1) // Status approved by HR
                 // ->where('pengajuan_cuti.status_management', 1) // Status approved by management

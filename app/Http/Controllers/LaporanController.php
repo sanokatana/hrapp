@@ -1394,6 +1394,8 @@ class LaporanController extends Controller
             ->join('karyawan', 'pengajuan_izin.nip', '=', 'karyawan.nip')
             ->where('tgl_izin', '<=', $hariini)
             ->where('tgl_izin_akhir', '>=', $hariini)
+            ->whereNotIn('pengajuan_izin.status_approved', [3]) // Exclude status_approved = 3
+            ->whereNotIn('pengajuan_izin.status_approved_hrd', [3]) // Exclude status_approved_hrd = 3
             ->select('karyawan.nama_lengkap', 'pengajuan_izin.status', 'pengajuan_izin.keterangan', 'pengajuan_izin.nip')
             ->get()
             ->map(function ($item) {
@@ -1417,6 +1419,9 @@ class LaporanController extends Controller
             ->join('karyawan', 'pengajuan_cuti.nip', '=', 'karyawan.nip')
             ->where('tgl_cuti', '<=', $hariini)
             ->where('tgl_cuti_sampai', '>=', $hariini)
+            ->whereNotIn('pengajuan_cuti.status_approved', [3]) // Exclude status_approved = 3
+            ->whereNotIn('pengajuan_cuti.status_approved_hrd', [3]) // Exclude status_approved_hrd = 3
+            ->whereNotIn('pengajuan_cuti.status_management', [3]) // Exclude status_approved_hrd = 3
             ->select('karyawan.nama_lengkap', 'pengajuan_cuti.note', 'pengajuan_cuti.jenis', 'pengajuan_cuti.nip')
             ->get();
 
