@@ -17,12 +17,11 @@ class AttendanceController extends Controller
 
         $filterMonth = $request->input('bulan', Carbon::now()->month);
         $filterYear = $request->input('tahun', Carbon::now()->year);
-        $filterNamaLengkap = $request->input('nama_lengkap');
-        $filterKodeDept = $request->input('kode_dept');
 
         // Get the departments excluding "Security"
-        $departments = DB::table('department')
-            ->get();
+        $departments = cache()->remember('departments', 60, function () {
+            return DB::table('department')->get();
+        });
 
         // Get the number of days in the selected month
         $daysInMonth = Carbon::create($filterYear, $filterMonth)->daysInMonth;
@@ -30,17 +29,7 @@ class AttendanceController extends Controller
         $totalWorkdays = $this->getTotalWorkdays($filterYear, $filterMonth);
 
         // Get karyawan data with filters, excluding "Security" department
-        $karyawanQuery = DB::table('karyawan')
-            ->where('status_kar', 'Aktif');
-
-
-        if ($filterNamaLengkap) {
-            $karyawanQuery->where('nama_lengkap', 'like', '%' . $filterNamaLengkap . '%');
-        }
-        if ($filterKodeDept) {
-            $karyawanQuery->where('kode_dept', $filterKodeDept);
-        }
-        $karyawan = $karyawanQuery->get()->groupBy('kode_dept');
+        $karyawan = $this->getKaryawanData($request, $filterMonth, $filterYear);
 
         // Get the earliest and latest years from the presensi table
         $years = DB::connection('mysql2')
@@ -52,290 +41,100 @@ class AttendanceController extends Controller
         $latestYear = $years->latest_year;
 
         // Get presensi data for the selected month
-        $presensi = DB::connection('mysql2')
-            ->table('db_absen.att_log as presensi')
-            ->select('presensi.pin', DB::raw('DATE(presensi.scan_date) as scan_date'), DB::raw('MIN(TIME(presensi.scan_date)) as earliest_jam_in'))
-            ->whereMonth('presensi.scan_date', $filterMonth)
-            ->whereYear('presensi.scan_date', $filterYear)
-            ->groupBy('presensi.pin', 'presensi.scan_date')
-            ->get();
+        // In your index method, update the presensi caching section:
+        $presensi = cache()->remember("presensi_{$filterMonth}_{$filterYear}", 60 * 24, function () use ($filterMonth, $filterYear) {
+            $records = DB::connection('mysql2')
+                ->table('db_absen.att_log as presensi')
+                ->select([
+                    'presensi.pin',
+                    DB::raw('DATE(presensi.scan_date) as scan_date'),
+                    DB::raw('MIN(TIME(presensi.scan_date)) as earliest_jam_in')
+                ])
+                ->whereMonth('presensi.scan_date', $filterMonth)
+                ->whereYear('presensi.scan_date', $filterYear)
+                ->groupBy('presensi.pin', DB::raw('DATE(presensi.scan_date)'))
+                ->get();
+
+            // Transform and group the data by pin
+            return $records->groupBy(function ($record) {
+                return $record->pin;
+            })->map(function ($pinRecords) {
+                return $pinRecords->map(function ($record) {
+                    return (object)[
+                        'pin' => $record->pin,
+                        'scan_date' => $record->scan_date,
+                        'earliest_jam_in' => $record->earliest_jam_in,
+                    ];
+                });
+            });
+        });
 
         // Get national holidays for the selected month
-        $liburNasional = DB::table('libur_nasional')
-            ->whereMonth('tgl_libur', $filterMonth)
-            ->whereYear('tgl_libur', $filterYear)
-            ->pluck('tgl_libur')
-            ->map(function ($date) {
-                return Carbon::parse($date)->format('Y-m-d');
-            });
+        $liburNasional = cache()->remember("libur_nasional_{$filterMonth}_{$filterYear}", 60 * 24, function() use ($filterMonth, $filterYear) {
+            return DB::table('libur_nasional')
+                ->whereMonth('tgl_libur', $filterMonth)
+                ->whereYear('tgl_libur', $filterYear)
+                ->pluck('tgl_libur')
+                ->map(fn($date) => Carbon::parse($date)->format('Y-m-d'));
+        });
 
+        // Cache leave data
+        $cuti = cache()->remember("cuti_{$filterMonth}_{$filterYear}", 60 * 24, function() use ($filterMonth, $filterYear) {
+            return DB::table('pengajuan_cuti')
+                ->select('nik', 'tgl_cuti', 'tgl_cuti_sampai')
+                ->where('status_approved', 1)
+                ->where('status_approved_hrd', 1)
+                ->where(function ($query) use ($filterMonth, $filterYear) {
+                    $query->whereMonth('tgl_cuti', $filterMonth)
+                        ->whereYear('tgl_cuti', $filterYear)
+                        ->orWhereMonth('tgl_cuti_sampai', $filterMonth)
+                        ->whereYear('tgl_cuti_sampai', $filterYear);
+                })
+                ->get();
+        });
 
-        // Get approved leave data for the selected month
-        $cuti = DB::table('pengajuan_cuti')
-            ->select('nik', 'tgl_cuti', 'tgl_cuti_sampai')
-            ->where('status_approved', 1)
-            ->where('status_approved_hrd', 1)
-            ->where(function ($query) use ($filterMonth, $filterYear) {
-                $query->whereMonth('tgl_cuti', $filterMonth)
-                    ->whereYear('tgl_cuti', $filterYear)
-                    ->orWhereMonth('tgl_cuti_sampai', $filterMonth)
-                    ->whereYear('tgl_cuti_sampai', $filterYear);
-            })
-            ->get();
+        // Cache izin data
+        $izin = cache()->remember("izin_{$filterMonth}_{$filterYear}", 60 * 24, function() use ($filterMonth, $filterYear) {
+            return DB::table('pengajuan_izin')
+                ->select('nik', 'tgl_izin', 'tgl_izin_akhir', 'status', 'keputusan', 'pukul')
+                ->where('status_approved', 1)
+                ->where('status_approved_hrd', 1)
+                ->where(function ($query) use ($filterMonth, $filterYear) {
+                    $query->whereMonth('tgl_izin', $filterMonth)
+                        ->whereYear('tgl_izin', $filterYear)
+                        ->orWhereMonth('tgl_izin_akhir', $filterMonth)
+                        ->whereYear('tgl_izin_akhir', $filterYear);
+                })
+                ->get();
+        });
 
-        // Debugging: Get Izin Data
-        $izin = DB::table('pengajuan_izin')
-            ->select('nik', 'tgl_izin', 'tgl_izin_akhir', 'status', 'keputusan', 'pukul', 'tgl_jadwal_off')
-            ->where('status_approved', 1)
-            ->where('status_approved_hrd', 1)
-            ->where(function ($query) use ($filterMonth, $filterYear) {
-                $query->whereMonth('tgl_izin', $filterMonth)
-                    ->whereYear('tgl_izin', $filterYear)
-                    ->orWhereMonth('tgl_izin_akhir', $filterMonth)
-                    ->whereYear('tgl_izin_akhir', $filterYear);
-            })
-            ->get();
-
-        $liburKaryawan = DB::table('libur_kar')
-            ->whereMonth('month', $filterMonth)
-            ->whereYear('month', $filterYear)
-            ->pluck('id', 'nik');
+        // Cache employee holiday data
+        $liburKaryawan = cache()->remember("libur_karyawan_{$filterMonth}_{$filterYear}", 60 * 24, function() use ($filterMonth, $filterYear) {
+            return DB::table('libur_kar')
+                ->whereMonth('month', $filterMonth)
+                ->whereYear('month', $filterYear)
+                ->pluck('id', 'nik');
+        });
 
         $liburKarDays = DB::table('libur_kar_day')
             ->whereIn('libur_id', $liburKaryawan)
             ->pluck('tanggal', 'libur_id');
 
         // Process presensi and cuti data to format for display
-        $attendanceData = [];
-        foreach ($departments as $department) {
-            $departmentKaryawan = $karyawan->get($department->kode_dept) ?: collect();
-            $departmentAttendance = [];
-            $totalJumlahTelat = 0;
-            $totalP = 0;
-            $totalT = 0;
-            $totalOff = 0;
-            $totalSakit = 0;
-            $totalIzin = 0;
-            $totalCuti = 0;
-            $totalH1 = 0;
-            $totalH2 = 0;
-            $totalDinas = 0;
-            $totalBlank = 0;
-            $totalMangkir = 0;
-            $totalKaryawan = count($departmentKaryawan);
-
-            foreach ($departmentKaryawan as $k) {
-                $jumlahTelat = 0;
-                $menitTelat = 0;
-                $totalHadir = 0;
-                $totalTidakHadir = 0;
-                $totalJumlahOff = 0;
-                $totalJumlahSakit = 0;
-                $totalJumlahIzin = 0;
-                $totalJumlahCuti = 0;
-                $totalJumlahDinas = 0;
-                $totalJumlahMangkir = 0;
-                $totalJumlahH1 = 0;
-                $totalJumlahH2 = 0;
-                $totalJumlahBlank = 0;
-
-                $row = [
-                    'nama_lengkap' => $k->nama_lengkap,
-                    'attendance' => []
-                ];
-
-                $liburKaryawanId = DB::table('libur_kar')
-                    ->where('month', $filterMonth)
-                    ->where('nik', $k->nik)
-                    ->value('id'); // Get the ID of the libur_kar row for the current karyawan
-
-                $liburKarDays = collect(); // Default empty collection for dates
-
-                if ($liburKaryawanId) {
-                    // Fetch all the leave dates for the specific employee
-                    $liburKarDays = DB::table('libur_kar_day')
-                        ->where('libur_id', $liburKaryawanId)
-                        ->pluck('tanggal');
-                }
-
-                // Get the employee's shift pattern ID and start shift date
-                $shiftPatternId = DB::table('karyawan')
-                    ->where('nip', $k->nip)
-                    ->value('shift_pattern_id');
-
-                $startShift = Carbon::parse(DB::table('karyawan')
-                    ->where('nip', $k->nip)
-                    ->value('start_shift'));
-
-                // Calculate cycle length from shift_pattern_cycle table
-                $cycleLength = DB::table('shift_pattern_cycle')
-                    ->where('pattern_id', $shiftPatternId)
-                    ->count();
-
-                for ($i = 1; $i <= $daysInMonth; $i++) {
-                    $date = Carbon::create($filterYear, $filterMonth, $i);
-                    $dateString = $date->toDateString();
-                    $daysFromStart = $date->diffInDays($startShift);
-                    $dayOfWeek = Carbon::parse($dateString)->dayOfWeekIso;
-
-                    if ($shiftPatternId) {
-                        if ($cycleLength == 7) {
-                            $shiftId = DB::table('shift_pattern_cycle')
-                                ->where('pattern_id', $shiftPatternId)
-                                ->where('cycle_day', $dayOfWeek)
-                                ->value('shift_id');
-                        } else {
-                            $cyclePosition = $daysFromStart % $cycleLength;
-                            $shiftId = DB::table('shift_pattern_cycle')
-                                ->where('pattern_id', $shiftPatternId)
-                                ->where('cycle_day', $cyclePosition + 1)
-                                ->value('shift_id');
-                        }
-
-                        if ($shiftId) {
-                            // Fetch the early_time, start_time, latest_time, and status from the shifts table
-                            $shiftTimes = DB::table('shift')
-                                ->where('id', $shiftId)
-                                ->select('early_time', 'latest_time', 'start_time', 'status')
-                                ->first();
-
-                            if ($shiftTimes) {
-                                // Check if 'early_time', 'start_time', and 'latest_time' are not null
-                                $morning_start = $shiftTimes->early_time ? strtotime($shiftTimes->early_time) : null;
-                                $work_start = $shiftTimes->start_time ? strtotime($shiftTimes->start_time) : null;
-                                $afternoon_start = $shiftTimes->latest_time ? strtotime($shiftTimes->latest_time) : null;
-                                $status_work = $shiftTimes->status;
-                            } else {
-                                // Handle missing shift times by setting to null
-                                $morning_start = null;
-                                $work_start = null;
-                                $afternoon_start = null;
-                                $status_work = null;
-                            }
-                        } else {
-                            // Handle missing shift pattern for the day
-                            $morning_start = null;
-                            $work_start = null;
-                            $afternoon_start = null;
-                            $status_work = null;
-                        }
-                    } else {
-                        // Handle missing shift pattern ID
-                        $morning_start = null;
-                        $work_start = null;
-                        $afternoon_start = null;
-                        $status_work = null;
-                    }
-
-                    // Set default values if no shift times are available
-                    if ($morning_start === null) {
-                        $morning_start = strtotime('07:00:00');
-                    }
-                    if ($work_start === null) {
-                        $work_start = strtotime('08:00:00');
-                    }
-                    if ($afternoon_start === null) {
-                        $afternoon_start = strtotime('13:00:00');
-                    }
-                    if ($status_work === null) {
-                        $status_work = 'P';
-                    }
-
-                    $attendance = $presensi->where('pin', $k->nip)->where('scan_date', $dateString)->first();
-                    $isCuti = $this->checkCuti($cuti, $k->nik, $date);
-                    $isIzin = $this->checkIzin($izin, $k->nik, $date);
-                    $status = $this->getAttendanceStatus($date, $attendance, $isCuti, $isIzin, $work_start, $morning_start, $afternoon_start, $status_work);
-
-
-                    // Check if the date is a national holiday
-                    if ($liburNasional->contains($dateString)) {
-                        $status = 'LN'; // Mark as national holiday
-                    }
-
-                    if ($liburKarDays->contains($dateString)) {
-                        $status = 'L'; // Mark as employee leave day
-                    }
-
-                    // Calculate late minutes if attendance exists and earliest_jam_in is greater than work_start
-                    if ($attendance) {
-                        $jam_in = Carbon::parse($attendance->earliest_jam_in);
-                        $workStart = Carbon::parse($work_start);
-
-                        // Check if the attendance time is greater than work_start
-                        if ($jam_in->greaterThan($workStart)) {
-                            $menitTelat += $jam_in->diffInMinutes($workStart);
-                            $jumlahTelat++;
-                        }
-                    }
-
-
-                    if ($status === 'P') {
-                        $totalHadir++;
-                    } elseif ($status === 'T') {
-                        $totalTidakHadir++;
-                    } elseif ($status === 'OFF') {
-                        $totalJumlahOff++;
-                    } elseif ($status === 'S') {
-                        $totalJumlahSakit++;
-                    } elseif ($status === 'I') {
-                        $totalJumlahIzin++;
-                    } elseif ($status === 'C') {
-                        $totalJumlahCuti++;
-                    } elseif ($status === 'D') {
-                        $totalJumlahDinas++;
-                    } elseif ($status === 'MK') {
-                        $totalJumlahMangkir++;
-                    } else {
-                        if (!$date->isWeekend() && !$liburNasional->contains($dateString)) {
-                            $totalJumlahBlank++;
-                        }
-                    }
-
-                    $row['attendance'][] = [
-                        'status' => $status,
-                        'class' => $this->determineAttendanceClass($date, $status)
-                    ];
-                }
-
-
-                $row['jumlah_telat'] = $jumlahTelat;
-                $row['menit_telat'] = $menitTelat;
-                $row['presentase'] = round(($totalTidakHadir / $totalWorkdays) * 100);
-                $row['totalP'] = $totalHadir;
-                $row['totalT'] = $totalTidakHadir;
-                $row['totalOff'] = $totalJumlahOff;
-                $row['totalSakit'] = $totalJumlahSakit;
-                $row['totalIzin'] = $totalJumlahIzin;
-                $row['totalCuti'] = $totalJumlahCuti;
-                $row['totalDinas'] = $totalJumlahDinas;
-                $row['totalH1'] = $totalJumlahH1;
-                $row['totalH2'] = $totalJumlahH2;
-                $row['totalBlank'] = $totalJumlahBlank;
-                $row['totalMangkir'] = $totalJumlahMangkir;
-
-                $totalJumlahTelat += $totalTidakHadir;
-                $totalP += $totalHadir;
-                $totalT += $totalTidakHadir;
-                $totalOff += $totalJumlahOff;
-                $totalSakit += $totalJumlahSakit;
-                $totalIzin += $totalJumlahIzin;
-                $totalCuti += $totalJumlahCuti;
-                $totalDinas += $totalJumlahDinas;
-                $totalH1 += $totalJumlahH1;
-                $totalH2 += $totalJumlahH2;
-                $totalBlank += $totalJumlahBlank;
-                $totalMangkir += $totalJumlahMangkir;
-
-                $departmentAttendance[] = $row;
-            }
-
-            $attendanceData[] = [
-                'department' => $department->nama_dept,
-                'karyawan' => $departmentAttendance,
-                'total_jumlah_telat' => $totalJumlahTelat,
-                'total_presentase' => $totalKaryawan ? round(($totalT / ($totalKaryawan * $totalWorkdays)) * 100) : 0
-            ];
-        }
+        $attendanceData = $this->processLargeDataSet(
+            $departments,
+            $karyawan,
+            $presensi,
+            $filterMonth,
+            $filterYear,
+            $daysInMonth,
+            $totalWorkdays,
+            $liburNasional,
+            $cuti,
+            $izin,
+            $liburKaryawan,
+            $liburKarDays
+        );
 
         // Prepare data for the view
         $data = [
@@ -350,6 +149,349 @@ class AttendanceController extends Controller
 
         return view('attendance.attendance', $data);
     }
+
+    private function getKaryawanData(Request $request, $filterMonth, $filterYear)
+    {
+        $cacheKey = "karyawan_data_{$filterMonth}_{$filterYear}_" .
+            md5($request->input('nama_lengkap') . $request->input('kode_dept'));
+
+        return cache()->remember($cacheKey, now()->addHours(24), function () use ($request) {
+            return DB::table('karyawan')
+                ->where('status_kar', 'Aktif')
+                ->when($request->input('nama_lengkap'), function ($query, $name) {
+                    return $query->where('nama_lengkap', 'like', '%' . $name . '%');
+                })
+                ->when($request->input('kode_dept'), function ($query, $dept) {
+                    return $query->where('kode_dept', $dept);
+                })
+                ->select([
+                    'nip',
+                    'nik',
+                    'nama_lengkap',
+                    'kode_dept',
+                    'shift_pattern_id',
+                    'start_shift'
+                ])
+                ->get()
+                ->groupBy('kode_dept');
+        });
+    }
+
+    private function processLargeDataSet($departments, $karyawan, $presensi, $filterMonth, $filterYear, $daysInMonth, $totalWorkdays, $liburNasional, $cuti, $izin, $liburKaryawan, $liburKarDays)
+    {
+        return collect($departments)->map(function ($department) use (
+            $karyawan,
+            $presensi,
+            $filterMonth,
+            $filterYear,
+            $daysInMonth,
+            $totalWorkdays,
+            $liburNasional,
+            $cuti,
+            $izin,
+            $liburKaryawan,
+            $liburKarDays
+        ) {
+            $departmentKaryawan = $karyawan->get($department->kode_dept, collect());
+            $totals = $this->initializeTotals();
+
+            // Process employees in chunks of 100
+            $chunks = $departmentKaryawan->chunk(100);
+            $departmentAttendance = collect();
+
+            foreach ($chunks as $chunk) {
+                foreach ($chunk as $employee) {
+                    $employeeData = $this->processEmployeeAttendance(
+                        $employee,
+                        $presensi,
+                        $filterMonth,
+                        $filterYear,
+                        $daysInMonth,
+                        $liburNasional,
+                        $cuti,
+                        $izin,
+                        $liburKaryawan,
+                        $liburKarDays,
+                        $totalWorkdays
+                    );
+
+                    $departmentAttendance->push($employeeData['row']);
+                    $this->updateDepartmentTotals($totals, $employeeData['totals']);
+                }
+            }
+
+            return [
+                'department' => $department->nama_dept,
+                'karyawan' => $departmentAttendance,
+                'total_jumlah_telat' => $totals['jumlahTelat'],
+                'total_presentase' => $departmentKaryawan->count() ?
+                    round(($totals['T'] / ($departmentKaryawan->count() * $totalWorkdays)) * 100) : 0
+            ];
+        })->values()->all();
+    }
+
+    private function processEmployeeAttendance($employee, $presensi, $filterMonth, $filterYear, $daysInMonth, $liburNasional, $cuti, $izin, $liburKaryawan, $liburKarDays, $totalWorkdays)
+    {
+        $totals = $this->initializeTotals();
+        $row = [
+            'nama_lengkap' => $employee->nama_lengkap,
+            'attendance' => []
+        ];
+
+        // Get employee's shift data
+        $shiftData = $this->getEmployeeShiftData($employee, $filterMonth);
+
+        // Process each day
+        for ($i = 1; $i <= $daysInMonth; $i++) {
+            $date = Carbon::create($filterYear, $filterMonth, $i);
+            $dateString = $date->toDateString();
+
+            $dayData = $this->processDayAttendance(
+                $date,
+                $employee,
+                $presensi,
+                $shiftData,
+                $liburNasional,
+                $cuti,
+                $izin,
+                $liburKarDays
+            );
+
+            $row['attendance'][] = [
+                'status' => $dayData['status'],
+                'class' => $this->determineAttendanceClass($date, $dayData['status'])
+            ];
+
+            $this->updateTotals($totals, $dayData);
+        }
+
+        $row = array_merge($row, $this->calculateEmployeeTotals($totals, $totalWorkdays));
+
+        return [
+            'row' => $row,
+            'totals' => $totals
+        ];
+    }
+
+    private function updateDepartmentTotals(&$departmentTotals, $employeeTotals)
+    {
+        foreach ($employeeTotals as $key => $value) {
+            if (isset($departmentTotals[$key])) {
+                $departmentTotals[$key] += $value;
+            }
+        }
+    }
+
+    private function calculateEmployeeTotals($totals, $totalWorkdays)
+    {
+        return [
+            'jumlah_telat' => $totals['jumlahTelat'],
+            'menit_telat' => $totals['menitTelat'],
+            'totalP' => $totals['P'],
+            'totalT' => $totals['T'],
+            'totalOff' => $totals['Off'],
+            'totalSakit' => $totals['Sakit'],
+            'totalIzin' => $totals['Izin'],
+            'totalCuti' => $totals['Cuti'],
+            'totalH1' => $totals['H1'],
+            'totalH2' => $totals['H2'],
+            'totalDinas' => $totals['Dinas'],
+            'totalBlank' => $totals['Blank'],
+            'totalMangkir' => $totals['Mangkir'],
+            'presentase' => $totalWorkdays > 0 ?
+                round(($totals['T'] / $totalWorkdays) * 100, 2) : 0
+        ];
+    }
+
+    private function getEmployeeShiftData($employee, $filterMonth)
+    {
+        $key = "shift_data_{$employee->nip}_{$filterMonth}";
+
+        return cache()->remember($key, 60, function () use ($employee) {
+            $shiftPatternId = $employee->shift_pattern_id;
+            if (!$shiftPatternId) {
+                return null;
+            }
+
+            $cycleLength = DB::table('shift_pattern_cycle')
+                ->where('pattern_id', $shiftPatternId)
+                ->count();
+
+            $shiftPattern = DB::table('shift_pattern_cycle')
+                ->where('pattern_id', $shiftPatternId)
+                ->get()
+                ->keyBy('cycle_day');
+
+            $shifts = DB::table('shift')
+                ->whereIn('id', $shiftPattern->pluck('shift_id'))
+                ->get()
+                ->keyBy('id');
+
+            return [
+                'pattern_id' => $shiftPatternId,
+                'start_shift' => Carbon::parse($employee->start_shift),
+                'cycle_length' => $cycleLength,
+                'pattern' => $shiftPattern,
+                'shifts' => $shifts
+            ];
+        });
+    }
+
+    private function processDayAttendance($date, $employee, $presensi, $shiftData, $liburNasional, $cuti, $izin, $liburKarDays)
+    {
+        $dateString = $date->toDateString();
+
+        // Get employee's attendance for this date
+        $employeePresensi = $presensi->get($employee->nip);
+        $attendance = $employeePresensi ? $employeePresensi->firstWhere('scan_date', $dateString) : null;
+
+        // Get shift times
+        $shiftTimes = $this->getShiftTimes($date, $shiftData);
+
+        // Check various conditions
+        $isCuti = $this->checkCuti($cuti, $employee->nik, $date);
+        $isIzin = $this->checkIzin($izin, $employee->nik, $date);
+
+        // Get attendance status
+        $status = $this->getAttendanceStatus(
+            $date,
+            $attendance,
+            $isCuti,
+            $isIzin,
+            $shiftTimes['work_start'],
+            $shiftTimes['morning_start'],
+            $shiftTimes['afternoon_start'],
+            $shiftTimes['status_work']
+        );
+
+        // Override status for holidays
+        if ($liburNasional->contains($dateString)) {
+            $status = 'LN';
+        }
+        if ($liburKarDays->contains($dateString)) {
+            $status = 'L';
+        }
+
+        return [
+            'status' => $status,
+            'attendance' => $attendance,
+            'shift_times' => $shiftTimes
+        ];
+    }
+
+    private function getShiftTimes($date, $shiftData)
+    {
+        if (!$shiftData) {
+            return $this->getDefaultShiftTimes();
+        }
+
+        $dayOfWeek = $date->dayOfWeekIso;
+        $daysFromStart = $date->diffInDays($shiftData['start_shift']);
+
+        $cycleDay = $shiftData['cycle_length'] == 7 ?
+            $dayOfWeek : ($daysFromStart % $shiftData['cycle_length']) + 1;
+
+        $pattern = $shiftData['pattern'][$cycleDay] ?? null;
+        if (!$pattern) {
+            return $this->getDefaultShiftTimes();
+        }
+
+        $shift = $shiftData['shifts'][$pattern->shift_id] ?? null;
+        if (!$shift) {
+            return $this->getDefaultShiftTimes();
+        }
+
+        return [
+            'morning_start' => $shift->early_time ? strtotime($shift->early_time) : strtotime('07:00:00'),
+            'work_start' => $shift->start_time ? strtotime($shift->start_time) : strtotime('08:00:00'),
+            'afternoon_start' => $shift->latest_time ? strtotime($shift->latest_time) : strtotime('13:00:00'),
+            'status_work' => $shift->status ?? 'P'
+        ];
+    }
+
+    private function getDefaultShiftTimes()
+    {
+        return [
+            'morning_start' => strtotime('07:00:00'),
+            'work_start' => strtotime('08:00:00'),
+            'afternoon_start' => strtotime('13:00:00'),
+            'status_work' => 'P'
+        ];
+    }
+
+    private function initializeTotals()
+    {
+        return [
+            'jumlahTelat' => 0,
+            'menitTelat' => 0,
+            'P' => 0,
+            'T' => 0,
+            'Off' => 0,
+            'Sakit' => 0,
+            'Izin' => 0,
+            'Cuti' => 0,
+            'H1' => 0,
+            'H2' => 0,
+            'Dinas' => 0,
+            'Blank' => 0,
+            'Mangkir' => 0
+        ];
+    }
+
+    private function updateTotals(&$totals, $dayData)
+    {
+        $status = $dayData['status'];
+        $attendance = $dayData['attendance'];
+        $shiftTimes = $dayData['shift_times'];
+
+        if ($attendance) {
+            $jam_in = Carbon::parse($attendance->earliest_jam_in);
+            $workStart = Carbon::createFromTimestamp($shiftTimes['work_start']);
+
+            if ($jam_in->greaterThan($workStart)) {
+                $totals['menitTelat'] += $jam_in->diffInMinutes($workStart);
+                $totals['jumlahTelat']++;
+            }
+        }
+
+        switch ($status) {
+            case 'P':
+                $totals['P']++;
+                break;
+            case 'T':
+                $totals['T']++;
+                break;
+            case 'OFF':
+                $totals['Off']++;
+                break;
+            case 'S':
+                $totals['Sakit']++;
+                break;
+            case 'I':
+                $totals['Izin']++;
+                break;
+            case 'C':
+                $totals['Cuti']++;
+                break;
+            case 'H1':
+                $totals['H1']++;
+                break;
+            case 'H2':
+                $totals['H2']++;
+                break;
+            case 'D':
+                $totals['Dinas']++;
+                break;
+            case 'MK':
+                $totals['Mangkir']++;
+                break;
+            case '':
+                $totals['Blank']++;
+                break;
+        }
+    }
+
+    // ... rest of your existing helper methods ...
 
     private function getTotalWorkdays($year, $month)
     {
@@ -508,10 +650,6 @@ class AttendanceController extends Controller
             ? ($jam_in->gt(Carbon::parse($work_start)) ? 'T' : $status_work)
             : 'T'; // Late if after work_start
     }
-
-
-
-
 
     // Helper function to determine if the date falls within a leave period
     private function checkCuti($cuti, $nik, $date)

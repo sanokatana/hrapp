@@ -102,10 +102,10 @@
     <script>
         document.querySelector("form").addEventListener("submit", function(event) {
             let input = document.getElementById("nik_or_email").value.trim();
-            let nikFormat = /^\d{4}-\d{8}$/; // Format: 4 digits - 8 digits (e.g., 0242-20251204)
+            let nikFormat = /^\d{4}-\d{8}M?$/; // Accepts 4-8 or 4-8M
 
             if (input.includes("@")) {
-                // It's an email, so allow submission
+                // It's an email, allow submission
                 return true;
             } else if (!nikFormat.test(input)) {
                 // If not an email and doesn't match NIK format, show an alert
@@ -113,7 +113,7 @@
                 Swal.fire({
                     icon: "error",
                     title: "Format NIK / Email anda Salah",
-                    text: "Gunakan format NIK: xxxx-xxxxxxxx at au masukkan email yang valid!",
+                    text: "Gunakan format NIK: xxxx-xxxxxxxx atau xxxx-xxxxxxxxM atau masukkan email yang valid!",
                 });
             }
         });
