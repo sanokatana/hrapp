@@ -153,9 +153,9 @@
                                                 <th style="border-color: black; border-style: solid; border-width: 1px; color: black; background-color : yellow;">T</th>
                                                 <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : red;">OFF</th>
                                                 <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : green;">S</th>
-                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">I</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: black; background-color : #FFE599;">I</th>
                                                 <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : black;">C</th>
-                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : purple;">D</th>
+                                                <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : orange;">D</th>
                                                 <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : pink;">H2</th>
                                                 <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : grey;">H1</th>
                                                 <th style="border-color: black; border-style: solid; border-width: 1px; color: white; background-color : grey;">Mangkir</th>

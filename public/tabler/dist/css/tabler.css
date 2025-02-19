@@ -26906,6 +26906,11 @@ a.step-item:hover {
     color: black !important;
 }
 
+.tugas_luar {
+    background-color: orange !important;
+    color: white !important;
+}
+
 .sakit {
     background-color: var(--tblr-green) !important;
     color: white !important;

@@ -118,6 +118,7 @@ class AttendanceController extends Controller
                 })
                 ->get();
         });
+
         // Cache employee holiday data
         $liburKaryawan = cache()->remember("libur_karyawan_{$filterMonth}_{$filterYear}", 60, function () use ($filterMonth, $filterYear) {
             return DB::table('libur_kar')
@@ -345,9 +346,7 @@ class AttendanceController extends Controller
             $dateString = $date->format('Y-m-d');
 
             // Quick holiday checks
-            if (isset($holidayDates[$dateString])) {
-                $status = 'LN';
-            } elseif (isset($employeeHolidays[$dateString])) {
+            if (isset($employeeHolidays[$dateString])) {
                 $status = 'L';
             } else {
                 // Process regular attendance
@@ -365,6 +364,11 @@ class AttendanceController extends Controller
                     $shiftTimes['status_work']
                 );
 
+                $displayStatus = $status;
+                if (str_contains($status, ':')) {
+                    $displayStatus = explode(':', $status)[0]; // Always take the first part
+                }
+
                 // Update totals
                 $this->updateTotals($totals, [
                     'status' => $status,
@@ -374,7 +378,7 @@ class AttendanceController extends Controller
             }
 
             $row['attendance'][] = [
-                'status' => $status,
+                'status' => $displayStatus,
                 'class' => $this->determineAttendanceClass($date, $status)
             ];
         }
@@ -450,48 +454,6 @@ class AttendanceController extends Controller
             ];
         });
     }
-
-    // private function processDayAttendance($date, $employee, $presensi, $shiftData, $liburNasional, $cuti, $izin, $liburKarDays)
-    // {
-    //     $dateString = $date->toDateString();
-
-    //     // Get employee's attendance for this date
-    //     $employeePresensi = $presensi->get($employee->nip);
-    //     $attendance = $employeePresensi ? $employeePresensi->firstWhere('scan_date', $dateString) : null;
-
-    //     // Get shift times
-    //     $shiftTimes = $this->getShiftTimes($date, $shiftData);
-
-    //     // Check various conditions
-    //     $isCuti = $this->checkCuti($cuti, $employee->nik, $date);
-    //     $isIzin = $this->checkIzin($izin, $employee->nik, $date);
-
-    //     // Get attendance status
-    //     $status = $this->getAttendanceStatus(
-    //         $date,
-    //         $attendance,
-    //         $isCuti,
-    //         $isIzin,
-    //         $shiftTimes['work_start'],
-    //         $shiftTimes['morning_start'],
-    //         $shiftTimes['afternoon_start'],
-    //         $shiftTimes['status_work']
-    //     );
-
-    //     // Override status for holidays
-    //     if ($liburNasional->contains($dateString)) {
-    //         $status = 'LN';
-    //     }
-    //     if ($liburKarDays->contains($dateString)) {
-    //         $status = 'L';
-    //     }
-
-    //     return [
-    //         'status' => $status,
-    //         'attendance' => $attendance,
-    //         'shift_times' => $shiftTimes
-    //     ];
-    // }
 
     private function getShiftTimes($date, $shiftData)
     {
@@ -636,32 +598,67 @@ class AttendanceController extends Controller
     // Helper function to determine attendance status
     private function getAttendanceStatus($date, $attendance, $isCuti, $isIzin, $work_start, $morning_start, $afternoon_start, $status_work)
     {
-        // If the employee is on leave (Cuti)
+        // Check for Cuti - but handle weekends differently for non-shift workers
         if ($isCuti) {
-            if ($date->isWeekend()) {
-                return 'L'; // Absent on weekends due to leave
+            // For non-shift workers (empty status_work or 'OFF'), show 'L' on weekends
+            if (($status_work === 'L' || $status_work === 'OFF') && $date->isWeekend()) {
+                return 'L';
             }
-            return 'C'; // Cuti during the week
+            return 'C'; // Show Cuti for all other cases
         }
 
         // If the employee has izin (Permission)
+        // If the employee has izin (Permission), handle multiple izin with priority
         if ($isIzin) {
-            $status = $isIzin->status;
-            $keputusan = $isIzin->keputusan;
+            // If $isIzin is an array or collection of multiple izin
+            $priorityOrder = ['Tmk', 'Ta', 'Dt', 'Tam', 'Tjo'];
+            $selectedIzin = null;
 
-            // Handling different izin statuses
-            switch ($status) {
-                case 'Tmk':
-                    return $this->handleTmkStatus($keputusan);
-                case 'Ta':
-                    return $this->handleTaStatus($keputusan);
-                case 'Dt':
-                    return $this->handleDtStatus($attendance, $morning_start, $afternoon_start, $status_work);
-                case 'Tam':
-                    return $this->handleTamStatus($attendance, $morning_start, $afternoon_start, $status_work);
-                case 'Tjo':
-                    return 'OFF'; // Tukar Jadwal Off status
+            // Convert to array if it's not already
+            $izinArray = is_array($isIzin) ? $isIzin : [$isIzin];
+
+            // Find the highest priority izin
+            foreach ($priorityOrder as $priority) {
+                foreach ($izinArray as $izin) {
+                    if ($izin->status === $priority) {
+                        $selectedIzin = $izin;
+                        break 2; // Break both loops when found
+                    }
+                }
             }
+
+            // If we found a prioritized izin, handle it
+            if ($selectedIzin) {
+                switch ($selectedIzin->status) {
+                    case 'Tmk':
+                        return $this->handleTmkStatus($selectedIzin->keputusan);
+                    case 'Ta':
+                        return $this->handleTaStatus($selectedIzin->keputusan);
+                    case 'Dt':
+                        return $this->handleDtStatus($attendance, $morning_start, $afternoon_start, $status_work);
+                    case 'Tam':
+                        return $this->handleTamStatus($attendance, $morning_start, $afternoon_start, $status_work, $selectedIzin->keputusan);
+                    case 'Tjo':
+                        return 'OFF';
+                }
+            }
+        }
+
+        // Check if it's a national holiday (LN)
+        if ($this->isNationalHoliday($date)) {
+            // For shift workers (non-empty status_work), treat it as a regular work day
+            if ($status_work !== 'P' && $status_work !== 'OFF') {
+                if ($attendance) {
+                    return $this->handleAttendance($attendance, $work_start, $morning_start, $afternoon_start, $status_work);
+                }
+                return ''; // Missing attendance on a holiday for shift worker
+            }
+
+            // For non-shift workers or OFF shifts
+            if ($attendance) {
+                return $this->handleAttendance($attendance, $work_start, $morning_start, $afternoon_start, $status_work);
+            }
+            return 'LN';
         }
 
         // Handle standard attendance cases
@@ -673,15 +670,48 @@ class AttendanceController extends Controller
             return $this->handleAttendance($attendance, $work_start, $morning_start, $afternoon_start, $status_work);
         }
 
-        // No attendance, return empty for weekdays, 'L' for weekends
+        if ($status_work === 'OFF') {
+            return 'OFF';
+        }
+
+        if ($status_work === 'L') {
+            return 'L';
+        }
+
+        // For shift workers, don't return 'L' on weekends if they have a non-OFF status_work
+        if ($status_work !== 'OFF' && $status_work !== '') {
+            return ''; // Empty for missing attendance, regardless of weekend
+        }
+
+        // Only return 'L' for weekend if not a shift worker
         return $date->isWeekend() ? 'L' : '';
+    }
+
+    // Add this helper method to check for national holidays
+    private function isNationalHoliday($date)
+    {
+        $dateString = $date->format('Y-m-d');
+
+        // Cache the national holidays for better performance
+        $cacheKey = 'national_holidays_' . $date->format('Y_m');
+
+        $nationalHolidays = cache()->remember($cacheKey, 60, function () use ($date) {
+            return DB::table('libur_nasional')
+                ->whereMonth('tgl_libur', $date->month)
+                ->whereYear('tgl_libur', $date->year)
+                ->pluck('tgl_libur')
+                ->map(fn($date) => Carbon::parse($date)->format('Y-m-d'))
+                ->toArray();
+        });
+
+        return in_array($dateString, $nationalHolidays);
     }
 
     // Separate method for handling 'Tmk' (Terlambat - Sakit, Ijin, etc.)
     private function handleTmkStatus($keputusan)
     {
         return match ($keputusan) {
-            'Sakit' => 'S',
+            'Sakit' => 'S:SAKIT', // Internal status code for Sick
             'Ijin' => 'I',
             'Mangkir' => 'MK',
             'Tugas Luar' => 'D',
@@ -704,7 +734,7 @@ class AttendanceController extends Controller
     private function handleDtStatus($attendance, $morning_start, $afternoon_start, $status_work)
     {
         if (!$attendance) {
-            return ''; // Return empty if no attendance is available
+            return 'P'; // Return empty if no attendance is available
         }
 
         // If earliest_jam_in is null, set it to 7:00 AM
@@ -714,13 +744,16 @@ class AttendanceController extends Controller
             return $status_work;
         }
 
-        return ''; // No valid attendance during working hours
+        return 'P'; // No valid attendance during working hours
     }
 
     // Handle the case where the employee is working with delayed attendance
-    private function handleTamStatus($attendance, $morning_start, $afternoon_start, $status_work)
+    private function handleTamStatus($attendance, $morning_start, $afternoon_start, $status_work, $keputusan)
     {
         if (!$attendance) {
+            if ($keputusan === 'Tugas Luar') {
+                return 'D';
+            }
             return ''; // Return empty if no attendance is available
         }
 
@@ -737,7 +770,7 @@ class AttendanceController extends Controller
     private function handleOffStatus($attendance, $work_start, $morning_start, $afternoon_start)
     {
         if (!$attendance) {
-            return ''; // Return empty if no attendance is available
+            return 'OFF'; // Return empty if no attendance is available
         }
 
         // If earliest_jam_in is null, set it to 7:00 AM
@@ -801,11 +834,48 @@ class AttendanceController extends Controller
 
             $current = $start->copy();
             while ($current->lte($end)) {
-                $cache[$key][$current->format('Y-m-d')] = $permission;
+                $dateKey = $current->format('Y-m-d');
+                // Initialize array for this date if it doesn't exist
+                if (!isset($cache[$key][$dateKey])) {
+                    $cache[$key][$dateKey] = [];
+                }
+                // Add this permission to the array
+                $cache[$key][$dateKey][] = $permission;
                 $current->addDay();
             }
         }
         return $cache;
+    }
+
+    private function checkIzin($permissionCache, $nik, $date)
+    {
+        $dateKey = $date->format('Y-m-d');
+
+        // If no permissions exist for this date
+        if (!isset($permissionCache[$nik][$dateKey])) {
+            return null;
+        }
+
+        // If only one permission exists, return it directly
+        if (count($permissionCache[$nik][$dateKey]) === 1) {
+            return $permissionCache[$nik][$dateKey][0];
+        }
+
+        // If multiple permissions exist, sort by priority and return the highest priority one
+        $permissions = $permissionCache[$nik][$dateKey];
+        $priorityOrder = ['Tmk', 'Ta', 'Dt', 'Tam', 'Tjo'];
+
+        // Find the highest priority permission
+        foreach ($priorityOrder as $priority) {
+            foreach ($permissions as $permission) {
+                if ($permission->status === $priority) {
+                    return $permission;
+                }
+            }
+        }
+
+        // If no priority match found, return the first permission
+        return $permissions[0];
     }
 
     // Updated helper methods
@@ -814,19 +884,24 @@ class AttendanceController extends Controller
         return isset($leaveCache[$nik][$date->format('Y-m-d')]);
     }
 
-    private function checkIzin($permissionCache, $nik, $date)
-    {
-        return $permissionCache[$nik][$date->format('Y-m-d')] ?? null;
-    }
-
     // Updated function to determine CSS classes for attendance cell
     private function determineAttendanceClass($date, $status)
     {
         $classes = [];
 
+        // Split status if it's a special case
+        $displayStatus = $status;
+        $type = null;
+
+        if (str_contains($status, ':')) {
+            $parts = explode(':', $status);
+            $displayStatus = $parts[0];
+            $type = $parts[1] ?? null;
+        }
+
         // Check if the date is a weekend
         if ($date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY) {
-            switch ($status) {
+            switch ($displayStatus) {
                 case 'T':
                     $classes[] = 'late';
                     break;
@@ -834,20 +909,31 @@ class AttendanceController extends Controller
                     $classes[] = ''; // No specific class for present on weekends
                     break;
                 case 'M':
-                    $classes[] = 'kerja-malem'; // No specific class for present on weekends
+                    $classes[] = 'kerja-malem';
                     break;
                 case 'LN':
                     $classes[] = 'dark-yellow';
                     break;
+                case 'C':
+                    $classes[] = 'cuti';
+                    break;
                 case 'OFF':
-                    $classes[] = 'tukar_off'; // New class for Tukar Jadwal Off
+                    $classes[] = 'tukar_off';
+                    break;
+                case 'S':
+                    // Check if it's Sick or Siang
+                    if ($type === 'SAKIT') {
+                        $classes[] = 'sakit';
+                    } else {
+                        $classes[] = 'shift-siang';
+                    }
                     break;
                 default:
                     $classes[] = 'weekend';
                     break;
             }
         } else {
-            switch ($status) {
+            switch ($displayStatus) {
                 case 'T':
                     $classes[] = 'late';
                     break;
@@ -864,10 +950,15 @@ class AttendanceController extends Controller
                     $classes[] = 'izin';
                     break;
                 case 'M':
-                    $classes[] = 'kerja-malem'; // No specific class for present on weekends
+                    $classes[] = 'kerja-malem';
                     break;
                 case 'S':
-                    $classes[] = 'sakit';
+                    // Check if it's Sick or Siang
+                    if ($type === 'SAKIT') {
+                        $classes[] = 'sakit';
+                    } else {
+                        $classes[] = 'shift-siang';
+                    }
                     break;
                 case 'MK':
                     $classes[] = 'mangkir';
@@ -876,12 +967,13 @@ class AttendanceController extends Controller
                     $classes[] = 'tugas_luar';
                     break;
                 case 'OFF':
-                    $classes[] = 'tukar_off'; // New class for Tukar Jadwal Off
+                    $classes[] = 'tukar_off';
                     break;
                 default:
                     break;
             }
         }
+
 
         return implode(' ', $classes);
     }
