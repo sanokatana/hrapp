@@ -30,8 +30,8 @@
 @section('content')
 <div class="row" style="margin-top: 70px;" id="page1">
     <div class="col">
-        <div class="form-group basic">
-            <select name="id_tipe_cuti" id="id_tipe_cuti" class="custom-select" onchange="handleTipeCutiChange()">
+        <div class="form-group basic" style="margin-bottom: 20px; text-align: center; padding: 0px">
+            <select name="id_tipe_cuti" id="id_tipe_cuti" class="custom-select" onchange="handleTipeCutiChange()" style="text-align: center; height: 40px; font-size: 16px; width: 100%;">
                 <option value="">-- Select Tipe Cuti--</option>
                 <option value="Cuti Tahunan">Cuti Tahunan</option>
                 @foreach ($tipecuti as $d)

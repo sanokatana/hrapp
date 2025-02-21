@@ -241,103 +241,230 @@ class PresensiController extends Controller
             ->setBindings([$nip, $bulanini, $tahunini])
             ->get();
 
-        // Process the presensi data to adjust for izin
-        $processedHistoribulanini = $historibulanini->map(function ($item) use ($izin, $nip) {
-            $date = Carbon::parse($item->tanggal);
-            $isIzin = $this->checkIzin($izin, $nip, $date);
-
             $shiftPatternId = DB::table('karyawan')
-                ->where('nip', $nip)
-                ->value('shift_pattern_id');
+            ->where('nip', $nip)
+            ->value('shift_pattern_id');
 
-            $startShift = Carbon::parse(DB::table('karyawan')
-                ->where('nip', $nip)
-                ->value('start_shift'));
+        $startShift = Carbon::parse(DB::table('karyawan')
+            ->where('nip', $nip)
+            ->value('start_shift'));
 
-            // Calculate cycle length from shift_pattern_cycle table
-            $cycleLength = DB::table('shift_pattern_cycle')
-                ->where('pattern_id', $shiftPatternId)
-                ->count();
+        // Calculate cycle length from shift_pattern_cycle table
+        $cycleLength = DB::table('shift_pattern_cycle')
+            ->where('pattern_id', $shiftPatternId)
+            ->count();
+        $date = Carbon::parse();
 
-            $dateString = $date->toDateString();
+        $dateString = $date->toDateString();
+        $daysFromStart = $date->diffInDays($startShift);
+        $dayOfWeek = Carbon::parse($dateString)->dayOfWeekIso;
+
+        if ($shiftPatternId) {
+
+            if ($cycleLength == 7) {
+                $shiftId = DB::table('shift_pattern_cycle')
+                    ->where('pattern_id', $shiftPatternId)
+                    ->where('cycle_day', $dayOfWeek)
+                    ->value('shift_id');
+            } else {
+                $cyclePosition = $daysFromStart % $cycleLength;
+                $shiftId = DB::table('shift_pattern_cycle')
+                    ->where('pattern_id', $shiftPatternId)
+                    ->where('cycle_day', $cyclePosition + 1)
+                    ->value('shift_id');
+            }
+
+            if ($shiftId) {
+                // Fetch the shift times and type
+                $shiftTimes = DB::table('shift')
+                    ->where('id', $shiftId)
+                    ->select('early_time', 'latest_time', 'start_time', 'status')
+                    ->first();
+
+                if ($shiftTimes) {
+                    if ($shiftTimes->early_time !== NULL && $shiftTimes->latest_time !== NULL) {
+                        // If shift has defined early and latest times, use them directly
+                        $shift_start = strtotime($shiftTimes->start_time);
+                        $window_start = strtotime($shiftTimes->early_time);
+                        $window_end = strtotime($shiftTimes->latest_time);
+                    } else {
+                        // If no specific times defined, calculate window based on start time
+                        $shift_start = strtotime($shiftTimes->start_time);
+                        $window_start = strtotime('-1 hours', $shift_start);
+                        $window_end = strtotime('+1 hours', $shift_start);
+                    }
+                }
+            }
+        }
+
+        // Process the presensi data to adjust for izin
+        $presensi = DB::connection('mysql2')
+            ->table('att_log')
+            ->where('pin', $nip)
+            ->whereMonth('scan_date', $bulanini)
+            ->whereYear('scan_date', $tahunini)
+            ->orderBy('scan_date', 'asc')
+            ->get();
+
+        // Get approved izin data
+        $izin = DB::table('pengajuan_izin')
+            ->select('nip', 'tgl_izin', 'tgl_izin_akhir', 'status', 'keputusan', 'pukul')
+            ->where('status_approved', 1)
+            ->where('status_approved_hrd', 1)
+            ->whereRaw('MONTH(tgl_izin) = ?', [$bulanini])
+            ->whereRaw('YEAR(tgl_izin) = ?', [$tahunini])
+            ->get();
+
+        // Process attendance records
+        $processedPresensi = [];
+        foreach ($presensi as $record) {
+            $tanggal = date('Y-m-d', strtotime($record->scan_date));
+            $jam = date('H:i:s', strtotime($record->scan_date));
+            $time = strtotime($jam);
+
+            // Get shift pattern info for this date
+            $date = Carbon::parse($tanggal);
             $daysFromStart = $date->diffInDays($startShift);
-            $dayOfWeek = Carbon::parse($dateString)->dayOfWeekIso;
+            $dayOfWeek = $date->dayOfWeekIso;
 
             if ($shiftPatternId) {
+                // Determine cycle day
+                $patternStartDate = DB::table('karyawan')
+                    ->where('nip', $nip)
+                    ->value('start_shift');
 
-                if ($cycleLength == 7) {
-                    $shiftId = DB::table('shift_pattern_cycle')
+                if ($patternStartDate) {
+                    // Get pattern length
+                    $patternLength = DB::table('shift_pattern_cycle')
                         ->where('pattern_id', $shiftPatternId)
-                        ->where('cycle_day', $dayOfWeek)
-                        ->value('shift_id');
-                } else {
-                    $cyclePosition = $daysFromStart % $cycleLength;
-                    $shiftId = DB::table('shift_pattern_cycle')
-                        ->where('pattern_id', $shiftPatternId)
-                        ->where('cycle_day', $cyclePosition + 1)
-                        ->value('shift_id');
-                }
+                        ->count();
 
-                if ($shiftId) {
-                    // Fetch the early_time and latest_time from the shifts table
-                    $shiftTimes = DB::table('shift')
-                        ->where('id', $shiftId)
-                        ->select('early_time', 'latest_time', 'start_time')
-                        ->first();
+                    // Calculate days since pattern start
+                    $daysSinceStart = Carbon::parse($patternStartDate)
+                        ->diffInDays(Carbon::parse($tanggal));
 
-                    if ($shiftTimes) {
-                        $morning_start = $shiftTimes->early_time ? strtotime($shiftTimes->early_time) : strtotime('06:00:00');
-                        $afternoon_start = $shiftTimes->latest_time ? strtotime($shiftTimes->latest_time) : strtotime('13:00:00');
-                        $work_start = $shiftTimes->start_time ? strtotime($shiftTimes->start_time) : strtotime('08:00:00'); // Default to 08:00:00 if not set
+                    if ($patternLength == 7) {
+                        // Get the current day of week (1 = Monday, 7 = Sunday)
+                        $currentDayOfWeek = Carbon::parse($tanggal)->dayOfWeekIso;
+
+                        // For 7-day cycles, simply use the current day of week
+                        $currentCycleDay = $currentDayOfWeek;
+                        $prevDayCycleDay = $currentDayOfWeek == 1 ? 7 : $currentDayOfWeek - 1;
                     } else {
-                        $morning_start = strtotime('06:00:00');
-                        $afternoon_start = strtotime('13:00:00');
-                        $work_start = strtotime('08:00:00'); // Default shift start time
+                        // For non-weekly patterns, use straight count from start date
+                        $currentCycleDay = ($daysSinceStart % $patternLength) + 1;
+                        $prevDayCycleDay = (($daysSinceStart - 1) % $patternLength) + 1;
                     }
-                } else {
-                    $morning_start = strtotime('06:00:00');
-                    $afternoon_start = strtotime('13:00:00');
-                    $work_start = strtotime('08:00:00'); // Default shift start time
+
+                    $shiftId = DB::table('shift_pattern_cycle')
+                        ->where('pattern_id', $shiftPatternId)
+                        ->where('cycle_day', $currentCycleDay)
+                        ->value('shift_id');
+
+                    if ($shiftId) {
+                        $shiftTimes = DB::table('shift')
+                            ->where('id', $shiftId)
+                            ->select('early_time', 'latest_time', 'start_time', 'status', 'description')
+                            ->first();
+
+                        if ($shiftTimes) {
+                            $key = $tanggal . '_' . $nip;
+                            if (!isset($processedPresensi[$key])) {
+                                $processedPresensi[$key] = [
+                                    'tanggal' => $tanggal,
+                                    'jam_masuk' => '',
+                                    'jam_pulang' => '',
+                                    'shift_start_time' => $shiftTimes->start_time,
+                                    'shift_type' => $shiftTimes->status,
+                                    'shift_name' => $shiftTimes->description
+                                ];
+                            }
+
+                            // Set window times
+                            if ($shiftTimes->early_time !== NULL && $shiftTimes->latest_time !== NULL) {
+                                $window_start = strtotime($shiftTimes->early_time);
+                                $window_end = strtotime($shiftTimes->latest_time);
+                            } else {
+                                $shift_start = strtotime($shiftTimes->start_time);
+                                $window_start = strtotime('-1 hours', $shift_start);
+                                $window_end = strtotime('+1 hours', $shift_start);
+                            }
+
+                            $prevDayDate = Carbon::parse($tanggal)->subDay();
+                            $prevDayCycleDay = (($daysSinceStart - 1) % $patternLength) + 1;
+
+                            $prevDayShift = DB::table('shift_pattern_cycle')
+                                ->where('pattern_id', $shiftPatternId)
+                                ->where('cycle_day', $prevDayCycleDay)
+                                ->join('shift', 'shift.id', '=', 'shift_pattern_cycle.shift_id')
+                                ->value('shift.status');
+
+                            if ($shiftTimes->status === 'M') {
+                                // Night shift logic
+                                if ($time >= $window_start && $time <= $window_end) {
+                                    // Evening check-in
+                                    if (
+                                        empty($processedPresensi[$key]['jam_masuk']) ||
+                                        $time < strtotime($processedPresensi[$key]['jam_masuk'])
+                                    ) {
+                                        $processedPresensi[$key]['jam_masuk'] = $jam;
+                                    }
+                                } elseif ($time <= strtotime('12:00:00')) {
+                                    // Morning check-out (should be assigned to previous day)
+                                    $prevDate = Carbon::parse($tanggal)->subDay()->format('Y-m-d');
+                                    $prevKey = $prevDate . '_' . $nip;
+
+                                    // Only assign to previous day if it was a night shift
+                                    if (
+                                        isset($processedPresensi[$prevKey]) &&
+                                        isset($processedPresensi[$prevKey]['shift_type']) &&
+                                        $processedPresensi[$prevKey]['shift_type'] === 'M'
+                                    ) {
+                                        $processedPresensi[$prevKey]['jam_pulang'] = $jam;
+                                    }
+                                }
+                            } else {
+                                if ($time <= strtotime('12:00:00') && $prevDayShift === 'M') {
+                                    // If early morning scan and previous day was night shift
+                                    $prevKey = Carbon::parse($tanggal)->subDay()->format('Y-m-d') . '_' . $nip;
+                                    if (isset($processedPresensi[$prevKey])) {
+                                        $processedPresensi[$prevKey]['jam_pulang'] = $jam;
+                                    }
+                                } else {
+                                    // Day shift logic (unchanged)
+                                    if ($time >= $window_start && $time <= $window_end) {
+                                        if (
+                                            empty($processedPresensi[$key]['jam_masuk']) ||
+                                            $time < strtotime($processedPresensi[$key]['jam_masuk'])
+                                        ) {
+                                            $processedPresensi[$key]['jam_masuk'] = $jam;
+                                        }
+                                    } elseif ($time >= strtotime($shiftTimes->latest_time)) {
+                                        $processedPresensi[$key]['jam_pulang'] = $jam;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
-            } else {
-                // Default values if no shift pattern is found
-                $morning_start = strtotime('06:00:00');
-                $work_start = strtotime('08:00:00');
-                $afternoon_start = strtotime('13:00:00');
             }
-            $item->jam_kerja = $work_start;
-            $jam_masuk_time = strtotime($item->jam_masuk);
-            $jam_pulang_time = strtotime($item->jam_pulang);
+        }
 
-            if ($jam_masuk_time < $morning_start) {
-                $prev_date = Carbon::parse($item->tanggal)->subDay()->toDateString();
-                $item->tanggal = $prev_date; // Adjust the date for early in time
-            }
-
-            if ($jam_masuk_time > $afternoon_start) {
-                $item->jam_masuk = null; // If jam_pulang is before 1 PM, it should be null
-            }
-
-            if ($jam_pulang_time < $afternoon_start) {
-                $item->jam_pulang = null; // If jam_pulang is before 1 PM, it should be null
-            }
-
-            if ($isIzin) {
-                $status = $isIzin->status;
-                $pukul = $isIzin->pukul;
-
-                if ($status == 'Tam' && !$item->jam_masuk) {
-                    $item->jam_masuk = $pukul;
-                }
-
-                if ($status == 'Tap' && !$item->jam_pulang) {
-                    $item->jam_pulang = $pukul;
-                }
-            }
-
-
-            return $item;
-        });
+        // Convert to collection for view
+        $processedHistoribulanini = collect($processedPresensi)->map(function ($item) {
+            return (object) [
+                'tanggal' => $item['tanggal'],
+                'jam_masuk' => $item['jam_masuk'],
+                'jam_pulang' => $item['jam_pulang'],
+                'shift_start_time' => $item['shift_start_time'],
+                'jam_kerja' => $item['shift_start_time'],
+                'status' => $item['shift_type'],
+                'shift_name' => $item['shift_name']
+            ];
+        })->filter(function ($item) {
+            // Keep records that have either jam_masuk OR jam_pulang
+            return !empty($item->jam_masuk) || !empty($item->jam_pulang);
+        })->values();
 
         return view('presensi.gethistori', compact('processedHistoribulanini'));
     }

@@ -186,7 +186,7 @@
             <select name="jabatan" id="jabatan" class="form-select">
                 <option value="">Pilih</option>
                 @foreach ($jabatan as $d)
-                <option {{ $karyawan->jabatan == $d->id ? 'selected' : '' }} value="{{ $d->id }}">{{ $d->nama_jabatan }} - {{ $d->site }}</option>
+                <option {{ $karyawan->jabatan == $d->id ? 'selected' : '' }} value="{{ $d->id }}">{{ $d->nama_jabatan }} - {{ $d->site }} - {{ $d->kode_dept }}</option>
                 @endforeach
             </select>
         </div>

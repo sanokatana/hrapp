@@ -63,37 +63,66 @@
 @endsection
 
 @section('content')
-<div class="row" style="margin-top: 70px;" id="page1">
-    <div class="col">
-        <form method="POST" action="/presensi/storecutikhusus" id="formcutiPage" enctype="multipart/form-data">
-            @csrf
-            <div class="form-group basic">
-                <select name="id_tipe_cuti" id="id_tipe_cuti" class="custom-select">
-                    <option value="">-- Select Tipe Cuti--</option>
-                    @foreach ($tipecuti as $d)
-                    <option data-jumlah_hari="{{ $d->jumlah_hari }}" value="{{ $d->id_tipe_cuti }}">{{ $d->tipe_cuti }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="form-group">
-                <input type="text" id="tgl_cuti" name="tgl_cuti" class="datepicker form-control" placeholder="Tanggal Pengajuan Cuti" disabled autocomplete="off">
-            </div>
-            <div class="form-group">
-                <input type="text" id="tgl_cuti_sampai" name="tgl_cuti_sampai" class="datepicker form-control" placeholder="Sampai Tanggal" disabled autocomplete="off">
-            </div>
-            <div class="form-group">
-                <input type="number" id="jml_hari" name="jml_hari" class="form-control" placeholder="Berapa Hari" disabled autocomplete="off">
-            </div>
-            <div class="form-group">
-                <input type="text" id="periode" name="periode" class="form-control" placeholder="Periode" value="{{ $periode }}" disabled>
-            </div>
-            <div class="form-group">
-                <label for="note" class="col-form-label">Note</label>
-                <textarea name="note" id="note" rows="4" class="form-control" autocomplete="off"></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary btn-block">Submit</button>
-        </form>
-    </div>
+<div class="form-container" style="margin-top: 70px; padding: 5px;" id="page1">
+    <form method="POST" action="/presensi/storecutikhusus" id="formcutiPage" enctype="multipart/form-data">
+        @csrf
+        <div class="form-group" style="margin-bottom: 20px; text-align: center;">
+            <select name="id_tipe_cuti" id="id_tipe_cuti" class="form-control" style="text-align: center; height: 40px; font-size: 16px; width: 100%;">
+                <option value="">Tipe Cuti</option>
+                @foreach ($tipecuti as $d)
+                <option data-jumlah_hari="{{ $d->jumlah_hari }}" value="{{ $d->id_tipe_cuti }}">{{ $d->tipe_cuti }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px; text-align: center;">
+            <input type="text" id="tgl_cuti" name="tgl_cuti"
+                class="datepicker form-control"
+                placeholder="Tanggal Pengajuan Cuti"
+                style="text-align: center; height: 40px; font-size: 16px;"
+                disabled autocomplete="off">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px; text-align: center;">
+            <input type="text" id="tgl_cuti_sampai" name="tgl_cuti_sampai"
+                class="datepicker form-control"
+                placeholder="Sampai Tanggal"
+                style="text-align: center; height: 40px; font-size: 16px;"
+                disabled autocomplete="off">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px; text-align: center;">
+            <input type="number" id="jml_hari" name="jml_hari"
+                class="form-control"
+                placeholder="Berapa Hari"
+                style="text-align: center; height: 40px; font-size: 16px; background-color: #e9ecef;"
+                disabled autocomplete="off">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px; text-align: center;">
+            <input type="text" id="periode" name="periode"
+                class="form-control"
+                placeholder="Periode"
+                value="{{ $periode }}"
+                style="text-align: center; height: 40px; font-size: 16px; background-color: #e9ecef;"
+                disabled>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px; text-align: center;">
+            <textarea name="note" id="note" rows="3"
+                class="form-control"
+                placeholder="Note"
+                style="text-align: center; font-size: 16px; line-height: 20px; min-height: 50px;"
+                autocomplete="off"></textarea>
+        </div>
+
+        <div class="form-group" style="text-align: center;">
+            <button type="submit" class="btn btn-primary"
+                style="border-radius: 20px; height: 40px; font-size: 16px; width: 100%; margin-top: 10px;">
+                SUBMIT
+            </button>
+        </div>
+    </form>
 </div>
 <div class="loading-overlay" id="loadingOverlay">
     <span></span>

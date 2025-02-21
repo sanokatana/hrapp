@@ -6,11 +6,11 @@ $user = Auth::guard('karyawan')->user();
 $userDept = $user ? $user->kode_dept : null;
 @endphp
 @php
-    $cutiData = $cutiExpiringSoon && $cutiExpiringSoon->count() > 0
-        ? $cutiExpiringSoon->map(fn($cuti) => [
-            'periode_akhir' => DateHelper::formatIndonesiaDate($cuti->periode_akhir),
-        ])->toArray()
-        : null;
+$cutiData = $cutiExpiringSoon && $cutiExpiringSoon->count() > 0
+? $cutiExpiringSoon->map(fn($cuti) => [
+'periode_akhir' => DateHelper::formatIndonesiaDate($cuti->periode_akhir),
+])->toArray()
+: null;
 @endphp
 
 <script>
@@ -320,21 +320,33 @@ $userDept = $user ? $user->kode_dept : null;
                 @foreach ($processedHistoribulanini as $d)
                 <ul class="listview image-listview rounded-custom">
                     @php
-                    $jam_masuk_time = $d->jam_masuk ? strtotime($d->jam_masuk) : PHP_INT_MAX; // Use PHP_INT_MAX for null values
-                    $threshold_time = $d->jam_kerja;
-                    $lateness_threshold = $d->jam_kerja;
+                    $jam_masuk_time = $d->jam_masuk ? strtotime($d->jam_masuk) : PHP_INT_MAX;
+                    $threshold_time = strtotime($d->jam_kerja);
+                    $lateness_threshold = strtotime($d->jam_kerja);
 
                     // Calculate lateness and determine status
                     if ($d->jam_masuk === null) {
                     $status = "Tidak Absen";
-                    $lateness = ""; // No lateness if jam_masuk is null
-                    } elseif ($jam_masuk_time <= $lateness_threshold) {
+                    $lateness = "";
+                    } elseif ($jam_masuk_time <= ($threshold_time + 30)) { // Allow 30 seconds grace period
                         $status="On Time" ;
                         $lateness="Tepat Waktu" ;
                         } else {
-                        $hours_diff=floor(($jam_masuk_time - $threshold_time) / 3600);
-                        $minutes_diff=floor((($jam_masuk_time - $threshold_time) % 3600) / 60);
-                        $lateness=($hours_diff> 0 ? $hours_diff . " Jam " : "") . ($minutes_diff > 0 ? $minutes_diff . " Menit" : "");
+                        $time_diff=$jam_masuk_time - $threshold_time;
+                        $hours_diff=floor($time_diff / 3600);
+                        $minutes_diff=floor(($time_diff % 3600) / 60);
+                        $seconds_diff=$time_diff % 60;
+
+                        $lateness="" ;
+                        if ($hours_diff> 0) {
+                        $lateness .= $hours_diff . " Jam ";
+                        }
+                        if ($minutes_diff > 0) {
+                        $lateness .= $minutes_diff . " Menit ";
+                        }
+                        if ($seconds_diff > 0 && $hours_diff == 0 && $minutes_diff == 0) {
+                        $lateness .= $seconds_diff . " Detik";
+                        }
                         $status = "Terlambat";
                         }
                         @endphp
@@ -363,20 +375,18 @@ $userDept = $user ? $user->kode_dept : null;
                                             Masuk
                                         </div>
                                         @endif
+                                        <div class="text-muted">{{ $d->shift_name }}</>
+                                        </div>
                                     </div>
                                     <div class="jam-row">
                                         <div class="jam-in mb-1">
-                                            <span
-                                                class="badge {{ $status == 'Tidak Absen' ? 'badge-danger' : ($status == 'Terlambat' ? 'badge-danger' : 'badge-success') }}"
-                                                style="width: 70px;">
-                                                {{ $d->jam_masuk !== null ? $d->jam_masuk : "No Scan" }}
+                                            <span class="badge {{ $status == 'Tidak Absen' ? 'badge-danger' : ($status == 'Terlambat' ? 'badge-danger' : 'badge-success') }}" style="width: 70px;">
+                                                {{ (!empty($d->jam_masuk) && $d->jam_masuk !== null) ? $d->jam_masuk : "No Scan" }}
                                             </span>
                                         </div>
                                         <div class="jam-out">
-                                            <span
-                                                class="badge {{ $d->jam_pulang !== null ? 'badge-success' : 'badge-danger' }}"
-                                                style="width: 70px;">
-                                                {{ $d->jam_pulang !== null ? $d->jam_pulang : "No Scan" }}
+                                            <span class="badge {{ (!empty($d->jam_pulang) && $d->jam_pulang !== null) ? 'badge-success' : 'badge-danger' }}" style="width: 70px;">
+                                                {{ (!empty($d->jam_pulang) && $d->jam_pulang !== null) ? $d->jam_pulang : "No Scan" }}
                                             </span>
                                         </div>
                                     </div>
@@ -385,8 +395,6 @@ $userDept = $user ? $user->kode_dept : null;
                         </li>
                 </ul>
                 @endforeach
-
-
             </div>
 
             <div class="tab-pane fade" id="formView" role="tabpanel">

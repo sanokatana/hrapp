@@ -63,61 +63,96 @@
 @endsection
 
 @section('content')
-<div class="row" style="margin-top: 70px;" id="page1">
-    <div class="col">
-        <form id="formizin">
-            @csrf
-            <div class="form-group">
-                <input type="text" id="periode" name="periode" class="form-control" placeholder="Periode" value="{{ $periode }}" readonly>
-            </div>
-            <div class="form-group">
-                <input type="number" id="sisa_cuti" name="sisa_cuti" class="form-control" placeholder="Sisa Cuti" disabled value="{{ $cutiGet->sisa_cuti}}">
-            </div>
-            <div class="form-group">
-                <input type="text" id="tgl_cuti" name="tgl_cuti" class="datepicker form-control" placeholder="Tanggal Pengajuan Cuti">
-            </div>
-            <div class="form-group">
-                <input type="text" id="tgl_cuti_sampai" name="tgl_cuti_sampai" class="datepicker form-control" placeholder="Sampai Tanggal">
-            </div>
-            <div class="form-group">
-                <input type="number" id="jml_hari" name="jml_hari" class="form-control" placeholder="Berapa Hari" disabled>
-            </div>
-            <div class="form-group">
-                <input type="number" id="sisa_cuti_setelah" name="sisa_cuti_setelah" class="form-control" placeholder="Sisa Setelah Permohonan" disabled>
-            </div>
-            <div class="form-group">
-                <button type="button" class="btn btn-primary btn-block" id="nextButton">Next</button>
-            </div>
-        </form>
-    </div>
+<div class="form-container" style="margin-top: 70px; padding: 20px;" id="page1">
+    <form id="formizin">
+        @csrf
+        <div class="form-group" style="margin-bottom: 5px; text-align: center;">
+            <input type="text" id="periode" name="periode"
+                class="form-control"
+                placeholder="Periode"
+                value="{{ $periode }}"
+                style="text-align: center; height: 40px; font-size: 13px; background-color: #e9ecef;"
+                readonly>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 5px; text-align: center;">
+            <input type="number" id="sisa_cuti" name="sisa_cuti"
+                class="form-control"
+                placeholder="Sisa Cuti"
+                value="{{ $cutiGet->sisa_cuti}}"
+                style="text-align: center; height: 40px; font-size: 13px; background-color: #e9ecef;"
+                disabled>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 5px; text-align: center;">
+            <input type="text" id="tgl_cuti" name="tgl_cuti"
+                class="datepicker form-control"
+                placeholder="Tanggal Pengajuan Cuti"
+                style="text-align: center; height: 40px; font-size: 13px;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 5px; text-align: center;">
+            <input type="text" id="tgl_cuti_sampai" name="tgl_cuti_sampai"
+                class="datepicker form-control"
+                placeholder="Sampai Tanggal"
+                style="text-align: center; height: 40px; font-size: 13px;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 5px; text-align: center;">
+            <input type="number" id="jml_hari" name="jml_hari"
+                class="form-control"
+                placeholder="Berapa Hari"
+                style="text-align: center; height: 40px; font-size: 13px; background-color: #e9ecef;"
+                disabled>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 5px; text-align: center;">
+            <input type="number" id="sisa_cuti_setelah" name="sisa_cuti_setelah"
+                class="form-control"
+                placeholder="Sisa Setelah Permohonan"
+                style="text-align: center; height: 40px; font-size: 13px; background-color: #e9ecef;"
+                disabled>
+        </div>
+
+        <div class="form-group" style="text-align: center; margin-top: 30px;">
+            <button type="button" class="btn btn-primary btn-block" id="nextButton"
+                style="border-radius: 20px; height: 40px; font-size: 13px; width: 100%;">NEXT</button>
+        </div>
+    </form>
 </div>
 
-<div class="row" style="margin-top: 70px; display: none;" id="page2">
-    <div class="col">
-        <form method="POST" action="/presensi/storecuti" id="formcutiPage2" enctype="multipart/form-data">
-            @csrf
-            <input type="hidden" id="hidden_periode" name="periode">
-            <input type="hidden" id="hidden_sisa_cuti" name="sisa_cuti">
-            <input type="hidden" id="hidden_tgl_cuti" name="tgl_cuti">
-            <input type="hidden" id="hidden_tgl_cuti_sampai" name="tgl_cuti_sampai">
-            <input type="hidden" id="hidden_jml_hari" name="jml_hari">
-            <input type="hidden" id="hidden_sisa_cuti_setelah" name="sisa_cuti_setelah">
+<div class="form-container" style="margin-top: 70px; padding: 20px; display: none;" id="page2">
+    <form method="POST" action="/presensi/storecuti" id="formcutiPage2" enctype="multipart/form-data">
+        @csrf
+        <!-- Hidden inputs -->
+        <input type="hidden" id="hidden_periode" name="periode">
+        <input type="hidden" id="hidden_sisa_cuti" name="sisa_cuti">
+        <input type="hidden" id="hidden_tgl_cuti" name="tgl_cuti">
+        <input type="hidden" id="hidden_tgl_cuti_sampai" name="tgl_cuti_sampai">
+        <input type="hidden" id="hidden_jml_hari" name="jml_hari">
+        <input type="hidden" id="hidden_sisa_cuti_setelah" name="sisa_cuti_setelah">
 
-            <div class="form-group">
-                <label for="kar_ganti" class="col-form-label">Karyawan Yang Akan Menggantikan</label>
-                <input type="text" id="kar_ganti" name="kar_ganti" class="form-control" placeholder="">
-            </div>
-            <div class="form-group">
-                <label for="note" class="col-form-label">Note (Optional)</label>
-                <textarea name="note" id="note" rows="4" class="form-control"></textarea>
-            </div>
+        <div class="form-group" style="margin-bottom: 15px; text-align: center;">
+            <input type="text" id="kar_ganti" name="kar_ganti"
+                class="form-control"
+                placeholder="Karyawan Yang Akan Menggantikan"
+                style="text-align: center; height: 40px; font-size: 13px;">
+        </div>
 
-            <div class="form-group">
-                <button type="button" class="btn btn-primary btn-block" id="backButton">Back</button>
-                <button type="submit" class="btn btn-primary btn-block">Submit</button>
-            </div>
-        </form>
-    </div>
+        <div class="form-group" style="margin-bottom: 20px; text-align: center;">
+            <textarea name="note" id="note" rows="3"
+                class="form-control"
+                placeholder="Note (Optional)"
+                style="text-align: center; font-size: 13px; line-height: 20px; min-height: 50px;"></textarea>
+        </div>
+
+        <div class="form-group" style="text-align: center;">
+            <button type="button" class="btn btn-primary btn-block" id="backButton"
+                style="border-radius: 20px; height: 40px; font-size: 14px; width: 100%; margin-bottom: 10px;">BACK</button>
+            <button type="submit" class="btn btn-primary btn-block"
+                style="border-radius: 20px; height: 40px; font-size: 14px; width: 100%;">SUBMIT</button>
+        </div>
+    </form>
 </div>
 <div class="loading-overlay" id="loadingOverlay">
     <span></span>

@@ -1100,7 +1100,6 @@ class AttendanceController extends Controller
             $nik = $record->nik;
             $jam_in = $record->jam_in;
             $time = strtotime($jam_in);
-            Log::info($jam_in);
             // Determine the current day of the week (1 = Monday, 7 = Sunday)
             $dayOfWeek = Carbon::parse($tanggal)->dayOfWeekIso;
 
@@ -1115,30 +1114,28 @@ class AttendanceController extends Controller
                     ->where('nip', $nip)
                     ->value('start_shift');
 
-                    if ($patternStartDate) {
-                        // Get pattern length
-                        $patternLength = DB::table('shift_pattern_cycle')
-                            ->where('pattern_id', $shiftPatternId)
-                            ->count();
+                if ($patternStartDate) {
+                    // Get pattern length
+                    $patternLength = DB::table('shift_pattern_cycle')
+                        ->where('pattern_id', $shiftPatternId)
+                        ->count();
 
-                        // Calculate days since pattern start
-                        $daysSinceStart = Carbon::parse($patternStartDate)
-                            ->diffInDays(Carbon::parse($tanggal));
+                    // Calculate days since pattern start
+                    $daysSinceStart = Carbon::parse($patternStartDate)
+                        ->diffInDays(Carbon::parse($tanggal));
 
-                        if ($patternLength == 7) {
-                            // Get the current day of week (1 = Monday, 7 = Sunday)
-                            $currentDayOfWeek = Carbon::parse($tanggal)->dayOfWeekIso;
+                    if ($patternLength == 7) {
+                        // Get the current day of week (1 = Monday, 7 = Sunday)
+                        $currentDayOfWeek = Carbon::parse($tanggal)->dayOfWeekIso;
 
-                            // For 7-day cycles, simply use the current day of week
-                            $currentCycleDay = $currentDayOfWeek;
-                            $prevDayCycleDay = $currentDayOfWeek == 1 ? 7 : $currentDayOfWeek - 1;
-
-                            Log::info("Date: $tanggal, Current Day: $currentDayOfWeek, Current Cycle: $currentCycleDay"); // Debug
-                        } else {
-                            // For non-weekly patterns, use straight count from start date
-                            $currentCycleDay = ($daysSinceStart % $patternLength) + 1;
-                            $prevDayCycleDay = (($daysSinceStart - 1) % $patternLength) + 1;
-                        }
+                        // For 7-day cycles, simply use the current day of week
+                        $currentCycleDay = $currentDayOfWeek;
+                        $prevDayCycleDay = $currentDayOfWeek == 1 ? 7 : $currentDayOfWeek - 1;
+                    } else {
+                        // For non-weekly patterns, use straight count from start date
+                        $currentCycleDay = ($daysSinceStart % $patternLength) + 1;
+                        $prevDayCycleDay = (($daysSinceStart - 1) % $patternLength) + 1;
+                    }
 
                     // Find the corresponding shift ID for the current cycle day
                     $shiftId = DB::table('shift_pattern_cycle')
@@ -1154,10 +1151,17 @@ class AttendanceController extends Controller
                             ->first();
 
                         if ($shiftTimes) {
-                            $shift_start = strtotime($shiftTimes->start_time);
-                            $window_start = strtotime('-1 hours', $shift_start);
-                            $window_end = strtotime('+1 hours', $shift_start);
-                            Log::info($shiftTimes->start_time);
+                            if ($shiftTimes->early_time !== NULL && $shiftTimes->latest_time !== NULL) {
+                                // If shift has defined early and latest times, use them directly
+                                $shift_start = strtotime($shiftTimes->start_time);
+                                $window_start = strtotime($shiftTimes->early_time);
+                                $window_end = strtotime($shiftTimes->latest_time);
+                            } else {
+                                // If no specific times defined, calculate window based on start time
+                                $shift_start = strtotime($shiftTimes->start_time);
+                                $window_start = strtotime('-1 hours', $shift_start);
+                                $window_end = strtotime('+1 hours', $shift_start);
+                            }
 
 
                             $prevDayDate = Carbon::parse($tanggal)->subDay();
