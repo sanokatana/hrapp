@@ -45,7 +45,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                    <div class="row mt-2">
+                        <div class="row mt-2">
                             <div class="col-12">
                                 <form action="/recruitment/candidate/data" method="GET">
                                     <div class="row">
@@ -59,7 +59,7 @@
                                                 <select name="title_job" id="title_job" class="form-select">
                                                     <option value="">Job Opening</option>
                                                     @foreach ($job as $d)
-                                                        <option {{ request('title_job') == $d->title ? 'selected' : '' }} value="{{ $d->title }}">{{ $d->title }}</option>
+                                                    <option {{ request('title_job') == $d->title ? 'selected' : '' }} value="{{ $d->title }}">{{ $d->title }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -142,13 +142,22 @@
                                                     <div class="mb-1">
                                                         <a href="#" class="btn btn-primary btn-sm peningkatan"
                                                             id="{{ $d->id }}">
-                                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-rotate-rectangle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.09 4.01l.496 -.495a2 2 0 0 1 2.828 0l7.071 7.07a2 2 0 0 1 0 2.83l-7.07 7.07a2 2 0 0 1 -2.83 0l-7.07 -7.07a2 2 0 0 1 0 -2.83l3.535 -3.535h-3.988" /><path d="M7.05 11.038v-3.988" /></svg>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-rotate-rectangle">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                <path d="M10.09 4.01l.496 -.495a2 2 0 0 1 2.828 0l7.071 7.07a2 2 0 0 1 0 2.83l-7.07 7.07a2 2 0 0 1 -2.83 0l-7.07 -7.07a2 2 0 0 1 0 -2.83l3.535 -3.535h-3.988" />
+                                                                <path d="M7.05 11.038v-3.988" />
+                                                            </svg>
                                                         </a>
                                                     </div>
                                                     <form action="/recruitment/data/{{$d->id}}/print" method="POST" class="mb-1">
                                                         @csrf
                                                         <a class="btn btn-warning btn-sm print-confirm">
-                                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-printer"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" />
+                                                                <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" />
+                                                                <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" />
+                                                            </svg>
                                                         </a>
                                                     </form>
                                                     <!-- Delete Button -->
@@ -190,7 +199,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="statusForm" action="/recruitment/candidate/data/approve" method="POST">
+                <form id="statusForm" onsubmit="return handleStatusSubmit(event)">
                     @csrf
                     <input type="hidden" name="id" id="candidate_id">
                     <div class="mb-3">
@@ -260,7 +269,7 @@
 
                     <div class="row">
 
-                    <div class="col-6">
+                        <div class="col-6">
                             <div class="form-label">NIP</div>
                             <div class="input-icon mb-3">
                                 <input type="text" value="" class="form-control" name="nip" id="nip" placeholder="xxxx">
@@ -296,7 +305,7 @@
 
                     <div class="row">
 
-                    <div class="col-6">
+                        <div class="col-6">
                             <div class="form-label">Grade</div>
                             <div class="input-icon mb-3">
                                 <input type="text" value="" class="form-control" name="grade" id="grade" placeholder="B/H/NS">
@@ -372,6 +381,71 @@
 
 @push('myscript')
 <script>
+    function handleStatusSubmit(event) {
+        event.preventDefault();
+
+        const formData = new FormData(event.target);
+        const submitButton = event.target.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+
+        // Close the modal first
+        $('#modal-approveData').modal('hide');
+
+        // Show loading animation
+        Swal.fire({
+            title: 'Processing Approval',
+            html: 'Please wait...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
+            allowEscapeKey: false,
+            showConfirmButton: false
+        });
+
+        fetch('/recruitment/candidate/data/approve', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message and refresh
+                    Swal.fire({
+                        title: 'Success!',
+                        text: data.message,
+                        icon: 'success',
+                        confirmButtonText: 'Ok'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.message || 'Something went wrong',
+                        icon: 'error',
+                        confirmButtonText: 'Ok'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Something went wrong',
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                });
+            })
+            .finally(() => {
+                submitButton.disabled = false;
+            });
+
+        return false;
+    }
 
     $(document).ready(function() {
         // Toggle NIK input field based on selected option
@@ -387,29 +461,23 @@
 
     $(document).ready(function() {
         // When the approve button is clicked
-        $('.approve').click(function() {
-            var candidateId = $(this).attr('id'); // Get candidate ID
-            var currentStatus = $(this).data('status'); // Get current status from data-status attribute
+        $('.approve').click(function(e) {
+            e.preventDefault();
+            var candidateId = $(this).attr('id');
+            var currentStatus = $(this).data('status');
 
             // Set the candidate ID in the hidden input
             $('#candidate_id').val(candidateId);
-
-            // Preselect the current status in the dropdown
             $('#status_form').val(currentStatus);
 
             // Show the modal
-            $('#modal-approveData').modal('show');
-        });
-    });
-
-    $('.peningkatan').click(function() {
-            var id = $(this).attr('id');
-            $('#dataCandidate').val(id);
-            $('#modal-skContract').modal("show");
+            var modal = new bootstrap.Modal(document.getElementById('modal-approveData'));
+            modal.show();
         });
 
-    $(function() {
-        $('.view').click(function() {
+        // View button click
+        $('.view').click(function(e) {
+            e.preventDefault();
             var candidate_id = $(this).attr('candidate_id');
             $.ajax({
                 type: 'POST',
@@ -421,14 +489,25 @@
                 },
                 success: function(respond) {
                     $('#loadView').html(respond);
+                    var modal = new bootstrap.Modal(document.getElementById('modal-viewData'));
+                    modal.show();
                 }
             });
-            $('#modal-viewData').modal("show");
+        });
+
+        // Peningkatan button click
+        $('.peningkatan').click(function(e) {
+            e.preventDefault();
+            var id = $(this).attr('id');
+            $('#dataCandidate').val(id);
+            var modal = new bootstrap.Modal(document.getElementById('modal-skContract'));
+            modal.show();
         });
 
         $(".print-confirm").click(function(e) {
-            var form = $(this).closest('form');
             e.preventDefault();
+            var form = $(this).closest('form');
+
             Swal.fire({
                 title: "Apakah Yakin?",
                 text: "Data Akan Ke Print!",
@@ -439,7 +518,27 @@
                 confirmButtonText: "Continue"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    form.submit();
+                    // Show loading first
+                    Swal.fire({
+                        title: 'Preparing Document',
+                        html: 'Please wait...',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+
+                            // Delay the form submission
+                            setTimeout(() => {
+                                form.attr('target', '_blank');
+                                form.submit();
+
+                                // Close the loading dialog
+                                setTimeout(() => {
+                                    Swal.close();
+                                }, 500);
+                            }, 1000);
+                        }
+                    });
                 }
             });
         });

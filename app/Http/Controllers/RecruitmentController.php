@@ -1136,82 +1136,89 @@ class RecruitmentController extends Controller
 
     public function candidate_data_approve(Request $request)
     {
-        $candidateId = $request->input('id');
-        $newStatus = $request->input('status_form');
+        try {
+            $candidateId = $request->input('id');
+            $newStatus = $request->input('status_form');
 
-        // Update candidate's status in the candidate_data table
-        DB::table('candidate_data')
-            ->where('id', $candidateId)
-            ->update(['status_form' => $newStatus]);
+            // Update candidate's status in the candidate_data table
+            DB::table('candidate_data')
+                ->where('id', $candidateId)
+                ->update(['status_form' => $newStatus]);
 
-        // Get the candidate_id from the updated candidate_data table
-        $candidate = DB::table('candidate_data')
-            ->where('id', $candidateId)
-            ->first(); // Assuming 'candidate_id' exists in this table
+            // Get the candidate_id from the updated candidate_data table
+            $candidate = DB::table('candidate_data')
+                ->where('id', $candidateId)
+                ->first(); // Assuming 'candidate_id' exists in this table
 
-        if ($candidate) {
-            $candidateRealId = $candidate->candidate_id; // Adjust this to match your actual field name
+            if ($candidate) {
+                $candidateRealId = $candidate->candidate_id; // Adjust this to match your actual field name
 
-            // Update verify_offer in the candidates table based on newStatus
-            if ($newStatus === 'Verified') {
-                DB::table('candidates')
-                    ->where('id', $candidateRealId) // Using the candidate_id from candidate_data
-                    ->update(['verify_offer' => 1]);
+                // Update verify_offer in the candidates table based on newStatus
+                if ($newStatus === 'Verified') {
+                    DB::table('candidates')
+                        ->where('id', $candidateRealId) // Using the candidate_id from candidate_data
+                        ->update(['verify_offer' => 1]);
 
-                // Fetch candidate email and position name
-                $candidateData = DB::table('candidates')
-                    ->where('id', $candidateRealId)
-                    ->first();
+                    // Fetch candidate email and position name
+                    $candidateData = DB::table('candidates')
+                        ->where('id', $candidateRealId)
+                        ->first();
 
-                $jobOpening = DB::table('job_openings')
-                    ->where('id', $candidateData->job_opening_id)
-                    ->first();
+                    $jobOpening = DB::table('job_openings')
+                        ->where('id', $candidateData->job_opening_id)
+                        ->first();
 
-                $email = $candidateData->email;
-                $nama_candidate = $candidateData->nama_candidate;
-                $nama_posisi = $jobOpening->title;
+                    $email = $candidateData->email;
+                    $nama_candidate = $candidateData->nama_candidate;
+                    $nama_posisi = $jobOpening->title;
 
-                // Email content
-                $emailContent = "
-                    Yth. {$nama_candidate},<br><br>
+                    // Email content
+                    $emailContent = "
+                        Yth. {$nama_candidate},<br><br>
 
-                    Selamat! Kami dengan senang hati menginformasikan bahwa Anda telah berhasil diterima untuk posisi <b>{$nama_posisi}</b> di <b>PT Cipta Harmoni Lestari.</b> Proses seleksi yang Anda jalani menunjukkan komitmen, kemampuan, dan kecocokan yang luar biasa dengan nilai dan tujuan perusahaan kami.<br><br>
+                        Selamat! Kami dengan senang hati menginformasikan bahwa Anda telah berhasil diterima untuk posisi <b>{$nama_posisi}</b> di <b>PT Cipta Harmoni Lestari.</b> Proses seleksi yang Anda jalani menunjukkan komitmen, kemampuan, dan kecocokan yang luar biasa dengan nilai dan tujuan perusahaan kami.<br><br>
 
-                    Kami sangat antusias untuk menyambut Anda di tim kami dan berharap Anda dapat memberikan kontribusi terbaik bagi kesuksesan bersama. Silahkan lengkapi data administrasi dengan klik link https://hrms.ciptaharmoni.com/candidate dan tunggu info selanjutnya terkait penandatanganan kontrak dan informasi lainnya.<br><br>
+                        Kami sangat antusias untuk menyambut Anda di tim kami dan berharap Anda dapat memberikan kontribusi terbaik bagi kesuksesan bersama. Silahkan lengkapi data administrasi dengan klik link https://hrms.ciptaharmoni.com/candidate dan tunggu info selanjutnya terkait penandatanganan kontrak dan informasi lainnya.<br><br>
 
-                    Sekali lagi, selamat atas pencapaian ini. Kami sangat menantikan untuk bekerja bersama Anda.<br><br>
+                        Sekali lagi, selamat atas pencapaian ini. Kami sangat menantikan untuk bekerja bersama Anda.<br><br>
 
-                    Hormat kami,<br>
-                    HR Dept.
-                ";
+                        Hormat kami,<br>
+                        HR Dept.
+                    ";
 
-                // Send the email
-                try {
-                    Mail::html($emailContent, function ($message) use ($email, $nama_candidate, $nama_posisi) {
-                        $message->to($email)
-                            ->subject("Selamat {$nama_candidate} Anda telah berhasil diterima untuk posisi {$nama_posisi}")
-                            ->cc(['human.resources@ciptaharmoni.com', auth()->user()->email])
-                            ->priority(1);
+                    // Send the email
+                    try {
+                        Mail::html($emailContent, function ($message) use ($email, $nama_candidate, $nama_posisi) {
+                            $message->to($email)
+                                ->subject("Selamat {$nama_candidate} Anda telah berhasil diterima untuk posisi {$nama_posisi}")
+                                ->cc(['human.resources@ciptaharmoni.com', auth()->user()->email])
+                                ->priority(1);
 
-                        // Add importance headers
-                        $message->getHeaders()->addTextHeader('Importance', 'high');
-                        $message->getHeaders()->addTextHeader('X-Priority', '1');
-                    });
-                } catch (\Exception $e) {
-                    return Redirect::back()->with(['warning' => 'Failed to send email: ' . $e->getMessage()]);
+                            // Add importance headers
+                            $message->getHeaders()->addTextHeader('Importance', 'high');
+                            $message->getHeaders()->addTextHeader('X-Priority', '1');
+                        });
+                    } catch (\Exception $e) {
+                        return Redirect::back()->with(['warning' => 'Failed to send email: ' . $e->getMessage()]);
+                    }
+                } elseif ($newStatus === 'Declined') {
+                    DB::table('candidates')
+                        ->where('id', $candidateRealId) // Using the candidate_id from candidate_data
+                        ->update(['verify_offer' => 0]);
                 }
-            } elseif ($newStatus === 'Declined') {
-                DB::table('candidates')
-                    ->where('id', $candidateRealId) // Using the candidate_id from candidate_data
-                    ->update(['verify_offer' => 0]);
             }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Candidate status updated successfully!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update status: ' . $e->getMessage()
+            ]);
         }
-
-        return redirect()->back()->with('success', 'Candidate status updated successfully!');
     }
-
-
-
 
     public function dashboard()
     {
