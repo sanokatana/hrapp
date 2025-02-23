@@ -148,40 +148,55 @@ class PresensiController extends Controller
     public function updateprofile(Request $request)
     {
         $nip = Auth::guard('karyawan')->user()->nip;
-        $nama_lengkap = $request->nama_lengkap;
-        $no_hp = $request->no_hp;
-        $password = Hash::make($request->password);;
         $karyawan = DB::table('karyawan')->where('nip', $nip)->first();
+
+        // Validate the request
+        $request->validate([
+            'foto' => 'image|mimes:jpeg,png,jpg|max:2048', // Max 2MB
+            'password' => 'nullable|min:6',
+            'nama_lengkap' => 'required',
+            'no_hp' => 'required'
+        ]);
+
+        // Handle photo upload
         if ($request->hasFile('foto')) {
             $foto = $nip . "." . $request->file('foto')->getClientOriginalExtension();
+
+            // Delete old photo if exists
+            if (!empty($karyawan->foto)) {
+                Storage::delete('public/uploads/karyawan/' . $karyawan->foto);
+            }
+
+            // Store new photo - remove one 'public' from the path
+            $request->file('foto')->storeAs('uploads/karyawan', $foto); // Changed from 'public/uploads/karyawan'
         } else {
             $foto = $karyawan->foto;
         }
 
-        if (empty($request->password)) {
-            $data = [
-                'nama_lengkap' => $nama_lengkap,
-                'no_hp' => $no_hp,
-                'foto' => $foto
-            ];
-        } else {
-            $data = [
-                'nama_lengkap' => $nama_lengkap,
-                'no_hp' => $no_hp,
-                'password' => $password,
-                'foto' => $foto
-            ];
+        // Prepare data for update
+        $data = [
+            'nama_lengkap' => $request->nama_lengkap,
+            'no_hp' => $request->no_hp,
+            'foto' => $foto
+        ];
+
+        // Add password to data if provided
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
         }
 
-        $update = DB::table('karyawan')->where('nip', $nip)->update($data);
-        if ($update) {
-            if ($request->hasFile('foto')) {
-                $folderPath = "public/uploads/karyawan/";
-                $request->file('foto')->storeAs($folderPath, $foto);
-            }
-            return Redirect::back()->with(['success' => 'Data Berhasil Di Update']);
-        } else {
-            return Redirect::back()->with(['error' => 'Data Gagal Di Update']);
+        try {
+            DB::table('karyawan')
+                ->where('nip', $nip)
+                ->update($data);
+
+            return Redirect::back()->with([
+                'success' => 'Profile berhasil diupdate!'
+            ]);
+        } catch (\Exception $e) {
+            return Redirect::back()->with([
+                'error' => 'Gagal mengupdate profile. Silakan coba lagi.'
+            ]);
         }
     }
 

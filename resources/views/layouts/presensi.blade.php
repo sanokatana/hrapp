@@ -24,6 +24,20 @@
             background-color: #343a40;
             color: #fff;
         }
+
+        #appCapsule {
+            padding-bottom: 80px; /* Adjust this value based on your bottom nav height */
+            min-height: 100vh;
+        }
+
+        /* Ensure bottom nav stays at bottom */
+        .appBottomMenu {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+        }
         /* Add more styles as needed for dark mode */
     </style>
     @stack('styles') <!-- Stack for additional styles -->

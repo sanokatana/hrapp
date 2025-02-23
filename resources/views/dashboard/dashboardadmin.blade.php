@@ -4,17 +4,13 @@
 use App\Helpers\DateHelper;
 @endphp
 <div class="page-header d-print-none">
-    <div class="container-xl">
-        <div class="row g-2 align-items-center">
+    <div class="container-xl mb-2">
+        <div class="row align-items-center">
             <div class="col">
-                <!-- Page pre-title -->
-                <div class="page-pretitle">
-                    Overview
+                <div class="page-pretitle text-red">
+                    {{ now()->format('l, d F Y') }}
                 </div>
-                <h2 class="page-title">
-                    Dashboard
-                </h2>
-                <br>
+                <h2 class="page-title">Welcome back, {{ Auth::guard('user')->user()->name }}</h2>
             </div>
         </div>
     </div>
@@ -33,10 +29,10 @@ use App\Helpers\DateHelper;
 @endif
 <div class="page-body">
     <div class="container-xl">
-        <div class="row row-cards">
-            <h2 class="page-title" style="font-weight: normal;">
-                Hari Ini
-            </h2>
+        <div class="row row-deck row-cards">
+            <div class="col-12">
+                <h2 class="page-title mb-1" style="font-weight: normal;">Overview</h2>
+            </div>
             <div class="col-md-6 col-xl-4">
                 <div class="card card-sm">
                     <div class="card-body">
@@ -53,7 +49,7 @@ use App\Helpers\DateHelper;
                                 </span>
                             </div>
                             <div class="col">
-                                <div class="font-weight-medium">
+                                <div class="font-weight-medium mb-1 fs-2">
                                     {{ $rekapkaryawan }}
                                 </div>
                                 <div class="text-secondary">
@@ -80,7 +76,7 @@ use App\Helpers\DateHelper;
                                 </span>
                             </div>
                             <div class="col">
-                                <div class="font-weight-medium">
+                                <div class="font-weight-medium mb-1 fs-2">
                                     {{ $rekappresensi->jmlhadir}}
                                 </div>
                                 <div class="text-secondary">
@@ -106,7 +102,7 @@ use App\Helpers\DateHelper;
                                 </span>
                             </div>
                             <div class="col">
-                                <div class="font-weight-medium">
+                                <div class="font-weight-medium mb-1 fs-2">
                                     {{ $rekappresensi->jmlterlambat != null ? $rekappresensi->jmlterlambat : 0}}
                                 </div>
                                 <div class="text-secondary">
@@ -132,7 +128,7 @@ use App\Helpers\DateHelper;
                                 </span>
                             </div>
                             <div class="col">
-                                <div class="font-weight-medium">
+                                <div class="font-weight-medium mb-1 fs-2">
                                     {{ $jmlnoatt }}
                                 </div>
                                 <div class="text-secondary">
@@ -158,7 +154,7 @@ use App\Helpers\DateHelper;
                                 </span>
                             </div>
                             <div class="col">
-                                <div class="font-weight-medium">
+                                <div class="font-weight-medium mb-1 fs-2">
                                     {{ $rekapizin != null ? $rekapizin : 0}}
                                 </div>
                                 <div class="text-secondary">
@@ -184,7 +180,7 @@ use App\Helpers\DateHelper;
                                 </span>
                             </div>
                             <div class="col">
-                                <div class="font-weight-medium">
+                                <div class="font-weight-medium mb-1 fs-2">
                                     {{ $rekapcuti != null ? $rekapcuti : 0}}
                                 </div>
                                 <div class="text-secondary">

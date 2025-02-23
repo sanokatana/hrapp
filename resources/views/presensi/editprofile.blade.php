@@ -13,7 +13,6 @@
 <!-- * App Header -->
 @endsection
 @php
-use App\Helpers\DateHelper;
 @endphp
 @section('content')
 <div class="row" style="margin-top: 4rem;">
@@ -37,6 +36,27 @@ use App\Helpers\DateHelper;
 <form action="/presensi/{{ $karyawan->nik}}/updateprofile" method="POST" enctype="multipart/form-data">
     @csrf
     <div class="col">
+        <div class="form-group boxed text-center mb-1">
+            <div class="image-wrapper mb-3 position-relative">
+                @if (!empty($karyawan->foto))
+                    <img src="{{ asset('storage/uploads/karyawan/' . $karyawan->foto) }}" alt="avatar" class="imaged w100 rounded" style="height:100px; width:100px; object-fit:cover;">
+                @else
+                    @if($karyawan->sex == 'M')
+                        <img src="{{ asset('assets/img/sample/avatar/male_avatar.jpg') }}" alt="avatar" class="imaged w100 rounded" style="height:100px; width:100px; object-fit:cover;">
+                    @else
+                        <img src="{{ asset('assets/img/sample/avatar/female_avatar.jpg') }}" alt="avatar" class="imaged w100 rounded" style="height:100px; width:100px; object-fit:cover;">
+                    @endif
+                @endif
+
+                <!-- Upload Button -->
+                <div class="upload-button">
+                    <input type="file" name="foto" id="fileuploadInput" accept=".png, .jpg, .jpeg" style="display: none;">
+                    <label for="fileuploadInput" class="btn btn-primary btn-sm rounded-circle">
+                        <ion-icon name="camera" style="margin: 0px;"></ion-icon>
+                    </label>
+                </div>
+            </div>
+        </div>
         <div class="form-group boxed">
             <div class="input-wrapper">
                 <input type="text" class="form-control" value="{{ $karyawan->nama_lengkap}}" name="nama_lengkap" placeholder="Nama Lengkap" autocomplete="off" readonly>
@@ -74,7 +94,19 @@ use App\Helpers\DateHelper;
 
 @push('myscript')
 <script>
+
     $(document).ready(function() {
+
+        $("#fileuploadInput").change(function() {
+            if (this.files && this.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    $('.image-wrapper img').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
         var currYear = (new Date()).getFullYear();
 
         $("#sisaButton").click(function() {
@@ -112,4 +144,58 @@ use App\Helpers\DateHelper;
     });
 
 </script>
+@endpush
+
+@push('styles')
+<style>
+    .custom-file-upload {
+        border: 2px dashed #ddd;
+        border-radius: 15px;
+        padding: 8px 15px;
+        text-align: center;
+        cursor: pointer;
+    }
+    .custom-file-upload input {
+        display: none;
+    }
+    .custom-file-upload label {
+        margin: 0;
+        cursor: pointer;
+    }
+    .image-wrapper {
+        display: inline-block;
+        position: relative;
+    }
+    .image-wrapper img {
+        border: 3px solid #ddd;
+    }
+    .label {
+        font-size: 0.875rem;
+        color: #666;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .upload-button {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        margin: 5px;
+    }
+
+    .upload-button label {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .upload-button ion-icon {
+        font-size: 18px;
+    }
+</style>
 @endpush

@@ -144,16 +144,16 @@
                     aria-label="Open user menu">
                     <img src="{{ asset('assets/img/white.png')}}" class="avatar avatar-sm">
                     <div class="d-none d-xl-block ps-2">
-                        <div>Paweł Kuna</div>
-                        <div class="mt-1 small text-secondary">UI Designer</div>
+                        <div>{{ Auth::guard('user')->user()->name}}</div>
+                        @php
+                        $user = Auth::guard('user')->user();
+                        $userLevel = $user ? $user->level : null;
+                        @endphp
+                        <div class="mt-1 small text-secondary">{{$userLevel}}</div>
                     </div>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <a href="#" class="dropdown-item">Status</a>
-                    <a href="#" class="dropdown-item">Profile</a>
-                    <a href="#" class="dropdown-item">Feedback</a>
-                    <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item">Settings</a>
+                    <a href="/panel/accountSetting" class="dropdown-item">Settings</a>
                     <a href="/panel/proseslogoutadmin" class="dropdown-item">Logout</a>
                 </div>
             </div>

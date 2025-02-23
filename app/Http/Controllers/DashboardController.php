@@ -222,6 +222,15 @@ class DashboardController extends Controller
             ->whereRaw('YEAR(tgl_izin) = ?', [$tahunini])
             ->get();
 
+        $izinDates = [];
+        foreach ($izin as $izinRecord) {
+            $izinDate = date('Y-m-d', strtotime($izinRecord->tgl_izin));
+            $izinDates[$izinDate] = [
+                'status' => $izinRecord->status,
+                'pukul' => $izinRecord->pukul
+            ];
+        }
+
         // Process attendance records
         $processedPresensi = [];
         foreach ($presensi as $record) {
@@ -271,7 +280,7 @@ class DashboardController extends Controller
                     if ($shiftId) {
                         $shiftTimes = DB::table('shift')
                             ->where('id', $shiftId)
-                            ->select('early_time', 'latest_time', 'start_time', 'status', 'description')
+                            ->select('early_time', 'latest_time', 'start_time', 'end_time', 'status', 'description')
                             ->first();
 
                         if ($shiftTimes) {
@@ -283,8 +292,28 @@ class DashboardController extends Controller
                                     'jam_pulang' => '',
                                     'shift_start_time' => $shiftTimes->start_time,
                                     'shift_type' => $shiftTimes->status,
-                                    'shift_name' => $shiftTimes->description
+                                    'shift_name' => $shiftTimes->description,
                                 ];
+                            }
+
+                            $isIzin = $this->checkIzin($izin, $nip, Carbon::parse($tanggal));
+                            if ($isIzin) {
+                                switch ($isIzin->status) {
+                                    case 'Dt': // Datang Terlambat
+                                        if (empty($processedPresensi[$key]['jam_masuk']) ||
+                                            strtotime($processedPresensi[$key]['jam_masuk']) > strtotime($shiftTimes->start_time)) {
+                                            $processedPresensi[$key]['jam_masuk'] = $shiftTimes->start_time;
+                                        }
+                                        break;
+
+                                    case 'Tam': // Tidak Absen Masuk
+                                        $processedPresensi[$key]['jam_masuk'] = $shiftTimes->start_time;
+                                        break;
+
+                                    case 'Tap': // Tidak Absen Pulang
+                                        $processedPresensi[$key]['jam_pulang'] = $shiftTimes->end_time;
+                                        break;
+                                }
                             }
 
                             // Set window times

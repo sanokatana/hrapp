@@ -100,12 +100,16 @@ $cutiData = $cutiExpiringSoon && $cutiExpiringSoon->count() > 0
     <div id="user-detail">
         <div class="avatar">
             @if (!empty($namaUser->foto))
-            @php
-            $path = Storage::url('uploads/karyawan/' . $namaUser->foto)
-            @endphp
-            <img src="{{ url($path) }}" alt="avatar" class="imaged w64" style="height:64px">
+                @php
+                    $path = Storage::url('uploads/karyawan/' . $namaUser->foto)
+                @endphp
+                <img src="{{ url($path) }}" alt="avatar" class="imaged w64" style="height:64px">
             @else
-            <img src="{{ asset('assets/img/sample/avatar/avatar1.jpg') }}" alt="avatar" class="imaged w64 rounded">
+                @if($namaUser->sex == 'M')
+                    <img src="{{ asset('assets/img/sample/avatar/male_avatar.jpg') }}" alt="avatar" class="imaged w64 rounded">
+                @else
+                    <img src="{{ asset('assets/img/sample/avatar/female_avatar.jpg') }}" alt="avatar" class="imaged w64 rounded">
+                @endif
             @endif
         </div>
         <div id="user-info">
@@ -117,7 +121,7 @@ $cutiData = $cutiExpiringSoon && $cutiExpiringSoon->count() > 0
                 <span class="badge bg-danger"
                     style="position:absolute; top:45px; right:29px; font-size:0.6rem; z-index:999">{{ $totalNotif }}</span>
                 <ion-icon name="notifications"
-                    style="position:absolute; z-index:999; left: 280px; height:64px; width:40px ; margin-left: 20px; margin-top: 5px ; color: white; vertical-align: middle;"></ion-icon>
+                    style="position:absolute; z-index:999; right: 40px; height:64px; width:40px ; margin-left: 20px; margin-top: 5px ; color: white; vertical-align: middle;"></ion-icon>
             </div>
         </a>
 
