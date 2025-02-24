@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Email Ini Hanya Trial untuk Aplikasi HR System, Abaikan jike menerima Email ini.</title>
+    <title>Email</title>
 </head>
 <body>
     <p><strong>Approved Leave</strong></p>
@@ -9,15 +9,23 @@
 
     <p><strong>Nama:</strong> {{ $leaveApplication->nama_karyawan }}</p>
     <p><strong>NIK:</strong> {{ $leaveApplication->nik }}</p>
-    <p><strong>Periode Cuti:</strong> {{ $leaveApplication->periode }}</p>
-    <p><strong>Sisa Cuti:</strong> {{ $leaveApplication->sisa_cuti }}</p>
+
+    @if($leaveApplication->jenis_cuti == 'Cuti Tahunan')
+        <p><strong>Periode Cuti:</strong> {{ $leaveApplication->periode }}</p>
+        <p><strong>Sisa Cuti:</strong> {{ $leaveApplication->sisa_cuti }}</p>
+    @endif
+
     <p><strong>Tanggal Cuti:</strong> {{ \App\Helpers\DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti) }}</p>
     <p><strong>Tanggal Cuti Sampai:</strong>
         {{ !empty($leaveApplication->tgl_cuti_sampai) ? \App\Helpers\DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti_sampai) : '' }}
     </p>
     <p><strong>Jumlah Hari:</strong> {{ $leaveApplication->jml_hari }}</p>
-    <p><strong>Sisa Cuti Setelah:</strong> {{ $leaveApplication->sisa_cuti_setelah }}</p>
-    <p><strong>Karyawan Pengganti:</strong> {{ $leaveApplication->kar_ganti }}</p>
+
+    @if($leaveApplication->jenis_cuti == 'Cuti Tahunan')
+        <p><strong>Sisa Cuti Setelah:</strong> {{ $leaveApplication->sisa_cuti_setelah }}</p>
+        <p><strong>Karyawan Pengganti:</strong> {{ $leaveApplication->kar_ganti }}</p>
+    @endif
+
     <p><strong>Note:</strong> {{ $leaveApplication->note }}</p>
 
     @if($showApprovalButtons)

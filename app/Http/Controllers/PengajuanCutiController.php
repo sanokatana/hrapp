@@ -259,21 +259,21 @@ class PengajuanCutiController extends Controller
         $currentDate = Carbon::now();
         $jenis = "Cuti Khusus";
 
-        $data = [
-            'nik' => $nik,
-            'nip' => $nip,
-            'periode' => $periode,
-            'tgl_cuti' => $tgl_cuti,
-            'tgl_cuti_sampai' => $tgl_cuti_sampai,
-            'jml_hari' => $jml_hari,
-            'note' => $note,
-            'jenis' => $jenis,
-            'tipe' => $id_tipe_cuti,
-        ];
-
         DB::beginTransaction();
 
         try {
+
+            $data = [
+                'nik' => $nik,
+                'nip' => $nip,
+                'periode' => $periode,
+                'tgl_cuti' => $tgl_cuti,
+                'tgl_cuti_sampai' => $tgl_cuti_sampai,
+                'jml_hari' => $jml_hari,
+                'note' => $note,
+                'jenis' => $jenis,
+                'tipe' => $id_tipe_cuti,
+            ];
             // Save the leave application
             $simpan = PengajuanCuti::create($data);
 
@@ -307,10 +307,8 @@ class PengajuanCutiController extends Controller
                     ";
 
                         Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $email_karyawan) {
-                            $ccList = ['human.resources@ciptaharmoni.com', 'al.imron@ciptaharmoni.com', 'mahardika@ciptaharmoni.com'];
+                            $ccList = ['mahardika@ciptaharmoni.com'];
 
-                            // Add $email_karyawan to the CC list if it's not empty
-                            // Add $email_karyawan to the CC list if it's not empty
                             if (!empty($email_karyawan) && filter_var($email_karyawan, FILTER_VALIDATE_EMAIL)) {
                                 $ccList[] = $email_karyawan;
                             } else {
@@ -318,8 +316,8 @@ class PengajuanCutiController extends Controller
                                 Log::warning("Invalid or empty email_karyawan: {$email_karyawan}");
                             }
 
-                            $message->to($atasan->email)
-                                ->subject("Pengajuan Cuti Baru Dari {$nama_lengkap}")
+                            $message->to('human.resources@ciptaharmoni.com')
+                                ->subject("Pengajuan Cuti Khusus Baru Dari {$nama_lengkap}")
                                 ->cc($ccList)
                                 ->priority(1);
 

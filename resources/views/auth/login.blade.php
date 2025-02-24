@@ -32,7 +32,7 @@
                 <img src="{{ asset('assets/img/login/logo-pic.png')}}" alt="image" class="form-image">
             </div>
             <div class="section mt-1">
-                <h1>E-Attendance</h1>
+                <h1>CHL Attendance Hub</h1>
                 <h4>Silahkan Login</h4>
             </div>
             <div class="section mt-1 mb-5">
