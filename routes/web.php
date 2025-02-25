@@ -46,7 +46,9 @@ Route::middleware(['guest:web'])->group(function () {
     Route::get('/', function () {
         return view('auth.home');
     })->name('home');
+});
 
+Route::group([], function (){
 
     Route::get('/approve/cuti/{token}', [ApprovalController::class, 'approveViaTokenCuti'])->name('approve.cuti');
     Route::get('/approve/izin/{token}', [ApprovalController::class, 'approveViaToken'])->name('approve.izin');
@@ -84,8 +86,6 @@ Route::middleware(['auth:candidate'])->group(function () {
 Route::middleware(['auth:karyawan'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::get('/proseslogout', [AuthController::class, 'proseslogout']);
-    Route::get('/approve/izin/{token}', [ApprovalController::class, 'approveViaToken'])->name('approve.izin');
-    Route::get('/approve/cuti/{token}', [ApprovalController::class, 'approveViaTokenCuti'])->name('approve.cuti');
     //Presensi
     Route::get('/presensi/create', [PresensiController::class, 'create']);
     Route::post('/presensi/store', [PresensiController::class, 'store']);
@@ -137,8 +137,6 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
 
     Route::get('/panel/accountSetting', [DashboardController::class, 'accountSetting']);
     Route::post('/update-password', [DashboardController::class, 'updatePassword'])->name('update-password');
-    Route::get('/approve/cuti/{token}', [ApprovalController::class, 'approveViaTokenCuti'])->name('approve.cuti');
-    Route::get('/approve/izin/{token}', [ApprovalController::class, 'approveViaToken'])->name('approve.izin');
 
     // Karyawan
     Route::get('/karyawan', [KaryawanController::class, 'index']);

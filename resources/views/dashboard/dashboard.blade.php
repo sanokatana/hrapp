@@ -100,16 +100,16 @@ $cutiData = $cutiExpiringSoon && $cutiExpiringSoon->count() > 0
     <div id="user-detail">
         <div class="avatar">
             @if (!empty($namaUser->foto))
-                @php
-                    $path = Storage::url('uploads/karyawan/' . $namaUser->foto)
-                @endphp
-                <img src="{{ url($path) }}" alt="avatar" class="imaged w64" style="height:64px">
+            @php
+            $path = Storage::url('uploads/karyawan/' . $namaUser->nip . '.' . $namaUser->nama_lengkap . '/' . $namaUser->foto)
+            @endphp
+            <img src="{{ url($path) }}" alt="avatar" class="imaged w64" style="height:64px">
             @else
-                @if($namaUser->sex == 'M')
-                    <img src="{{ asset('assets/img/sample/avatar/male_avatar.jpg') }}" alt="avatar" class="imaged w64 rounded">
-                @else
-                    <img src="{{ asset('assets/img/sample/avatar/female_avatar.jpg') }}" alt="avatar" class="imaged w64 rounded">
-                @endif
+            @if($namaUser->sex == 'M')
+            <img src="{{ asset('assets/img/sample/avatar/male_avatar.jpg') }}" alt="avatar" class="imaged w64 rounded">
+            @else
+            <img src="{{ asset('assets/img/sample/avatar/female_avatar.jpg') }}" alt="avatar" class="imaged w64 rounded">
+            @endif
             @endif
         </div>
         <div id="user-info">

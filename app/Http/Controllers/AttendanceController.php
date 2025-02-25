@@ -671,11 +671,6 @@ class AttendanceController extends Controller
             return 'LN';
         }
 
-        // // Handle standard attendance cases
-        // if ($status_work === 'OFF' && $attendance) {
-        //     return $this->handleOffStatus($attendance, $work_start, $morning_start, $afternoon_start);
-        // }
-
         if ($attendance) {
             return $this->handleAttendance($attendance, $work_start, $morning_start, $afternoon_start, $status_work);
         }
@@ -685,7 +680,11 @@ class AttendanceController extends Controller
         }
 
         if ($status_work === 'L') {
-            return 'L';
+            if ($attendance) {
+                return $this->handleAttendance($attendance, $work_start, $morning_start, $afternoon_start, $status_work);
+            } else {
+                return 'L';
+            }
         }
 
         // For shift workers, don't return 'L' on weekends if they have a non-OFF status_work
@@ -764,7 +763,7 @@ class AttendanceController extends Controller
             if ($keputusan === 'Tugas Luar') {
                 return 'D';
             }
-            return ''; // Return empty if no attendance is available
+            return 'P'; // Return empty if no attendance is available
         }
 
         // If earliest_jam_in is null, set it to 7:00 AM
@@ -910,39 +909,6 @@ class AttendanceController extends Controller
         }
 
         // Check if the date is a weekend
-        if ($date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY) {
-            switch ($displayStatus) {
-                case 'T':
-                    $classes[] = 'late';
-                    break;
-                case 'P':
-                    $classes[] = ''; // No specific class for present on weekends
-                    break;
-                case 'M':
-                    $classes[] = '';
-                    break;
-                case 'LN':
-                    $classes[] = 'dark-yellow';
-                    break;
-                case 'C':
-                    $classes[] = 'cuti';
-                    break;
-                case 'OFF':
-                    $classes[] = 'tukar_off';
-                    break;
-                case 'S':
-                    // Check if it's Sick or Siang
-                    if ($type === 'SAKIT') {
-                        $classes[] = 'sakit';
-                    } else {
-                        $classes[] = 'shift-siang';
-                    }
-                    break;
-                default:
-                    $classes[] = 'weekend';
-                    break;
-            }
-        } else {
             switch ($displayStatus) {
                 case 'T':
                     $classes[] = 'late';
@@ -982,7 +948,6 @@ class AttendanceController extends Controller
                 default:
                     break;
             }
-        }
 
 
         return implode(' ', $classes);
@@ -1151,17 +1116,46 @@ class AttendanceController extends Controller
                             ->first();
 
                         if ($shiftTimes) {
-                            if ($shiftTimes->early_time !== NULL && $shiftTimes->latest_time !== NULL) {
-                                // If shift has defined early and latest times, use them directly
-                                $shift_start = strtotime($shiftTimes->start_time);
-                                $window_start = strtotime($shiftTimes->early_time);
-                                $window_end = strtotime($shiftTimes->latest_time);
+                            if ($shiftTimes->status === 'OFF') {
+                                $key = $tanggal . '_' . $nip;
+                                if (!isset($processedPresensi[$key])) {
+                                    $processedPresensi[$key] = [
+                                        'tanggal' => $tanggal,
+                                        'nip' => $nip,
+                                        'nama_lengkap' => $record->nama_lengkap,
+                                        'nama_dept' => $record->nama_dept,
+                                        'jam_masuk' => '',
+                                        'jam_pulang' => '',
+                                        'shift_start_time' => '08:00:00' // Default time for OFF shifts
+                                    ];
+                                }
+
+                                // For OFF shifts, any scan will be recorded
+                                if (empty($processedPresensi[$key]['jam_masuk'])) {
+                                    $processedPresensi[$key]['jam_masuk'] = $jam_in;
+                                } elseif ($time > strtotime($processedPresensi[$key]['jam_masuk'])) {
+                                    $processedPresensi[$key]['jam_pulang'] = $jam_in;
+                                }
                             } else {
-                                // If no specific times defined, calculate window based on start time
-                                $shift_start = strtotime($shiftTimes->start_time);
-                                $window_start = strtotime('-1 hours', $shift_start);
-                                $window_end = strtotime('+1 hours', $shift_start);
-                            }
+                                // Handle regular shifts with default times if needed
+                                if ($shiftTimes->early_time === NULL || $shiftTimes->latest_time === NULL || $shiftTimes->start_time === NULL) {
+                                    if ($shiftTimes->status === 'L' || $dayOfWeek >= 6) {
+                                        // Weekend or holiday shift defaults
+                                        $shift_start = strtotime('07:00:00');
+                                        $window_start = strtotime('06:00:00');
+                                        $window_end = strtotime('13:00:00');
+                                    } else {
+                                        // Weekday defaults
+                                        $shift_start = strtotime('08:00:00');
+                                        $window_start = strtotime('07:00:00');
+                                        $window_end = strtotime('13:00:00');
+                                    }
+                                } else {
+                                    // Use defined shift times
+                                    $shift_start = strtotime($shiftTimes->start_time);
+                                    $window_start = strtotime($shiftTimes->early_time);
+                                    $window_end = strtotime($shiftTimes->latest_time);
+                                }
 
 
                             $prevDayDate = Carbon::parse($tanggal)->subDay();
@@ -1233,6 +1227,7 @@ class AttendanceController extends Controller
                                     }
                                 }
                             }
+                        }
                         }
                     }
                 }

@@ -24,6 +24,7 @@ use mikehaertl\pdftk\Pdf;
 
 class ApprovalController extends Controller
 {
+
     public function izinapprovalhrd(Request $request)
     {
         $query = Pengajuanizin::query();

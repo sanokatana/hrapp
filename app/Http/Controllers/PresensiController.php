@@ -148,6 +148,7 @@ class PresensiController extends Controller
     public function updateprofile(Request $request)
     {
         $nip = Auth::guard('karyawan')->user()->nip;
+        $nama_lengkap = Auth::guard('karyawan')->user()->nama_lengkap;
         $karyawan = DB::table('karyawan')->where('nip', $nip)->first();
 
         // Validate the request
@@ -161,14 +162,15 @@ class PresensiController extends Controller
         // Handle photo upload
         if ($request->hasFile('foto')) {
             $foto = $nip . "." . $request->file('foto')->getClientOriginalExtension();
+            $folderPath = "uploads/karyawan/{$nip}.{$nama_lengkap}";
 
             // Delete old photo if exists
             if (!empty($karyawan->foto)) {
-                Storage::delete('public/uploads/karyawan/' . $karyawan->foto);
+                Storage::disk('public')->delete($folderPath . '/' . $karyawan->foto);
             }
 
-            // Store new photo - remove one 'public' from the path
-            $request->file('foto')->storeAs('uploads/karyawan', $foto); // Changed from 'public/uploads/karyawan'
+            // Store new photo in public disk
+            $request->file('foto')->storeAs($folderPath, $foto, 'public');
         } else {
             $foto = $karyawan->foto;
         }
@@ -256,7 +258,7 @@ class PresensiController extends Controller
             ->setBindings([$nip, $bulanini, $tahunini])
             ->get();
 
-            $shiftPatternId = DB::table('karyawan')
+        $shiftPatternId = DB::table('karyawan')
             ->where('nip', $nip)
             ->value('shift_pattern_id');
 
@@ -395,67 +397,87 @@ class PresensiController extends Controller
                                 ];
                             }
 
-                            // Set window times
-                            if ($shiftTimes->early_time !== NULL && $shiftTimes->latest_time !== NULL) {
-                                $window_start = strtotime($shiftTimes->early_time);
-                                $window_end = strtotime($shiftTimes->latest_time);
-                            } else {
-                                $shift_start = strtotime($shiftTimes->start_time);
-                                $window_start = strtotime('-1 hours', $shift_start);
-                                $window_end = strtotime('+1 hours', $shift_start);
-                            }
+                            if ($shiftTimes->status === 'OFF') {
 
-                            $prevDayDate = Carbon::parse($tanggal)->subDay();
-                            $prevDayCycleDay = (($daysSinceStart - 1) % $patternLength) + 1;
-
-                            $prevDayShift = DB::table('shift_pattern_cycle')
-                                ->where('pattern_id', $shiftPatternId)
-                                ->where('cycle_day', $prevDayCycleDay)
-                                ->join('shift', 'shift.id', '=', 'shift_pattern_cycle.shift_id')
-                                ->value('shift.status');
-
-                            if ($shiftTimes->status === 'M') {
-                                // Night shift logic
-                                if ($time >= $window_start && $time <= $window_end) {
-                                    // Evening check-in
-                                    if (
-                                        empty($processedPresensi[$key]['jam_masuk']) ||
-                                        $time < strtotime($processedPresensi[$key]['jam_masuk'])
-                                    ) {
-                                        $processedPresensi[$key]['jam_masuk'] = $jam;
-                                    }
-                                } elseif ($time <= strtotime('12:00:00')) {
-                                    // Morning check-out (should be assigned to previous day)
-                                    $prevDate = Carbon::parse($tanggal)->subDay()->format('Y-m-d');
-                                    $prevKey = $prevDate . '_' . $nip;
-
-                                    // Only assign to previous day if it was a night shift
-                                    if (
-                                        isset($processedPresensi[$prevKey]) &&
-                                        isset($processedPresensi[$prevKey]['shift_type']) &&
-                                        $processedPresensi[$prevKey]['shift_type'] === 'M'
-                                    ) {
-                                        $processedPresensi[$prevKey]['jam_pulang'] = $jam;
-                                    }
+                                // For OFF shifts, any scan will be recorded
+                                if (empty($processedPresensi[$key]['jam_masuk'])) {
+                                    $processedPresensi[$key]['jam_masuk'] = $jam;
+                                } elseif ($time > strtotime($processedPresensi[$key]['jam_masuk'])) {
+                                    $processedPresensi[$key]['jam_pulang'] = $jam;
                                 }
                             } else {
-                                if ($time <= strtotime('12:00:00') && $prevDayShift === 'M') {
-                                    // If early morning scan and previous day was night shift
-                                    $prevKey = Carbon::parse($tanggal)->subDay()->format('Y-m-d') . '_' . $nip;
-                                    if (isset($processedPresensi[$prevKey])) {
-                                        $processedPresensi[$prevKey]['jam_pulang'] = $jam;
+                                // Handle regular shifts with default times if needed
+                                if ($shiftTimes->early_time === NULL || $shiftTimes->latest_time === NULL || $shiftTimes->start_time === NULL) {
+                                    if ($shiftTimes->status === 'L' || $dayOfWeek >= 6) {
+                                        // Weekend or holiday shift defaults
+                                        $shift_start = strtotime('07:00:00');
+                                        $window_start = strtotime('06:00:00');
+                                        $window_end = strtotime('13:00:00');
+                                    } else {
+                                        // Weekday defaults
+                                        $shift_start = strtotime('08:00:00');
+                                        $window_start = strtotime('07:00:00');
+                                        $window_end = strtotime('13:00:00');
                                     }
                                 } else {
-                                    // Day shift logic (unchanged)
+                                    // Use defined shift times
+                                    $shift_start = strtotime($shiftTimes->start_time);
+                                    $window_start = strtotime($shiftTimes->early_time);
+                                    $window_end = strtotime($shiftTimes->latest_time);
+                                }
+
+                                $prevDayDate = Carbon::parse($tanggal)->subDay();
+                                $prevDayCycleDay = (($daysSinceStart - 1) % $patternLength) + 1;
+
+                                $prevDayShift = DB::table('shift_pattern_cycle')
+                                    ->where('pattern_id', $shiftPatternId)
+                                    ->where('cycle_day', $prevDayCycleDay)
+                                    ->join('shift', 'shift.id', '=', 'shift_pattern_cycle.shift_id')
+                                    ->value('shift.status');
+
+                                if ($shiftTimes->status === 'M') {
+                                    // Night shift logic
                                     if ($time >= $window_start && $time <= $window_end) {
+                                        // Evening check-in
                                         if (
                                             empty($processedPresensi[$key]['jam_masuk']) ||
                                             $time < strtotime($processedPresensi[$key]['jam_masuk'])
                                         ) {
                                             $processedPresensi[$key]['jam_masuk'] = $jam;
                                         }
-                                    } elseif ($time >= strtotime($shiftTimes->latest_time)) {
-                                        $processedPresensi[$key]['jam_pulang'] = $jam;
+                                    } elseif ($time <= strtotime('12:00:00')) {
+                                        // Morning check-out (should be assigned to previous day)
+                                        $prevDate = Carbon::parse($tanggal)->subDay()->format('Y-m-d');
+                                        $prevKey = $prevDate . '_' . $nip;
+
+                                        // Only assign to previous day if it was a night shift
+                                        if (
+                                            isset($processedPresensi[$prevKey]) &&
+                                            isset($processedPresensi[$prevKey]['shift_type']) &&
+                                            $processedPresensi[$prevKey]['shift_type'] === 'M'
+                                        ) {
+                                            $processedPresensi[$prevKey]['jam_pulang'] = $jam;
+                                        }
+                                    }
+                                } else {
+                                    if ($time <= strtotime('12:00:00') && $prevDayShift === 'M') {
+                                        // If early morning scan and previous day was night shift
+                                        $prevKey = Carbon::parse($tanggal)->subDay()->format('Y-m-d') . '_' . $nip;
+                                        if (isset($processedPresensi[$prevKey])) {
+                                            $processedPresensi[$prevKey]['jam_pulang'] = $jam;
+                                        }
+                                    } else {
+                                        // Day shift logic (unchanged)
+                                        if ($time >= $window_start && $time <= $window_end) {
+                                            if (
+                                                empty($processedPresensi[$key]['jam_masuk']) ||
+                                                $time < strtotime($processedPresensi[$key]['jam_masuk'])
+                                            ) {
+                                                $processedPresensi[$key]['jam_masuk'] = $jam;
+                                            }
+                                        } elseif ($time >= strtotime($shiftTimes->latest_time)) {
+                                            $processedPresensi[$key]['jam_pulang'] = $jam;
+                                        }
                                     }
                                 }
                             }
@@ -943,8 +965,7 @@ class PresensiController extends Controller
                         ]
                     ]
                 ];
-
-            }else if (!$hasPresensi && !$isIzin) {
+            } else if (!$hasPresensi && !$isIzin) {
                 // No presensi and no izin for this date
                 $notifications[] = [
                     'tanggal' => $date,
@@ -1278,5 +1299,4 @@ class PresensiController extends Controller
 
         return response()->json(['success' => false, 'message' => 'Tidak ada pengajuan cuti yang dipilih']);
     }
-
 }
