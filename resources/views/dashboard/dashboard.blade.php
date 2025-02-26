@@ -324,17 +324,19 @@ $cutiData = $cutiExpiringSoon && $cutiExpiringSoon->count() > 0
                 @foreach ($processedHistoribulanini as $d)
                 <ul class="listview image-listview rounded-custom">
                     @php
-                    $jam_masuk_time = $d->jam_masuk ? strtotime($d->jam_masuk) : PHP_INT_MAX;
+                    if (empty($d->jam_masuk)) {
+                    $status = "Tidak Absen Masuk";
+                    $lateness = "";
+                    $statusClass = "text-danger";
+                    } else {
+                    $jam_masuk_time = strtotime($d->jam_masuk);
                     $threshold_time = strtotime($d->jam_kerja);
                     $lateness_threshold = strtotime($d->jam_kerja);
 
-                    // Calculate lateness and determine status
-                    if ($d->jam_masuk === null) {
-                    $status = "Tidak Absen";
-                    $lateness = "";
-                    } elseif ($jam_masuk_time <= ($threshold_time + 30)) { // Allow 30 seconds grace period
+                    if ($jam_masuk_time <= ($threshold_time + 30)) {
                         $status="On Time" ;
                         $lateness="Tepat Waktu" ;
+                        $statusClass="text-success" ;
                         } else {
                         $time_diff=$jam_masuk_time - $threshold_time;
                         $hours_diff=floor($time_diff / 3600);
@@ -352,6 +354,17 @@ $cutiData = $cutiExpiringSoon && $cutiExpiringSoon->count() > 0
                         $lateness .= $seconds_diff . " Detik";
                         }
                         $status = "Terlambat";
+                        $statusClass = "text-danger";
+                        }
+                        }
+
+                        // Handle pulang status
+                        if (empty($d->jam_pulang)) {
+                        $statusPulang = "Tidak Absen Pulang";
+                        $statusClassPulang = "text-danger";
+                        $showPulangStatus = true;
+                        } else {
+                        $showPulangStatus = false;
                         }
                         @endphp
 
@@ -364,27 +377,24 @@ $cutiData = $cutiExpiringSoon && $cutiExpiringSoon->count() > 0
                                 <div class="in">
                                     <div class="jam-row">
                                         <div><b>{{ DateHelper::formatIndonesianDate($d->tanggal) }}</b></div>
-                                        <div
-                                            class="status {{ $status == 'Terlambat' ? 'text-danger' : ($status == 'Tidak Absen' ? 'text-danger' : 'text-success') }}">
+                                        <div class="status {{ $statusClass }}">
                                             <b>{{ $status }}</b>
                                         </div>
-                                        @if ($status != 'Tidak Absen')
-                                        <div
-                                            class="lateness {{ $status == 'Terlambat' ? 'text-warning' : 'text-success' }}">
+                                        @if ($status != 'Tidak Absen Masuk')
+                                        <div class="lateness {{ $status == 'Terlambat' ? 'text-warning' : 'text-success' }}">
                                             ({{ $lateness }})
                                         </div>
-                                        @else
-                                        <div
-                                            class="lateness text-danger">
-                                            Masuk
+                                        @endif
+                                        @if ($showPulangStatus)
+                                        <div class="status {{ $statusClassPulang }}">
+                                            <b>{{ $statusPulang }}</b>
                                         </div>
                                         @endif
-                                        <div class="text-muted">{{ $d->shift_name }}</>
-                                        </div>
+                                        <div class="text-muted">{{ $d->shift_name }}</div>
                                     </div>
                                     <div class="jam-row">
                                         <div class="jam-in mb-1">
-                                            <span class="badge {{ $status == 'Tidak Absen' ? 'badge-danger' : ($status == 'Terlambat' ? 'badge-danger' : 'badge-success') }}" style="width: 70px;">
+                                            <span class="badge {{ $status == 'Tidak Absen Masuk' ? 'badge-danger' : ($status == 'Terlambat' ? 'badge-danger' : 'badge-success') }}" style="width: 70px;">
                                                 {{ (!empty($d->jam_masuk) && $d->jam_masuk !== null) ? $d->jam_masuk : "No Scan" }}
                                             </span>
                                         </div>

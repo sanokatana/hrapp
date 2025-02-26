@@ -495,7 +495,7 @@ class ApprovalController extends Controller
                     Periode Cuti : {$periode}<br>
                     Sisa Cuti : {$leaveApplication->sisa_cuti}<br>
                     Tanggal Cuti : " . DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti) . "<br>
-                    Tanggal Cuti Sampai : " . (!empty($tgl_izin_akhir) ? DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti_sampai) : '') . "<br>
+                    Tanggal Cuti Sampai : " . (!empty($tgl_cuti_sampai) ? DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti_sampai) : '') . "<br>
                     Jumlah Hari : {$leaveApplication->jml_hari}<br>
                     Sisa Cuti Setelah : {$leaveApplication->sisa_cuti_setelah}<br>
                     Karywan Pengganti : {$leaveApplication->kar_ganti}<br>
