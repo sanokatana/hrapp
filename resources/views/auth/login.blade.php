@@ -100,6 +100,19 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const icon = document.querySelector('.toggle-password ion-icon');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.setAttribute('name', 'eye-off-outline');
+            } else {
+                passwordInput.type = 'password';
+                icon.setAttribute('name', 'eye-outline');
+            }
+        }
+
         document.querySelector("form").addEventListener("submit", function(event) {
             let input = document.getElementById("nik_or_email").value.trim();
             let nikFormat = /^\d{4}-\d{8}M?$/; // Accepts 4-8 or 4-8M

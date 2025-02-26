@@ -341,7 +341,7 @@ $cutiData = $cutiExpiringSoon && $cutiExpiringSoon->count() > 0
                     $threshold_time = strtotime($d->jam_kerja);
                     $lateness_threshold = strtotime($d->jam_kerja);
 
-                    if ($jam_masuk_time <= ($threshold_time + 30)) {
+                    if ($jam_masuk_time <= ($threshold_time)) {
                         $status="On Time" ;
                         $lateness="Tepat Waktu" ;
                         $statusClass="text-success" ;
@@ -358,7 +358,7 @@ $cutiData = $cutiExpiringSoon && $cutiExpiringSoon->count() > 0
                         if ($minutes_diff > 0) {
                         $lateness .= $minutes_diff . " Menit ";
                         }
-                        if ($seconds_diff > 0 && $hours_diff == 0 && $minutes_diff == 0) {
+                        if ($seconds_diff > 0) {  // Removed the hour and minute check to always show seconds
                         $lateness .= $seconds_diff . " Detik";
                         }
                         $status = "Terlambat";
