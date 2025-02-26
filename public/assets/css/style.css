@@ -1619,6 +1619,7 @@ a.badge-warning {
 
 .badge-info,
 a.badge-info {
+    font-weight: bold;
     background: #592bca !important;
 }
 

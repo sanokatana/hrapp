@@ -324,10 +324,18 @@ $cutiData = $cutiExpiringSoon && $cutiExpiringSoon->count() > 0
                 @foreach ($processedHistoribulanini as $d)
                 <ul class="listview image-listview rounded-custom">
                     @php
-                    if (empty($d->jam_masuk)) {
+                    if ($d->is_libur) {
+                    // Libur logic - just show times without status
+                    $status = "Libur";
+                    $statusClass = "text-muted";
+                    $showStatus = true;
+                    $showLateness = false;
+                    } else if (empty($d->jam_masuk)) {
                     $status = "Tidak Absen Masuk";
                     $lateness = "";
                     $statusClass = "text-danger";
+                    $showStatus = true;
+                    $showLateness = false;
                     } else {
                     $jam_masuk_time = strtotime($d->jam_masuk);
                     $threshold_time = strtotime($d->jam_kerja);
@@ -356,10 +364,12 @@ $cutiData = $cutiExpiringSoon && $cutiExpiringSoon->count() > 0
                         $status = "Terlambat";
                         $statusClass = "text-danger";
                         }
+                        $showStatus = true;
+                        $showLateness = true;
                         }
 
                         // Handle pulang status
-                        if (empty($d->jam_pulang)) {
+                        if (!$d->is_libur && empty($d->jam_pulang)) {
                         $statusPulang = "Tidak Absen Pulang";
                         $statusClassPulang = "text-danger";
                         $showPulangStatus = true;
@@ -373,17 +383,18 @@ $cutiData = $cutiExpiringSoon && $cutiExpiringSoon->count() > 0
                                 <div class="icon-box bg-info">
                                     <ion-icon name="finger-print-outline"></ion-icon>
                                 </div>
-
                                 <div class="in">
                                     <div class="jam-row">
                                         <div><b>{{ DateHelper::formatIndonesianDate($d->tanggal) }}</b></div>
+                                        @if($showStatus)
                                         <div class="status {{ $statusClass }}">
                                             <b>{{ $status }}</b>
                                         </div>
-                                        @if ($status != 'Tidak Absen Masuk')
+                                        @if ($showLateness)
                                         <div class="lateness {{ $status == 'Terlambat' ? 'text-warning' : 'text-success' }}">
                                             ({{ $lateness }})
                                         </div>
+                                        @endif
                                         @endif
                                         @if ($showPulangStatus)
                                         <div class="status {{ $statusClassPulang }}">
@@ -394,12 +405,12 @@ $cutiData = $cutiExpiringSoon && $cutiExpiringSoon->count() > 0
                                     </div>
                                     <div class="jam-row">
                                         <div class="jam-in mb-1">
-                                            <span class="badge {{ $status == 'Tidak Absen Masuk' ? 'badge-danger' : ($status == 'Terlambat' ? 'badge-danger' : 'badge-success') }}" style="width: 70px;">
+                                            <span class="badge {{ $d->is_libur ? 'badge-info' : ($status == 'Tidak Absen Masuk' ? 'badge-danger' : ($status == 'Terlambat' ? 'badge-danger' : 'badge-success')) }}" style="width: 70px;">
                                                 {{ (!empty($d->jam_masuk) && $d->jam_masuk !== null) ? $d->jam_masuk : "No Scan" }}
                                             </span>
                                         </div>
                                         <div class="jam-out">
-                                            <span class="badge {{ (!empty($d->jam_pulang) && $d->jam_pulang !== null) ? 'badge-success' : 'badge-danger' }}" style="width: 70px;">
+                                            <span class="badge {{ $d->is_libur ? 'badge-info' : ((!empty($d->jam_pulang) && $d->jam_pulang !== null) ? 'badge-success' : 'badge-danger') }}" style="width: 70px;">
                                                 {{ (!empty($d->jam_pulang) && $d->jam_pulang !== null) ? $d->jam_pulang : "No Scan" }}
                                             </span>
                                         </div>

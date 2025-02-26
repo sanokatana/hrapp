@@ -293,6 +293,7 @@ class DashboardController extends Controller
                                     'shift_start_time' => $shiftTimes->start_time,
                                     'shift_type' => $shiftTimes->status,
                                     'shift_name' => $shiftTimes->description,
+                                    'is_libur' => $shiftTimes->status === 'L'  // Add this flag
                                 ];
                             }
 
@@ -314,6 +315,15 @@ class DashboardController extends Controller
                                         $processedPresensi[$key]['jam_pulang'] = $shiftTimes->end_time;
                                         break;
                                 }
+                            }
+
+
+                            if ($shiftTimes->status === 'L') {
+                                if (empty($processedPresensi[$key]['jam_masuk']) ||
+                                    $time < strtotime($processedPresensi[$key]['jam_masuk'])) {
+                                    $processedPresensi[$key]['jam_masuk'] = $jam;
+                                }
+                                $processedPresensi[$key]['jam_pulang'] = $jam;
                             }
 
                             // Set window times
@@ -395,7 +405,8 @@ class DashboardController extends Controller
                 'shift_start_time' => $item['shift_start_time'],
                 'jam_kerja' => $item['shift_start_time'],
                 'status' => $item['shift_type'],
-                'shift_name' => $item['shift_name']
+                'shift_name' => $item['shift_name'],
+                'is_libur' => $item['is_libur'] ?? false  // Include the flag
             ];
         })->filter(function ($item) {
             // Keep records that have either jam_masuk OR jam_pulang

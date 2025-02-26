@@ -381,7 +381,7 @@ class PresensiController extends Controller
                     if ($shiftId) {
                         $shiftTimes = DB::table('shift')
                             ->where('id', $shiftId)
-                            ->select('early_time', 'latest_time', 'start_time', 'status', 'description')
+                            ->select('early_time', 'latest_time', 'start_time', 'end_time', 'status', 'description')
                             ->first();
 
                         if ($shiftTimes) {
@@ -393,8 +393,20 @@ class PresensiController extends Controller
                                     'jam_pulang' => '',
                                     'shift_start_time' => $shiftTimes->start_time,
                                     'shift_type' => $shiftTimes->status,
-                                    'shift_name' => $shiftTimes->description
+                                    'shift_name' => $shiftTimes->description,
+                                    'is_libur' => $shiftTimes->status === 'L'  // Add this flag
                                 ];
+                            }
+
+                            // If it's a Libur shift, just record first and last scans
+                            if ($shiftTimes->status === 'L') {
+                                if (empty($processedPresensi[$key]['jam_masuk']) ||
+                                    $time < strtotime($processedPresensi[$key]['jam_masuk'])) {
+                                    $processedPresensi[$key]['jam_masuk'] = $jam;
+                                }
+                                $processedPresensi[$key]['jam_pulang'] = $jam;
+                            } else {
+                                // ... existing shift processing code ...
                             }
 
                             if ($shiftTimes->status === 'OFF') {
@@ -496,7 +508,8 @@ class PresensiController extends Controller
                 'shift_start_time' => $item['shift_start_time'],
                 'jam_kerja' => $item['shift_start_time'],
                 'status' => $item['shift_type'],
-                'shift_name' => $item['shift_name']
+                'shift_name' => $item['shift_name'],
+                'is_libur' => $item['is_libur'] ?? false  // Include the flag
             ];
         })->filter(function ($item) {
             // Keep records that have either jam_masuk OR jam_pulang
