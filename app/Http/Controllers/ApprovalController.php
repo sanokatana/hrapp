@@ -305,23 +305,28 @@ class ApprovalController extends Controller
             $leaveApplication->nama_karyawan = $karyawan->nama_lengkap;
 
             // Send email only if it's not Al.Imron approving
-            if (!in_array($atasan->email, ['al.imron@ciptaharmoni.com'])) {
-                $managementEmails = [];
+            // Determine management notification logic
+            $managementEmails = [];
 
-                if (in_array($atasan->email, ['setia.rusli@ciptaharmoni.com', 'andreas.audyanto@ciptaharmoni.com'])) {
-                    $managementEmails = ['al.imron@ciptaharmoni.com']; // Only notify Al.Imron
-                    $showApprovalButtons = false;
-                } else {
-                    $managementEmails = [
-                        'al.imron@ciptaharmoni.com',
-                        'setia.rusli@ciptaharmoni.com',
-                        'andreas.audyanto@ciptaharmoni.com'
-                    ];
-                    $showApprovalButtons = true;
-                }
-
-                Mail::to($managementEmails)->send(new CutiApprovalNotification($leaveApplication, $approveUrl, $denyUrl, $showApprovalButtons));
+            if (in_array($atasan->email, ['setia.rusli@ciptaharmoni.com', 'andreas.audyanto@ciptaharmoni.com'])) {
+                $managementEmails = ['al.imron@ciptaharmoni.com']; // Only notify Al.Imron
+                $showApprovalButtons = false;
+            } else {
+                $managementEmails = [
+                    'al.imron@ciptaharmoni.com',
+                    'setia.rusli@ciptaharmoni.com',
+                    'andreas.audyanto@ciptaharmoni.com'
+                ];
+                $showApprovalButtons = true;
             }
+
+            Mail::to($managementEmails)
+                ->send(new CutiApprovalNotification(
+                    $leaveApplication,
+                    $approveUrl,
+                    $denyUrl,
+                    $showApprovalButtons
+                ));
         } else {
             // This is a Management approval
             DB::table('pengajuan_cuti')
@@ -977,29 +982,27 @@ class ApprovalController extends Controller
                     $leaveApplication->nama_karyawan = $karyawan->nama_lengkap;
 
                     // Determine management notification logic
-                    if (!in_array($currentUserEmail, ['al.imron@ciptaharmoni.com'])) {
-                        $managementEmails = [];
+                    $managementEmails = [];
 
-                        if (in_array($currentUserEmail, ['setia.rusli@ciptaharmoni.com', 'andreas.audyanto@ciptaharmoni.com'])) {
-                            $managementEmails = ['al.imron@ciptaharmoni.com']; // Only notify Al.Imron
-                            $showApprovalButtons = false;
-                        } else {
-                            $managementEmails = [
-                                'al.imron@ciptaharmoni.com',
-                                'setia.rusli@ciptaharmoni.com',
-                                'andreas.audyanto@ciptaharmoni.com'
-                            ];
-                            $showApprovalButtons = true;
-                        }
-
-                        Mail::to($managementEmails)
-                            ->send(new CutiApprovalNotification(
-                                $leaveApplication,
-                                $approveUrl,
-                                $denyUrl,
-                                $showApprovalButtons
-                            ));
+                    if (in_array($currentUserEmail, ['setia.rusli@ciptaharmoni.com', 'andreas.audyanto@ciptaharmoni.com'])) {
+                        $managementEmails = ['al.imron@ciptaharmoni.com']; // Only notify Al.Imron
+                        $showApprovalButtons = false;
+                    } else {
+                        $managementEmails = [
+                            'al.imron@ciptaharmoni.com',
+                            'setia.rusli@ciptaharmoni.com',
+                            'andreas.audyanto@ciptaharmoni.com'
+                        ];
+                        $showApprovalButtons = true;
                     }
+
+                    Mail::to($managementEmails)
+                        ->send(new CutiApprovalNotification(
+                            $leaveApplication,
+                            $approveUrl,
+                            $denyUrl,
+                            $showApprovalButtons
+                        ));
                 }
 
                 // Handle cuti/tunda logic

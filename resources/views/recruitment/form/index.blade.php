@@ -278,7 +278,7 @@
 
                             <!-- Alamat Email -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Alamat Email <span style="color: red;">*</span></label>
+                                <label class="col-md-3 col-form-label">Alamat Email Pribadi<span style="color: red;">*</span></label>
                                 <div class="col-md-9">
                                     <input type="email" class="form-control" name="alamat_email" id="alamat_email" placeholder="Alamat Email" maxlength="255">
                                 </div>
@@ -293,7 +293,7 @@
                                 <div class="col-12 table-responsive">
                                     <table class="table table-vcenter card-table table-striped">
                                         <thead>
-                                            <tr>
+                                            <tr style="text-align: center;">
                                                 <th>Uraian Keluarga</th>
                                                 <th>Nama Lengkap</th>
                                                 <th>L/P</th>
@@ -307,7 +307,11 @@
                                             <tr id="row_istri">
                                                 <td>Istri/Suami</td>
                                                 <td><input class="form-control" type="text" name="family_nama_lengkap_istri_suami"></td>
-                                                <td><input class="form-control" type="text" name="family_jenis_istri_suami"></td>
+                                                <td><select class="form-control" name="family_jenis_istri_suami">
+                                                        <option value="">Pilih</option>
+                                                        <option value="L">Laki-laki</option>
+                                                        <option value="P">Perempuan</option>
+                                                    </select></td>
                                                 <td><input class="form-control" type="date" name="family_tgl_lahir_istri_suami"></td>
                                                 <td><input class="form-control" type="text" name="family_pendidikan_istri_suami"></td>
                                                 <td><input class="form-control" type="text" name="family_pekerjaan_istri_suami"></td>
@@ -316,7 +320,11 @@
                                             <tr id="row_anak1">
                                                 <td>Anak ke 1</td>
                                                 <td><input class="form-control" type="text" name="family_nama_lengkap_anak1"></td>
-                                                <td><input class="form-control" type="text" name="family_jenis_anak1"></td>
+                                                <td><select class="form-control" name="family_jenis_anak1">
+                                                        <option value="">Pilih</option>
+                                                        <option value="L">Laki-laki</option>
+                                                        <option value="P">Perempuan</option>
+                                                    </select></td>
                                                 <td><input class="form-control" type="date" name="family_tgl_lahir_anak1"></td>
                                                 <td><input class="form-control" type="text" name="family_pendidikan_anak1"></td>
                                                 <td><input class="form-control" type="text" name="family_pekerjaan_anak1"></td>
@@ -325,7 +333,11 @@
                                             <tr id="row_anak2">
                                                 <td>Anak ke 2</td>
                                                 <td><input class="form-control" type="text" name="family_nama_lengkap_anak2"></td>
-                                                <td><input class="form-control" type="text" name="family_jenis_anak2"></td>
+                                                <td><select class="form-control" name="family_jenis_anak2">
+                                                        <option value="">Pilih</option>
+                                                        <option value="L">Laki-laki</option>
+                                                        <option value="P">Perempuan</option>
+                                                    </select></td>
                                                 <td><input class="form-control" type="date" name="family_tgl_lahir_anak2"></td>
                                                 <td><input class="form-control" type="text" name="family_pendidikan_anak2"></td>
                                                 <td><input class="form-control" type="text" name="family_pekerjaan_anak2"></td>
@@ -334,7 +346,11 @@
                                             <tr id="row_anak3">
                                                 <td>Anak ke 3</td>
                                                 <td><input class="form-control" type="text" name="family_nama_lengkap_anak3"></td>
-                                                <td><input class="form-control" type="text" name="family_jenis_anak3"></td>
+                                                <td><select class="form-control" name="family_jenis_anak3">
+                                                        <option value="">Pilih</option>
+                                                        <option value="L">Laki-laki</option>
+                                                        <option value="P">Perempuan</option>
+                                                    </select></td>
                                                 <td><input class="form-control" type="date" name="family_tgl_lahir_anak3"></td>
                                                 <td><input class="form-control" type="text" name="family_pendidikan_anak3"></td>
                                                 <td><input class="form-control" type="text" name="family_pekerjaan_anak3"></td>
@@ -351,7 +367,7 @@
                                 <div class="col-12 table-responsive">
                                     <table class="table table-vcenter card-table table-striped">
                                         <thead>
-                                            <tr>
+                                            <tr style="text-align: center;">
                                                 <th>Uraian Keluarga</th>
                                                 <th>Nama Lengkap</th>
                                                 <th>L/P</th>
@@ -366,7 +382,10 @@
                                             <tr>
                                                 <td>Ayah</td>
                                                 <td><input class="form-control" type="text" name="family1_nama_lengkap_ayah" id="family1_nama_lengkap_ayah"></td>
-                                                <td><input class="form-control" type="text" name="family1_jenis_ayah" id="family1_jenis_ayah"></td>
+                                                <td>
+                                                    <input type="hidden" name="family1_jenis_ayah" id="family1_jenis_ayah" value="L">
+                                                    Laki-laki
+                                                </td>
                                                 <td><input class="form-control" type="date" name="family1_tgl_lahir_ayah" id="family1_tgl_lahir_ayah"></td>
                                                 <td><input class="form-control" type="text" name="family1_pendidikan_ayah" id="family1_pendidikan_ayah"></td>
                                                 <td><input class="form-control" type="text" name="family1_pekerjaan_ayah" id="family1_pekerjaan_ayah"></td>
@@ -376,7 +395,10 @@
                                             <tr>
                                                 <td>Ibu</td>
                                                 <td><input class="form-control" type="text" name="family1_nama_lengkap_ibu" id="family1_nama_lengkap_ibu"></td>
-                                                <td><input class="form-control" type="text" name="family1_jenis_ibu" id="family1_jenis_ibu"></td>
+                                                <td>
+                                                    <input type="hidden" name="family1_jenis_ibu" id="family1_jenis_ibu" value="P">
+                                                    Perempuan
+                                                </td>
                                                 <td><input class="form-control" type="date" name="family1_tgl_lahir_ibu" id="family1_tgl_lahir_ibu"></td>
                                                 <td><input class="form-control" type="text" name="family1_pendidikan_ibu" id="family1_pendidikan_ibu"></td>
                                                 <td><input class="form-control" type="text" name="family1_pekerjaan_ibu" id="family1_pekerjaan_ibu"></td>
@@ -386,7 +408,11 @@
                                             <tr id="row_anak1">
                                                 <td>Anak ke 1</td>
                                                 <td><input class="form-control" type="text" name="family1_nama_lengkap_anak1" id="family1_nama_lengkap_anak1"></td>
-                                                <td><input class="form-control" type="text" name="family1_jenis_anak1" id="family1_jenis_anak1"></td>
+                                                <td><select class="form-control" name="family1_jenis_anak1" id="family1_jenis_anak1">
+                                                        <option value="">Pilih</option>
+                                                        <option value="L">Laki-laki</option>
+                                                        <option value="P">Perempuan</option>
+                                                    </select></td>
                                                 <td><input class="form-control" type="date" name="family1_tgl_lahir_anak1" id="family1_tgl_lahir_anak1"></td>
                                                 <td><input class="form-control" type="text" name="family1_pendidikan_anak1" id="family1_pendidikan_anak1"></td>
                                                 <td><input class="form-control" type="text" name="family1_pekerjaan_anak1" id="family1_pekerjaan_anak1"></td>
@@ -1151,7 +1177,11 @@
         newRow.innerHTML = `
         <td>Anak ke ${siblingCount}</td>
         <td><input class="form-control" type="text" name="family1_nama_lengkap_anak${siblingCount}"></td>
-        <td><input class="form-control" type="text" name="family1_jenis_anak${siblingCount}"></td>
+        <td><select class="form-control" name="family1_jenis_anak${siblingCount}">
+            <option value="">Pilih</option>
+            <option value="L">Laki-laki</option>
+            <option value="P">Perempuan</option>
+        </select></td>
         <td><input class="form-control" type="date" name="family1_tgl_lahir_anak${siblingCount}"></td>
         <td><input class="form-control" type="text" name="family1_pendidikan_anak${siblingCount}"></td>
         <td><input class="form-control" type="text" name="family1_pekerjaan_anak${siblingCount}"></td>

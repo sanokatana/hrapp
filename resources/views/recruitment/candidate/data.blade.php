@@ -266,7 +266,7 @@
 
                         <!-- Alamat Email -->
                         <div class="row mb-3 align-items-center">
-                            <label class="col-md-3 col-form-label">Alamat Email</label>
+                            <label class="col-md-3 col-form-label">Alamat Email Pribadi</label>
                             <div class="col-md-9">
                                 <input type="email" value="{{ $candidateData ? $candidateData->alamat_email : '' }}"
                                     class="form-control" name="alamat_email" placeholder="Alamat Email" readonly>
