@@ -702,9 +702,9 @@ class RecruitmentController extends Controller
 
             // Send email
             Mail::html($emailContent, function ($message) use ($email, $nama_candidate, $email_user, $stage_interview_name) {
-                $message->to('chandrazahran@gmail.com')
+                $message->to($email)
                     ->subject("CHL Job Candidacy {$stage_interview_name} Invitation for {$nama_candidate}")
-                    ->cc(['zahran.chandra@ciptaharmoni.com'])
+                    ->cc([$email_user, 'human.resources@ciptaharmoni.com'])
                     ->priority(1);
 
                 // Add importance headers
