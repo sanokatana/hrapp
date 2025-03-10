@@ -623,6 +623,20 @@ class PresensiController extends Controller
     {
         $nik = Auth::guard('karyawan')->user()->nik;
         $nip = Auth::guard('karyawan')->user()->nip;
+
+        // Check for existing izin with same date and status
+        $existingIzin = Pengajuanizin::where('nik', $nik)
+        ->where('tgl_izin', $request->tgl_izin)
+        ->where('status', $request->status)
+        ->first();
+
+        if ($existingIzin) {
+            return redirect('/presensi/izin')->with([
+                'error' => 'Anda sudah mengajukan izin dengan tipe yang sama untuk tanggal tersebut'
+            ]);
+        }
+
+
         $nama_lengkap = Auth::guard('karyawan')->user()->nama_lengkap;
         $email_karyawan = Auth::guard('karyawan')->user()->email;
         $tgl_izin = $request->tgl_izin;
@@ -723,9 +737,9 @@ class PresensiController extends Controller
                 }
             }
 
-            return redirect('/presensi/izin')->with(['success' => 'Data Berhasil Di Simpan']);
+            return redirect('/presensi/izin')->with(['success' => 'Izin Berhasil Di Simpan']);
         } else {
-            return redirect('/presensi/izin')->with(['error' => 'Data Gagal Di Simpan']);
+            return redirect('/presensi/izin')->with(['error' => 'Izin Gagal Di Simpan']);
         }
     }
 

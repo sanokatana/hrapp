@@ -67,10 +67,10 @@
                                         <div class="col-3 col-lg-3">
                                             <div class="form-group mb-3">
                                                 <select name="status_candidate" id="status_candidate" class="form-select">
-                                                    <option value="">Status Candidate</option>
-                                                    <option value="In Process">In Process</option>
-                                                    <option value="Hired">Hired</option>
-                                                    <option value="Rejected">Rejected</option>
+                                                    <option value="">All Status</option>
+                                                    <option value="In Process" {{ request('status_candidate') == 'In Process' ? 'selected' : '' }}>In Process</option>
+                                                    <option value="Hired" {{ request('status_candidate') == 'Hired' ? 'selected' : '' }}>Hired</option>
+                                                    <option value="Rejected" {{ request('status_candidate') == 'Rejected' ? 'selected' : '' }}>Rejected</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -245,6 +245,8 @@
                 <form action="/recruitment/candidate/data/peningkatan" method="POST" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="dataCandidate" id="dataCandidate">
+                    <input type="hidden" name="employee_status" value="Kontrak">
+
                     <div class="row">
                         <div class="col-6">
                             <!-- NIK input field -->
@@ -268,43 +270,15 @@
                     </div>
 
                     <div class="row">
-
-                        <div class="col-6">
+                        <div class="col-12">
                             <div class="form-label">NIP</div>
                             <div class="input-icon mb-3">
                                 <input type="text" value="" class="form-control" name="nip" id="nip" placeholder="xxxx">
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="form-label">Jabatan</div>
-                            <select name="jabatan" id="jabatan" class="form-select">
-                                <option value="">Pilih</option>
-                                @foreach ($jabatan as $d)
-                                <option {{ Request('id') == $d->id ? 'selected' : '' }} value="{{ $d->id }}">{{ $d->nama_jabatan }} - {{ $d->site }}</option>
-                                @endforeach
-                            </select>
-                        </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-6">
-                            <div class="form-label">Tgl Masuk</div>
-                            <div class="input-icon mb-3">
-                                <input type="date" value="" class="form-control" name="tgl_masuk" id="nitgl_masukp" placeholder="xx-xx-xxxx">
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="form-label">Employee Status</div>
-                            <select name="employee_status" id="employee_status" class="form-select">
-                                <option value="">Pilih</option>
-                                <option value="Kontrak">Kontrak</option>
-                                <option value="Tetap">Tetap</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row">
-
                         <div class="col-6">
                             <div class="form-label">Grade</div>
                             <div class="input-icon mb-3">
@@ -312,27 +286,9 @@
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="form-label">Base POH</div>
-                            <select name="base" id="base" class="form-select">
-                                <option value="">Base</option>
-                                @foreach ($uniqueBase as $base)
-                                <option {{ request('base') == $base ? 'selected' : '' }} value="{{ $base }}">{{ $base }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-6">
                             <div class="form-label">Nama PT</div>
                             <div class="input-icon mb-3">
                                 <input type="text" value="" class="form-control" name="nama_pt" id="nama_pt" placeholder="XXX">
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="form-label">Religion</div>
-                            <div class="input-icon mb-3">
-                                <input type="text" value="" class="form-control" name="religion" id="religion" placeholder="XXX">
                             </div>
                         </div>
                     </div>

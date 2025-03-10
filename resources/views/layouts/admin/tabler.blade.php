@@ -180,12 +180,17 @@
                     // Wait for 2 seconds before navigating
                     setTimeout(function() {
                         window.location.href = href;
-                    }, 1000);
+                    }, 800);
                 }
             });
 
             // Handle form submissions
             document.addEventListener('submit', function(e) {
+                // Skip if it's our AJAX form
+                if (e.target.classList.contains('ajax-form')) {
+                    return;
+                }
+
                 const loader = document.getElementById('loader-wrapper');
                 loader.style.display = 'block';
             });

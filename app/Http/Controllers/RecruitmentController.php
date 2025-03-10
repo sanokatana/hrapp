@@ -404,36 +404,34 @@ class RecruitmentController extends Controller
         $job = DB::table('job_openings')
             ->join('recruitment_types', 'job_openings.recruitment_type_id', '=', 'recruitment_types.id')
             ->select('job_openings.*', 'recruitment_types.name as recruitment_type_name')
+            ->orderBy('job_openings.id', 'DESC')
             ->get();
 
         $department = DB::table('department')->get();
         $recruitment_type = DB::table('recruitment_types')->get();
+        $jabatan = DB::table('jabatan')->orderBy('nama_jabatan', 'ASC')->get();
 
-        return view("recruitment.job.index", compact('job', 'department', 'recruitment_type'));
+        return view("recruitment.job.index", compact('job', 'department', 'recruitment_type', 'jabatan'));
     }
 
 
     public function job_opening_store(Request $request)
     {
-        $title = $request->title;
-        $description = $request->description;
-        $recruitment_type_id = $request->recruitment_type_id;
-        $kode_dept = $request->kode_dept;
-        $status = $request->status;
         $data = [
-            'title' => $title,
-            'description' => $description,
-            'recruitment_type_id' => $recruitment_type_id,
-            'kode_dept' => $kode_dept,
-            'status' => $status
+            'jabatan_id' => $request->jabatan_id,
+            'title' => $request->title,
+            'description' => $request->description,
+            'recruitment_type_id' => $request->recruitment_type_id,
+            'kode_dept' => $request->kode_dept,
+            'status' => 'Open',
+            'site' => $request->site
         ];
 
-        $simpan = DB::table('job_openings')
-            ->insert($data);
-        if ($simpan) {
-            return Redirect::back()->with(['success' => 'Job Opening Berhasil Di Simpan']);
-        } else {
-            return Redirect::back()->with(['warning' => 'Job Opening Gagal Di Simpan']);
+        try {
+            DB::table('job_openings')->insert($data);
+            return Redirect::back()->with(['success' => 'Job Opening Successfully Saved']);
+        } catch (\Exception $e) {
+            return Redirect::back()->with(['warning' => 'Failed to Save Job Opening: ' . $e->getMessage()]);
         }
     }
 
@@ -560,6 +558,7 @@ class RecruitmentController extends Controller
     {
 
         $recruitmentTypes = DB::table('recruitment_types')->get();
+        $recruitmentData = [];
 
         // For each recruitment type, retrieve the associated stages and candidates
         $recruitmentData = [];
@@ -569,16 +568,20 @@ class RecruitmentController extends Controller
                 ->orderBy('sequence', 'asc')
                 ->get();
 
+
             $stagesWithCandidates = [];
             foreach ($stages as $stage) {
                 $candidates = DB::table('candidates')
                     ->join('job_openings', 'candidates.job_opening_id', '=', 'job_openings.id')
+                    ->leftJoin('candidate_data', 'candidates.id', '=', 'candidate_data.candidate_id') // Changed to leftJoin
                     ->where('candidates.current_stage_id', $stage->id)
                     ->where('candidates.status', 'In Process')
                     ->select(
                         'candidates.id',
                         'candidates.nama_candidate',
                         'candidates.email',
+                        'candidates.status',
+                        DB::raw('COALESCE(candidate_data.status_form, "Pending") as status_form'), // Default value if null
                         'job_openings.title as job_title',
                         'job_openings.id as job_opening_id'
                     )
@@ -596,7 +599,14 @@ class RecruitmentController extends Controller
             ];
         }
 
-        return view("recruitment.pipeline.index", compact('recruitmentData'));
+        $jabatan = DB::table('jabatan')
+            ->orderBy('nama_jabatan', 'ASC')
+            ->get();
+        $uniqueBase = Karyawan::whereNotNull('base_poh')->distinct()->pluck('base_poh')->filter();
+        $job = DB::table('job_openings')->get();
+
+
+        return view("recruitment.pipeline.index", compact('recruitmentData', 'jabatan', 'uniqueBase', 'job'));
     }
 
 
@@ -681,16 +691,17 @@ class RecruitmentController extends Controller
             Kepada Yth.<br>
             Bpk/Ibu/Sdr/i <b>{$nama_candidate}</b><br><br>
 
-            Informasi <b>jadwal interview</b> yang akan dilaksanakan pada,<br>
+            Sebagai proses lanjutan dari proses rekrutmen di CHL Group, saya undang untuk datang ke kantor sesi Final Interview pada,<br>
             <ul>
                 <li>Hari & Tanggal    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$formattedInterviewDate}</li>
                 <li>Waktu             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$interview_time} - Selesai</li>
                 <li>Posisi di lamar   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$nama_posisi}</li>
                 <li>Tahap Interview   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$stage_interview_name}</li>
-                <li>Interviewer       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$interviewer}</li>
+                <li>Interviewer       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$interviewer} & {$interviewer2}</li>
                 <li>Alamat            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: CHL Group Marketing Lounge,<br>
                 Ruko Sorrento Place No. 18-19 PJQJ+R8G, Jl. Ir.Sukarno, Curug Sangereng, Kec.Klp. Dua, Kabupaten Tangerang, Banten 15810.
-                <a href='https://goo.gl/maps/Ko81dv9gxMHmMC7p9'>Google Maps</a></li>
+                <a href='https://goo.gl/maps/Ko81dv9gxMHmMC7p9'>Google Maps</a><br>
+                Harap hadir 15 menit sebelum waktu yang telah ditentukan.</li>
             </ul>
 
             <br>
@@ -703,7 +714,7 @@ class RecruitmentController extends Controller
             // Send email
             Mail::html($emailContent, function ($message) use ($email, $nama_candidate, $email_user, $stage_interview_name) {
                 $message->to($email)
-                    ->subject("CHL Job Candidacy {$stage_interview_name} Invitation for {$nama_candidate}")
+                    ->subject("{$nama_candidate} - Jadwal Final Interview Anda di CHL Group")
                     ->cc([$email_user, 'human.resources@ciptaharmoni.com'])
                     ->priority(1);
 
@@ -807,7 +818,14 @@ class RecruitmentController extends Controller
 
         if (!empty($request->status_candidate)) {
             $datas->where('candidates.status', $request->status_candidate);
+        }
+
+        if ($request->has('status_candidate')) {
+            if ($request->status_candidate === 'In Process' || $request->status_candidate === 'Hired' || $request->status_candidate === 'Rejected') {
+                $datas->where('candidates.status', $request->status_candidate);
+            }
         } else {
+            // Default to '0' (Pending) if no status_approved_hrd is provided
             $datas->where('candidates.status', 'In Process');
         }
 
@@ -828,18 +846,33 @@ class RecruitmentController extends Controller
             'dataCandidate' => 'nullable|string|max:255',
             'nik' => 'nullable|string|max:255',
             'nip' => 'nullable|string|max:255',
-            'jabatan' => 'required',
-            'tgl_masuk' => 'required|date',
-            'employee_status' => 'required|string',
             'grade' => 'nullable|string|max:255',
-            'base' => 'nullable|string',
             'nama_pt' => 'nullable|string|max:255',
-            'religion' => 'nullable|string|max:255',
             'rek_no' => 'nullable|string|max:255',
             'bank_name' => 'nullable|string|max:255',
             'rek_name' => 'nullable|string|max:255',
         ]);
         try {
+
+            // Get candidate data
+            $candidateDataId = $request->dataCandidate;
+            $candidateData = DB::table('candidate_data')->where('id', $candidateDataId)->first();
+            $candidateDetails = DB::table('candidates')->where('id', $candidateData->candidate_id)->first();
+
+            // Get job opening and jabatan details
+            $jobOpening = DB::table('job_openings')
+                ->join('jabatan', 'job_openings.jabatan_id', '=', 'jabatan.id')
+                ->where('job_openings.id', $candidateDetails->job_opening_id)
+                ->select('jabatan.*', 'job_openings.kode_dept')
+                ->first();
+
+            // Get tanggal_masuk from candidate_perlengkapan
+            $perlengkapan = DB::table('candidate_data_perlengkapan')
+                ->where('candidate_data_id', $candidateDataId)
+                ->first();
+
+            $tglMasuk = $perlengkapan->tanggal_masuk ?? now()->format('Y-m-d');
+
             if (!$request->filled('nik')) {
                 // Retrieve the last numeric sequence portion of NIK by filtering valid patterns
                 $lastSequence = DB::table('karyawan')
@@ -852,11 +885,7 @@ class RecruitmentController extends Controller
 
                 // Increment the sequence or start from 1 if none found, ensuring 4-digit formatting
                 $newSequence = str_pad(($lastSequence ?? 0) + 1, 4, '0', STR_PAD_LEFT);
-
-                // Format the date part of the NIK using the input `tgl_masuk`
-                $tglMasukFormatted = date('Ymd', strtotime($request->tgl_masuk));
-
-                // Combine the new sequence and date to create the new NIK
+                $tglMasukFormatted = date('Ymd', strtotime($tglMasuk));
                 $nik = $newSequence . '-' . $tglMasukFormatted;
             } else {
                 $nik = $request->nik;
@@ -980,17 +1009,17 @@ class RecruitmentController extends Controller
                 'nik' => $nik,
                 'nip' => $request->nip,
                 'nama_lengkap' => $candidateData->nama_lengkap,
-                'jabatan' => $request->jabatan,
+                'jabatan' => $jobOpening->id,
                 'email' => $candidateData->alamat_email,
                 'no_hp' => $candidateData->telp_rumah_hp,
-                'tgl_masuk' => $request->tgl_masuk,
+                'tgl_masuk' => $tglMasuk,
                 'DOB' => $candidateData->tgl_lahir,
                 'kode_dept' => $kodeDept,
                 'grade' => $request->grade,
                 'shift_pattern_id' => '1',
                 'start_shift' => $request->tgl_masuk,
-                'employee_status' => $request->employee_status,
-                'base_poh' => $request->base,
+                'employee_status' => 'Kontrak',
+                'base_poh' => $jobOpening->site,
                 'nama_pt' => $request->nama_pt,
                 'sex' => $sex,
                 'tax_status' => $taxStatus,
@@ -1145,6 +1174,8 @@ class RecruitmentController extends Controller
                 ->where('id', $candidateId)
                 ->update(['status_form' => $newStatus]);
 
+            Log::info('Candidate data approved: ' . $candidateId . ' - New status: ' . $newStatus);
+
             // Get the candidate_id from the updated candidate_data table
             $candidate = DB::table('candidate_data')
                 ->where('id', $candidateId)
@@ -1191,7 +1222,7 @@ class RecruitmentController extends Controller
                         Mail::html($emailContent, function ($message) use ($email, $nama_candidate, $nama_posisi) {
                             $message->to($email)
                                 ->subject("Selamat {$nama_candidate} Anda telah berhasil diterima untuk posisi {$nama_posisi}")
-                                ->cc(['human.resources@ciptaharmoni.com', auth()->user()->email])
+                                ->cc(['humanresources@ciptaharmoni.com', auth()->user()->email])
                                 ->priority(1);
 
                             // Add importance headers
@@ -1475,5 +1506,27 @@ class RecruitmentController extends Controller
         }
 
         return view('recruitment.candidate.print', compact('candidates', 'penjelasan3', 'penjelasan4', 'alasan1', 'alasan2', 'alasan3', 'alasan4', 'alasan5', 'alasan6', 'pekerjaanList', 'bahasaList', 'kursusList', 'penjelasan1', 'penjelasan2', 'addressLine1', 'pendidikanList', 'addressLine2', 'addressLine3', 'addressLine4', 'addressLine5', 'familyMembers', 'familyMembers1'));
+    }
+
+    public function getCandidateDataId(Request $request)
+    {
+        $candidateId = $request->candidate_id;
+
+        $candidateData = DB::table('candidate_data')
+            ->where('candidate_id', $candidateId)
+            ->select('id')
+            ->first();
+
+        if ($candidateData) {
+            return response()->json([
+                'success' => true,
+                'data_id' => $candidateData->id
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Candidate data not found'
+        ]);
     }
 }

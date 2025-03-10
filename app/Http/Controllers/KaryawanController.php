@@ -18,6 +18,9 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\KaryawanExport;
 use App\Models\Contract;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
+use Intervention\Image\ImageManagerStatic as Image;
+use Illuminate\Support\Str;
 
 class KaryawanController extends Controller
 {
@@ -128,8 +131,8 @@ class KaryawanController extends Controller
         // Fetch department, jabatan, and location
         $department = DB::table('department')->get();
         $jabatan = DB::table('jabatan')
-        ->orderBy('nama_jabatan', 'ASC')
-        ->get();
+            ->orderBy('nama_jabatan', 'ASC')
+            ->get();
 
         $location = DB::table('konfigurasi_lokasi')->get();
 
@@ -158,27 +161,95 @@ class KaryawanController extends Controller
         $data['employee_status'] = $request->input('employee_status_edit');
         $name = Auth::guard('user')->user()->name;
         $data['updated_by'] = $name;
-        $old_foto = $request->old_foto;
-
-        if ($request->hasFile('foto')) {
-            $data['foto'] = $data['nik'] . '.' . $request->file('foto')->getClientOriginalExtension();
-        } else {
-            $data['foto'] = $old_foto;
-        }
 
         try {
-            $update = DB::table('karyawan')->where('id', $id)->update($data);
-            if ($update) {
-                if ($request->hasFile('foto')) {
-                    $folderPath = 'public/uploads/karyawan/';
-                    $folderPathOld = 'public/uploads/karyawan/' . $old_foto;
-                    Storage::delete($folderPathOld);
-                    $request->file('foto')->storeAs($folderPath, $data['foto']);
+            $karyawan = DB::table('karyawan')->where('id', $id)->first();
+            $folderName = $karyawan->nip . '.' . $karyawan->nama_lengkap;
+            $folderPath = storage_path('app/public/uploads/karyawan/' . $folderName . '/files/');
+
+            // Create directory if it doesn't exist
+            if (!File::exists($folderPath)) {
+                File::makeDirectory($folderPath, 0755, true);
+            }
+
+            // Define allowed file types
+            $allowedImages = ['jpg', 'jpeg', 'png'];
+            $allowedDocs = ['pdf', 'docx'];
+
+            // Handle each file upload
+            $fileFields = [
+                'file_photo' => 'photo',
+                'file_ktp' => 'ktp',
+                'file_kk' => 'kk',
+                'file_npwp' => 'npwp',
+                'file_sim' => 'sim',
+                'file_ijazah' => 'ijazah',
+                'file_skck' => 'skck',
+                'file_cv' => 'cv',
+                'file_applicant' => 'applicant'
+            ];
+
+            foreach ($fileFields as $field => $prefix) {
+                if ($request->hasFile($field)) {
+                    try {
+                        $file = $request->file($field);
+                        $extension = strtolower($file->getClientOriginalExtension());
+                        $fileName = $prefix . '_' . $karyawan->nip . '_' . uniqid() . '.' . $extension;
+
+                        // Check if file type is allowed
+                        if (in_array($extension, $allowedImages)) {
+                            // Process and compress images using Intervention Image
+                            $image = Image::make($file);
+                            $image->resize(null, 800, function ($constraint) {
+                                $constraint->aspectRatio();
+                                $constraint->upsize();
+                            });
+
+                            // Compress image if needed
+                            $quality = 75;
+                            do {
+                                $image->save($folderPath . $fileName, $quality);
+                                if (filesize($folderPath . $fileName) > 1048576) { // 1MB
+                                    $quality -= 5;
+                                } else {
+                                    break;
+                                }
+                            } while ($quality > 0);
+                        } elseif (in_array($extension, $allowedDocs)) {
+                            // Move document files without modification
+                            $file->move($folderPath, $fileName);
+                        } else {
+                            // Invalid file type
+                            return Redirect::back()->with([
+                                'danger' => 'Invalid file type for ' . $prefix . '. Allowed types: jpg, jpeg, png, pdf, docx'
+                            ]);
+                        }
+
+                        // Delete old file if exists
+                        if (isset($karyawan->$field) && $karyawan->$field !== 'No_Document') {
+                            $oldFilePath = $folderPath . $karyawan->$field;
+                            if (File::exists($oldFilePath)) {
+                                File::delete($oldFilePath);
+                            }
+                        }
+
+                        $data[$field] = $fileName;
+                    } catch (\Exception $e) {
+                        Log::error('Error processing file: ' . $field, ['error' => $e->getMessage()]);
+                        return Redirect::back()->with(['danger' => 'Error processing ' . $prefix . ' file: ' . $e->getMessage()]);
+                    }
                 }
+            }
+
+            // Update database
+            $update = DB::table('karyawan')->where('id', $id)->update($data);
+
+            if ($update) {
                 return Redirect::back()->with(['success' => 'Data Berhasil Di Update']);
             }
         } catch (\Exception $e) {
-            return Redirect::back()->with(['danger' => 'Data Gagal Di Update']);
+            Log::error('Error updating karyawan:', ['error' => $e->getMessage()]);
+            return Redirect::back()->with(['danger' => 'Data Gagal Di Update: ' . $e->getMessage()]);
         }
     }
 
@@ -373,5 +444,4 @@ class KaryawanController extends Controller
     {
         return Excel::download(new KaryawanExport, 'karyawan.xlsx');
     }
-
 }

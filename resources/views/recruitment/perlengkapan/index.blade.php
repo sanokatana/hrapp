@@ -50,7 +50,7 @@
                             <!-- File Upload Section -->
 
                             <div class="row mb-3">
-                                @if($candidateDataLengkap && $candidateDataLengkap->photo_ktp && $candidateDataLengkap->photo_ktp !== 'No_Document'                                )
+                                @if($candidateDataLengkap && $candidateDataLengkap->photo_ktp && $candidateDataLengkap->photo_ktp !== 'No_Document' )
                                 <!-- If there's a file uploaded, show it as a clickable link -->
                                 <div class="col-3">
                                     <h3>File KTP</h3>
@@ -180,9 +180,35 @@
                                 @endif
                             </div>
 
-                            <div class="form-group">
-                                <label for="no_kartu_keluarga">No Kartu Keluarga</label>
-                                <input type="text" name="no_kartu_keluarga" id="no_kartu_keluarga" class="form-control" value="{{ $candidateDataLengkap->no_kartu_keluarga ?? '' }}">
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label for="no_kartu_keluarga" class="form-label required">No Kartu Keluarga</label>
+                                        <input type="text"
+                                            name="no_kartu_keluarga"
+                                            id="no_kartu_keluarga"
+                                            class="form-control @error('no_kartu_keluarga') is-invalid @enderror"
+                                            value="{{ $candidateDataLengkap->no_kartu_keluarga ?? '' }}"
+                                            >
+                                        @error('no_kartu_keluarga')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label for="tanggal_masuk" class="form-label required">Tanggal Masuk</label>
+                                        <input type="date"
+                                            name="tanggal_masuk"
+                                            id="tanggal_masuk"
+                                            class="form-control @error('tanggal_masuk') is-invalid @enderror"
+                                            value="{{ $candidateDataLengkap->tanggal_masuk ?? '' }}"
+                                            >
+                                        @error('tanggal_masuk')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
                             </div>
 
 
@@ -231,4 +257,36 @@
 @endsection
 
 @push('myscript')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('formCandidate');
+
+    form.addEventListener('submit', function(e) {
+        const noKK = document.getElementById('no_kartu_keluarga').value;
+        const tanggalMasuk = document.getElementById('tanggal_masuk').value;
+
+        if (!noKK.trim()) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Error!',
+                text: 'No Kartu Keluarga harus diisi!',
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            });
+            return;
+        }
+
+        if (!tanggalMasuk) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Error!',
+                text: 'Tanggal Masuk harus diisi!',
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            });
+            return;
+        }
+    });
+});
+</script>
 @endpush

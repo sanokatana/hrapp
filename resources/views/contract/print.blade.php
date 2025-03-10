@@ -81,6 +81,7 @@
             counter-increment: c1 0;
         }
 
+
         #l2 {
             padding-left: 0pt;
         }
@@ -205,6 +206,27 @@
             font-weight: normal;
             text-decoration: none;
             font-size: 10pt;
+        }
+
+        .number-cell {
+            display: table-cell;
+            width: 1px;
+            color: black;
+            font-style: normal;
+            font-weight: normal;
+            font-family: "Calibri Light", sans-serif;
+            font-size: 13px;
+            padding-right: 5px;
+        }
+
+        .text-cell {
+            display: table-cell;
+            text-align: justify;
+            color: black;
+            font-style: normal;
+            font-weight: normal;
+            font-family: "Calibri Light", sans-serif;
+            font-size: 13px;
         }
 
         #l7>li:first-child>*:first-child:before {
@@ -835,7 +857,7 @@
             <p style="text-indent: 0pt;text-align: left;"><br></p>
             <table style="border-collapse:collapse;margin-left:60.72pt" cellspacing="0">
                 <tbody>
-                    <tr style="height:57pt">
+                    <tr style="height:65pt">
                         <td style="width:196pt">
                             <p class="s3"
                                 style="padding-right: 90pt;text-indent: 0pt;line-height: 10pt;text-align: center;">PIHAK
@@ -847,12 +869,12 @@
                                 PERTAMA</p>
                         </td>
                     </tr>
-                    <tr style="height:57pt">
+                    <tr style="height:65pt">
                         <td style="width:196pt">
                             <p style="text-indent: 0pt;text-align: left;"><br></p>
                             <p class="s3"
                                 style="padding-right: 90pt;text-indent: 0pt;line-height: 11pt;text-align: center;">
-                                ({{$contract->nama_lengkap}})</p>
+                                ({{ strtoupper($contract->nama_lengkap) }})</p>
                         </td>
                         <td style="width:162pt">
                             <p style="text-indent: 0pt;text-align: left;"><br></p>
@@ -863,218 +885,278 @@
                     </tr>
                 </tbody>
             </table>
-            <p style="padding-top: 2pt;padding-left: 5pt;text-indent: 0pt;text-align: left; font-weight: bolder; page-break-before: always;">LAMPIRAN I &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: WAKTU DAN
-                FASILITAS KERJA</p>
-            <ol id="l14">
-                <li data-list-text="1.">
-                    <p style="padding-top: 12pt;padding-left: 89pt;text-indent: -14pt;text-align: justify;">&nbsp;Waktu kerja
-                        diatur sesuai dengan peraturan perusahaan.</p>
-                </li>
-                <li data-list-text="2.">
-                    <p style="padding-left: 90pt;text-indent: -14pt;text-align: justify;">&nbsp;Penggantian biaya pengobatan
-                        Rawat Jalan untuk diri pribadi dan keluarganya maksimal 3 anak,dengan plafon maksimum sebesar 1
-                        (satu) bulan honorarium dalam 12 (duabelas) bulan per tahun, dengan menyerahkan kwitansi Dokter
-                        dan/atau kwitansi apotik atas setiap tagihan biaya pengobatan.</p>
-                </li>
-                <li data-list-text="3.">
-                    <p style="padding-left: 90pt;text-indent: -14pt;text-align: justify;">&nbsp;Biaya Rawat Inap diberikan
-                        setara dengan golongan dengan menggunakan standar Rumah Sakit yang sudah atau akan bekerja sama
-                        dengan Perusahaan.</p>
-                </li>
-                <li data-list-text="4.">
-                    <p style="padding-left: 90pt;text-indent: -14pt;text-align: justify;">&nbsp;PIHAK PERTAMA akan memberikan
-                        Tunjangan Hari Raya (THR) sebesar 1x honorarium (satu kali honorarium) dengan masa kerja satu
-                        tahun terus menerus. Jika kurang dari 1 (satu) tahun, dihitung secara proporsional.</p>
-                </li>
-            </ol>
         </li>
     </ol>
+    <p style="padding-top: 2pt;padding-left: 5pt;text-indent: 0pt;text-align: left; font-weight: bolder; page-break-before: always;">LAMPIRAN I &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: WAKTU DAN
+        FASILITAS KERJA</p>
+    <p style="text-indent: 0pt;text-align: left;"><br></p>
+    <div style="padding-left: 80pt">
+        <div style="display: table;">
+            <div style="display: table-row;">
+                <div class="number-cell">1.</div>
+                <p class="text-cell">Waktu kerja
+                diatur sesuai dengan peraturan perusahaan.</p>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell">2.</div>
+                <p class="text-cell">Penggantian biaya pengobatan
+                    Rawat Jalan untuk diri pribadi dan keluarganya maksimal 3 anak,dengan plafon maksimum sebesar 1
+                    (satu) bulan honorarium dalam 12 (duabelas) bulan per tahun, dengan menyerahkan kwitansi Dokter
+                    dan/atau kwitansi apotik atas setiap tagihan biaya pengobatan.</p>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell">3.</div>
+                <p class="text-cell">Waktu kerja
+                Biaya Rawat Inap diberikan
+                    setara dengan golongan dengan menggunakan standar Rumah Sakit yang sudah atau akan bekerja sama
+                    dengan Perusahaan.</p>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell">4.</div>
+                <p class="text-cell">PIHAK PERTAMA akan memberikan
+                    Tunjangan Hari Raya (THR) sebesar 1x honorarium (satu kali honorarium) dengan masa kerja satu
+                    tahun terus menerus. Jika kurang dari 1 (satu) tahun, dihitung secara proporsional.</p>
+            </div>
+        </div>
+    </div>
     <p class="s6" style="padding-left: 41pt;text-indent: 0pt;text-align: left;">.</p>
     <p style="padding-left: 5pt;text-indent: 0pt;text-align: left; font-weight: bolder;">LAMPIRAN II &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: KESALAHAN YANG BERAKIBAT PEMUTUSAN
         HUBUNGAN KERJA</p>
     <p style="text-indent: 0pt;text-align: left;"><br></p>
-    <ol id="l15">
-        <li data-list-text="1.">
-            <p style="padding-left: 89pt;text-indent: -14pt;text-align: justify;">Melakukan dan/atau terlibat langsung
-                maupun tidak langsung dalam suatu penipuan dan/atau pencurian dan/atau penggelapan barang dan/atau uang
-                milik Perseroan;</p>
-        </li>
-        <li data-list-text="2.">
-            <p style="padding-left: 89pt;text-indent: -14pt;line-height: 12pt;text-align: justify;">&nbsp;Memberikan keterangan
-                palsu atau yang dipalsukan.</p>
-        </li>
-        <li data-list-text="3.">
-            <p style="padding-left: 89pt;text-indent: -14pt;text-align: justify;">Mabok, minum minuman keras yang
-                memabukkan, memakai dan/atau mengedarkan narkotika, psikotropika dan/atau zat adiktif lainnya di
-                lingkungan kerja;</p>
-        </li>
-        <li data-list-text="4.">
-            <p style="padding-left: 89pt;text-indent: -14pt;line-height: 12pt;text-align: justify;">Melakukan perbuatan
-                asusila dan/atau perjudian di tempat kerja.</p>
-        </li>
-        <li data-list-text="5.">
-            <p style="padding-left: 89pt;text-indent: -14pt;text-align: justify;">Mengancam, mengintimidasi, menyerang,
-                menganiaya, teman kerja dan/atau keluarga, Pimpinan Perseroan dan/atau keluarga, pemilik Perseroan
-                dan/atau keluarganya;</p>
-        </li>
-        <li data-list-text="6.">
-            <p style="padding-left: 89pt;text-indent: -14pt;text-align: justify;">&nbsp;Membujuk teman kerja atau Pimpinan
-                Perseroan atau pemilik Perseroan untuk melakukan sesuatu yang bertentangan dengan peraturan
-                perundang-undangan;</p>
-        </li>
-        <li data-list-text="7.">
-            <p style="padding-left: 89pt;text-indent: -14pt;text-align: justify;">Kecerobohan yang mengakibatkan barang
-                milik Perseroan rusak atau membiarkan dalam keadaan bahaya barang milik Perseroan;</p>
-        </li>
-        <li data-list-text="8.">
-            <p style="padding-left: 89pt;text-indent: -14pt;line-height: 12pt;text-align: justify;">&nbsp;Ceroboh atau membiarkan
-                diri atau teman sekerja dalam keadaan bahaya.</p>
-        </li>
-        <li data-list-text="9.">
-            <p style="padding-left: 89pt;text-indent: -14pt;text-align: justify;">Membongkar atau membocorkan hal-hal
-                tentang Perseroan, termasuk tentang Pimpinan Perseroan, pemilik Perseroan, segala sesuatu tentang tenaga
-                kerja dan lain-lain yang bersifat rahasia, baik tentang usaha, operasi, informasi maupun data atau
-                dokumen- dokumen, temuan-temuan, relasi-relasi, hubungan-hubungan usaha, keuangan;</p>
-        </li>
-        <li data-list-text="10.">
-            <p style="padding-left: 89pt;text-indent: -14pt;text-align: justify;">Melakukan perbuatan yang dapat
-                menimbulkan pertentangan SARA (Suku, Agama, Ras dan Antar Golongan);</p>
-        </li>
-        <li data-list-text="11.">
-            <p style="padding-left: 89pt;text-indent: -14pt;text-align: justify;">Mencemarkan nama Perseroan, teman
-                kerja, Pimpinan Perseroan, pemilik Perseroan termasuk keluarganya;</p>
-        </li>
-        <li data-list-text="12.">
-            <p style="padding-left: 89pt;text-indent: -14pt;text-align: justify;">Melakukan dan/atau mempunyai kegiatan
-                usaha yang menyebabkan konflik kepentingan (<i>conflict of interest</i>) dengan jabatan yang diembannya.
-            </p>
-        </li>
-        <li data-list-text="13.">
-            <p style="padding-left: 89pt;text-indent: -14pt;text-align: justify;">Berkelahi dengan sesama teman kerja
-                baik di dalam lingkungan kerja maupun di luar lingkungan kerja;</p>
-        </li>
-        <li data-list-text="14.">
-            <p style="padding-left: 89pt;text-indent: -14pt;line-height: 12pt;text-align: justify;">&nbsp;Melakukan dan/atau
-                terlibat dalam dalam suatu tindakan pidana di lingkungan perusahaan;</p>
-        </li>
-        <li data-list-text="15.">
-            <p style="padding-left: 89pt;text-indent: -14pt;line-height: 12pt;text-align: justify;">Tidak menunjukkan
-                perbaikan meskipun telah diberi peringatan terakhir.</p>
-            <p style="padding-left: 90pt;text-indent: 0pt;text-align: justify;">Peringatan pertama dan bersifat terakhir
-                dapat diberikan atas salah satu kesalahan sebagai berikut:</p>
-            <ol id="l16">
-                <li data-list-text="15.1.">
-                    <p style="padding-left: 104pt;text-indent: -14pt;text-align: left;">Setelah 3 (tiga) kali
+    <div style="padding-left: 80pt">
+        <div style="display: table;">
+            <div style="display: table-row;">
+                <div class="number-cell">1.</div>
+                <p class="text-cell">Melakukan dan/atau terlibat langsung
+                    maupun tidak langsung dalam suatu penipuan dan/atau pencurian dan/atau penggelapan barang dan/atau uang
+                    milik Perseroan;</p>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell">3.</div>
+                <p class="text-cell">Mabok, minum minuman keras yang memabukkan, memakai dan/atau mengedarkan narkotika, psikotropika dan/atau zat adiktif lainnya di lingkungan kerja;</p>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell">4.</div>
+                <p class="text-cell">Melakukan perbuatan asusila dan/atau perjudian di tempat kerja.</p>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell">5.</div>
+                <p class="text-cell">Mengancam, mengintimidasi, menyerang,
+                    menganiaya, teman kerja dan/atau keluarga, Pimpinan Perseroan dan/atau keluarga, pemilik Perseroan
+                    dan/atau keluarganya;</p>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell">6.</div>
+                <p class="text-cell">embujuk teman kerja atau Pimpinan
+                    Perseroan atau pemilik Perseroan untuk melakukan sesuatu yang bertentangan dengan peraturan
+                    perundang-undangan;</p>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell">7.</div>
+                <p class="text-cell">Kecerobohan yang mengakibatkan barang
+                    milik Perseroan rusak atau membiarkan dalam keadaan bahaya barang milik Perseroan;</p>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell">8.</div>
+                <p class="text-cell">Ceroboh atau membiarkan
+                    diri atau teman sekerja dalam keadaan bahaya.</p>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell">9.</div>
+                <p class="text-cell">Membongkar atau membocorkan hal-hal
+                    tentang Perseroan, termasuk tentang Pimpinan Perseroan, pemilik Perseroan, segala sesuatu tentang tenaga
+                    kerja dan lain-lain yang bersifat rahasia, baik tentang usaha, operasi, informasi maupun data atau
+                    dokumen- dokumen, temuan-temuan, relasi-relasi, hubungan-hubungan usaha, keuangan;</p>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell">10.</div>
+                <p class="text-cell">Melakukan perbuatan yang dapat
+                    menimbulkan pertentangan SARA (Suku, Agama, Ras dan Antar Golongan);</p>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell">11.</div>
+                <p class="text-cell">Mencemarkan nama Perseroan, teman
+                    kerja, Pimpinan Perseroan, pemilik Perseroan termasuk keluarganya;</p>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell">12.</div>
+                <p class="text-cell">Melakukan dan/atau mempunyai kegiatan
+                    usaha yang menyebabkan konflik kepentingan (<i>conflict of interest</i>) dengan jabatan yang diembannya.</p>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell">13.</div>
+                <p class="text-cell">Berkelahi dengan sesama teman kerja
+                    baik di dalam lingkungan kerja maupun di luar lingkungan kerja;</p>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell">14.</div>
+                <p class="text-cell">Melakukan dan/atau
+                    terlibat dalam dalam suatu tindakan pidana di lingkungan perusahaan;</p>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell">15.</div>
+                <p class="text-cell">Tidak menunjukkan perbaikan meskipun telah diberi peringatan terakhir.
+                    Peringatan pertama dan bersifat terakhir dapat diberikan atas salah satu kesalahan sebagai berikut:
+                </p>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell"></div>
+                <div style="display: table-row;">
+                    <div class="number-cell">15.1.</div>
+                    <p class="text-cell">Setelah 3 (tiga) kali
                         berturut-turut tetap menolak untuk mentaati perintah atau penugasan yang layak;</p>
-                </li>
-                <li data-list-text="15.2.">
-                    <p style="padding-left: 104pt;text-indent: -14pt;text-align: left;">Setelah 3 (tiga) kali
+                </div>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell"></div>
+                <div style="display: table-row;">
+                    <div class="number-cell">15.2.</div>
+                    <p class="text-cell">Setelah 3 (tiga) kali
                         berturut-turut tetap melakukan pelanggaran terhadap kewajiban sebagaimana dimaksud dalam
                         Lampiran III;</p>
-                </li>
-                <li data-list-text="15.3.">
-                    <p style="padding-left: 104pt;text-indent: -14pt;text-align: left;">Lalai yang mengakibatkan dirinya
+                </div>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell"></div>
+                <div style="display: table-row;">
+                    <div class="number-cell">15.3.</div>
+                    <p class="text-cell">Lalai yang mengakibatkan dirinya
                         dalam keadaan demikian rupa sehingga ia tidak dapat menjalankan pekerjaan yang diberikan
                         kepadanya;</p>
-                </li>
-                <li data-list-text="15.4.">
-                    <p style="padding-left: 112pt;text-indent: -22pt;line-height: 12pt;text-align: left;">Tidak cakap
+                </div>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell"></div>
+                <div style="display: table-row;">
+                    <div class="number-cell">15.4.</div>
+                    <p class="text-cell">Tidak cakap
                         melakukan pekerjaan walaupun sudah dicoba di bidang tugas yang ada.</p>
-                </li>
-            </ol>
-        </li>
-        <li data-list-text="16.">
-            <p style="padding-left: 89pt;text-indent: -14pt;text-align: left;">Tenaga kerja melakukan pemutusan hubungan
-                kerja secara tidak baik.</p>
-        </li>
-    </ol>
-    <p style="padding-top: 2pt;padding-left: 5pt;text-indent: 0pt;text-align: left; font-weight: bolder; page-break-before: always;">LAMPIRAN III : BEBERAPA KEWAJIBAN
-        TENAGA KERJA</p>
-    <ol id="l17">
-        <li data-list-text="1.">
-            <p style="padding-top: 11pt;padding-left: 97pt;text-indent: -18pt;text-align: justify;">Tenaga kerja wajib
-                berada/hadir di tempat tugasnya tepat pada waktu yang telah ditentukan;</p>
-        </li>
-        @if ($type === 'Sales')
-            <li data-list-text="2.">
-                <p style="padding-left: 97pt;text-indent: -18pt;text-align: justify;">&nbsp;Target penjualan untuk tiap bulannya minimal 2 Unit. Beberapa kebijakan sebagai berikut:</p>
-                <ol id="l10">
-                    <li data-list-text="a)">
-                        <p style="padding-left: 117pt;text-indent: -18pt;text-align: justify;">&nbsp;Apabila tidak tercapai 2 unit perbulannya maka dikenakan sanksi SP1.</p>
-                    </li>
-                    <li data-list-text="b)">
-                        <p style="padding-left: 117pt;text-indent: -18pt;text-align: justify;">&nbsp;Apabila tidak tercapai bulan berikutnya dikenakan sanksi SP2.</p>
-                    </li>
-                    <li data-list-text="c)">
-                        <p style="padding-left: 117pt;text-indent: -18pt;text-align: justify;">Apabila tidak tercapai bulan berikutnya dikenakan sanksi SP3 dan dengan sendirinya perjanjian kerja dinyatakan berakhir.</p>
-                    </li>
-                    <li data-list-text="d)">
-                        <p style="padding-left: 117pt;text-indent: -18pt;text-align: justify;">Jika dalam bulan berjalan target penjualan tercapai, maka salah satu SP akan dihapuskan.</p>
-                    </li>
-                </ol>
-            </li>
-            @else
-            <li data-list-text="2.">
-                <p style="padding-left: 97pt;text-indent: -18pt;text-align: justify;">&nbsp;Tenaga kerja yang bermaksud datang
-                    terlambat ke tempat kerjanya atau meninggalkan pekerjaanya lebih awal dari jam kerja biasanya, maka
-                    terlebih dahulu harus mendapatkan persetujuan dari Pejabat Perseroan yang berwenang;</p>
-            </li>
-            @endif
-        <li data-list-text="3.">
-            <p style="padding-left: 97pt;text-indent: -18pt;text-align: justify;">&nbsp;Tenaga kerja harus check-in kartu
-                presensi atau lainnya yang disediakan oleh Perusahaan dan melapor pada atasan sebelum jam kerja dimulai
-                dan harus berada di tempat kerja selama jam kerja;</p>
-        </li>
-        <li data-list-text="4.">
-            <p style="padding-left: 97pt;text-indent: -18pt;text-align: justify;">&nbsp;Tenaga kerja yang tidak hadir karena
-                sakit harus melapor kepada pejabat Perseroan yang berwenang dan/atau atasan tenaga kerja secepatnya
-                paling lambat pada hari berikutnya;</p>
-        </li>
-        <li data-list-text="5.">
-            <p style="padding-left: 97pt;text-indent: -18pt;text-align: justify;">&nbsp;Bila tenaga kerja tidak masuk kerja
-                pada hari kerjanya tanpa persetujuan/ijin atasanya, dengan sendirinya dianggap mangkir tanpa mendapat
-                upah dan dikenakan tindakan disiplin, kecuali ketidakhadirannya dilengkapi dengan penjelasan/alasan yang
-                sah dan dapat diterima;</p>
-        </li>
-        <li data-list-text="6.">
-            <p style="padding-left: 97pt;text-indent: -18pt;text-align: justify;">&nbsp;Kehadiran / presensi tenaga kerja
-                tidak dapat diwakilkan pada tenaga kerja lain dengan alasan apapun juga;</p>
-        </li>
-        <li data-list-text="7.">
-            <p style="padding-left: 97pt;text-indent: -18pt;text-align: justify;">&nbsp;Tenaga kerja wajib melaksanakan
-                seluruh tugas dan kewajiban yang diberikan kepadanya oleh Perseroan dengan baik dan tanggungjawab;</p>
-        </li>
-        <li data-list-text="8.">
-            <p style="padding-left: 97pt;text-indent: -18pt;text-align: justify;">&nbsp;Tenaga kerja wajib mematuhi/mengikuti
-                petunjuk-petunjuk atau instruksi yang diberikan oleh Perseroan;</p>
-        </li>
-        <li data-list-text="9.">
-            <p style="padding-left: 97pt;text-indent: -18pt;text-align: justify;">&nbsp;Tenaga kerja wajib menjaga serta
-                memelihara dengan baik semua harta milik Perseroan lebih-lebih bila mengetahui adanya hal-hal yang dapat
-                menimbulkan bahaya atau kerugian bagi Perseroan;</p>
-        </li>
-        <li data-list-text="10.">
-            <p style="padding-left: 97pt;text-indent: -18pt;text-align: justify;">Tenaga kerja wajib memelihara dan
-                memegang teguh rahasia terhadap siapapun mengenai sesuatu yang diketahuinya mengenai Perseroan;</p>
-        </li>
-        <li data-list-text="11.">
-            <p style="padding-left: 97pt;text-indent: -18pt;text-align: justify;">Tenaga kerja wajib melaporkan pada
-                pejabat pada Perseroan yang berwenang apabila ada perubahan-perubahan mengenai status dirinya, susunan
-                keluarganya, perubahan alamat/tempat tinggalnya;</p>
-        </li>
-        <li data-list-text="12.">
-            <p style="padding-left: 97pt;text-indent: -18pt;text-align: justify;">Tenaga kerja wajib
-                memeriksa/memelihara semua alat-alat kerja, mesin-mesin dan sebagainya sebelum mulai bekerja atau akan
-                meninggalkan pekerjaan;</p>
-        </li>
-        <li data-list-text="13.">
-            <p style="padding-left: 97pt;text-indent: -17pt;line-height: 12pt;text-align: justify;">Tenaga kerja wajib
-                mematuhi semua peraturan yang berlaku ditetapkan oleh Perseroan.</p>
-        </li>
-    </ol>
-    <p style="padding-top: 12pt;text-indent: 0pt;text-align: center;">PIHAK KEDUA</p>
+                </div>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell">16.</div>
+                <p class="text-cell">Tenaga kerja melakukan pemutusan hubungan
+                    kerja secara tidak baik.</p>
+            </div>
+        </div>
+    </div>
+    <p style="padding-top: 2pt;padding-left: 5pt;text-indent: 0pt;text-align: left; font-weight: bolder; page-break-before: always;">
+        LAMPIRAN III &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : BEBERAPA KEWAJIBAN TENAGA KERJA
+    </p>
     <p style="text-indent: 0pt;text-align: left;"><br></p>
-    <p style="padding-left: 1pt;text-indent: 0pt;text-align: center;">({{$contract->nama_lengkap}})</p>
+
+    <div style="padding-left: 80pt">
+        <div style="display: table;">
+            <div style="display: table-row;">
+                <div class="number-cell">1.</div>
+                <p class="text-cell">Tenaga kerja wajib berada/hadir di tempat tugasnya tepat pada waktu yang telah ditentukan;</p>
+            </div>
+
+            @if ($type === 'Sales')
+            <div style="display: table-row;">
+                <div class="number-cell">2.</div>
+                <p class="text-cell">Target penjualan untuk tiap bulannya minimal 2 Unit. Beberapa kebijakan sebagai berikut:</p>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell"></div>
+                <div style="display: table-row;">
+                    <div class="number-cell">a)</div>
+                    <p class="text-cell">Apabila tidak tercapai 2 unit perbulannya maka dikenakan sanksi SP1;</p>
+                </div>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell"></div>
+                <div style="display: table-row;">
+                    <div class="number-cell">b)</div>
+                    <p class="text-cell">Apabila tidak tercapai bulan berikutnya dikenakan sanksi SP2;</p>
+                </div>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell"></div>
+                <div style="display: table-row;">
+                    <div class="number-cell">c)</div>
+                    <p class="text-cell">Apabila tidak tercapai bulan berikutnya dikenakan sanksi SP3 dan dengan sendirinya perjanjian kerja dinyatakan berakhir;</p>
+                </div>
+            </div>
+            <div style="display: table-row;">
+                <div class="number-cell"></div>
+                <div style="display: table-row;">
+                    <div class="number-cell">c)</div>
+                    <p class="text-cell">Apabila tidak tercapai bulan berikutnya dikenakan sanksi SP3 dan dengan sendirinya perjanjian kerja dinyatakan berakhir;</p>
+                </div>
+            </div>
+            @else
+            <div style="display: table-row;">
+                <div class="number-cell">2.</div>
+                <p class="text-cell">Tenaga kerja yang bermaksud datang terlambat ke tempat kerjanya atau meninggalkan pekerjaanya lebih awal dari jam kerja biasanya, maka terlebih dahulu harus mendapatkan persetujuan dari Pejabat Perseroan yang berwenang;</p>
+            </div>
+            @endif
+
+            <div style="display: table-row;">
+                <div class="number-cell">3.</div>
+                <p class="text-cell">Tenaga kerja harus check-in kartu presensi atau lainnya yang disediakan oleh Perusahaan dan melapor pada atasan sebelum jam kerja dimulai dan harus berada di tempat kerja selama jam kerja;</p>
+            </div>
+
+            <div style="display: table-row;">
+                <div class="number-cell">4.</div>
+                <p class="text-cell">Tenaga kerja yang tidak hadir karena sakit harus melapor kepada pejabat Perseroan yang berwenang dan/atau atasan tenaga kerja secepatnya paling lambat pada hari berikutnya;</p>
+            </div>
+
+            <div style="display: table-row;">
+                <div class="number-cell">5.</div>
+                <p class="text-cell">Bila tenaga kerja tidak masuk kerja pada hari kerjanya tanpa persetujuan/ijin atasanya, dengan sendirinya dianggap mangkir tanpa mendapat upah dan dikenakan tindakan disiplin, kecuali ketidakhadirannya dilengkapi dengan penjelasan/alasan yang sah dan dapat diterima;</p>
+            </div>
+
+            <div style="display: table-row;">
+                <div class="number-cell">6.</div>
+                <p class="text-cell">Kehadiran / presensi tenaga kerja tidak dapat diwakilkan pada tenaga kerja lain dengan alasan apapun juga;</p>
+            </div>
+
+            <div style="display: table-row;">
+                <div class="number-cell">7.</div>
+                <p class="text-cell">Tenaga kerja wajib melaksanakan seluruh tugas dan kewajiban yang diberikan kepadanya oleh Perseroan dengan baik dan tanggungjawab;</p>
+            </div>
+
+            <div style="display: table-row;">
+                <div class="number-cell">8.</div>
+                <p class="text-cell">Tenaga kerja wajib mematuhi/mengikuti petunjuk-petunjuk atau instruksi yang diberikan oleh Perseroan;</p>
+            </div>
+
+            <div style="display: table-row;">
+                <div class="number-cell">9.</div>
+                <p class="text-cell">Tenaga kerja wajib menjaga serta memelihara dengan baik semua harta milik Perseroan lebih-lebih bila mengetahui adanya hal-hal yang dapat menimbulkan bahaya atau kerugian bagi Perseroan;</p>
+            </div>
+
+            <div style="display: table-row;">
+                <div class="number-cell">10.</div>
+                <p class="text-cell">Tenaga kerja wajib memelihara dan memegang teguh rahasia terhadap siapapun mengenai sesuatu yang diketahuinya mengenai Perseroan;</p>
+            </div>
+
+            <div style="display: table-row;">
+                <div class="number-cell">11.</div>
+                <p class="text-cell">Tenaga kerja wajib melaporkan pada pejabat pada Perseroan yang berwenang apabila ada perubahan-perubahan mengenai status dirinya, susunan keluarganya, perubahan alamat/tempat tinggalnya;</p>
+            </div>
+
+            <div style="display: table-row;">
+                <div class="number-cell">12.</div>
+                <p class="text-cell">Tenaga kerja wajib memeriksa/memelihara semua alat-alat kerja, mesin-mesin dan sebagainya sebelum mulai bekerja atau akan meninggalkan pekerjaan;</p>
+            </div>
+
+            <div style="display: table-row;">
+                <div class="number-cell">13.</div>
+                <p class="text-cell">Tenaga kerja wajib mematuhi semua peraturan yang berlaku ditetapkan oleh Perseroan.</p>
+            </div>
+        </div>
+    </div>
+    <p style="padding-top: 12pt;text-indent: 0pt;text-align: center; margin-right: 200px;">PIHAK KEDUA</p>
+    <p style="text-indent: 0pt;text-align: left;"><br></p>
+    <p style="text-indent: 0pt;text-align: left;"><br></p>
+    <p style="text-indent: 0pt;text-align: left;"><br></p>
+    <p style="text-indent: 0pt;text-align: left;"><br></p>
+    <p style="text-indent: 0pt;text-align: left;"><br></p>
+    <p style="text-indent: 0pt;text-align: left;"><br></p>
+    <p style="text-indent: 0pt;text-align: left;"><br></p>
+    <p style="padding-left: 1pt;text-indent: 0pt;text-align: center; margin-right: 200px;">({{ strtoupper($contract->nama_lengkap) }})</p>
 </body>
 
 </html>

@@ -483,6 +483,12 @@ class CandidateController extends Controller
         $candidate = Auth::guard('candidate')->user();
         $candidateId = $candidate->id;
 
+        $request->validate([
+            'no_kartu_keluarga' => 'required|string',
+            'tanggal_masuk' => 'required|date',
+            // ... other validations ...
+        ]);
+
         // Get candidate data
         $candidateData = DB::table('candidate_data')->where('candidate_id', $candidateId)->first();
 
@@ -502,6 +508,7 @@ class CandidateController extends Controller
 
         $data = [
             'no_kartu_keluarga' => $request->input('no_kartu_keluarga', $candidateDataPerlengkapan ? $candidateDataPerlengkapan->no_kartu_keluarga : null),
+            'tanggal_masuk' => $request->input('tanggal_masuk', $candidateDataPerlengkapan ? $candidateDataPerlengkapan->tanggal_masuk : null),
         ];
 
         // Handle multiple file uploads
