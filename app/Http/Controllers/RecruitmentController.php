@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 
 class RecruitmentController extends Controller
 {
@@ -857,6 +858,11 @@ class RecruitmentController extends Controller
             // Get candidate data
             $candidateDataId = $request->dataCandidate;
             $candidateData = DB::table('candidate_data')->where('id', $candidateDataId)->first();
+
+            if (!$candidateData) {
+                throw new \Exception("Candidate data not found");
+            }
+
             $candidateDetails = DB::table('candidates')->where('id', $candidateData->candidate_id)->first();
 
             // Get job opening and jabatan details
@@ -866,6 +872,16 @@ class RecruitmentController extends Controller
                 ->select('jabatan.*', 'job_openings.kode_dept')
                 ->first();
 
+            $recruitmentTypeId = DB::table('job_openings')
+                ->where('id', $candidateDetails->job_opening_id)
+                ->value('recruitment_type_id');
+
+            $employeeStatus = ($recruitmentTypeId == 2) ? 'Internship' : 'Kontrak';
+
+            if (!$jobOpening) {
+                throw new \Exception("Job opening details not found");
+            }
+
             // Get tanggal_masuk from candidate_perlengkapan
             $perlengkapan = DB::table('candidate_data_perlengkapan')
                 ->where('candidate_data_id', $candidateDataId)
@@ -873,28 +889,53 @@ class RecruitmentController extends Controller
 
             $tglMasuk = $perlengkapan->tanggal_masuk ?? now()->format('Y-m-d');
 
-            if (!$request->filled('nik')) {
-                // Retrieve the last numeric sequence portion of NIK by filtering valid patterns
+            // Handle NIK generation/assignment
+            if (empty($request->nik)) {
+                // Get recruitment_type_id from job opening
+                $recruitmentTypeId = DB::table('job_openings')
+                    ->where('id', $candidateDetails->job_opening_id)
+                    ->value('recruitment_type_id');
+
+                // Automatic NIK generation
                 $lastSequence = DB::table('karyawan')
                     ->whereNotNull('nik')
-                    ->whereRaw("nik REGEXP '^[0-9]{4}-[0-9]{8}$'") // Ensures NIK matches the pattern NNNN-YYYYMMDD
+                    ->whereRaw("nik REGEXP '^[0-9]{4}-[0-9]{8}$'")
                     ->where("status_kar", "Aktif")
                     ->selectRaw('CAST(SUBSTRING(nik, 1, 4) AS UNSIGNED) as sequence')
                     ->orderByDesc('sequence')
-                    ->value('sequence'); // Gets the highest sequence as an integer
+                    ->value('sequence');
 
-                // Increment the sequence or start from 1 if none found, ensuring 4-digit formatting
                 $newSequence = str_pad(($lastSequence ?? 0) + 1, 4, '0', STR_PAD_LEFT);
                 $tglMasukFormatted = date('Ymd', strtotime($tglMasuk));
-                $nik = $newSequence . '-' . $tglMasukFormatted;
+
+                // Add 'M' suffix for internship (recruitment_type_id = 2)
+                if ($recruitmentTypeId == 2) {
+                    $nik = $newSequence . '-' . $tglMasukFormatted . 'M';
+                } else {
+                    $nik = $newSequence . '-' . $tglMasukFormatted;
+                }
             } else {
                 $nik = $request->nik;
             }
 
+            // Handle NIP generation/assignment
+            if (empty($request->nip)) {
+                // Automatic NIP generation
+                $lastNip = DB::table('karyawan')
+                    ->where('status_kar', 'Aktif')
+                    ->whereNotNull('nip')
+                    ->orderByRaw('CAST(nip AS UNSIGNED) DESC')
+                    ->value('nip');
 
-            $candidateDataId = $request->dataCandidate;
-            $candidateData = DB::table('candidate_data')->where('id', $candidateDataId)->first();
-            $candidateDetails = DB::table('candidates')->where('id', $candidateData->candidate_id)->first();
+                // If no NIP exists, start from 1, otherwise increment the last NIP
+                $nip = $lastNip ? (intval($lastNip) + 1) : 1;
+
+                // Format NIP to maintain consistent length (e.g., 6 digits)
+                $nip = str_pad($nip, 6, '0', STR_PAD_LEFT);
+            } else {
+                $nip = $request->nip;
+            }
+
             $candidateId = $candidateDetails->id;
             $candidateDataKeluarga = DB::table('candidate_data_keluarga')->where('candidate_data_id', $candidateData->id)->get(); // Get all family data
             $jobOpeningId = DB::table('candidates')->where('id', $candidateId)->value('job_opening_id');
@@ -995,19 +1036,9 @@ class RecruitmentController extends Controller
                 ->where('candidate_data_id', $request->dataCandidate)
                 ->first();
 
-            // Check each document status and set the status and file fields accordingly
-            $statusPhoto = ($documents->photo_anda ?? 'No_Document') !== 'No_Document' ? 1 : 0;
-            $statusKtp = ($documents->photo_ktp ?? 'No_Document') !== 'No_Document' ? 1 : 0;
-            $statusKk = ($documents->photo_kk ?? 'No_Document') !== 'No_Document' ? 1 : 0;
-            $statusNpwp = ($documents->photo_npwp ?? 'No_Document') !== 'No_Document' ? 1 : 0;
-            $statusIjazah = ($documents->photo_ijazah ?? 'No_Document') !== 'No_Document' ? 1 : 0;
-            $statusSim = ($documents->photo_sim ?? 'No_Document') !== 'No_Document' ? 1 : 0;
-            $statusSkck = ($documents->photo_skck ?? 'No_Document') !== 'No_Document' ? 1 : 0;
-            $statusCv = ($documents->photo_cv ?? 'No_Document') !== 'No_Document' ? 1 : 0;
-
             $karyawanData = [
                 'nik' => $nik,
-                'nip' => $request->nip,
+                'nip' => $nip,
                 'nama_lengkap' => $candidateData->nama_lengkap,
                 'jabatan' => $jobOpening->id,
                 'email' => $candidateData->alamat_email,
@@ -1018,7 +1049,7 @@ class RecruitmentController extends Controller
                 'grade' => $request->grade,
                 'shift_pattern_id' => '1',
                 'start_shift' => $request->tgl_masuk,
-                'employee_status' => 'Kontrak',
+                'employee_status' => $employeeStatus,
                 'base_poh' => $jobOpening->site,
                 'nama_pt' => $request->nama_pt,
                 'sex' => $sex,
@@ -1069,26 +1100,77 @@ class RecruitmentController extends Controller
                 'em_relation' => $candidateData->em_status,
                 'em_alamat' => $candidateData->em_alamat,
                 'status_kar' => 'Aktif',
-                'status_photo' => $statusPhoto,
-                'status_ktp' => $statusKtp,
-                'status_kk' => $statusKk,
-                'status_npwp' => $statusNpwp,
-                'status_ijazah' => $statusIjazah,
-                'status_sim' => $statusSim,
-                'status_skck' => $statusSkck,
-                'status_cv' => $statusCv,
                 'status_applicant' => '1',
-                'file_photo' => $statusPhoto ? $documents->photo_anda : null,
-                'file_ktp' => $statusKtp ? $documents->photo_ktp : null,
-                'file_kk' => $statusKk ? $documents->photo_kk : null,
-                'file_npwp' => $statusNpwp ? $documents->photo_npwp : null,
-                'file_ijazah' => $statusIjazah ? $documents->photo_ijazah : null,
-                'file_sim' => $statusSim ? $documents->photo_sim : null,
-                'file_skck' => $statusSkck ? $documents->photo_skck : null,
-                'file_cv' => $statusCv ? $documents->photo_cv : null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
+
+            // THEN do the file handling
+            $candidateId = $candidateData->candidate_id;
+            $nama_candidate = Str::slug($candidateData->nama_lengkap);
+            $sourceFolder = storage_path("app/public/uploads/candidate/{$candidateId}.{$nama_candidate}");
+            $destinationFolder = storage_path("app/public/uploads/karyawan/{$nik}.{$candidateData->nama_lengkap}/files");
+
+            // Create destination directory if it doesn't exist
+            if (!file_exists($destinationFolder)) {
+                mkdir($destinationFolder, 0755, true);
+            }
+
+            // Define the fields to copy and their corresponding database fields
+            $fileFields = [
+                'photo_ktp' => 'file_ktp',
+                'photo_kk' => 'file_kk',
+                'photo_sim' => 'file_sim',
+                'photo_npwp' => 'file_npwp',
+                'photo_ijazah' => 'file_ijazah',
+                'photo_cv' => 'file_cv',
+                'photo_skck' => 'file_skck',
+                'photo_anda' => 'file_photo'
+            ];
+
+            // Get documents if they exist
+            $documents = DB::table('candidate_data_perlengkapan')
+                ->where('candidate_data_id', $request->dataCandidate)
+                ->first();
+
+            // Handle file fields whether documents exist or not
+            foreach ($fileFields as $sourceField => $destField) {
+                if ($documents && $documents->$sourceField && $documents->$sourceField !== 'No_Document') {
+                    $sourceFile = $sourceFolder . '/' . $documents->$sourceField;
+
+                    if (file_exists($sourceFile)) {
+                        try {
+                            // Use the original filename for both copying and database storage
+                            $originalFileName = $documents->$sourceField;
+                            $destinationFile = $destinationFolder . '/' . $originalFileName;
+
+                            // Copy the file
+                            if (copy($sourceFile, $destinationFile)) {
+                                // Store the original filename in the database
+                                $karyawanData[$destField] = $originalFileName;
+                                $karyawanData["status_" . substr($destField, 5)] = 1;
+                            } else {
+                                throw new \Exception("Failed to copy file");
+                            }
+                        } catch (\Exception $e) {
+                            Log::error("Failed to copy file {$sourceField}", [
+                                'source' => $sourceFile,
+                                'destination' => $destinationFile,
+                                'error' => $e->getMessage()
+                            ]);
+                            $karyawanData[$destField] = 'No_Document';
+                            $karyawanData["status_" . substr($destField, 5)] = 0;
+                        }
+                    } else {
+                        $karyawanData[$destField] = 'No_Document';
+                        $karyawanData["status_" . substr($destField, 5)] = 0;
+                    }
+                } else {
+                    // Set default values when no documents exist
+                    $karyawanData[$destField] = 'No_Document';
+                    $karyawanData["status_" . substr($destField, 5)] = 0;
+                }
+            }
 
             DB::table('karyawan')->insert($karyawanData);
 
@@ -1112,25 +1194,28 @@ class RecruitmentController extends Controller
         }
     }
 
-
-
-
     public function candidate_data_view(Request $request)
     {
-        // Get the currently authenticated candidate
-
         $candidateId = $request->candidate_id;
 
-        $candidate = DB::table('candidates')->where('id', $candidateId)->first();
+        // Get candidate with recruitment_type_id
+        $candidate = DB::table('candidates')
+            ->join('job_openings', 'candidates.job_opening_id', '=', 'job_openings.id')
+            ->where('candidates.id', $candidateId)
+            ->select('candidates.*', 'job_openings.recruitment_type_id')
+            ->first();
 
         // Check if candidate data exists
         $candidateData = DB::table('candidate_data')->where('candidate_id', $candidateId)->first();
 
-
-        $candidateDataLengkap = DB::table('candidate_data_perlengkapan')->where('candidate_data_id', $candidateData->id)->first();
+        $candidateDataLengkap = DB::table('candidate_data_perlengkapan')
+            ->where('candidate_data_id', $candidateData->id)
+            ->first();
 
         if ($candidateData) {
-            $keluargaData = DB::table('candidate_data_keluarga')->where('candidate_data_id', $candidateData->id)->get();
+            $keluargaData = DB::table('candidate_data_keluarga')
+                ->where('candidate_data_id', $candidateData->id)
+                ->get();
         } else {
             $keluargaData = collect(); // Empty collection if no candidate data
         }
@@ -1159,8 +1244,26 @@ class RecruitmentController extends Controller
             ->where('candidate_data_id', $candidateData->id)
             ->get();
 
-        // Otherwise, return 'recruitment.form.index' view
-        return view('recruitment.candidate.data', compact('candidateData', 'candidateDataLengkap', 'keluargaData', 'candidate', 'candidateId', 'candidateFamilyData', 'candidateKursus', 'candidateBahasa', 'candidatePekerjaan', 'candidateFamilyDataSendiri', 'candidatePendidikan'));
+        $data = compact(
+            'candidateData',
+            'candidateDataLengkap',
+            'keluargaData',
+            'candidate',
+            'candidateId',
+            'candidateFamilyData',
+            'candidateKursus',
+            'candidateBahasa',
+            'candidatePekerjaan',
+            'candidateFamilyDataSendiri',
+            'candidatePendidikan'
+        );
+
+        // Choose view based on recruitment_type_id
+        if ($candidate->recruitment_type_id == 2) {
+            return view('recruitment.candidate.dataIntern', $data);
+        }
+
+        return view('recruitment.candidate.data', $data);
     }
 
     public function candidate_data_approve(Request $request)
@@ -1174,8 +1277,6 @@ class RecruitmentController extends Controller
                 ->where('id', $candidateId)
                 ->update(['status_form' => $newStatus]);
 
-            Log::info('Candidate data approved: ' . $candidateId . ' - New status: ' . $newStatus);
-
             // Get the candidate_id from the updated candidate_data table
             $candidate = DB::table('candidate_data')
                 ->where('id', $candidateId)
@@ -1186,28 +1287,39 @@ class RecruitmentController extends Controller
 
                 // Update verify_offer in the candidates table based on newStatus
                 if ($newStatus === 'Verified') {
-                    DB::table('candidates')
-                        ->where('id', $candidateRealId) // Using the candidate_id from candidate_data
-                        ->update(['verify_offer' => 1]);
 
-                    // Fetch candidate email and position name
-                    $candidateData = DB::table('candidates')
+                    $candidateRecord = DB::table('candidates')
                         ->where('id', $candidateRealId)
                         ->first();
 
-                    $jobOpening = DB::table('job_openings')
-                        ->where('id', $candidateData->job_opening_id)
-                        ->first();
+                    $temporaryPassword = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 8);
 
-                    $email = $candidateData->email;
-                    $nama_candidate = $candidateData->nama_candidate;
+                    DB::table('candidates')
+                        ->where('id', $candidateRealId)
+                        ->update([
+                            'verify_offer' => 1,
+                            'temp_pass' => Hash::make($temporaryPassword)
+                        ]);
+
+                    // Fetch candidate email and position name
+                    $jobOpening = DB::table('job_openings')
+                    ->where('id', $candidateRecord->job_opening_id)
+                    ->first();
+
+                    $email = $candidateRecord->email;
+                    $nama_candidate = $candidateRecord->nama_candidate;
                     $nama_posisi = $jobOpening->title;
+                    $username = $candidateRecord->username;
 
                     // Email content
                     $emailContent = "
                         Yth. {$nama_candidate},<br><br>
 
                         Selamat! Kami dengan senang hati menginformasikan bahwa Anda telah berhasil diterima untuk posisi <b>{$nama_posisi}</b> di <b>PT Cipta Harmoni Lestari.</b> Proses seleksi yang Anda jalani menunjukkan komitmen, kemampuan, dan kecocokan yang luar biasa dengan nilai dan tujuan perusahaan kami.<br><br>
+
+                        Berikut adalah kredensial login Anda untuk mengakses sistem:<br>
+                        Username: <b>{$username}</b><br>
+                        Password Sementara: <b>{$temporaryPassword}</b><br><br>
 
                         Kami sangat antusias untuk menyambut Anda di tim kami dan berharap Anda dapat memberikan kontribusi terbaik bagi kesuksesan bersama. Silahkan lengkapi data administrasi dengan klik link https://hrms.ciptaharmoni.com/candidate dan tunggu info selanjutnya terkait penandatanganan kontrak dan informasi lainnya.<br><br>
 
@@ -1279,12 +1391,19 @@ class RecruitmentController extends Controller
     {
         // Fetch candidate data along with job opening, hiring stage
         $candidates = DB::table('candidate_data')
-            ->join('candidates', 'candidate_data.candidate_id', '=', 'candidates.id')
-            ->join('job_openings', 'candidates.job_opening_id', '=', 'job_openings.id')
-            ->join('hiring_stages', 'candidates.current_stage_id', '=', 'hiring_stages.id')
-            ->select('candidate_data.*', 'job_openings.title as job_opening_name', 'hiring_stages.name as hiring_stage_name', 'candidates.id as candidate_id', 'candidates.nama_candidate as nama_candidate')
-            ->where('candidate_data.id', $id)
-            ->first();
+        ->join('candidates', 'candidate_data.candidate_id', '=', 'candidates.id')
+        ->join('job_openings', 'candidates.job_opening_id', '=', 'job_openings.id')
+        ->join('hiring_stages', 'candidates.current_stage_id', '=', 'hiring_stages.id')
+        ->select(
+            'candidate_data.*',
+            'job_openings.title as job_opening_name',
+            'job_openings.recruitment_type_id', // Add this line
+            'hiring_stages.name as hiring_stage_name',
+            'candidates.id as candidate_id',
+            'candidates.nama_candidate as nama_candidate'
+        )
+        ->where('candidate_data.id', $id)
+        ->first();
 
         // Fetch family data separately
         $familyData = DB::table('candidate_data_keluarga')
@@ -1315,35 +1434,52 @@ class RecruitmentController extends Controller
         }
 
 
+        // Replace the static familyMembers1 initialization with this dynamic version
         $familyData1 = DB::table('candidate_data_keluarga_sendiri')
-            ->where('candidate_data_id', $candidates->id)
-            ->get();
+        ->where('candidate_data_id', $candidates->id)
+        ->get();
 
-        // Initialize the family members array with empty values
+        // Start with parents (these are always included)
         $familyMembers1 = [
-            ['uraian' => 'Ayah', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
-            ['uraian' => 'Ibu', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
-            ['uraian' => 'Anak ke 1', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
-            ['uraian' => 'Anak ke 2', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
-            ['uraian' => 'Anak ke 3', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
-            ['uraian' => 'Anak ke 4', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
-            ['uraian' => 'Anak ke 5', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
-            ['uraian' => 'Anak ke 6', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
+        ['uraian' => 'Ayah', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
+        ['uraian' => 'Ibu', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
         ];
 
+        // Count how many "Anak" entries exist in the database
+        $anakCount = DB::table('candidate_data_keluarga_sendiri')
+        ->where('candidate_data_id', $candidates->id)
+        ->where('uraian', 'LIKE', 'Anak ke%')
+        ->count();
+
+        // Add array elements for each child that exists
+        for ($i = 1; $i <= max(1, $anakCount); $i++) { // At least 1 child slot, or more if they exist
+        $familyMembers1[] = [
+            'uraian' => 'Anak ke ' . $i,
+            'nama_lengkap' => '',
+            'jenis' => '',
+            'tgl_lahir' => '',
+            'pendidikan' => '',
+            'pekerjaan' => '',
+            'keterangan' => ''
+        ];
+        }
+
         // Fill the family members with actual data
-        foreach ($familyData1 as $index => $member1) {
-            if ($index < 8) { // Only fill up to 4 rows
-                $familyMembers1[$index] = [
-                    'uraian' => $member1->uraian,
-                    'nama_lengkap' => $member1->nama_lengkap,
-                    'jenis' => $member1->jenis,
-                    'tgl_lahir' => DateHelper::formatIndonesiaDate($member1->tgl_lahir),
-                    'pendidikan' => $member1->pendidikan,
-                    'pekerjaan' => $member1->pekerjaan,
-                    'keterangan' => $member1->keterangan,
-                ];
-            }
+        foreach ($familyData1 as $member1) {
+        // Find the index in our array that matches this uraian
+        $index = array_search($member1->uraian, array_column($familyMembers1, 'uraian'));
+
+        if ($index !== false) {
+            $familyMembers1[$index] = [
+                'uraian' => $member1->uraian,
+                'nama_lengkap' => $member1->nama_lengkap,
+                'jenis' => $member1->jenis,
+                'tgl_lahir' => DateHelper::formatIndonesiaDate($member1->tgl_lahir),
+                'pendidikan' => $member1->pendidikan,
+                'pekerjaan' => $member1->pekerjaan,
+                'keterangan' => $member1->keterangan,
+            ];
+        }
         }
 
 
@@ -1381,30 +1517,40 @@ class RecruitmentController extends Controller
             ->where('candidate_data_id', $candidates->id)
             ->get();
 
-        // Initialize the family members array with empty values
-        $kursusList = [
-            ['nama' => '', 'diadakan_oleh' => '', 'tempat' => '', 'lama' => '', 'tahun' => '', 'dibiayai_oleh' => '', 'keterangan' => ''],
-            ['nama' => '', 'diadakan_oleh' => '', 'tempat' => '', 'lama' => '', 'tahun' => '', 'dibiayai_oleh' => '', 'keterangan' => ''],
-            ['nama' => '', 'diadakan_oleh' => '', 'tempat' => '', 'lama' => '', 'tahun' => '', 'dibiayai_oleh' => '', 'keterangan' => ''],
-            ['nama' => '', 'diadakan_oleh' => '', 'tempat' => '', 'lama' => '', 'tahun' => '', 'dibiayai_oleh' => '', 'keterangan' => ''],
-            ['nama' => '', 'diadakan_oleh' => '', 'tempat' => '', 'lama' => '', 'tahun' => '', 'dibiayai_oleh' => '', 'keterangan' => ''],
-            ['nama' => '', 'diadakan_oleh' => '', 'tempat' => '', 'lama' => '', 'tahun' => '', 'dibiayai_oleh' => '', 'keterangan' => ''],
-            ['nama' => '', 'diadakan_oleh' => '', 'tempat' => '', 'lama' => '', 'tahun' => '', 'dibiayai_oleh' => '', 'keterangan' => ''],
-        ];
+        // Count how many kursus entries exist in the database
+        $kursusCount = DB::table('candidate_data_kursus')
+            ->where('candidate_data_id', $candidates->id)
+            ->count();
 
-        // Fill the family members with actual data
+        // Initialize array with minimum 3 empty entries, or more if needed
+        $kursusList = [];
+        $minEntries = 3;
+        $totalEntries = max($minEntries, $kursusCount);
+
+        // Create the array with empty values
+        for ($i = 0; $i < $totalEntries; $i++) {
+            $kursusList[] = [
+                'nama' => '',
+                'diadakan_oleh' => '',
+                'tempat' => '',
+                'lama' => '',
+                'tahun' => '',
+                'dibiayai_oleh' => '',
+                'keterangan' => ''
+            ];
+        }
+
+        // Fill with actual data where it exists
         foreach ($kursusData as $index => $kursus) {
-            if ($index < 7) { // Only fill up to 4 rows
-                $kursusList[$index] = [
-                    'nama' => $kursus->nama,
-                    'diadakan_oleh' => $kursus->diadakan_oleh,
-                    'tempat' => $kursus->tempat,
-                    'lama' => $kursus->lama,
-                    'tahun' => $kursus->tahun,
-                    'dibiayai_oleh' => $kursus->dibiayai_oleh,
-                    'keterangan' => $kursus->keterangan,
-                ];
-            }
+            $kursusList[$index] = [
+                'nama' => $kursus->nama,
+                'diadakan_oleh' => $kursus->diadakan_oleh,
+                'tempat' => $kursus->tempat,
+                'lama' => $kursus->lama,
+                'tahun' => $kursus->tahun,
+                'dibiayai_oleh' => $kursus->dibiayai_oleh,
+                'keterangan' => $kursus->keterangan,
+            ];
         }
 
         $bahasaData = DB::table('candidate_data_bahasa')
@@ -1435,30 +1581,40 @@ class RecruitmentController extends Controller
             ->where('candidate_data_id', $candidates->id)
             ->get();
 
-        $pekerjaanList = [
-            ['perusahaan' => '', 'alamat' => '', 'jabatan' => '', 'dari' => '', 'sampai' => '', 'keterangan' => '', 'alasan' => ''],
-            ['perusahaan' => '', 'alamat' => '', 'jabatan' => '', 'dari' => '', 'sampai' => '', 'keterangan' => '', 'alasan' => ''],
-            ['perusahaan' => '', 'alamat' => '', 'jabatan' => '', 'dari' => '', 'sampai' => '', 'keterangan' => '', 'alasan' => ''],
-            ['perusahaan' => '', 'alamat' => '', 'jabatan' => '', 'dari' => '', 'sampai' => '', 'keterangan' => '', 'alasan' => ''],
-            ['perusahaan' => '', 'alamat' => '', 'jabatan' => '', 'dari' => '', 'sampai' => '', 'keterangan' => '', 'alasan' => ''],
-            ['perusahaan' => '', 'alamat' => '', 'jabatan' => '', 'dari' => '', 'sampai' => '', 'keterangan' => '', 'alasan' => ''],
-            ['perusahaan' => '', 'alamat' => '', 'jabatan' => '', 'dari' => '', 'sampai' => '', 'keterangan' => '', 'alasan' => ''],
-            ['perusahaan' => '', 'alamat' => '', 'jabatan' => '', 'dari' => '', 'sampai' => '', 'keterangan' => '', 'alasan' => ''],
-        ];
+        // Count how many pekerjaan entries exist in the database
+        $pekerjaanCount = DB::table('candidate_data_pekerjaan')
+            ->where('candidate_data_id', $candidates->id)
+            ->count();
 
-        // Fill the family members with actual data
+        // Initialize array with minimum 3 empty entries, or more if needed
+        $pekerjaanList = [];
+        $minEntries = 3;
+        $totalEntries = max($minEntries, $pekerjaanCount);
+
+        // Create the array with empty values
+        for ($i = 0; $i < $totalEntries; $i++) {
+            $pekerjaanList[] = [
+                'perusahaan' => '',
+                'alamat' => '',
+                'jabatan' => '',
+                'dari' => '',
+                'sampai' => '',
+                'keterangan' => '',
+                'alasan' => ''
+            ];
+        }
+
+        // Fill with actual data where it exists
         foreach ($pekerjaanData as $index => $pekerjaan) {
-            if ($index < 8) { // Only fill up to 4 rows
-                $pekerjaanList[$index] = [
-                    'perusahaan' => $pekerjaan->perusahaan,
-                    'alamat' => $pekerjaan->alamat,
-                    'jabatan' => $pekerjaan->jabatan,
-                    'dari' => $pekerjaan->dari,
-                    'sampai' => $pekerjaan->sampai,
-                    'keterangan' => $pekerjaan->keterangan,
-                    'alasan' => $pekerjaan->alasan,
-                ];
-            }
+            $pekerjaanList[$index] = [
+                'perusahaan' => $pekerjaan->perusahaan,
+                'alamat' => $pekerjaan->alamat,
+                'jabatan' => $pekerjaan->jabatan,
+                'dari' => $pekerjaan->dari,
+                'sampai' => $pekerjaan->sampai,
+                'keterangan' => $pekerjaan->keterangan,
+                'alasan' => $pekerjaan->alasan,
+            ];
         }
 
         // Address formatting logic (same as before)
@@ -1505,7 +1661,37 @@ class RecruitmentController extends Controller
             $penjelasan4 = substr($combinedEm, $limit);
         }
 
-        return view('recruitment.candidate.print', compact('candidates', 'penjelasan3', 'penjelasan4', 'alasan1', 'alasan2', 'alasan3', 'alasan4', 'alasan5', 'alasan6', 'pekerjaanList', 'bahasaList', 'kursusList', 'penjelasan1', 'penjelasan2', 'addressLine1', 'pendidikanList', 'addressLine2', 'addressLine3', 'addressLine4', 'addressLine5', 'familyMembers', 'familyMembers1'));
+        $data = compact(
+            'candidates',
+            'penjelasan3',
+            'penjelasan4',
+            'alasan1',
+            'alasan2',
+            'alasan3',
+            'alasan4',
+            'alasan5',
+            'alasan6',
+            'pekerjaanList',
+            'bahasaList',
+            'kursusList',
+            'penjelasan1',
+            'penjelasan2',
+            'addressLine1',
+            'pendidikanList',
+            'addressLine2',
+            'addressLine3',
+            'addressLine4',
+            'addressLine5',
+            'familyMembers',
+            'familyMembers1'
+        );
+
+            // Choose view based on recruitment_type_id
+        if ($candidates->recruitment_type_id == 2) {
+            return view('recruitment.candidate.printintern', $data);
+        }
+
+        return view('recruitment.candidate.print', $data);
     }
 
     public function getCandidateDataId(Request $request)

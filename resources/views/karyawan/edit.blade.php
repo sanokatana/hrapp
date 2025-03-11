@@ -460,9 +460,9 @@
         <div class="col-md-6">
             @if(isset($karyawan->file_photo) && $karyawan->file_photo !== 'No_Document')
             <div class="col-7 d-flex">
-                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nip . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_photo) }}"
+                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nik . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_photo) }}"
                 target="_blank"
-                class="btn btn-info btn-block w-100">
+                class="btn btn-info btn-block w-50">
                     Lihat File
                 </a>
                 <label class="ms-5 align-self-center" for="file_photo">File Foto</label>
@@ -477,12 +477,12 @@
 
             @if(isset($karyawan->file_ktp) && $karyawan->file_ktp !== 'No_Document')
             <div class="col-7 d-flex mt-2">
-                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nip . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_ktp) }}"
+                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nik . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_ktp) }}"
                 target="_blank"
-                class="btn btn-info btn-block w-100">
+                class="btn btn-info btn-block w-50">
                     Lihat File
                 </a>
-                <label class="ms-5 align-self-center" for="file_photo">File KTP</label>
+                <label class="ms-5 align-self-center" for="file_photo">KTP</label>
             </div>
             @else
             <div class="form-group mt-2 d-flex">
@@ -493,13 +493,13 @@
             <!---->
 
             @if(isset($karyawan->file_kk) && $karyawan->file_kk !== 'No_Document')
-            <div class="col-7 d-flex">
-                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nip . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_kk) }}"
+            <div class="col-7 d-flex mt-2">
+                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nik . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_kk) }}"
                 target="_blank"
-                class="btn btn-info btn-block w-100">
+                class="btn btn-info btn-block w-50">
                     Lihat File
                 </a>
-                <label class="ms-5 align-self-center" for="file_photo">File KK</label>
+                <label class="ms-5 align-self-center" for="file_photo">KK</label>
             </div>
             @else
             <div class="form-group mt-2 d-flex">
@@ -510,13 +510,13 @@
             <!---->
 
             @if(isset($karyawan->file_npwp) && $karyawan->file_npwp !== 'No_Document')
-            <div class="col-7 d-flex">
-                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nip . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_npwp) }}"
+            <div class="col-7 d-flex mt-2">
+                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nik . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_npwp) }}"
                 target="_blank"
-                class="btn btn-info btn-block w-100">
+                class="btn btn-info btn-block w-50">
                     Lihat File
                 </a>
-                <label class="ms-5 align-self-center" for="file_npwp">File Photo</label>
+                <label class="ms-5 align-self-center" for="file_npwp">Photo</label>
             </div>
             @else
             <div class="form-group mt-2 d-flex">
@@ -527,13 +527,13 @@
             <!---->
 
             @if(isset($karyawan->file_sim) && $karyawan->file_sim !== 'No_Document')
-            <div class="col-7 d-flex">
-                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nip . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_sim) }}"
+            <div class="col-7 d-flex mt-2">
+                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nik . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_sim) }}"
                 target="_blank"
-                class="btn btn-info btn-block w-100">
+                class="btn btn-info btn-block w-50">
                     Lihat File
                 </a>
-                <label class="ms-5 align-self-center" for="file_sim">File Photo</label>
+                <label class="ms-5 align-self-center" for="file_sim">Photo</label>
             </div>
             @else
             <div class="form-group mt-2 d-flex">
@@ -548,12 +548,12 @@
 
             @if(isset($karyawan->file_ijazah) && $karyawan->file_ijazah !== 'No_Document')
             <div class="col-7 d-flex">
-                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nip . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_ijazah) }}"
+                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nik . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_ijazah) }}"
                 target="_blank"
-                class="btn btn-info btn-block w-100">
+                class="btn btn-info btn-block w-50">
                     Lihat File
                 </a>
-                <label class="ms-5 align-self-center" for="file_ijazah">File Ijazah</label>
+                <label class="ms-5 align-self-center" for="file_ijazah">Ijazah</label>
             </div>
             @else
             <div class="form-group mt-2 d-flex">
@@ -564,13 +564,13 @@
             <!---->
 
             @if(isset($karyawan->file_skck) && $karyawan->file_skck !== 'No_Document')
-            <div class="col-7 d-flex">
-                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nip . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_skck) }}"
+            <div class="col-7 d-flex mt-2">
+                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nik . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_skck) }}"
                 target="_blank"
-                class="btn btn-info btn-block w-100">
+                class="btn btn-info btn-block w-50">
                     Lihat File
                 </a>
-                <label class="ms-5 align-self-center" for="file_skck">File SKCK</label>
+                <label class="ms-5 align-self-center" for="file_skck">SKCK</label>
             </div>
             @else
             <div class="form-group mt-2 d-flex">
@@ -581,13 +581,13 @@
             <!---->
 
             @if(isset($karyawan->file_cv) && $karyawan->file_cv !== 'No_Document')
-            <div class="col-7 d-flex">
-                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nip . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_cv) }}"
+            <div class="col-7 d-flex mt-2">
+                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nik . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_cv) }}"
                 target="_blank"
-                class="btn btn-info btn-block w-100">
+                class="btn btn-info btn-block w-50">
                     Lihat File
                 </a>
-                <label class="ms-5 align-self-center" for="file_cv">File CV</label>
+                <label class="ms-5 align-self-center" for="file_cv">CV</label>
             </div>
             @else
             <div class="form-group mt-2 d-flex">
@@ -598,18 +598,18 @@
             <!---->
 
             @if(isset($karyawan->file_applicant) && $karyawan->file_applicant !== 'No_Document')
-            <div class="col-7 d-flex">
-                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nip . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_applicant) }}"
+            <div class="col-7 d-flex mt-2">
+                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nik . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_applicant) }}"
                 target="_blank"
-                class="btn btn-info btn-block w-100">
+                class="btn btn-info btn-block w-50">
                     Lihat File
                 </a>
-                <label class="ms-5 align-self-center" for="file_applicant">File Recruit</label>
+                <label class="ms-5 align-self-center" for="file_applicant">Applicantion</label>
             </div>
             @else
             <div class="form-group mt-2 d-flex">
                 <input class="form-control" type="file" id="file_applicant" name="file_applicant" style="width: 50%;">
-                <label class="ms-5 align-self-center" for="file_applicant">Recruit</label>
+                <label class="ms-5 align-self-center" for="file_applicant">Applicantion</label>
             </div>
             @endif
         </div>

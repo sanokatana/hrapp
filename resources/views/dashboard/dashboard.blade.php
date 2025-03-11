@@ -101,7 +101,7 @@ $cutiData = $cutiExpiringSoon && $cutiExpiringSoon->count() > 0
         <div class="avatar">
             @if (!empty($namaUser->foto))
             @php
-            $path = Storage::url('uploads/karyawan/' . $namaUser->nip . '.' . $namaUser->nama_lengkap . '/' . $namaUser->foto)
+            $path = Storage::url('uploads/karyawan/' . $namaUser->nik . '.' . $namaUser->nama_lengkap . '/' . $namaUser->foto)
             @endphp
             <img src="{{ url($path) }}" alt="avatar" class="imaged w64" style="height:64px">
             @else

@@ -1638,19 +1638,25 @@ class DashboardController extends Controller
     {
         $candidateId = Auth::guard('candidate')->user()->id;
 
-        // Retrieve candidate information
+        // Retrieve candidate information with correct recruitment_type_id path
         $candidate = DB::table('candidates')
             ->join('job_openings', 'candidates.job_opening_id', '=', 'job_openings.id')
             ->join('hiring_stages', 'candidates.current_stage_id', '=', 'hiring_stages.id')
             ->select(
                 'candidates.*',
                 'job_openings.title as job_title',
-                'job_openings.recruitment_type_id',
+                'job_openings.recruitment_type_id', // This now correctly comes from job_openings
                 'hiring_stages.name as current_stage_name',
                 'hiring_stages.id as current_stage_id'
             )
             ->where('candidates.id', $candidateId)
             ->first();
+
+        // Get recruitment_type_id from the candidate's job opening
+        $recruitmentTypeId = DB::table('candidates')
+            ->join('job_openings', 'candidates.job_opening_id', '=', 'job_openings.id')
+            ->where('candidates.id', $candidateId)
+            ->value('job_openings.recruitment_type_id');
 
         // Retrieve interviews related to this candidate
         $interview = DB::table('interviews')
@@ -1666,15 +1672,18 @@ class DashboardController extends Controller
             ->where('interviews.candidate_id', $candidateId)
             ->get();
 
-        // Retrieve all stages related to this candidate's recruitment type
+        // Use the correct recruitment_type_id to get stages
         $stages = DB::table('hiring_stages')
-            ->where('recruitment_type_id', $candidate->recruitment_type_id)
+            ->where('recruitment_type_id', $recruitmentTypeId)
             ->orderBy('sequence', 'asc')
             ->get();
 
         // Retrieve candidate data and handle null case
-        $candidateData = DB::table('candidate_data')->where('candidate_id', $candidateId)->first();
-        $statusForm = $candidateData ? $candidateData->status_form : null; // Check if $candidateData is null
+        $candidateData = DB::table('candidate_data')
+            ->where('candidate_id', $candidateId)
+            ->first();
+
+        $statusForm = $candidateData ? $candidateData->status_form : null;
 
         return view('dashboard.dashboardcandidate', compact('candidate', 'stages', 'statusForm', 'interview', 'candidateData'));
     }

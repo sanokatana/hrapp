@@ -39,7 +39,7 @@
         <div class="form-group boxed text-center mb-1">
             <div class="image-wrapper mb-3 position-relative">
                 @if (!empty($karyawan->foto))
-                    <img src="{{ asset('storage/uploads/karyawan/'. $karyawan->nip . '.' . $karyawan->nama_lengkap . '/' . $karyawan->foto) }}" alt="avatar" class="imaged w100 rounded" style="height:100px; width:100px; object-fit:cover;">
+                    <img src="{{ asset('storage/uploads/karyawan/'. $karyawan->nik . '.' . $karyawan->nama_lengkap . '/' . $karyawan->foto) }}" alt="avatar" class="imaged w100 rounded" style="height:100px; width:100px; object-fit:cover;">
                 @else
                     @if($karyawan->sex == 'M')
                         <img src="{{ asset('assets/img/sample/avatar/male_avatar.jpg') }}" alt="avatar" class="imaged w100 rounded" style="height:100px; width:100px; object-fit:cover;">

@@ -147,9 +147,9 @@ class PresensiController extends Controller
 
     public function updateprofile(Request $request)
     {
-        $nip = Auth::guard('karyawan')->user()->nip;
+        $nik = Auth::guard('karyawan')->user()->nik;
         $nama_lengkap = Auth::guard('karyawan')->user()->nama_lengkap;
-        $karyawan = DB::table('karyawan')->where('nip', $nip)->first();
+        $karyawan = DB::table('karyawan')->where('nik', $nik)->first();
 
         // Validate the request
         $request->validate([
@@ -161,8 +161,8 @@ class PresensiController extends Controller
 
         // Handle photo upload
         if ($request->hasFile('foto')) {
-            $foto = $nip . "." . $request->file('foto')->getClientOriginalExtension();
-            $folderPath = "uploads/karyawan/{$nip}.{$nama_lengkap}";
+            $foto = $nik . "." . $request->file('foto')->getClientOriginalExtension();
+            $folderPath = "uploads/karyawan/{$nik}.{$nama_lengkap}";
 
             // Delete old photo if exists
             if (!empty($karyawan->foto)) {
@@ -189,7 +189,7 @@ class PresensiController extends Controller
 
         try {
             DB::table('karyawan')
-                ->where('nip', $nip)
+                ->where('nik', $nik)
                 ->update($data);
 
             return Redirect::back()->with([
@@ -584,30 +584,56 @@ class PresensiController extends Controller
         return view('izin.getizincuti', compact('historicuti', 'tahun', 'bulan'));
     }
 
-    public function getFolder()
+    public function getFolder(Request $request)
     {
         $user = Auth::guard('karyawan')->user();
-        $nip = $user->nip;
+        $nik = $user->nik;
         $nama_lengkap = $user->nama_lengkap;
-        $folderPath = "public/uploads/karyawan/{$nip}.{$nama_lengkap}/";
+
+        // Get the current path from the request or use the base path
+        $currentPath = $request->get('path', "public/uploads/karyawan/{$nik}.{$nama_lengkap}");
 
         // Check if the folder exists, if not, create it
-        if (!Storage::exists($folderPath)) {
-            Storage::makeDirectory($folderPath);
+        if (!Storage::exists($currentPath)) {
+            Storage::makeDirectory($currentPath);
         }
 
-        // Get the list of files in the directory
-        $files = Storage::files($folderPath);
+        // Get all directories and files
+        $directories = Storage::directories($currentPath);
+        $files = Storage::files($currentPath);
 
-        // Convert files to URLs
-        $fileUrls = array_map(function ($file) {
-            return Storage::url($file);
+        // Convert directories to a more usable format
+        $directoryList = array_map(function ($dir) {
+            return [
+                'path' => $dir,
+                'name' => basename($dir),
+                'type' => 'folder'
+            ];
+        }, $directories);
+
+        // Convert files to a more usable format
+        $fileList = array_map(function ($file) {
+            return [
+                'path' => $file,
+                'url' => Storage::url($file),
+                'name' => basename($file),
+                'type' => 'file'
+            ];
         }, $files);
 
-        // Pass data to the view
+        // Combine directories and files
+        $items = array_merge($directoryList, $fileList);
+
+        // Get parent directory path if not in root
+        $parentPath = null;
+        if ($currentPath !== "public/uploads/karyawan/{$nik}.{$nama_lengkap}") {
+            $parentPath = dirname($currentPath);
+        }
+
         return view('presensi.files', [
-            'files' => $fileUrls,
-            'folderPath' => $folderPath,
+            'items' => $items,
+            'currentPath' => $currentPath,
+            'parentPath' => $parentPath,
             'nama_lengkap' => $nama_lengkap
         ]);
     }
@@ -646,7 +672,7 @@ class PresensiController extends Controller
         $keterangan = $request->keterangan;
         $pukul = $request->pukul;
         $currentDate = Carbon::now();
-        $folderPath = "public/uploads/karyawan/{$nip}.{$nama_lengkap}/";
+        $folderPath = "public/uploads/karyawan/{$nik}.{$nama_lengkap}/";
 
         if (!Storage::exists($folderPath)) {
             Storage::makeDirectory($folderPath);

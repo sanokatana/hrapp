@@ -98,7 +98,7 @@ use App\Helpers\DateHelper;
                                                     No File
                                                 </a>
                                                 @else
-                                                <a href="#" class="badge bg-info btnDocument" style="width:100px; display:flex; align-items:center; justify-content:center" data-id="{{ $d->id }}" data-photo-url="{{ Storage::url('uploads/karyawan/'.$d->nip . '.' .$d->nama_lengkap. '/'.$d->foto) }}">
+                                                <a href="#" class="badge bg-info btnDocument" style="width:100px; display:flex; align-items:center; justify-content:center" data-id="{{ $d->id }}" data-photo-url="{{ Storage::url('uploads/karyawan/'.$d->nik . '.' .$d->nama_lengkap. '/'.$d->foto) }}">
                                                     <svg xmlns="http://www.w3.org/2000/svg" style="margin-right: 5px;" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-file">
                                                         <path stroke="none" d="M0 0h24V24H0z" fill="none" />
                                                         <path d="M14 3v4a1 1 0 0 0 1 1h4" />

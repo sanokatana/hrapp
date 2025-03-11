@@ -1,7 +1,16 @@
 <header class="navbar navbar-expand-md d-print-none">
-    @php
+@php
     $user = Auth::guard('candidate')->user();
     $userVerify = $user ? $user->verify_offer : null;
+
+    // Get recruitment_type_id through proper table joins
+    $candidateInfo = DB::table('candidates')
+        ->join('job_openings', 'candidates.job_opening_id', '=', 'job_openings.id')
+        ->where('candidates.id', $user->id)
+        ->select('job_openings.recruitment_type_id')
+        ->first();
+
+    $recruitmentTypeId = $candidateInfo ? $candidateInfo->recruitment_type_id : null;
     @endphp
     <div class="container-xl">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,6 +68,17 @@
                             </span>
                         </a>
                     </li>
+                    @if($recruitmentTypeId == 2)
+                    {{-- Show intern menu --}}
+                    <li class="nav-item {{request()->is(['candidate/data/intern']) ? 'active' : ''}}">
+                        <a class="nav-link" href="/candidate/data/intern">
+                            <span class="nav-link-title">
+                                Candidate Data Intern
+                            </span>
+                        </a>
+                    </li>
+                    @else
+                    {{-- Show regular candidate menu --}}
                     <li class="nav-item {{request()->is(['candidate/data']) ? 'active' : ''}}">
                         <a class="nav-link" href="/candidate/data">
                             <span class="nav-link-title">
@@ -66,6 +86,7 @@
                             </span>
                         </a>
                     </li>
+                    @endif
                     @if($userVerify == '1')
                     <li class="nav-item {{request()->is(['candidate/data/perlengkapan']) ? 'active' : ''}}">
                         <a class="nav-link" href="/candidate/data/perlengkapan">

@@ -36,7 +36,7 @@ use App\Helpers\DateHelper;
             margin-left: .5pt;
             text-indent: -.5pt;
             line-height: 107%;
-            font-size: 14px;
+            font-size: 11.0pt;
             font-family: "Times New Roman", serif;
             color: black;
         }
@@ -408,70 +408,9 @@ use App\Helpers\DateHelper;
                         <p class="MsoNormal" style="margin:0in;text-align:justify;text-justify:inter-ideograph; text-indent:0in;"><span class="dotted-line">: {{DateHelper::formatIndonesiaDate($candidates->tgl_ktp_sim)}}</span></p>
                     </td>
                 </tr>
-                <tr style="height:18.95pt;">
-                    <td valign="top" style="width: 192px; padding: 0in; height: 18.95pt;">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">10. No. NPWP&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;</p>
-                    </td>
-                    <td valign="top" style="width: 451px; padding: 0in; height: 18.95pt;">
-                        <p class="MsoNormal" style="margin:0in;text-align:justify;text-justify:inter-ideograph; text-indent:0in;"><span class="dotted-line">: {{$candidates->no_npwp}}</span></p>
-                    </td>
-                </tr>
-                <tr style="height:18.95pt;">
-                    <td valign="top" style="width: 192px; padding: 0in; height: 18.95pt;">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">11. Status Keluarga &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;</p>
-                    </td>
-                    <td valign="top" style="width: 451px; padding: 0in; height: 18.95pt;">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">: @if($candidates->marriage_status === 'Menikah')
-                            Menikah
-                            @elseif($candidates->marriage_status === 'Tidak Menikah')
-                            Tidak Menikah
-                            @endif
-                        </p>
-                    </td>
-                </tr>
-                <tr style="height:18.95pt;">
-                    <td valign="top" style="width: 192px; padding: 0in; height: 18.95pt;">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">12. Tanggal Menikah &nbsp;&nbsp;&nbsp; &nbsp;</p>
-                    </td>
-                    <td valign="top" style="width: 451px; padding: 0in; height: 18.95pt;">
-                        <p class="MsoNormal" style="margin:0in;text-align:justify;text-justify:inter-ideograph; text-indent:0in;"><span class="dotted-line">: {{ $candidates->tgl_menikah ? DateHelper::formatIndonesiaDate($candidates->tgl_menikah) : '' }}</span></p>
-                    </td>
-                </tr>
-                <tr style="height:18.95pt;">
-                    <td valign="top" style="width: 192px; padding: 0in; height: 18.95pt;">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">13. Jabatan saat ini &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;</p>
-                    </td>
-                    <td valign="top" style="width: 451px; padding: 0in; height: 18.95pt;">
-                        <p class="MsoNormal" style="margin:0in;text-align:justify;text-justify:inter-ideograph; text-indent:0in;"><span class="dotted-line">: {{$candidates->jabatan}}</span></p>
-                    </td>
-                </tr>
-                <tr style="height:18.95pt;">
-                    <td valign="top" style="width: 192px; padding: 0in; height: 18.95pt;">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">14. Nama Perusahaan &nbsp;&nbsp; &nbsp;</p>
-                    </td>
-                    <td valign="top" style="width: 451px; padding: 0in; height: 18.95pt;">
-                        <p class="MsoNormal" style="margin:0in;text-align:justify;text-justify:inter-ideograph; text-indent:0in;"><span class="dotted-line">: {{$candidates->nama_perusahaan}}</span></p>
-                    </td>
-                </tr>
-                <tr style="height:18.95pt;">
-                    <td valign="top" style="width: 192px; padding: 0in; height: 18.95pt;">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">15. Alamat Perusahaan&nbsp;</p>
-                    </td>
-                    <td valign="top" style="width: 451px; padding: 0in; height: 18.95pt;">
-                        <p class="MsoNormal" style="margin:0in;text-align:justify;text-justify:inter-ideograph; text-indent:0in;"><span class="dotted-line">: {{$addressLine4}}</span></p>
-                    </td>
-                </tr>
-                <tr style="height:19.0pt;">
-                    <td valign="top" style="width: 192px; padding: 0in; height: 19pt;">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;</p>
-                    </td>
-                    <td valign="top" style="width: 451px; padding: 0in; height: 19pt;">
-                        <p class="MsoNormal" style="margin:0in;text-align:justify;text-justify:inter-ideograph; text-indent:0in;"><span class="dotted-line">&nbsp;{{$addressLine5}}</span></p>
-                    </td>
-                </tr>
                 <tr style="height:15.65pt;">
                     <td valign="top" style="width: 192px; padding: 0in; height: 15.65pt;">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">16. Alamat Email&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;</p>
+                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">10. Alamat Email&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;</p>
                     </td>
                     <td valign="top" style="width: 451px; padding: 0in; height: 15.65pt;">
                         <p class="MsoNormal" style="margin:0in;text-align:justify;text-justify:inter-ideograph; text-indent:0in;"><span class="dotted-line">: {{$candidates->alamat_email}}</span></p>
@@ -480,82 +419,8 @@ use App\Helpers\DateHelper;
             </tbody>
         </table>
         <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:17.15pt; margin-left:0in;text-indent:0in;"><strong>&nbsp;</strong></p>
-        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><strong>&nbsp;</strong></p>
-        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><strong>&nbsp;</strong></p>
-        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><strong>&nbsp;</strong></p>
-        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><strong>&nbsp;</strong></p>
         <h1 style="margin-top:0in;margin-right:0in;margin-bottom:5.2pt;margin-left: -.25pt;">B. KELUARGA &amp; LINGKUNGAN</h1>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:11.05pt;text-indent:-11.05pt;"><span style="line-height:107%;">1.<span style='font:7.0pt "Times New Roman";'>&nbsp;</span></span> Susunan Keluarga (Suami/Istri dan anak &ndash; anak)</p>
-        <p class="MsoNormal" style="margin:0in;text-indent:0in;">&nbsp;</p>
-        <table class="TableGrid" border="0" cellspacing="0" cellpadding="0" width="642" style="width:481.55pt;margin-left:.25pt;border-collapse:collapse;">
-            <tbody>
-                <tr style="height:19.55pt;">
-                    <td valign="top" style="width: 93px; border: 1pt solid black; padding: 0.7pt 2.9pt 0in 5.4pt; height: 19.55pt;">
-                        <p class="MsoNormal" align="center" style="margin-top:0in;margin-right:2.25pt; margin-bottom:0in;margin-left:0in;text-align:center;text-indent:0in; text-align: center; vertical-align: middle">Uraian</p>
-                    </td>
-                    <td valign="top" style="width: 115px; border-top: 1pt solid black; border-right: 1pt solid black; border-bottom: 1pt solid black; border-image: initial; border-left: none; padding: 0.7pt 2.9pt 0in 5.4pt; height: 19.55pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:3.95pt;text-indent:0in;">Nama Lengkap</p>
-                    </td>
-                    <td valign="top" style="width: 65px; border-top: 1pt solid black; border-right: 1pt solid black; border-bottom: 1pt solid black; border-image: initial; border-left: none; padding: 0.7pt 2.9pt 0in 5.4pt; height: 19.55pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" align="center" style="margin-top:0in;margin-right:2.25pt; margin-bottom:0in;margin-left:0in;text-align:center;text-indent:0in;">L /P</p>
-                    </td>
-                    <td valign="top" style="width: 99px; border-top: 1pt solid black; border-right: 1pt solid black; border-bottom: 1pt solid black; border-image: initial; border-left: none; padding: 0.7pt 2.9pt 0in 5.4pt; height: 19.55pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:.35pt;text-indent:0in;">Tanggal Lahir</p>
-                    </td>
-                    <td valign="top" style="width: 85px; border-top: 1pt solid black; border-right: 1pt solid black; border-bottom: 1pt solid black; border-image: initial; border-left: none; padding: 0.7pt 2.9pt 0in 5.4pt; height: 19.55pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:2.05pt;text-indent:0in;">Pendidikan</p>
-                    </td>
-                    <td valign="top" style="width: 92px; border-top: 1pt solid black; border-right: 1pt solid black; border-bottom: 1pt solid black; border-image: initial; border-left: none; padding: 0.7pt 2.9pt 0in 5.4pt; height: 19.55pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" align="center" style="margin-top:0in;margin-right:2.4pt; margin-bottom:0in;margin-left:0in;text-align:center;text-indent:0in;">Pekerjaan</p>
-                    </td>
-                    <td valign="top" style="width: 93px; border-top: 1pt solid black; border-right: 1pt solid black; border-bottom: 1pt solid black; border-image: initial; border-left: none; padding: 0.7pt 2.9pt 0in 5.4pt; height: 19.55pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:4.2pt;text-indent:0in;">Keterangan</p>
-                    </td>
-                </tr>
-                @foreach ($familyMembers as $member)
-                <tr style="height: 19.45pt;">
-                    <td valign="top" style="width: 93px; border-right: 1pt solid black; border-bottom: 1pt solid black; border-left: 1pt solid black; border-image: initial; border-top: none; padding: 0.7pt 2.9pt 0in 5.4pt; height: 19.45pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:.1pt;text-indent:0in;">
-                            {{ $member['uraian'] }}
-                        </p>
-                    </td>
-                    <td valign="top" style="width: 92px; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0.7pt 2.9pt 0in 5.4pt; height: 19.55pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:.1pt;text-indent:0in;">
-                            {{ $member['nama_lengkap'] }}
-                        </p>
-                    </td>
-                    <td valign="top" style="width: 92px; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0.7pt 2.9pt 0in 5.4pt; height: 19.55pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:.1pt;text-indent:0in;">
-                            {{ $member['jenis'] }}
-                        </p>
-                    </td>
-                    <td valign="top" style="width: 92px; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0.7pt 2.9pt 0in 5.4pt; height: 19.55pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:.1pt;text-indent:0in;">
-                            {{ $member['tgl_lahir'] }}
-                        </p>
-                    </td>
-                    <td valign="top" style="width: 92px; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0.7pt 2.9pt 0in 5.4pt; height: 19.55pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:.1pt;text-indent:0in;">
-                            {{ $member['pendidikan'] }}
-                        </p>
-                    </td>
-                    <td valign="top" style="width: 92px; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0.7pt 2.9pt 0in 5.4pt; height: 19.55pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:.1pt;text-indent:0in;">
-                            {{ $member['pekerjaan'] }}
-                        </p>
-                    </td>
-                    <td valign="top" style="width: 92px; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0.7pt 2.9pt 0in 5.4pt; height: 19.55pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:.1pt;text-indent:0in;">
-                            {{ $member['keterangan'] }}
-                        </p>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><span style="font-size: 10.0pt;line-height:107%;">&nbsp;</span></p>
-        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><span style="font-size: 10.0pt;line-height:107%;">&nbsp;</span></p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:11.05pt;text-indent:-11.05pt;"><span style="line-height:107%;">2.<span style='font:7.0pt "Times New Roman";'>&nbsp;</span></span> Susunan Keluarga (Ayah, Ibu dan Saudara Kandung termasuk Saudara)</p>
+        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:11.05pt;text-indent:-11.05pt;"><span style="line-height:107%;">1.<span style='font:7.0pt "Times New Roman";'>&nbsp;</span></span> Susunan Keluarga (Ayah, Ibu dan Saudara Kandung termasuk Saudara)</p>
         <p class="MsoNormal" style="margin:0in;text-indent:0in;">&nbsp;</p>
         <table class="TableGrid" border="0" cellspacing="0" cellpadding="0" width="642" style="width:481.55pt;margin-left:.25pt;border-collapse:collapse;">
             <tbody>
@@ -624,35 +489,6 @@ use App\Helpers\DateHelper;
             </tbody>
         </table>
         <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:.05pt; margin-left:0in;text-indent:0in;"><span style="font-size:10.0pt;line-height: 107%;">&nbsp;</span></p>
-        <p class="MsoNormal" style="margin-left:11.05pt;text-indent:-11.05pt;">
-            <span style="line-height:107%;">3.<span style='font:7.0pt "Times New Roman";'>&nbsp;</span></span>
-            Apakah Saudara mempunyai tanggung jawab lain selain anak &amp; istri?
-            <span class="circle-text">
-                @if($candidates->tanggung_jawab == 'Ya')
-                <span class="circled">Ya</span>
-                @else
-                Ya
-                @endif
-            </span>
-            /
-            <span class="circle-text">
-                @if($candidates->tanggung_jawab == 'Tidak')
-                <span class="circled">Tidak</span>
-                @else
-                Tidak
-                @endif
-            </span>
-        </p>
-        <p class="MsoNormal" style="margin-left:-.25pt;">&nbsp;&nbsp;&nbsp; Siapa dan berapa besar tanggungan ? {{$candidates->siapa_tanggungan}} / Rp. {{ number_format($candidates->nilai_tanggungan, thousands_separator: '.') }} / bulan</p>
-        <p class="MsoNormal" style="margin-left:11.05pt;text-indent:-11.05pt;">
-            <span style="line-height:107%;">4.<span style='font:7.0pt "Times New Roman";'>&nbsp;</span></span>
-            Apakah rumah status yang Saudara tempati saat ini:
-            <span class="{{ $candidates->rumah_status == 'Rumah Pribadi' ? 'circled' : '' }}">Rumah Pribadi</span> /
-            <span class="{{ $candidates->rumah_status == 'Orang Tua' ? 'circled' : '' }}">Orang Tua</span> /
-            <span class="{{ $candidates->rumah_status == 'Kontrak' ? 'circled' : '' }}">Kontrak</span> /
-            <span class="{{ $candidates->rumah_status == 'Lain-lain' ? 'circled' : '' }}">Lain-lain</span>.
-        </p>
-        <p class="MsoNormal" style="margin:0in;text-indent:0in;">&nbsp;</p>
         <h1 style="margin-left:-.25pt;">C. PENDIDIKAN</h1>
         <table class="TableGrid" border="0" cellspacing="0" cellpadding="0" width="642" style="width:481.55pt;margin-left:.25pt;border-collapse:collapse;">
             <tbody>
@@ -743,7 +579,6 @@ use App\Helpers\DateHelper;
         </p>
         <p class="MsoNormal" style="margin-left:-.25pt;">&nbsp;&nbsp;&nbsp; Jika Ya, sebutkan pendidikan apa dan kapan waktunya ( hari / jam ) {{$penjelasan1}}</p>
         <p class="MsoNormal" style="margin-left:-.25pt;line-height:148%;">&nbsp;&nbsp;&nbsp; {{$penjelasan2}} <strong>&nbsp;</strong></p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.25pt; margin-left:0in;text-indent:0in;"><strong>&nbsp;</strong></p>
         <h1 style="margin-left:-.25pt;">D. KURSUS / TRAINING (isikan dari urutan yang terbaru)</h1>
         <table class="TableGrid" border="0" cellspacing="0" cellpadding="0" width="645" style="width:484.05pt;margin-left:.25pt;border-collapse:collapse;">
             <tbody>
@@ -866,73 +701,8 @@ use App\Helpers\DateHelper;
             </tbody>
         </table>
         <p class="MsoNormal" style="margin:0in;text-indent:0in;"><strong>&nbsp;</strong></p>
-        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><strong>&nbsp;</strong></p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:-.25pt;"><strong>F. RIWAYAT PEKERJAAN</strong> <span style="font-size:10.0pt; line-height:107%;">(Isikan urutan dari pekerjaan saat ini)</span></p>
-        <table class="TableGrid" border="0" cellspacing="0" cellpadding="0" width="647" style="width:485.4pt;margin-left:.25pt;border-collapse:collapse;">
-            <tbody>
-                @foreach ($pekerjaanList as $pekerjaan)
-                <tr style="height:13.2pt;">
-                    <td valign="top" style="width: 107px; border: 1pt solid black; padding: 0.6pt 3.1pt 0in 5.4pt; height: 13.2pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:.1pt;text-indent:0in;">Perusahaan</p>
-                    </td>
-                    <td valign="top" style="width: 116px; border-top: 1pt solid black; border-right: 1pt solid black; border-bottom: 1pt solid black; border-image: initial; border-left: none; padding: 0.6pt 3.1pt 0in 5.4pt; height: 13.2pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">Alamat</p>
-                    </td>
-                    <td valign="top" style="width: 108px; border-top: 1pt solid black; border-right: 1pt solid black; border-bottom: 1pt solid black; border-image: initial; border-left: none; padding: 0.6pt 3.1pt 0in 5.4pt; height: 13.2pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">Jabatan</p>
-                    </td>
-                    <td valign="top" style="width: 100px; border-top: 1pt solid black; border-right: 1pt solid black; border-bottom: 1pt solid black; border-image: initial; border-left: none; padding: 0.6pt 3.1pt 0in 5.4pt; height: 13.2pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:.1pt;text-indent:0in;">Dari</p>
-                    </td>
-                    <td valign="top" style="width: 92px; border-top: 1pt solid black; border-right: 1pt solid black; border-bottom: 1pt solid black; border-image: initial; border-left: none; padding: 0.6pt 3.1pt 0in 5.4pt; height: 13.2pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">Sampai</p>
-                    </td>
-                    <td valign="top" style="width: 124px; border-top: 1pt solid black; border-right: 1pt solid black; border-bottom: 1pt solid black; border-image: initial; border-left: none; padding: 0.6pt 3.1pt 0in 5.4pt; height: 13.2pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">Keterangan</p>
-                    </td>
-                </tr>
-                <tr style="height:14.5pt;">
-                    <td valign="top" style="width: 107px; border-right: 1pt solid black; border-bottom: 1pt solid black; border-left: 1pt solid black; border-image: initial; border-top: none; padding: 0.6pt 3.1pt 0in 5.4pt; height: 14.5pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:.1pt;text-indent:0in;">{{$pekerjaan['perusahaan']}}</p>
-                    </td>
-                    <td valign="top" style="width: 116px; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0.6pt 3.1pt 0in 5.4pt; height: 14.5pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">{{$pekerjaan['alamat']}}</p>
-                    </td>
-                    <td valign="top" style="width: 108px; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0.6pt 3.1pt 0in 5.4pt; height: 14.5pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">{{$pekerjaan['jabatan']}}</p>
-                    </td>
-                    <td valign="top" style="width: 100px; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0.6pt 3.1pt 0in 5.4pt; height: 14.5pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:.1pt;text-indent:0in;">{{$pekerjaan['dari']}}</p>
-                    </td>
-                    <td valign="top" style="width: 92px; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0.6pt 3.1pt 0in 5.4pt; height: 14.5pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">{{$pekerjaan['sampai']}}</p>
-                    </td>
-                    <td valign="top" style="width: 124px; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0.6pt 3.1pt 0in 5.4pt; height: 14.5pt; text-align: center; vertical-align: middle">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">{{$pekerjaan['keterangan']}}</p>
-                    </td>
-                </tr>
-                <tr style="height:25.8pt;">
-                    <td valign="top" colspan="6" style="border-left: 1pt solid black; border-right: 1pt solid black; border-bottom: 1pt solid black; padding: 0.6pt 3.1pt 0in 5.4pt; text-align: left;">
-                        <p class="MsoNormal" style="margin-top:0in; margin-right:0in; margin-bottom:0in; margin-left:.1pt; text-indent:0in;">
-                            Alasan Keluar: {{ $pekerjaan['alasan'] ?? '' }}
-                        </p>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:4.8pt; margin-left:0in;text-indent:0in;"><span style="font-size:10.0pt;line-height: 107%;">&nbsp;</span></p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.8pt; margin-left:0in;text-indent:0in;"><span style="font-size:10.0pt;line-height: 107%;">&nbsp;</span></p>
-        <p class="MsoNormal" style="margin-left:-.25pt;">Selain untuk meningkatkan karir dan pendapatan, sebutkan alasan saudara meninggalkan pekerjaan terakhir:</p>
-        <p class="MsoNormal" style="margin-left:-.25pt;"><span class="dotted-line">{{$alasan1}}</span></p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:-.25pt;line-height:148%;"><span class="dotted-line">{{$alasan2}}</span></p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.15pt; margin-left:0in;text-indent:0in;"><span class="dotted-line">{{$alasan3}}</span></p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.15pt; margin-left:0in;text-indent:0in;">&nbsp;</p>
-        <p class="MsoNormal" style="margin-left:-.25pt;">1. Berilah uraian pekerjaan dari jabatan terakhir: <span class="dotted-line">{{$alasan4}}</span></p>
-        <p class="MsoNormal" style="margin-left:-.25pt;"><span class="dotted-line">{{$alasan5}}</span></p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:-.25pt;line-height:148%;"><span class="dotted-line">{{$alasan6}}</span></p>
         <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.65pt; margin-left:0in;text-indent:0in;"><span style="font-size:10.0pt;line-height: 107%;">&nbsp;</span></p>
-        <h1 style="margin-left:-.25pt;">G. MINAT DAN KONSEP PRIBADI</h1>
+        <h1 style="margin-left:-.25pt;">F. MINAT DAN KONSEP PRIBADI</h1>
         <p class="MsoNormal" style="margin:0in;text-indent:0in;"><span style="font-size: 10.0pt;line-height:107%;">&nbsp;</span></p>
         <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:-.25pt;">HAL-HAL LAIN YANG BERHUBUNGAN DENGAN LAMARAN SAUDARA.</p>
         <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:-.25pt;">Berikan nomor secara berurutan bagian/jenis macam pekerjaan yang anda senangi :</p>
@@ -1053,66 +823,7 @@ use App\Helpers\DateHelper;
         <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.15pt; margin-left:0in;text-indent:0in;"><strong>&nbsp;</strong></p>
         <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.3pt; margin-left:0in;text-indent:0in;"><strong>&nbsp;</strong></p>
         <p class="MsoNormal" style="margin:0in;text-indent:0in;"><strong>&nbsp;</strong></p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.25pt; margin-left:-.25pt;">
-            <strong>H. GAMBARAN POSISI SAAT INI&nbsp;</strong>
-        </p>
-        <p class="MsoNormal" style="margin-left:-.25pt;">&nbsp;&nbsp;&nbsp;&nbsp; Gambarkan Posisi Anda saat ini dalam Struktur Organisasi&nbsp;</p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:4.2pt; margin-left:0in;text-indent:0in;">&nbsp;</p>
-
-        <?php
-
-        use Illuminate\Support\Str;
-
-        // Define the folder path
-        $folderPath = public_path('storage/uploads/candidate/' . $candidates->candidate_id . '.' . Str::slug($candidates->nama_candidate) . '/');
-
-        // Create the full file path for the gambaran_posisi image
-        $imagePath = $folderPath . $candidates->gambaran_posisi;
-
-        // Display the image if it exists
-        if (file_exists($imagePath)) {
-            echo '<img src="' . asset('storage/uploads/candidate/' . $candidates->candidate_id . '.' . Str::slug($candidates->nama_candidate) . '/' . $candidates->gambaran_posisi) . '" alt="Gambaran Posisi" style="max-width: 100%; height: auto; margin-top: 10px;">';
-        } else {
-            echo '<p style="color: red;">Image not found.</p>';
-        }
-        ?>
-
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:4.85pt; margin-left:0in;text-indent:0in;"><span style="font-size:10.0pt;line-height: 107%;">&nbsp;</span></p>
-
-        <h1 style="margin-top:0in;margin-right:0in;margin-bottom:5.4pt;margin-left: -.25pt;">I. LAIN &ndash; LAIN</h1>
-        <p class="MsoNormal" style="margin-left:36.05pt;text-indent:-21.85pt;"><span style="line-height:107%;">1.<span style='font:7.0pt "Times New Roman";'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span> Apakah Saudara bersedia menjalani masa percobaan ? <span class="circle-text">
-                @if($candidates->masa_percobaan == 'Ya')
-                <span class="circled">Ya</span>
-                @else
-                Ya
-                @endif
-            </span>
-            /
-            <span class="circle-text">
-                @if($candidates->masa_percobaan == 'Tidak')
-                <span class="circled">Tidak</span>
-                @else
-                Tidak
-                @endif
-            </span>
-        </p>
-        <p class="MsoNormal" style="margin-left:36.05pt;text-indent:-21.85pt;"><span style="line-height:107%;">2.<span style='font:7.0pt "Times New Roman";'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span> Bersediakan saudara untuk mengikuti proses BI Checking bersama CHL Group? <span class="circle-text">
-                @if($candidates->proses_bi == 'Ya')
-                <span class="circled">Ya</span>
-                @else
-                Ya
-                @endif
-            </span>
-            /
-            <span class="circle-text">
-                @if($candidates->proses_bi == 'Tidak')
-                <span class="circled">Tidak</span>
-                @else
-                Tidak
-                @endif
-            </span>
-        </p>
-        <p class="MsoNormal" style="margin-left:36.05pt;text-indent:-21.85pt;"><span style="line-height:107%;">3.<span style='font:7.0pt "Times New Roman";'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span> Kapankah Saudara dapat mulai bekerja di perusahaan kami ? {{DateHelper::formatIndonesianDate($candidates->mulai_kerja)}}</p>
+        <p class="MsoNormal" style="margin-left:36.05pt;text-indent:-21.85pt;"><span style="line-height:107%;">1.<span style='font:7.0pt "Times New Roman";'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span> Kapankah Saudara dapat mulai bekerja di perusahaan kami ? {{DateHelper::formatIndonesianDate($candidates->mulai_kerja)}}</p>
         <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.15pt; margin-left:0in;text-indent:0in;">&nbsp;</p>
         <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:0in; margin-left:-.25pt;line-height:148%;">Demikianlah hal tersebut di atas saya uraikan dengan sebenarnya dan saya berani mempertanggung jawabkan isi formulir di lamaran kerja ini.</p>
         <p class="MsoNormal" style="margin-left:0in;text-indent:0in;">&nbsp;</p>
@@ -1123,133 +834,6 @@ use App\Helpers\DateHelper;
         <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.15pt; margin-left:0in;text-indent:0in;">&nbsp;</p>
         <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.15pt; margin-left:0in;text-indent:0in;">&nbsp;</p>
         <p class="MsoNormal" style="margin-left:-.25pt;">(........................................................)</p>
-        <h1 style="text-align: justify; margin-left:10pt; page-break-before: always;">KETERANGAN PENGHASILAN</h1>
-        <h1 style="text-align: justify; margin-left:10pt;">(HARAP LENGKAPI DENGAN SLIP GAJI 3</h1>
-        <h1 style="text-align: justify; margin-left:10pt;">BULAN TERAKHIR)</h1>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.25pt; margin-left:0in;text-indent:0in;"><strong>&nbsp;</strong></p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.25pt; margin-left:0in;text-indent:0in;"><strong>&nbsp;</strong></p>
-        <p class="MsoNormal" align="center" style="margin-top:0in;margin-right:0in; margin-bottom:0in;margin-left:9.4pt;text-align:center;text-indent:0in;"><strong>PENDAPATAN TERAKHIR</strong></p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:3.75pt; margin-left:10.1pt;text-indent:0in;">&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;</p>
-        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><span style='font-family: "Calibri",sans-serif;'>&nbsp;</span> Gaji pokok &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="display: inline-block; width: 180px; border-bottom: 1px dotted; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-                Rp &nbsp;{{ number_format($candidates->gaji_pokok, thousands_separator: '.') }}
-            </span></p>
-        <table class="TableGrid" border="0" cellspacing="0" cellpadding="0" width="583" style="width:437.5pt;margin-left:4.7pt;border-collapse:collapse;">
-            <tbody>
-                <tr style="height:34.9pt;">
-                    <td valign="top" style="width: 324px; border-top: none; border-right: none; border-left: none; border-image: initial; border-bottom: 1pt dashed white; padding: 5.15pt 5.75pt 0in 0in; height: 34.9pt;">
-                        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:3.65pt; margin-left:0in;text-indent:0in;">Tunjangan &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;</p>
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><span style="display: inline-block; width: 280px; border-bottom: 1px dotted; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">{{$candidates->tunjangan1}}</span></p>
-                    </td>
-                    <td valign="top" style="width: 199px; border-top: none; border-right: none; border-left: none; border-image: initial; border-bottom: 1pt dashed white; padding: 5.15pt 5.75pt 0in 0in; height: 34.9pt;">
-                        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:3.65pt; margin-left:0in;text-indent:0in;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;</p>
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><span style="display: inline-block; width: 180px; border-bottom: 1px dotted; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-                                Rp &nbsp;{{ number_format($candidates->nilai_tunjangan1, thousands_separator: '.') }}
-                            </span></p>
-                    </td>
-                    <td valign="top" style="width: 61px; border-top: 1pt solid white; border-left: none; border-bottom: 1pt solid white; border-right: none; padding: 5.15pt 5.75pt 0in 0in; height: 34.9pt;">
-                        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:3.35pt; margin-left:0in;text-indent:0in;">&nbsp;</p>
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">&nbsp;</p>
-                    </td>
-                </tr>
-                <tr style="height:17.65pt;">
-                    <td valign="top" style="width: 324px; border-top: none; border-right: none; border-left: none; border-image: initial; border-bottom: 1pt solid white; padding: 5.15pt 5.75pt 0in 0in; height: 17.65pt;">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><span style="display: inline-block; width: 280px; border-bottom: 1px dotted; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">{{$candidates->tunjangan2}}</span></p>
-                    </td>
-                    <td valign="top" style="width: 199px; border-top: none; border-right: none; border-left: none; border-image: initial; border-bottom: 1pt solid white; padding: 5.15pt 5.75pt 0in 0in; height: 17.65pt;">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><span style="display: inline-block; width: 180px; border-bottom: 1px dotted; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-                                Rp &nbsp;{{ number_format($candidates->nilai_tunjangan2, thousands_separator: '.') }}
-                            </span></p>
-                    </td>
-                    <td valign="top" style="width: 61px; border-top: none; border-right: none; border-left: none; border-image: initial; border-bottom: 1pt solid white; padding: 5.15pt 5.75pt 0in 0in; height: 17.65pt;">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">&nbsp;</p>
-                    </td>
-                </tr>
-                <tr style="height:17.75pt;">
-                    <td valign="top" style="width: 324px; border-top: none; border-right: none; border-left: none; border-image: initial; border-bottom: 1pt solid white; padding: 5.15pt 5.75pt 0in 0in; height: 17.75pt;">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><span style="display: inline-block; width: 280px; border-bottom: 1px dotted; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">{{$candidates->tunjangan3}}</span></p>
-                    </td>
-                    <td valign="top" style="width: 199px; border-top: none; border-right: none; border-left: none; border-image: initial; border-bottom: 1pt solid white; padding: 5.15pt 5.75pt 0in 0in; height: 17.75pt;">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><span style="display: inline-block; width: 180px; border-bottom: 1px dotted; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-                                Rp &nbsp;{{ number_format($candidates->nilai_tunjangan3, thousands_separator: '.') }}
-                            </span></p>
-                    </td>
-                    <td valign="top" style="width: 61px; border-top: none; border-right: none; border-left: none; border-image: initial; border-bottom: 1pt solid white; padding: 5.15pt 5.75pt 0in 0in; height: 17.75pt;">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">&nbsp;</p>
-                    </td>
-                </tr>
-                <tr style="height:17.65pt;">
-                    <td valign="top" style="width: 324px; border-top: none; border-right: none; border-left: none; border-image: initial; border-bottom: 1pt solid white; padding: 5.15pt 5.75pt 0in 0in; height: 17.65pt;">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><u><span style="display: inline-block; width: 280px; border-bottom: 1px dotted; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">{{$candidates->tunjangan4}}</span></p>
-                    </td>
-                    <td valign="top" style="width: 199px; border-top: none; border-right: none; border-left: none; border-image: initial; border-bottom: 1pt solid white; padding: 5.15pt 5.75pt 0in 0in; height: 17.65pt;">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><span style="display: inline-block; width: 180px; border-bottom: 1px dotted; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-                                Rp &nbsp;{{ number_format($candidates->nilai_tunjangan4, thousands_separator: '.') }}
-                            </span></p>
-                    </td>
-                    <td valign="top" style="width: 61px; border-top: none; border-right: none; border-left: none; border-image: initial; border-bottom: 1pt solid white; padding: 5.15pt 5.75pt 0in 0in; height: 17.65pt;">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">&nbsp;</p>
-                    </td>
-                </tr>
-                <tr style="height:17.75pt;">
-                    <td valign="top" style="width: 324px; border-top: none; border-right: none; border-left: none; border-image: initial; border-bottom: 1pt solid white; padding: 5.15pt 5.75pt 0in 0in; height: 17.75pt;">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><span style="display: inline-block; width: 280px; border-bottom: 1px dotted; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">{{$candidates->tunjangan5}}</span></p>
-                    </td>
-                    <td valign="top" style="width: 199px; border-top: none; border-right: none; border-left: none; border-image: initial; border-bottom: 1pt solid white; padding: 5.15pt 5.75pt 0in 0in; height: 17.75pt;">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><span style="display: inline-block; width: 180px; border-bottom: 1px dotted; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-                                Rp &nbsp;{{ number_format($candidates->nilai_tunjangan5, thousands_separator: '.') }}
-                            </span></p>
-                    </td>
-                    <td valign="top" style="width: 61px; border-top: none; border-right: none; border-left: none; border-image: initial; border-bottom: 1pt solid white; padding: 5.15pt 5.75pt 0in 0in; height: 17.75pt;">
-                        <p class="MsoNormal" style="margin:0in;text-indent:0in;">&nbsp;</p>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><span style='font-family: "Calibri",sans-serif;'>&nbsp;&nbsp;</span>Insentif &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;<span style="display: inline-block; width: 180px; border-bottom: 1px dotted; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-                Rp &nbsp;{{ number_format($candidates->nilai_insentif, thousands_separator: '.') }}
-            </span>
-        </p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:3.25pt; margin-left:0in;text-indent:0in;"><strong>&nbsp;</strong></p>
-        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><span style='font-family: "Calibri",sans-serif;'>&nbsp;&nbsp;</span>Lain - lain&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="display: inline-block; width: 180px; border-bottom: 1px dotted; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-                Rp &nbsp;{{ number_format($candidates->nilai_lain_lain, thousands_separator: '.') }}
-            </span>
-            &nbsp; +
-        </p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:3.25pt; margin-left:0in;text-indent:0in;"><strong>&nbsp;</strong></p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:3.75pt; margin-left:0in;text-indent:0in;"><span style='font-family:"Calibri",sans-serif;'>&nbsp;</span> <strong>TOTAL TAKE HOME PAY</strong></p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:3.75pt; margin-left:0in;text-indent:0in;"><span style='font-family:"Calibri",sans-serif;'>&nbsp;</span> <strong>/BULAN &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </strong> <span style="display: inline-block; width: 180px; border-bottom: 1px dotted; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-                Rp &nbsp;{{ number_format($candidates->take_home_bulan, thousands_separator: '.') }}
-            </span> (bersih/kotor)*</p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:3.65pt; margin-left:10.1pt;text-indent:0in;">&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;</p>
-        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><span style='font-family: "Calibri",sans-serif;'>&nbsp;</span> Pendapatan per tahun &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="display: inline-block; width: 180px; border-bottom: 1px dotted; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-                Rp &nbsp;{{ number_format($candidates->take_home_tahun, thousands_separator: '.') }}
-            </span> (bersih/kotor)*</p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.25pt; margin-left:0in;text-indent:0in;"><strong>&nbsp;</strong></p>
-        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><span style='font-family: "Calibri",sans-serif;'>&nbsp;</span> (Termasuk THR) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ({{$candidates->bulan_gaji}} bulan gaji)</p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.25pt; margin-left:0in;text-indent:0in;"><strong>&nbsp;</strong></p>
-        <p class="MsoNormal" align="center" style="margin-top:0in;margin-right:0in; margin-bottom:0in;margin-left:9.4pt;text-align:center;text-indent:0in;"><strong>PENDAPATAN YANG DIHARAPKAN</strong></p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:3.65pt; margin-left:10.1pt;text-indent:0in;">&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;</p>
-        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><span style='font-family: "Calibri",sans-serif;'>&nbsp;</span> Take Home Pay /Bulan &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="display: inline-block; width: 180px; border-bottom: 1px dotted; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-                Rp &nbsp;{{ number_format($candidates->harap_take_home_bulan, thousands_separator: '.') }}
-            </span> (bersih/kotor)*</p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.75pt; margin-left:10.1pt;text-indent:0in;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;</p>
-        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><span style='font-family: "Calibri",sans-serif;'>&nbsp;</span> Pendapatan per tahun &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="display: inline-block; width: 180px; border-bottom: 1px dotted; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-                Rp &nbsp;{{ number_format($candidates->harap_take_home_tahun, thousands_separator: '.') }}
-            </span> (bersih/kotor)*</p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:1.5pt; margin-left:10.1pt;text-indent:0in;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;</p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.15pt; margin-left:0in;text-indent:0in;">&nbsp;</p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.15pt; margin-left:0in;text-indent:0in;">&nbsp;</p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.15pt; margin-left:0in;text-indent:0in;">&nbsp;</p>
-        <p class="MsoNormal" style="margin-left:-.25pt;">Serpong,........&nbsp; ..................................&nbsp; 20........</p>
-        <p class="MsoNormal" style="margin-left:-.25pt;">Hormat saya,</p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.25pt; margin-left:0in;text-indent:0in;">&nbsp;</p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.15pt; margin-left:0in;text-indent:0in;">&nbsp;</p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.15pt; margin-left:0in;text-indent:0in;">&nbsp;</p>
-        <p class="MsoNormal" style="margin-left:0in;text-indent:0in;">&nbsp;</p>
-        <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.45pt; margin-left:0in;text-indent:0in;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;</p>
-        <p class="MsoNormal" style="margin-left:-.25pt;">(........................................................)</p>
-        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><span style='font-family: "Century Gothic",sans-serif;'>&nbsp;</span></p>
-    </div>
 </body>
 
 </html>

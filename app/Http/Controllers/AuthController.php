@@ -30,55 +30,77 @@ class AuthController extends Controller
 
     public function proseslogincandidate(Request $request)
     {
-        // Validate the incoming request for 'username' and 'password'
+        // Validate the incoming request
         $request->validate([
             'username' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        // Get the login credentials
-        $credentials = [
-            'username' => $request->input('username'),
-            'password' => $request->input('password'),
-        ];
+        // Get the candidate by username first
+        $candidate = DB::table('candidates')->where('username', $request->username)->first();
 
-        // Determine if the user wants to be remembered
-        $remember = $request->has('remember');
+        if ($candidate) {
+            // Check both regular password and temporary password
+            if (Hash::check($request->password, $candidate->password) ||
+                Hash::check($request->password, $candidate->temp_pass))
+            {
+                // Manual authentication since we're checking two password fields
+                Auth::guard('candidate')->loginUsingId($candidate->id, $request->has('remember'));
 
-        // Attempt to log in the user using the 'candidate' guard
-        if (Auth::guard('candidate')->attempt($credentials, $remember)) {
-            // Retrieve the logged-in candidate's data
-            $candidate = Auth::guard('candidate')->user();
+                // Get fresh instance of authenticated candidate
+                $authenticatedCandidate = Auth::guard('candidate')->user();
 
-            // Check the candidate's status and handle login behavior
-            switch ($candidate->status) {
-                case 'In Process':
-                    // Allow login and update stage if needed
-                    if ($candidate->current_stage_id == 1) {
-                        DB::table('candidates')
-                            ->where('id', $candidate->id)
-                            ->update(['current_stage_id' => 2]);
-                    }
-                    return response()->json(['success' => true]);
+                // Check the candidate's status and handle login behavior
+                switch ($authenticatedCandidate->status) {
+                    case 'In Process':
+                        // Get current stage info
+                        $currentStage = DB::table('hiring_stages')
+                            ->where('id', $authenticatedCandidate->current_stage_id)
+                            ->first();
 
-                case 'Hired':
-                    // Prevent login and show the message that the candidate has been hired
-                    Auth::guard('candidate')->logout();
-                    return response()->json(['success' => false, 'message' => 'Congratulations, we are pleased to inform you that you have been hired.']);
+                        if ($currentStage) {
+                            // Get next stage based on sequence
+                            $nextStage = DB::table('hiring_stages')
+                                ->where('recruitment_type_id', $currentStage->recruitment_type_id)
+                                ->where('sequence', '>', $currentStage->sequence)
+                                ->orderBy('sequence', 'asc')
+                                ->first();
 
-                case 'Rejected':
-                    // Prevent login and show the rejection message
-                    Auth::guard('candidate')->logout();
-                    return response()->json(['success' => false, 'message' => 'We regret to inform you that your application has been rejected.']);
+                            if ($nextStage) {
+                                DB::table('candidates')
+                                    ->where('id', $authenticatedCandidate->id)
+                                    ->update(['current_stage_id' => $nextStage->id]);
+                            }
+                        }
+                        return response()->json(['success' => true]);
 
-                default:
-                    // If the status is not recognized, allow login or handle accordingly
-                    return response()->json(['success' => false, 'message' => 'Unknown candidate status.']);
+                    case 'Hired':
+                        Auth::guard('candidate')->logout();
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Congratulations, we are pleased to inform you that you have been hired.'
+                        ]);
+
+                    case 'Rejected':
+                        Auth::guard('candidate')->logout();
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'We regret to inform you that your application has been rejected.'
+                        ]);
+
+                    default:
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Unknown candidate status.'
+                        ]);
+                }
             }
-        } else {
-            // If the credentials are incorrect, return an error message
-            return response()->json(['success' => false, 'message' => 'Username or Password is incorrect']);
         }
+        // If we get here, authentication failed
+        return response()->json([
+            'success' => false,
+            'message' => 'Username or Password is incorrect'
+        ]);
     }
 
 

@@ -76,6 +76,7 @@ Route::middleware(['auth:candidate'])->group(function () {
     Route::get('/candidate/proseslogout', [AuthController::class, 'proseslogoutcandidate']);
 
     Route::get('/candidate/data', [CandidateController::class, 'candidate_data']);
+    Route::get('/candidate/data/intern', [CandidateController::class, 'candidate_data_intern']);
     Route::post('/candidate/data/store', [CandidateController::class, 'candidate_store_form']);
     Route::get('/candidate/data/perlengkapan', [CandidateController::class, 'candidate_data_perlengkapan']);
     Route::post('/candidate/data/store/perlengkapan', [CandidateController::class, 'storePerlengkapan']);
@@ -113,7 +114,7 @@ Route::middleware(['auth:karyawan'])->group(function () {
     Route::post('/presensi/pembatalancutiYes', [PresensiController::class, 'batalCuti']);
 
     // In web.php or your routes file
-    Route::get('/presensi/checkFile', [PresensiController::class, 'getFolder']);
+    Route::get('/presensi/checkFile', [PresensiController::class, 'getFolder'])->name('presensi.checkFile');
 
 
     //Cuti

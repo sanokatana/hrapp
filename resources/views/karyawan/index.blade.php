@@ -200,7 +200,7 @@ use App\Helpers\DateHelper;
                                     <tbody>
                                         @foreach ($karyawan as $d)
                                         @php
-                                        $path = Storage::url('uploads/karyawan/'.$d->foto)
+                                        $path = Storage::url('uploads/karyawan/'.$d->nik . '.' . $d->nama_lengkap . '/' . $d->foto)
                                         @endphp
                                         <tr style="text-align: center;">
                                             <td>{{ $loop->iteration + $karyawan->firstItem() -1 }}</td>

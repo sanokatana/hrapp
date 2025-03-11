@@ -142,31 +142,61 @@
 
 @section('content')
 <div class="container" style="margin-top:70px" id="filesList">
-    @if(count($files) > 0)
-    <div class="list-group">
-        @foreach ($files as $fileUrl)
-        <?php $fileName = basename($fileUrl); ?>
-        <ul class="listview image-listview rounded-custom btnDocument" data-file-url="{{ $fileUrl }}">
-            <li>
-                <div class="item">
-                    <div class="icon-box bg-success">
-                        <ion-icon name="document-outline"></ion-icon>
-                    </div>
-
-                    <div class="in">
-                        <div><b>{{ $fileName }}</b></div>
-                    </div>
-
-                    <div class="icon-box bg-secondary" style="margin-right: 0px; margin-left: 16px;">
-                        <ion-icon name="search-outline"></ion-icon>
-                    </div>
+    @if(isset($parentPath))
+    <!-- Back button for navigation -->
+    <ul class="listview image-listview rounded-custom">
+        <li>
+            <a href="{{ route('presensi.checkFile', ['path' => $parentPath]) }}" class="item">
+                <div class="icon-box bg-primary">
+                    <ion-icon name="arrow-back-outline"></ion-icon>
                 </div>
-            </li>
-        </ul>
+                <div class="in">
+                    <div><b>.. (Back)</b></div>
+                </div>
+            </a>
+        </li>
+    </ul>
+    @endif
+
+    @if(count($items) > 0)
+    <div class="list-group">
+        @foreach ($items as $item)
+            @if($item['type'] === 'folder')
+            <!-- Folder item -->
+            <ul class="listview image-listview rounded-custom">
+                <li>
+                    <a href="{{ route('presensi.checkFile', ['path' => $item['path']]) }}" class="item">
+                        <div class="icon-box bg-warning">
+                            <ion-icon name="folder-outline"></ion-icon>
+                        </div>
+                        <div class="in">
+                            <div><b>{{ $item['name'] }}</b></div>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+            @else
+            <!-- File item -->
+            <ul class="listview image-listview rounded-custom btnDocument" data-file-url="{{ $item['url'] }}">
+                <li>
+                    <div class="item">
+                        <div class="icon-box bg-success">
+                            <ion-icon name="document-outline"></ion-icon>
+                        </div>
+                        <div class="in">
+                            <div><b>{{ $item['name'] }}</b></div>
+                        </div>
+                        <div class="icon-box bg-secondary" style="margin-right: 0px; margin-left: 16px;">
+                            <ion-icon name="search-outline"></ion-icon>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            @endif
         @endforeach
     </div>
     @else
-    <p>No files found.</p>
+    <p>No files or folders found.</p>
     @endif
 </div>
 

@@ -145,7 +145,7 @@
 
                                                                 <!-- Reject button -->
 
-                                                                <button type="button" style="height:30px; width:30px" class="btn btn-danger btn-sm reject-confirm" data-candidate-id="{{ $candidate->id }}" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                                                                <!-- <button type="button" style="height:30px; width:30px" class="btn btn-danger btn-sm reject-confirm" data-candidate-id="{{ $candidate->id }}" data-bs-toggle="modal" data-bs-target="#rejectModal">
                                                                     <svg
                                                                         xmlns="http://www.w3.org/2000/svg"
                                                                         width="24" height="24" viewBox="0 0 20 24"
@@ -159,7 +159,20 @@
                                                                             d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
                                                                         <path d="M5.7 5.7l12.6 12.6" />
                                                                     </svg>
-                                                                </button>
+                                                                </button> -->
+
+                                                                <a href="#" class="karyawan-confirm btn btn-danger btn-sm" style="height:30px; width:30px"  id="{{ $candidate->id }}" data-bs-toggle="modal" data-bs-target="#confirmationModal">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-progress-down">
+                                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                        <path d="M10 20.777a8.942 8.942 0 0 1 -2.48 -.969" />
+                                                                        <path d="M14 3.223a9.003 9.003 0 0 1 0 17.554" />
+                                                                        <path d="M4.579 17.093a8.961 8.961 0 0 1 -1.227 -2.592" />
+                                                                        <path d="M3.124 10.5c.16 -.95 .468 -1.85 .9 -2.675l.169 -.305" />
+                                                                        <path d="M6.907 4.579a8.954 8.954 0 0 1 3.093 -1.356" />
+                                                                        <path d="M12 9v6" />
+                                                                        <path d="M15 12l-3 3l-3 -3" />
+                                                                    </svg>
+                                                                </a>
 
                                                                 <!-- Interview button -->
 
@@ -248,38 +261,31 @@
     </div>
 </div>
 
-<div class="modal modal-blur fade" id="rejectModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+<div class="modal fade" id="modal-confirmCandidate" tabindex="-1" aria-labelledby="modal-confirmCandidateLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Reject Reason</h5>
+                <h5 class="modal-title" id="modal-confirmCandidateLabel">Confirm Action</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="rejectForm" method="POST" action="">
-                    @csrf
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="input-icon mb-3">
-                                <textarea class="form-control" name="reject_reason" id="reject_reason" placeholder="Reason" rows="4"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mt-3">
-                        <div class="col-12">
-                            <div class="form-group">
-                                <button class="btn btn-primary w-100">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-checks">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M7 12l5 5l10 -10" />
-                                        <path d="M2 12l5 5m5 -5l5 -5" />
-                                    </svg>
-                                    Continue
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
+                <p>What action would you like to take?</p>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="action" id="actionHire" value="hire">
+                    <label class="form-check-label" for="actionHire">Hire</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="action" id="actionReject" value="reject">
+                    <label class="form-check-label" for="actionReject">Reject</label>
+                </div>
+                <div id="rejectReasonContainer" class="mt-3" style="display: none;">
+                    <label for="rejectReason" class="form-label">Reason for Rejection</label>
+                    <textarea id="rejectReason" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="confirmCandidateAction">Submit</button>
             </div>
         </div>
     </div>
@@ -338,112 +344,54 @@
                 <form action="/recruitment/candidate/data/peningkatan" method="POST" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="dataCandidate" id="dataCandidate">
+                    <input type="hidden" name="employee_status" value="Kontrak">
+
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-12">
                             <!-- NIK input field -->
                             <div class="form-label">NIK</div>
                             <div class="input-icon mb-3 mt-2">
-                                <input type="text" class="form-control" name="nik" id="nik" placeholder="xxx-2024xx" readonly>
+                                <input type="text" class="form-control" name="nik" id="nik" placeholder="xxx-2024xx">
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="form-label">Opsi</div>
-                            <!-- Radio buttons for Automatic or Manual NIK input -->
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="nik_option" id="nik_auto" value="automatic" checked>
-                                <label class="form-check-label" for="nik_auto">Automatic</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="nik_option" id="nik_manual" value="manual">
-                                <label class="form-check-label" for="nik_manual">Manual</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-
-                        <div class="col-6">
+                        <div class="col-12">
+                            <!-- NIP input field -->
                             <div class="form-label">NIP</div>
-                            <div class="input-icon mb-3">
-                                <input type="text" value="" class="form-control" name="nip" id="nip" placeholder="xxxx">
+                            <div class="input-icon mb-3 mt-2">
+                                <input type="text" class="form-control" name="nip" id="nip" placeholder="Enter NIP">
                             </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="form-label">Jabatan</div>
-                            <select name="jabatan" id="jabatan" class="form-select">
-                                <option value="">Pilih</option>
-                                @foreach ($jabatan as $d)
-                                <option {{ Request('id') == $d->id ? 'selected' : '' }} value="{{ $d->id }}">{{ $d->nama_jabatan }} - {{ $d->site }}</option>
-                                @endforeach
-                            </select>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-6">
-                            <div class="form-label">Tgl Masuk</div>
-                            <div class="input-icon mb-3">
-                                <input type="date" value="" class="form-control" name="tgl_masuk" id="nitgl_masukp" placeholder="xx-xx-xxxx">
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="form-label">Employee Status</div>
-                            <select name="employee_status" id="employee_status" class="form-select">
-                                <option value="">Pilih</option>
-                                <option value="Kontrak">Kontrak</option>
-                                <option value="Tetap">Tetap</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row">
-
-                        <div class="col-6">
+                        <div class="col-12">
                             <div class="form-label">Grade</div>
                             <div class="input-icon mb-3">
                                 <input type="text" value="" class="form-control" name="grade" id="grade" placeholder="B/H/NS">
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="form-label">Base POH</div>
-                            <select name="base" id="base" class="form-select">
-                                <option value="">Base</option>
-                                @foreach ($uniqueBase as $base)
-                                <option {{ request('base') == $base ? 'selected' : '' }} value="{{ $base }}">{{ $base }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-6">
+                        <div class="col-12">
                             <div class="form-label">Nama PT</div>
                             <div class="input-icon mb-3">
                                 <input type="text" value="" class="form-control" name="nama_pt" id="nama_pt" placeholder="XXX">
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="form-label">Religion</div>
-                            <div class="input-icon mb-3">
-                                <input type="text" value="" class="form-control" name="religion" id="religion" placeholder="XXX">
-                            </div>
-                        </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-4">
+                        <div class="col-12">
                             <div class="form-label">Rek No</div>
                             <div class="input-icon mb-3">
                                 <input type="text" value="" class="form-control" name="rek_no" id="rek_no" placeholder="XXXXXX">
                             </div>
                         </div>
-                        <div class="col-4">
+                        <div class="col-12">
                             <div class="form-label">Bank Name</div>
                             <div class="input-icon mb-3">
                                 <input type="text" value="" class="form-control" name="bank_name" id="bank_name" placeholder="XXX">
                             </div>
                         </div>
-                        <div class="col-4">
+                        <div class="col-12">
                             <div class="form-label">Rek Name</div>
                             <div class="input-icon mb-3">
                                 <input type="text" value="" class="form-control" name="rek_name" id="rek_name" placeholder="XXXX">
@@ -549,6 +497,76 @@
 
         return false;
     }
+
+    $(document).ready(function() {
+        var candidateId = null;
+
+        // Show modal and set candidate ID
+        $('.karyawan-confirm').click(function() {
+            candidateId = $(this).attr('id'); // Get candidate ID
+            $('#modal-confirmCandidate').modal('show');
+        });
+
+        // Toggle reject reason input based on action
+        $('input[name="action"]').change(function() {
+            var action = $(this).val();
+            if (action === 'reject') {
+                $('#rejectReasonContainer').show();
+            } else {
+                $('#rejectReasonContainer').hide();
+            }
+        });
+
+        // Handle form submission
+        $('#confirmCandidateAction').click(function() {
+            var action = $('input[name="action"]:checked').val();
+            var rejectReason = $('#rejectReason').val();
+
+            if (!action) {
+                alert('Please select an action.');
+                return;
+            }
+
+            if (action === 'reject' && rejectReason.trim() === '') {
+                alert('Please provide a reason for rejection.');
+                return;
+            }
+
+            var url = action === 'hire' ?
+                '/recruitment/candidate/' + candidateId + '/hired' :
+                '/recruitment/candidate/' + candidateId + '/reject';
+
+            // AJAX request
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    reject_reason: action === 'reject' ? rejectReason : null
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: response.message,
+                            icon: 'success',
+                            confirmButtonText: 'Ok'
+                        }).then(() => {
+                            window.location.reload(); // Refresh the page to reflect changes
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An error occurred. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'Ok'
+                    });
+                }
+            });
+        });
+    });
 
     $(document).ready(function() {
         // View button click
@@ -803,39 +821,39 @@
         });
 
         $('.interview').click(function(e) {
-    e.preventDefault(); // Prevent default behavior
-    var id = $(this).attr('id');
-    $.ajax({
-        type: 'POST',
-        url: '/recruitment/candidate/interview/get',
-        cache: false,
-        data: {
-            _token: "{{ csrf_token();}}",
-            id: id
-        },
-        success: function(respond) {
-            $('#loadInterview').html(respond);
-            // Update modal initialization
-            var interviewModal = new bootstrap.Modal(document.getElementById('interviewModal'), {
-                backdrop: 'static',
-                keyboard: false,
-                focus: true
-            });
+            e.preventDefault(); // Prevent default behavior
+            var id = $(this).attr('id');
+            $.ajax({
+                type: 'POST',
+                url: '/recruitment/candidate/interview/get',
+                cache: false,
+                data: {
+                    _token: "{{ csrf_token();}}",
+                    id: id
+                },
+                success: function(respond) {
+                    $('#loadInterview').html(respond);
+                    // Update modal initialization
+                    var interviewModal = new bootstrap.Modal(document.getElementById('interviewModal'), {
+                        backdrop: 'static',
+                        keyboard: false,
+                        focus: true
+                    });
 
-            // Prevent scrolling when modal opens
-            $('#interviewModal').on('show.bs.modal', function () {
-                $(this).css('display', 'block');
-                var modalHeight = $(this).find('.modal-dialog').height();
-                $(this).find('.modal-dialog').css({
-                    top: 'calc(50% - ' + (modalHeight/2) + 'px)',
-                    transform: 'translateY(0)'
-                });
-            });
+                    // Prevent scrolling when modal opens
+                    $('#interviewModal').on('show.bs.modal', function() {
+                        $(this).css('display', 'block');
+                        var modalHeight = $(this).find('.modal-dialog').height();
+                        $(this).find('.modal-dialog').css({
+                            top: 'calc(50% - ' + (modalHeight / 2) + 'px)',
+                            transform: 'translateY(0)'
+                        });
+                    });
 
-            interviewModal.show();
-        }
-    });
-});
+                    interviewModal.show();
+                }
+            });
+        });
     });
 </script>
 @endpush

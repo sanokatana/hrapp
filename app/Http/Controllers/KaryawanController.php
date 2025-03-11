@@ -164,7 +164,7 @@ class KaryawanController extends Controller
 
         try {
             $karyawan = DB::table('karyawan')->where('id', $id)->first();
-            $folderName = $karyawan->nip . '.' . $karyawan->nama_lengkap;
+            $folderName = $karyawan->nik . '.' . $karyawan->nama_lengkap;
             $folderPath = storage_path('app/public/uploads/karyawan/' . $folderName . '/files/');
 
             // Create directory if it doesn't exist

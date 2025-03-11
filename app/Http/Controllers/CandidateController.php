@@ -62,6 +62,46 @@ class CandidateController extends Controller
         return view('recruitment.form.index', compact('candidateId'));
     }
 
+    public function candidate_data_intern()
+    {
+        // Get the currently authenticated candidate
+        $candidate = Auth::guard('candidate')->user();
+        $candidateId = $candidate->id;
+
+        // Check if candidate data exists
+        $candidateData = DB::table('candidate_data')->where('candidate_id', $candidateId)->first();
+
+        // If candidateData exists, return 'recruitment.form.view' view
+        if ($candidateData) {
+
+
+            $candidate = DB::table('candidates')->where('id', $candidateId)->first();
+            // Get all records from candidate_data_keluarga related to the candidateData's id
+
+            $candidateFamilyDataSendiri = DB::table('candidate_data_keluarga_sendiri')
+                ->where('candidate_data_id', $candidateData->id)
+                ->get();
+
+            $candidatePendidikan = DB::table('candidate_data_pendidikan')
+                ->where('candidate_data_id', $candidateData->id)
+                ->get();
+
+            $candidateKursus = DB::table('candidate_data_kursus')
+                ->where('candidate_data_id', $candidateData->id)
+                ->get();
+
+            $candidateBahasa = DB::table('candidate_data_bahasa')
+                ->where('candidate_data_id', $candidateData->id)
+                ->get();
+
+            // Return the 'recruitment.form.view' view along with candidate data and family data
+            return view('recruitment.form.viewIntern', compact('candidateData', 'candidate', 'candidateId', 'candidateFamilyDataSendiri', 'candidateBahasa', 'candidatePendidikan', 'candidateKursus'));
+        }
+
+        // Otherwise, return 'recruitment.form.index' view
+        return view('recruitment.form.intern', compact('candidateId'));
+    }
+
 
     public function candidate_store_form(StoreCandidateRequest $request)
     {

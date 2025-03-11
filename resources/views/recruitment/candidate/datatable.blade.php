@@ -248,44 +248,30 @@
                     <input type="hidden" name="employee_status" value="Kontrak">
 
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-12">
                             <!-- NIK input field -->
                             <div class="form-label">NIK</div>
                             <div class="input-icon mb-3 mt-2">
-                                <input type="text" class="form-control" name="nik" id="nik" placeholder="xxx-2024xx" readonly>
+                                <input type="text" class="form-control" name="nik" id="nik" placeholder="xxx-2024xx">
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="form-label">Opsi</div>
-                            <!-- Radio buttons for Automatic or Manual NIK input -->
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="nik_option" id="nik_auto" value="automatic" checked>
-                                <label class="form-check-label" for="nik_auto">Automatic</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="nik_option" id="nik_manual" value="manual">
-                                <label class="form-check-label" for="nik_manual">Manual</label>
+                        <div class="col-12">
+                            <!-- NIP input field -->
+                            <div class="form-label">NIP</div>
+                            <div class="input-icon mb-3 mt-2">
+                                <input type="text" class="form-control" name="nip" id="nip" placeholder="Enter NIP">
                             </div>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-12">
-                            <div class="form-label">NIP</div>
-                            <div class="input-icon mb-3">
-                                <input type="text" value="" class="form-control" name="nip" id="nip" placeholder="xxxx">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-6">
                             <div class="form-label">Grade</div>
                             <div class="input-icon mb-3">
                                 <input type="text" value="" class="form-control" name="grade" id="grade" placeholder="B/H/NS">
                             </div>
                         </div>
-                        <div class="col-6">
+                        <div class="col-12">
                             <div class="form-label">Nama PT</div>
                             <div class="input-icon mb-3">
                                 <input type="text" value="" class="form-control" name="nama_pt" id="nama_pt" placeholder="XXX">
@@ -294,19 +280,19 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-4">
+                        <div class="col-12">
                             <div class="form-label">Rek No</div>
                             <div class="input-icon mb-3">
                                 <input type="text" value="" class="form-control" name="rek_no" id="rek_no" placeholder="XXXXXX">
                             </div>
                         </div>
-                        <div class="col-4">
+                        <div class="col-12">
                             <div class="form-label">Bank Name</div>
                             <div class="input-icon mb-3">
                                 <input type="text" value="" class="form-control" name="bank_name" id="bank_name" placeholder="XXX">
                             </div>
                         </div>
-                        <div class="col-4">
+                        <div class="col-12">
                             <div class="form-label">Rek Name</div>
                             <div class="input-icon mb-3">
                                 <input type="text" value="" class="form-control" name="rek_name" id="rek_name" placeholder="XXXX">
@@ -337,6 +323,7 @@
 
 @push('myscript')
 <script>
+
     function handleStatusSubmit(event) {
         event.preventDefault();
 

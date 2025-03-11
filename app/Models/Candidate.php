@@ -21,6 +21,7 @@ class Candidate extends Authenticatable
     protected $fillable = [
         'username',
         'password',
+        'temp_pass',
         'nama_candidate',
         'username',
         'email',
@@ -36,6 +37,7 @@ class Candidate extends Authenticatable
      */
     protected $hidden = [
         'password',
+        'temp_pass',
         'remember_token',
     ];
 }

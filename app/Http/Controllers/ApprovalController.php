@@ -213,7 +213,7 @@ class ApprovalController extends Controller
 
 
             try {
-                Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $currentDate, $foto, $nip) {
+                Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $currentDate, $foto, $nik) {
 
                     $message->to($atasan->email)
                         ->subject("Pengajuan Izin Dari {$nama_lengkap} - {$currentDate->format('Y-m-d H:i:s')}")
@@ -226,7 +226,7 @@ class ApprovalController extends Controller
                     if ($foto && $foto !== 'No_Document') {
                         $fotoFiles = explode(',', $foto); // Split by comma to get an array of file names
                         foreach ($fotoFiles as $file) {
-                            $filePath = public_path("storage/uploads/karyawan/{$nip}.{$nama_lengkap}/{$file}");
+                            $filePath = public_path("storage/uploads/karyawan/{$nik}.{$nama_lengkap}/{$file}");
                             if (file_exists($filePath)) {
                                 $message->attach($filePath);
                             }
