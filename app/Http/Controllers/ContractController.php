@@ -16,8 +16,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
-use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ContractController extends Controller
 {
@@ -325,38 +328,28 @@ class ContractController extends Controller
         }
     }
 
-    public function downloadTemplateKontrak()
-    {
-        $filePath = public_path('storage/uploads/templates/kontrak_template.xlsx');
-
-        return response()->download($filePath, 'kontrak_template.xlsx', [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        ]);
-    }
     public function uploadKontrak(Request $request)
     {
         $name = Auth::guard('user')->user()->name;
+        $today = now()->startOfDay(); // Get today's date without time
 
-        // Validate the incoming request
         $validator = Validator::make($request->all(), [
-            'file' => 'required|mimes:xlsx,xls',
+            'file' => 'required|mimes:xlsx,xls,csv',
         ]);
 
-        // Redirect back if validation fails
         if ($validator->fails()) {
-            return redirect()->back()->with('danger', 'Please upload a valid XLSX file.');
+            return redirect()->back()->with('danger', 'Please upload a valid Excel or CSV file.');
         }
 
         try {
-            // Get the uploaded file and load the spreadsheet
             $file = $request->file('file');
             $filePath = $file->getRealPath();
             $spreadsheet = IOFactory::load($filePath);
             $sheet = $spreadsheet->getActiveSheet();
 
-            // Read the data from the spreadsheet
             $header = [];
             $data = [];
+
             foreach ($sheet->getRowIterator() as $rowIndex => $row) {
                 $rowData = [];
                 foreach ($row->getCellIterator() as $cell) {
@@ -368,33 +361,151 @@ class ContractController extends Controller
                 } else {
                     $mappedData = array_combine($header, $rowData);
 
-                    // Convert Excel date serial numbers to date strings
-                    $tglStart = Date::excelToDateTimeObject($mappedData['start_date'])->format('Y-m-d');
-                    $tglStop = !empty($mappedData['end_date']) ? Date::excelToDateTimeObject($mappedData['end_date'])->format('Y-m-d') : null;
+                    // Parse dates
+                    $tglStart = $this->parseDate($mappedData['start_date']);
+                    $tglStop = !empty($mappedData['end_date']) ? $this->parseDate($mappedData['end_date']) : null;
+
+                    // Get hari_kerja in Indonesian
+                    $hariKerja = $this->getIndonesianDayName($tglStart);
+
+                    // Determine status
+                    $status = 'Active';
+                    if ($tglStop) {
+                        $endDate = Carbon::parse($tglStop)->startOfDay();
+                        $status = $endDate->lt($today) ? 'Expired' : 'Active';
+                    }
 
                     $data[] = [
                         'nik' => $mappedData['nik'],
                         'no_kontrak' => $mappedData['no_kontrak'],
-                        'hari_kerja' => $mappedData['hari_kerja'],
+                        'hari_kerja' => $hariKerja, // Automatically determined day name
                         'start_date' => $tglStart,
                         'end_date' => $tglStop,
                         'contract_type' => $mappedData['contract_type'],
                         'position' => $mappedData['position'],
-                        'status' => $mappedData['status'],
+                        'status' => $status,
                         'created_by' => $name
                     ];
                 }
             }
 
-            // Insert data into the database
             DB::table('kontrak')->insert($data);
-
-            // Redirect back with success message
             return redirect()->back()->with('success', 'Data successfully uploaded.');
         } catch (Exception $e) {
-            // Redirect back with error message
             return redirect()->back()->with('danger', 'Error uploading data: ' . $e->getMessage());
         }
+    }
+
+    private function getIndonesianDayName($date)
+    {
+        $dayNames = [
+            'Sunday' => 'Minggu',
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu'
+        ];
+
+        $englishDayName = Carbon::parse($date)->format('l'); // Get day name in English
+        return $dayNames[$englishDayName];
+    }
+
+    private function parseDate($dateString)
+    {
+        try {
+            // Remove any potential whitespace
+            $dateString = trim($dateString);
+
+            // If it's already a Y-m-d format, return it
+            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateString)) {
+                return $dateString;
+            }
+
+            // Try to parse dd/mm/yyyy format
+            if (preg_match('/^(\d{2})\/(\d{2})\/(\d{4})$/', $dateString, $matches)) {
+                return "{$matches[3]}-{$matches[2]}-{$matches[1]}";
+            }
+
+            // Try to parse Indonesian format (dd Bulan yyyy)
+            $indonesianMonths = [
+                'Januari' => '01', 'Februari' => '02', 'Maret' => '03',
+                'April' => '04', 'Mei' => '05', 'Juni' => '06',
+                'Juli' => '07', 'Agustus' => '08', 'September' => '09',
+                'Oktober' => '10', 'November' => '11', 'Desember' => '12'
+            ];
+
+            // Split the date string
+            $parts = explode(' ', $dateString);
+            if (count($parts) === 3) {
+                $day = str_pad($parts[0], 2, '0', STR_PAD_LEFT);
+                $month = $indonesianMonths[$parts[1]] ?? null;
+                $year = $parts[2];
+
+                if ($month) {
+                    return "$year-$month-$day";
+                }
+            }
+
+            // If it's an Excel date number
+            if (is_numeric($dateString)) {
+                return Date::excelToDateTimeObject($dateString)->format('Y-m-d');
+            }
+
+            // Try Carbon's parse as last resort
+            return Carbon::parse($dateString)->format('Y-m-d');
+
+        } catch (Exception $e) {
+            // Log the error and return null or throw exception
+            Log::error("Date parsing error for: $dateString - " . $e->getMessage());
+            throw new Exception("Invalid date format: $dateString");
+        }
+    }
+
+    // Updated template download to remove status column since it's automatic
+    public function downloadTemplateKontrak()
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Set headers (removed hari_kerja since it's automatic)
+        $headers = ['nik', 'no_kontrak', 'start_date', 'end_date', 'contract_type', 'position'];
+        $sheet->fromArray([$headers], NULL, 'A1');
+
+        // Set date format for columns
+        $sheet->getStyle('C:D')->getNumberFormat()->setFormatCode('dd mmmm yyyy');
+
+        // Add example data (removed hari_kerja)
+        $exampleData = [
+            ['123456', 'CONT/2024/001', '21 Februari 2024', '21 Februari 2025', 'PKWT', 'Staff'],
+            ['123457', 'CONT/2024/002', '21/02/2024', '21/02/2025', 'PKWT', 'Officer']
+        ];
+        $sheet->fromArray($exampleData, NULL, 'A2');
+
+        // Add note about hari_kerja
+        $sheet->setCellValue('A4', 'Note: Hari Kerja will be automatically determined from Start Date');
+        $sheet->mergeCells('A4:F4');
+        $sheet->getStyle('A4')->getAlignment()->setHorizontal('left');
+        $sheet->getStyle('A4')->getFont()->setItalic(true);
+        $sheet->getStyle('A4')->getFont()->setSize(10);
+        $sheet->getStyle('A4')->getFont()->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color(\PhpOffice\PhpSpreadsheet\Style\Color::COLOR_DARKRED));
+
+        // Create the writer
+        $writer = new Xlsx($spreadsheet);
+
+        // Create response with proper headers
+        return new StreamedResponse(
+            function () use ($writer) {
+                $writer->save('php://output');
+            },
+            200,
+            [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => 'attachment; filename="kontrak_template.xlsx"',
+                'Cache-Control' => 'max-age=0',
+            ]
+        );
     }
 
     public function export()

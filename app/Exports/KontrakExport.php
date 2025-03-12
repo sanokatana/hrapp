@@ -2,61 +2,31 @@
 
 namespace App\Exports;
 
-use Illuminate\Support\Facades\DB;
-use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class KontrakExport implements FromQuery, WithHeadings
+class KontrakExport implements FromArray, WithHeadings, WithStyles
 {
-    /**
-     * Return a query for the data to be exported.
-     *
-     * @return \Illuminate\Database\Query\Builder
-     */
-    public function query()
-    {
-        return DB::table('kontrak')
-            ->leftJoin('karyawan', 'kontrak.nik', '=', 'karyawan.nik')
-            ->select([
-                'kontrak.id as ID',
-                'kontrak.nik',
-                'karyawan.nama_lengkap',
-                'kontrak.start_date',
-                'kontrak.end_date',
-                'kontrak.contract_type',
-                'kontrak.position',
-                'kontrak.salary',
-                'kontrak.status',
-            ])
-            ->orderBy('kontrak.start_date'); // Ensure the query results are ordered
-
-    }
-
-    /**
-     * Define the headings for the exported file.
-     *
-     * @return array
-     */
-    public function headings(): array
+    public function array(): array
     {
         return [
-            'ID',
-            'NIK',
-            'Nama Karyawan',
-            'Tanggal Mulai',
-            'Tanggal Akhir',
-            'Tipe Kontrak',
-            'Posisi Jabatan',
-            'Gaji',
-            'Status Kontrak',
+            ['123456', 'CONT/2024/001', '22', '21 Februari 2024', '21 Februari 2025', 'PKWT', 'Staff'],
+            ['123457', 'CONT/2024/002', '22', '21/02/2024', '21/02/2025', 'PKWT', 'Officer']
         ];
     }
 
-    /**
-     * Apply column formatting.
-     *
-     * @return array
-     */
+    public function headings(): array
+    {
+        return ['nik', 'no_kontrak', 'hari_kerja', 'start_date', 'end_date', 'contract_type', 'position'];
+    }
 
+    public function styles(Worksheet $sheet)
+    {
+        return [
+            1 => ['font' => ['bold' => true]],
+            'D:E' => ['numberFormat' => ['formatCode' => 'dd mmmm yyyy']],
+        ];
+    }
 }

@@ -89,8 +89,9 @@ class RecruitmentController extends Controller
 
         // Fetch the job opening title using the job_opening_id
         $job_opening = DB::table('job_openings')
+            ->select('title', 'recruitment_type_id')
             ->where('id', $job_opening_id)
-            ->value('title');
+            ->first();
 
         // Save candidate data
         // Save candidate data and retrieve the ID
@@ -125,59 +126,105 @@ class RecruitmentController extends Controller
             $interview_date = $request->interview_date;
             $interview_time = $request->interview_time;
             $interviewer = $request->interviewer2;
-            $position = $job_opening;
+            $position = $job_opening->title;
             $formattedInterviewDate = DateHelper::formatIndonesianDate($interview_date);
 
+            // Base email content
             $emailContent = <<<EOD
             Kepada Yth.<br>
             Bpk/Ibu/Sdr/i {$nama_candidate}<br>
             Di Tempat<br><br>
             Dengan hormat,<br>
-            Berdasarkan Aplikasi saudara, dengan ini kami mengundang  anda untuk mengikuti proses <b><i>Recruitment</i> di PT Cipta Harmoni Lestari Group</b> melalui 3 tahapan berikut:<br><br>
+            EOD;
 
-            1. Silahkan <b>mengisi data pribadi</b> saudara melalui link website kami <a href="http://hrms.ciptaharmoni.com/candidate">hrms.ciptaharmoni.com/candidate</a> dengan kode akses:
-            <ul>
-                <li>Username &nbsp;&nbsp;: {$username}</li>
-                <li>Password &nbsp;&nbsp;&nbsp;: {$password}</li>
-                <li>Jika anda mengalami kesulitan dalam pengisiannya bisa di lihat dalam link Video tutorial berikut, https://drive.google.com/file/d/1bFizRnN5JR454qeRknmaGdTtmGMnZMnH/view?usp=drive_link</li>
-            </ul>
+            // Add different process description based on recruitment type
+            if ($job_opening->recruitment_type_id == 2) {
+                // Internship - without psychotest
+                $emailContent .= <<<EOD
+                Berdasarkan Aplikasi saudara, dengan ini kami mengundang  anda untuk mengikuti proses <b><i>Recruitment</i> di PT Cipta Harmoni Lestari Group</b> melalui 2 tahapan berikut:<br><br>
 
-            2. Mengikuti <b>psikotest online</b> dengan cara akses website portal kami di https://extendedforms.io/form/9a116bdb-1df4-4fba-84e7-b2aa91526cd9/login dengan langkah dan ketentuan dibawah ini:
-            <ul>
-                <li>Login menggunakan PC/ Handphone</li>
-                <li>Durasi waktu pengerjaan selama 30 menit</li>
-                <li>Dijawab dengan jujur, bahkan jika anda tidak menyukai jawabannya</li>
-            </ul>
+                1. Silahkan <b>mengisi data pribadi</b> saudara melalui link website kami <a href="http://hrms.ciptaharmoni.com/candidate">hrms.ciptaharmoni.com/candidate</a> dengan kode akses:
+                <ul>
+                    <li>Username &nbsp;&nbsp;: {$username}</li>
+                    <li>Password &nbsp;&nbsp;&nbsp;: {$password}</li>
+                    <li>Jika anda mengalami kesulitan dalam pengisiannya bisa di lihat dalam link Video tutorial berikut, https://drive.google.com/file/d/1bFizRnN5JR454qeRknmaGdTtmGMnZMnH/view?usp=drive_link</li>
+                </ul>
 
-            3. Informasi <b>jadwal interview</b> yang akan dilaksanakan pada,<br>
-            <ul>
-                <li>Hari & Tanggal    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$formattedInterviewDate}</li>
-                <li>Waktu             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$interview_time} - Selesai</li>
-                <li>Posisi di lamar   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$position}</li>
-                <li>Interviewer       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$interviewer}</li>
-                <li>Alamat            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: CHL Group Marketing Lounge,<br>Ruko Sorrento Place No. 18-19 PJQJ+R8G, Jl. Ir.Sukarno, Curug Sangereng, Kec.Klp. Dua, Kabupaten Tangerang, Banten 15810. https://goo.gl/maps/Ko81dv9gxMHmMC7p9 </li>
-            </ul>
+                2. Informasi <b>jadwal interview</b> yang akan dilaksanakan pada,<br>
+                EOD;
+            } else {
+                // Regular recruitment - with psychotest
+                $emailContent .= <<<EOD
+                Berdasarkan Aplikasi saudara, dengan ini kami mengundang  anda untuk mengikuti proses <b><i>Recruitment</i> di PT Cipta Harmoni Lestari Group</b> melalui 3 tahapan berikut:<br><br>
 
-            <b>CATATAN:</b><br>
-            <ul>
-                <li>Setelah mengisis <b>data pribadi</b> dan mengerjakan <b>psikotest online</b> agar menginformasikan kepada kami via <i>WhatsApp</i> di nomor: 0813 8500 0789</li>
-                <li><b>Data pribadi</b> dan <b>psikotest online</b> agar di isi dihari yang sama pada saat terima email ini</li>
-                <li>Harap hadir 10 menit sebelum jadwal pelaksanaan <b>interview</b>.</li>
-                <li>Kandidat <b>Markom</b> dan <b>Architect</b> agar menyiapkan bahan <b>presentasi</b> portopolio dengan membawa <b>laptop</b> pribadi.</li>
-            </ul>
+                1. Silahkan <b>mengisi data pribadi</b> saudara melalui link website kami <a href="http://hrms.ciptaharmoni.com/candidate">hrms.ciptaharmoni.com/candidate</a> dengan kode akses:
+                <ul>
+                    <li>Username &nbsp;&nbsp;: {$username}</li>
+                    <li>Password &nbsp;&nbsp;&nbsp;: {$password}</li>
+                    <li>Jika anda mengalami kesulitan dalam pengisiannya bisa di lihat dalam link Video tutorial berikut, https://drive.google.com/file/d/1bFizRnN5JR454qeRknmaGdTtmGMnZMnH/view?usp=drive_link</li>
+                </ul>
 
-            <br><br><br>
-            Best regards,<br>
-            Zicki Darmawan<br>
-            HR CHL Group<br>
-            <a href="https://www.ciptaharmoni.com/">www.ciptaharmoni.com</a><br>
-        EOD;
+                2. Mengikuti <b>psikotest online</b> dengan cara akses website portal kami di https://extendedforms.io/form/9a116bdb-1df4-4fba-84e7-b2aa91526cd9/login dengan langkah dan ketentuan dibawah ini:
+                <ul>
+                    <li>Login menggunakan PC/ Handphone</li>
+                    <li>Durasi waktu pengerjaan selama 30 menit</li>
+                    <li>Dijawab dengan jujur, bahkan jika anda tidak menyukai jawabannya</li>
+                </ul>
+
+                3. Informasi <b>jadwal interview</b> yang akan dilaksanakan pada,<br>
+                EOD;
+            }
+
+            // Common email content continuation
+            $emailContent .= <<<EOD
+                <ul>
+                    <li>Hari & Tanggal    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$formattedInterviewDate}</li>
+                    <li>Waktu             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$interview_time} - Selesai</li>
+                    <li>Posisi di lamar   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$position}</li>
+                    <li>Interviewer       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$interviewer}</li>
+                    <li>Alamat            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: CHL Group Marketing Lounge,<br>Ruko Sorrento Place No. 18-19 PJQJ+R8G, Jl. Ir.Sukarno, Curug Sangereng, Kec.Klp. Dua, Kabupaten Tangerang, Banten 15810. https://goo.gl/maps/Ko81dv9gxMHmMC7p9 </li>
+                </ul>
+
+                <b>CATATAN:</b><br>
+                <ul>
+            EOD;
+
+            // Add different notes based on recruitment type
+            if ($job_opening->recruitment_type_id == 2) {
+                $emailContent .= <<<EOD
+                    <li>Setelah mengisis <b>data pribadi</b> agar menginformasikan kepada kami via <i>WhatsApp</i> di nomor: 0813 8500 0789</li>
+                    <li><b>Data pribadi</b> agar di isi dihari yang sama pada saat terima email ini</li>
+                    <li>Harap hadir 10 menit sebelum jadwal pelaksanaan <b>interview</b>.</li>
+                EOD;
+            } else {
+                $emailContent .= <<<EOD
+                    <li>Setelah mengisis <b>data pribadi</b> dan mengerjakan <b>psikotest online</b> agar menginformasikan kepada kami via <i>WhatsApp</i> di nomor: 0813 8500 0789</li>
+                    <li><b>Data pribadi</b> dan <b>psikotest online</b> agar di isi dihari yang sama pada saat terima email ini</li>
+                    <li>Harap hadir 10 menit sebelum jadwal pelaksanaan <b>interview</b>.</li>
+                    <li>Kandidat <b>Markom</b> dan <b>Architect</b> agar menyiapkan bahan <b>presentasi</b> portopolio dengan membawa <b>laptop</b> pribadi.</li>
+                EOD;
+            }
+
+            // Common email footer
+            $emailContent .= <<<EOD
+                </ul>
+
+                <br><br>
+                Best regards,<br>
+                Zicki Darmawan<br>
+                HR CHL Group<br>
+                <a href="https://www.ciptaharmoni.com/">www.ciptaharmoni.com</a><br>
+            EOD;
 
             // Send email
             try {
-                Mail::html($emailContent, function ($message) use ($email, $nama_candidate, $email_user) {
+                $subject = $job_opening->recruitment_type_id == 2
+                    ? "{$nama_candidate}, Welcome to CHL Group's Internship Program for {$position}"
+                    : "{$nama_candidate}, Welcome to CHL Group's Recruitment Process for {$position}";
+
+                Mail::html($emailContent, function ($message) use ($email, $email_user, $subject) {
                     $message->to($email)
-                        ->subject("CHL Job Candidacy Invitation for {$nama_candidate}")
+                        ->subject($subject)
                         ->cc(['human.resources@ciptaharmoni.com', $email_user])
                         ->priority(1);
 
@@ -442,32 +489,28 @@ class RecruitmentController extends Controller
         $job = DB::table('job_openings')->where('id', $id)->first();
         $department = DB::table('department')->get();
         $recruitment_type = DB::table('recruitment_types')->get();
+        $jabatan = DB::table('jabatan')->orderBy('nama_jabatan', 'ASC')->get();
 
-        return view("recruitment.job.edit", compact('job', 'department', 'recruitment_type'));
+        return view("recruitment.job.edit", compact('job', 'department', 'recruitment_type', 'jabatan'));
     }
 
     public function job_opening_update($id, Request $request)
     {
-        $title = $request->title;
-        $description = $request->description;
-        $recruitment_type_id = $request->recruitment_type_id;
-        $kode_dept = $request->kode_dept;
-        $status = $request->status;
-
         $data = [
-            'title' => $title,
-            'description' => $description,
-            'recruitment_type_id' => $recruitment_type_id,
-            'kode_dept' => $kode_dept,
-            'status' => $status
+            'jabatan_id' => $request->jabatan_id,
+            'title' => $request->title,
+            'description' => $request->description,
+            'recruitment_type_id' => $request->recruitment_type_id,
+            'kode_dept' => $request->kode_dept,
+            'status' => $request->status,
+            'site' => $request->site
         ];
 
-        $update = DB::table('job_openings')->where('id', $id)->update($data);
-
-        if ($update) {
-            return Redirect::back()->with(['success' => 'Job Opening Berhasil Di Update']);
-        } else {
-            return Redirect::back()->with(['warning' => 'Job Opening Gagal Di Update']);
+        try {
+            DB::table('job_openings')->where('id', $id)->update($data);
+            return Redirect::back()->with(['success' => 'Job Opening Successfully Updated']);
+        } catch (\Exception $e) {
+            return Redirect::back()->with(['warning' => 'Failed to Update Job Opening: ' . $e->getMessage()]);
         }
     }
 
@@ -1303,8 +1346,8 @@ class RecruitmentController extends Controller
 
                     // Fetch candidate email and position name
                     $jobOpening = DB::table('job_openings')
-                    ->where('id', $candidateRecord->job_opening_id)
-                    ->first();
+                        ->where('id', $candidateRecord->job_opening_id)
+                        ->first();
 
                     $email = $candidateRecord->email;
                     $nama_candidate = $candidateRecord->nama_candidate;
@@ -1365,45 +1408,131 @@ class RecruitmentController extends Controller
 
     public function dashboard()
     {
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
 
-        // Total job openings
-        $totalJobOpenings = DB::table('job_openings')->count();
+        $data = [
+            // Total counts
+            'totalRecruits' => DB::table('candidates')->count(),
+            'recruitsInProcess' => DB::table('candidates')
+                ->where('status', 'In Process')
+                ->count(),
+            'totalHired' => DB::table('candidates')
+                ->where('status', 'Hired')
+                ->count(),
+            'totalDeclined' => DB::table('candidates')
+                ->where('status', 'Rejected')
+                ->count(),
 
-        // Count of job openings that are open
-        $openJobOpenings = DB::table('job_openings')
-            ->where('status', 'Open') // Assuming 'open' is the status you're tracking
-            ->count();
+            // This month's stats
+            'recruitsThisMonth' => DB::table('candidates')
+                ->whereMonth('created_at', $currentMonth)
+                ->whereYear('created_at', $currentYear)
+                ->count(),
+            'hiredThisMonth' => DB::table('candidates')
+                ->where('status', 'Hired')
+                ->whereMonth('created_at', $currentMonth)
+                ->whereYear('created_at', $currentYear)
+                ->count(),
 
-        // Total candidates in progress (where status is 'in progress')
-        $totalCandidatesInProgress = DB::table('candidates')
-            ->where('status', 'In Progress') // Assuming 'in progress' is the status
-            ->count();
+            // Job openings
+            'totalJobOpenings' => DB::table('job_openings')->count(),
+            'openJobOpenings' => DB::table('job_openings')
+                ->where('status', 'Open')
+                ->count(),
+        ];
 
-        // Total hired candidates (where status is 'hired')
-        $totalHiredCandidates = DB::table('candidates')
-            ->where('status', 'Hired') // Assuming 'hired' is the status
-            ->count();
+        // Add monthly trends data
+        $monthlyTrends = $this->getMonthlyTrends();
 
-        return view("recruitment.index", compact('totalHiredCandidates', 'totalCandidatesInProgress', 'openJobOpenings', 'totalJobOpenings'));
+        // Add department statistics
+        $departmentStats = $this->getDepartmentStats();
+
+        // Add recent applications
+        // In your dashboard method, update the recent applications query
+        $recentApplications = DB::table('candidates')
+            ->join('job_openings', 'candidates.job_opening_id', '=', 'job_openings.id')
+            ->join('department', 'job_openings.kode_dept', '=', 'department.kode_dept')
+            ->join('jabatan', 'job_openings.jabatan_id', '=', 'jabatan.id')  // Add this join
+            ->select(
+                'candidates.nama_candidate',  // Changed from nama_candidate
+                'jabatan.nama_jabatan',     // Get position name from jabatan
+                'department.nama_dept',
+                'candidates.created_at',
+                'candidates.status'
+            )
+            ->orderBy('candidates.created_at', 'desc')
+            ->limit(5)
+            ->get();
+
+        return view('recruitment.index', array_merge($data, [
+            'monthlyTrends' => $monthlyTrends,
+            'departmentStats' => $departmentStats,
+            'recentApplications' => $recentApplications
+        ]));
+    }
+
+    private function getMonthlyTrends()
+    {
+        $months = [];
+        $applications = [];
+        $hired = [];
+
+        for ($i = 5; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $months[] = $date->format('M Y');
+
+            $applications[] = DB::table('candidates')
+                ->whereMonth('created_at', $date->month)
+                ->whereYear('created_at', $date->year)
+                ->count();
+
+            $hired[] = DB::table('candidates')
+                ->where('status', 'Hired')
+                ->whereMonth('created_at', $date->month)
+                ->whereYear('created_at', $date->year)
+                ->count();
+        }
+
+        return [
+            'months' => $months,
+            'applications' => $applications,
+            'hired' => $hired
+        ];
+    }
+
+    private function getDepartmentStats()
+    {
+        $stats = DB::table('candidates')
+            ->join('job_openings', 'candidates.job_opening_id', '=', 'job_openings.id')
+            ->join('department', 'job_openings.kode_dept', '=', 'department.kode_dept')
+            ->select('department.nama_dept', DB::raw('count(*) as count'))
+            ->groupBy('department.nama_dept')
+            ->get();
+
+        return [
+            'departments' => $stats->pluck('nama_dept'),
+            'counts' => $stats->pluck('count')
+        ];
     }
 
     public function printCandidateData($id)
     {
         // Fetch candidate data along with job opening, hiring stage
         $candidates = DB::table('candidate_data')
-        ->join('candidates', 'candidate_data.candidate_id', '=', 'candidates.id')
-        ->join('job_openings', 'candidates.job_opening_id', '=', 'job_openings.id')
-        ->join('hiring_stages', 'candidates.current_stage_id', '=', 'hiring_stages.id')
-        ->select(
-            'candidate_data.*',
-            'job_openings.title as job_opening_name',
-            'job_openings.recruitment_type_id', // Add this line
-            'hiring_stages.name as hiring_stage_name',
-            'candidates.id as candidate_id',
-            'candidates.nama_candidate as nama_candidate'
-        )
-        ->where('candidate_data.id', $id)
-        ->first();
+            ->join('candidates', 'candidate_data.candidate_id', '=', 'candidates.id')
+            ->join('job_openings', 'candidates.job_opening_id', '=', 'job_openings.id')
+            ->join('hiring_stages', 'candidates.current_stage_id', '=', 'hiring_stages.id')
+            ->select(
+                'candidate_data.*',
+                'job_openings.title as job_opening_name',
+                'job_openings.recruitment_type_id', // Add this line
+                'hiring_stages.name as hiring_stage_name',
+                'candidates.id as candidate_id',
+                'candidates.nama_candidate as nama_candidate'
+            )
+            ->where('candidate_data.id', $id)
+            ->first();
 
         // Fetch family data separately
         $familyData = DB::table('candidate_data_keluarga')
@@ -1436,50 +1565,50 @@ class RecruitmentController extends Controller
 
         // Replace the static familyMembers1 initialization with this dynamic version
         $familyData1 = DB::table('candidate_data_keluarga_sendiri')
-        ->where('candidate_data_id', $candidates->id)
-        ->get();
+            ->where('candidate_data_id', $candidates->id)
+            ->get();
 
         // Start with parents (these are always included)
         $familyMembers1 = [
-        ['uraian' => 'Ayah', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
-        ['uraian' => 'Ibu', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
+            ['uraian' => 'Ayah', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
+            ['uraian' => 'Ibu', 'nama_lengkap' => '', 'jenis' => '', 'tgl_lahir' => '', 'pendidikan' => '', 'pekerjaan' => '', 'keterangan' => ''],
         ];
 
         // Count how many "Anak" entries exist in the database
         $anakCount = DB::table('candidate_data_keluarga_sendiri')
-        ->where('candidate_data_id', $candidates->id)
-        ->where('uraian', 'LIKE', 'Anak ke%')
-        ->count();
+            ->where('candidate_data_id', $candidates->id)
+            ->where('uraian', 'LIKE', 'Anak ke%')
+            ->count();
 
         // Add array elements for each child that exists
         for ($i = 1; $i <= max(1, $anakCount); $i++) { // At least 1 child slot, or more if they exist
-        $familyMembers1[] = [
-            'uraian' => 'Anak ke ' . $i,
-            'nama_lengkap' => '',
-            'jenis' => '',
-            'tgl_lahir' => '',
-            'pendidikan' => '',
-            'pekerjaan' => '',
-            'keterangan' => ''
-        ];
+            $familyMembers1[] = [
+                'uraian' => 'Anak ke ' . $i,
+                'nama_lengkap' => '',
+                'jenis' => '',
+                'tgl_lahir' => '',
+                'pendidikan' => '',
+                'pekerjaan' => '',
+                'keterangan' => ''
+            ];
         }
 
         // Fill the family members with actual data
         foreach ($familyData1 as $member1) {
-        // Find the index in our array that matches this uraian
-        $index = array_search($member1->uraian, array_column($familyMembers1, 'uraian'));
+            // Find the index in our array that matches this uraian
+            $index = array_search($member1->uraian, array_column($familyMembers1, 'uraian'));
 
-        if ($index !== false) {
-            $familyMembers1[$index] = [
-                'uraian' => $member1->uraian,
-                'nama_lengkap' => $member1->nama_lengkap,
-                'jenis' => $member1->jenis,
-                'tgl_lahir' => DateHelper::formatIndonesiaDate($member1->tgl_lahir),
-                'pendidikan' => $member1->pendidikan,
-                'pekerjaan' => $member1->pekerjaan,
-                'keterangan' => $member1->keterangan,
-            ];
-        }
+            if ($index !== false) {
+                $familyMembers1[$index] = [
+                    'uraian' => $member1->uraian,
+                    'nama_lengkap' => $member1->nama_lengkap,
+                    'jenis' => $member1->jenis,
+                    'tgl_lahir' => DateHelper::formatIndonesiaDate($member1->tgl_lahir),
+                    'pendidikan' => $member1->pendidikan,
+                    'pekerjaan' => $member1->pekerjaan,
+                    'keterangan' => $member1->keterangan,
+                ];
+            }
         }
 
 
@@ -1686,7 +1815,7 @@ class RecruitmentController extends Controller
             'familyMembers1'
         );
 
-            // Choose view based on recruitment_type_id
+        // Choose view based on recruitment_type_id
         if ($candidates->recruitment_type_id == 2) {
             return view('recruitment.candidate.printintern', $data);
         }
