@@ -191,6 +191,7 @@ use App\Helpers\DateHelper;
                                             <th>Email</th>
                                             <th>No. Hp</th>
                                             <th>Tanggal Masuk</th>
+                                            <th>Tanggal Resign</th>
                                             <th>Work Period</th>
                                             <th>Status</th>
                                             <th>Foto</th>
@@ -214,6 +215,11 @@ use App\Helpers\DateHelper;
                                             <td>
                                                 @if ($d->tgl_masuk)
                                                 {{ DateHelper::formatIndonesiaDate($d->tgl_masuk) }}
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($d->tgl_resign)
+                                                {{ DateHelper::formatIndonesiaDate($d->tgl_resign) }}
                                                 @endif
                                             </td>
                                             <td>
@@ -259,11 +265,22 @@ use App\Helpers\DateHelper;
                                                             </svg>
                                                         </a>
                                                     </div>
+
+                                                    <div class="mb-1">
+                                                        <a href="#" class="resign btn btn-danger btn-sm" data-nik="{{ $d->nik }}">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-off">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                <path d="M14.274 10.291a4 4 0 1 0 -5.554 -5.58m-.548 3.453a4.01 4.01 0 0 0 2.62 2.65" />
+                                                                <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 1.147 .167m2.685 2.681a4 4 0 0 1 .168 1.152v2" />
+                                                                <path d="M3 3l18 18" />
+                                                            </svg>
+                                                        </a>
+                                                    </div>
                                                     <!-- Delete Button -->
                                                     <div>
                                                         <form action="/karyawan/{{$d->nik}}/delete" method="POST" style="display: inline;">
                                                             @csrf
-                                                            <button type="submit" class="btn btn-danger btn-sm delete-confirm" style="border: none; padding-top: 3px; padding-bottom: 3px; padding-right: 5px; padding-left: 5px;">
+                                                            <button type="submit" class="btn btn-orange btn-sm delete-confirm" style="border: none; padding-top: 3px; padding-bottom: 3px; padding-right: 5px; padding-left: 5px;">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
                                                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                                     <path d="M4 7l16 0" />
@@ -805,6 +822,44 @@ use App\Helpers\DateHelper;
         </div>
     </div>
 </div>
+<div class="modal modal-blur fade" id="modal-resign" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Resign Karyawan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/karyawan/resign" method="POST" id="formResign">
+                    @csrf
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Tanggal Resign</label>
+                                <input type="date" class="form-control" name="tgl_resign" id="tgl_resign" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-danger w-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user-off" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M14.274 10.291a4 4 0 1 0 -5.554 -5.58m-.548 3.453a4.01 4.01 0 0 0 2.62 2.65" />
+                                        <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 1.147 .167m2.685 2.681a4 4 0 0 1 .168 1.152v2" />
+                                        <path d="M3 3l18 18" />
+                                    </svg>
+                                    Konfirmasi Resign
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Modal Upload CSV -->
 <div class="modal modal-blur fade" id="modal-uploadKaryawanCSV" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
@@ -1058,6 +1113,40 @@ use App\Helpers\DateHelper;
 @push('myscript')
 <script>
     $(function() {
+
+        const modals = ['#modal-resign', '#modal-editkaryawan', '#modal-editshift', '#modal-inputkaryawan', '#modal-uploadKaryawanCSV'];
+
+        modals.forEach(modalId => {
+            $(modalId).on('show.bs.modal', function () {
+                // Remove aria-hidden from the page when modal opens
+                $('.page').removeAttr('aria-hidden');
+
+                // Set proper focus management
+                $(this).attr({
+                    'aria-modal': 'true',
+                    'role': 'dialog',
+                    'tabindex': '-1'
+                });
+            });
+
+            $(modalId).on('hidden.bs.modal', function () {
+                // Reset focus to the trigger button
+                $(document.activeElement).blur();
+
+                // Clear any form inputs if needed
+                $(this).find('form').trigger('reset');
+            });
+        });
+
+        $('.resign').click(function() {
+            var nik = $(this).data('nik');
+
+            $('#formResign').attr('action', '/karyawan/resign/' + nik);
+
+            $('#modal-resign').modal('show');
+        });
+
+
 
         $('#nik').on('input', function() {
             var nik = $(this).val();

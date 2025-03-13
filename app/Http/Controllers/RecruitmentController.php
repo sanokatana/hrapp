@@ -29,17 +29,20 @@ class RecruitmentController extends Controller
             ->select('candidates.*', 'job_openings.title as job_opening_name', 'hiring_stages.name as hiring_stages_name');
 
 
-        if (!empty($request->nama_candidate)) {
-            $candidates->where('candidates.nama_candidate', 'like', '%' . $request->nama_candidate . '%');
+        if (!empty($request->candidate_name)) {
+            $candidates->where('candidates.nama_candidate', 'like', '%' . $request->candidate_name . '%');
         }
 
         if (!empty($request->title_job)) {
             $candidates->where('job_openings.title', $request->title_job);
         }
 
-        if (!empty($request->status_candidate)) {
-            $candidates->where('candidates.status', $request->status_candidate);
+        if ($request->has('status_candidate')) {
+            if ($request->status_candidate === 'In Process' || $request->status_candidate === 'Hired' || $request->status_candidate === 'Rejected') {
+                $candidates->where('candidates.status', $request->status_candidate);
+            }
         } else {
+            // Default to '0' (Pending) if no status_approved_hrd is provided
             $candidates->where('candidates.status', 'In Process');
         }
 
@@ -219,8 +222,8 @@ class RecruitmentController extends Controller
             // Send email
             try {
                 $subject = $job_opening->recruitment_type_id == 2
-                    ? "{$nama_candidate}, Welcome to CHL Group's Internship Program for {$position}"
-                    : "{$nama_candidate}, Welcome to CHL Group's Recruitment Process for {$position}";
+                    ? "{$nama_candidate}, Selamat Datang di Program Magang CHL Group untuk posisi {$position}"
+                    : "{$nama_candidate}, Selamat Datang di Proses Rekrutmen CHL Group untuk posisi {$position}";
 
                 Mail::html($emailContent, function ($message) use ($email, $email_user, $subject) {
                     $message->to($email)
@@ -974,7 +977,7 @@ class RecruitmentController extends Controller
                 $nip = $lastNip ? (intval($lastNip) + 1) : 1;
 
                 // Format NIP to maintain consistent length (e.g., 6 digits)
-                $nip = str_pad($nip, 6, '0', STR_PAD_LEFT);
+                $nip = str_pad($nip, 4, '0', STR_PAD_LEFT);
             } else {
                 $nip = $request->nip;
             }

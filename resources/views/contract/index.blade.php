@@ -56,6 +56,16 @@
                                     Add Data
                                 </a>
 
+                                <a href="#" class="btn btn-warning" id="btnCheckContract">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-check">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                                        <path d="M12 7v5l3 3" />
+                                        <path d="M15 19l2 2l4 -4" />
+                                    </svg>
+                                    Check Contract
+                                </a>
+
                                 <a href="#" class="btn btn-primary" id="btnUploadCSV">
                                     Upload Excel
                                 </a>
@@ -554,6 +564,59 @@
 
 
     $(function() {
+
+        $('#btnCheckContract').click(function() {
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: 'Apakah anda yakin ingin memeriksa kontrak yang sudah expired?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, periksa',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading state
+                    Swal.fire({
+                        title: 'Memproses...',
+                        text: 'Sedang memeriksa kontrak',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        allowEnterKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // Make AJAX call to check contracts
+                    $.ajax({
+                        url: '/kontrak/check-expired',
+                        type: 'POST',
+                        data: {
+                            _token: "{{ csrf_token() }}"
+                        },
+                        success: function(response) {
+                            Swal.fire({
+                                title: 'Berhasil!',
+                                text: `${response.count} kontrak telah diperbarui statusnya menjadi Expired`,
+                                icon: 'success'
+                            }).then(() => {
+                                // Reload the page to show updated statuses
+                                location.reload();
+                            });
+                        },
+                        error: function(xhr) {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Terjadi kesalahan saat memeriksa kontrak',
+                                icon: 'error'
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+
         document.getElementById('end_date_selection').addEventListener('change', function() {
             const manualInput = document.getElementById('end_date_manual');
             if (this.value === 'manual') {

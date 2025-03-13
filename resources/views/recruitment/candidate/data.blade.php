@@ -1080,6 +1080,19 @@
                             @endif
                         </div>
 
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-md-1 col-form-label">Nomer KK</label>
+                            <div class="col-md-5">
+                                <input type="text" value="{{ $candidateDataLengkap ? $candidateDataLengkap->no_kartu_keluarga : '' }}"
+                                    class="form-control" name="no_kartu_keluarga" readonly>
+                            </div>
+                            <label class="col-md-1 col-form-label">Tanggal Masuk</label>
+                            <div class="col-md-5">
+                                <input type="date" value="{{ $candidateDataLengkap ? $candidateDataLengkap->tanggal_masuk : '' }}"
+                                    class="form-control" name="tanggal_masuk" readonly>
+                            </div>
+                        </div>
+
                         @if($keluargaData->isNotEmpty())
                         <div class="card mt-4">
                             <div class="card-body">

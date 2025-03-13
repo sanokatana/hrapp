@@ -149,11 +149,11 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::get('/karyawan/downloadTemplate', [KaryawanController::class, 'downloadTemplateKar']);
     Route::post('/karyawan/storeshift/{nik}', [KaryawanController::class, 'storeShift'])->name('karyawan.storeShift');
     // Add this route to your web.php file
-    Route::get('/karyawan/getshift/{nik}', [KaryawanController::class, 'getShift'])->name('karyawan.getshift');
+    Route::get('/karyawan/getshift/{id}', [KaryawanController::class, 'getShift'])->name('karyawan.getshift');
 
     Route::get('/karyawan/export', [KaryawanController::class, 'export'])->name('export.karyawan');
 
-
+    Route::post('/karyawan/resign/{nik}', [KaryawanController::class, 'resign'])->name('karyawan.resign');
     //User
     Route::get('/data/user', [UserController::class, 'index']);
     Route::post('/data/user/store', [UserController::class, 'store']);
@@ -356,7 +356,7 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::post('/kontrak/{id}/delete', [ContractController::class, 'delete']);
     Route::post('/kontrak/peningkatanOrExtend', [ContractController::class, 'peningkatanOrExtend']);
     Route::get('/kontrak/{id}/print', [ContractController::class, 'printContract']);
-
+    Route::post('/kontrak/check-expired', [ContractController::class, 'checkExpired'])->name('kontrak.check-expired');
 
     // SK
 
@@ -372,6 +372,7 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::post('/sk/{id}/print', [SkController::class, 'printContract']);
 
     //Performance
+    Route::get('/performance/dashboard', [PerformanceController::class, 'dashboard'])->name('performance.dashboard');
     Route::get('/performance/notification', [PerformanceController::class, 'notification']);
     Route::get('/performance/notificationEmail', [PerformanceController::class, 'notificationEmail']);
     Route::post('/contracts/send-email', [PerformanceController::class, 'sendEmail'])->name('contracts.sendEmail');

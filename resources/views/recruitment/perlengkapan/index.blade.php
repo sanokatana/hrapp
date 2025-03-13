@@ -265,6 +265,36 @@ document.addEventListener('DOMContentLoaded', function() {
         const noKK = document.getElementById('no_kartu_keluarga').value;
         const tanggalMasuk = document.getElementById('tanggal_masuk').value;
 
+        // Get all NIK inputs
+        const nikInputs = document.getElementsByName('nik[]');
+        let nikValid = true;
+        let invalidNik = '';
+
+        // Check each NIK input
+        nikInputs.forEach(function(input) {
+            const nik = input.value.trim();
+            // Get the corresponding name for this NIK
+            const row = input.closest('tr');
+            const nama = row.querySelector('td:nth-child(2)').textContent;
+
+            if (nik.length !== 16) {
+                nikValid = false;
+                invalidNik = nama; // Store the name of the person with invalid NIK
+                return false; // Break the loop
+            }
+        });
+
+        if (!nikValid) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Error!',
+                text: `NIK untuk ${invalidNik} harus 16 digit! (Current: ${nik.length} digit)`,
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            });
+            return;
+        }
+
         if (!noKK.trim()) {
             e.preventDefault();
             Swal.fire({
@@ -286,6 +316,20 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             return;
         }
+    });
+
+    // Add input event listeners to NIK fields to only allow numbers
+    const nikInputs = document.getElementsByName('nik[]');
+    nikInputs.forEach(function(input) {
+        input.addEventListener('input', function(e) {
+            // Remove any non-digit characters
+            this.value = this.value.replace(/\D/g, '');
+
+            // Limit to 16 digits
+            if (this.value.length > 16) {
+                this.value = this.value.slice(0, 16);
+            }
+        });
     });
 });
 </script>

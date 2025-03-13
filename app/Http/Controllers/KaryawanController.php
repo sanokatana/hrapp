@@ -444,4 +444,28 @@ class KaryawanController extends Controller
     {
         return Excel::download(new KaryawanExport, 'karyawan.xlsx');
     }
+
+    public function resign(Request $request, $id)
+    {
+        try {
+            $karyawan = Karyawan::findOrFail($id);
+
+            if (!$karyawan) {
+                return redirect()->back()->withErrors('Karyawan not found.');
+            }
+
+            $karyawan->update([
+                'status_kar' => 'Non-Aktif',
+                'tgl_resign' => $request->tgl_resign
+            ]);
+
+            $karyawan->save();
+            Log::info($karyawan);
+            Log::info($request->tgl_resign);
+
+            return redirect()->back()->with('success', 'Karyawan Sudah Dinonaktifkan!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('danger', 'Error uploading data: ' . $e->getMessage());
+        }
+    }
 }

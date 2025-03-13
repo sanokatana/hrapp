@@ -738,10 +738,32 @@ class DashboardController extends Controller
         $role = $user->level;
 
 
-        if ($role === 'Admin' || $role === 'Management') {
+        if ($role === 'Admin') {
             $hariini = date("Y-m-d");
             $bulanini = date("m");
             $tahunini = date("Y");
+
+            $adminJabatanId = DB::table('karyawan')
+            ->where('nik', $user->nik)
+            ->value('jabatan');
+
+            $subordinateJabatanIds = DB::table('jabatan')
+            ->where('jabatan_atasan', $adminJabatanId)
+            ->pluck('id')
+            ->toArray();
+
+            // Get list of subordinate NIPs
+            $subordinateNips = DB::table('karyawan')
+                ->whereIn('jabatan', $subordinateJabatanIds)
+                ->pluck('nik')
+                ->toArray();
+
+            // Add where clause to filter by subordinates if user is Admin
+            $whereSubordinates = function($query) use ($role, $subordinateNips) {
+                if ($role === 'Admin') {
+                    $query->whereIn('karyawan.nik', $subordinateNips);
+                }
+            };
 
             $rekappresensi = DB::connection('mysql2')
                 ->table('db_absen.att_log as presensi')
@@ -854,6 +876,7 @@ class DashboardController extends Controller
                 })
                 ->whereDate(DB::raw('DATE(presensi.scan_date)'), $hariini)
                 ->where('karyawan.grade', '!=', 'NS')
+                ->where($whereSubordinates)
                 ->whereIn(DB::raw('(presensi.pin, presensi.scan_date)'), function ($query) use ($hariini) {
                     $query->select('pin', DB::raw('MIN(scan_date)'))
                         ->from('db_absen.att_log')
@@ -895,6 +918,7 @@ class DashboardController extends Controller
                 ->whereNull('presensi.pin') // No attendance
                 ->where('karyawan.grade', '!=', 'NS') // Exclude NS grade
                 ->where('jabatan.kode_dept', '!=', 'Management')
+                ->where($whereSubordinates)
                 ->where('karyawan.nik', '!=', '0017-20181101') // Exclude certain management
                 ->where('status_kar', 'Aktif')
                 ->whereNotExists(function ($query) use ($hariini) {
@@ -938,6 +962,7 @@ class DashboardController extends Controller
                 ->where('tgl_izin_akhir', '>=', $hariini) // End date is after or on today
                 ->whereNotNull('tgl_izin_akhir') // Exclude null tgl_izin_akhir
                 ->where('tgl_izin_akhir', '!=', '') // Exclude empty tgl_izin_akhir
+                ->where($whereSubordinates)
                 ->where('karyawan.grade', '!=', 'NS') // Exclude grade NS
                 // ->where('pengajuan_izin.status_approved', 1) // Status approved by supervisor
                 // ->where('pengajuan_izin.status_approved_hrd', 1) // Status approved by HR
@@ -963,6 +988,7 @@ class DashboardController extends Controller
                         ->where('tgl_cuti_sampai', '>=', $hariini);
                 })
                 ->where('karyawan.grade', '!=', 'NS')
+                ->where($whereSubordinates)
                 ->whereNotIn('pengajuan_cuti.status_approved', [3]) // Exclude status_approved = 3
                 ->whereNotIn('pengajuan_cuti.status_approved_hrd', [3]) // Exclude status_approved_hrd = 3
                 ->whereNotIn('pengajuan_cuti.status_management', [3]) // Exclude status_approved_hrd = 3

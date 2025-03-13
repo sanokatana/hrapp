@@ -63,7 +63,7 @@
                                     <div class="row">
                                         <div class="col-3 col-lg-3">
                                             <div class="form-group">
-                                                <input type="text" name="candidate_name" id="candidate_name" class="form-control" placeholder="Nama Candidate" value="{{ request('nama_candidate') }}">
+                                                <input type="text" name="candidate_name" id="candidate_name" class="form-control" placeholder="Nama Candidate" value="{{ request('candidate_name') }}">
                                             </div>
                                         </div>
                                         <div class="col-3 col-lg-3">
@@ -79,7 +79,7 @@
                                         <div class="col-3 col-lg-3">
                                             <div class="form-group mb-3">
                                                 <select name="status_candidate" id="status_candidate" class="form-select">
-                                                    <option {{ request('status_candidate') == "" ? 'selected' : '' }} value="">Status Candidate</option>
+                                                    <option value="">All Status</option>
                                                     <option {{ request('status_candidate') == "In Process" ? 'selected' : '' }} value="In Process">In Process</option>
                                                     <option {{ request('status_candidate') == "Hired" ? 'selected' : '' }} value="Hired">Hired</option>
                                                     <option {{ request('status_candidate') == "Rejected" ? 'selected' : '' }} value="Rejected">Rejected</option>

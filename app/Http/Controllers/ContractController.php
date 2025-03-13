@@ -299,6 +299,34 @@ class ContractController extends Controller
         }
     }
 
+    public function checkExpired(Request $request)
+    {
+        try {
+            // Get all active contracts that have passed their end date
+            $expiredContracts = Contract::where('status', 'Active')
+                ->where('end_date', '<', now()->format('Y-m-d'))
+                ->get();
+
+            // Update their status to Expired
+            foreach ($expiredContracts as $contract) {
+                $contract->status = 'Expired';
+                $contract->save();
+            }
+
+            return response()->json([
+                'success' => true,
+                'count' => $expiredContracts->count(),
+                'message' => 'Contracts checked successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error checking contracts: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 
     // YourController.php
     public function filterContracts(Request $request)
