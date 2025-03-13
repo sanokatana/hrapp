@@ -723,8 +723,8 @@ class PresensiController extends Controller
                     $emailContent = "
                         Pengajuan Absensi Karyawan<br><br>
                         Nama : {$nama_lengkap}<br>
-                        Tanggal : {$currentDate->toDateString()}<br>
-                        Waktu Bikin: {$currentDate->format('H:i')}<br>
+                        Tanggal Pembuatan: {$currentDate->toDateString()}<br>
+                        Waktu Pembuatan: {$currentDate->format('H:i')}<br>
                         NIK : {$nik}<br>
                         NIP : {$nip}<br>
                         Tanggal Izin : " . DateHelper::formatIndonesianDate($tgl_izin) . "<br>

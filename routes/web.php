@@ -374,7 +374,9 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     //Performance
     Route::get('/performance/dashboard', [PerformanceController::class, 'dashboard'])->name('performance.dashboard');
     Route::get('/performance/notification', [PerformanceController::class, 'notification']);
+    Route::get('/performance/printEvaluation/{id}', [PerformanceController::class, 'printEvaluation']);
     Route::get('/performance/notificationEmail', [PerformanceController::class, 'notificationEmail']);
+    Route::post('/performance/peningkatanOrExtend', [PerformanceController::class, 'peningkatanOrExtend']);
     Route::post('/contracts/send-email', [PerformanceController::class, 'sendEmail'])->name('contracts.sendEmail');
 
 

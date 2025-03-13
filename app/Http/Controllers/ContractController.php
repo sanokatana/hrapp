@@ -41,13 +41,12 @@ class ContractController extends Controller
             $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama_karyawan . '%');
         }
 
-        // if (!empty($request->status_kontrak)) {
-        //     $query->where('kontrak.status', 'like', '%' . $request->status_kontrak . '%');
-        // }
-
-        if (!empty($request->status_kontrak)) {
-            $query->where('kontrak.status', $request->status_kontrak);
+        if ($request->has('status_kontrak')) {
+            if ($request->status_kontrak === 'Active' || $request->status_kontrak === 'Expired' || $request->status_kontrak === 'Extended' || $request->status_kontrak === 'Terminated') {
+                $query->where('kontrak.status', $request->status_kontrak);
+            }
         } else {
+            // Default to '0' (Pending) if no status_approved_hrd is provided
             $query->where('kontrak.status', 'Active');
         }
 
@@ -782,4 +781,5 @@ class ContractController extends Controller
             'type'
         ));
     }
+
 }

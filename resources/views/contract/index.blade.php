@@ -91,11 +91,11 @@
                                         <div class="col-3 col-lg-3">
                                             <div class="form-group mb-3">
                                                 <select name="status_kontrak" id="status_kontrak" class="form-select">
-                                                    <option value="" {{ request('status_kontrak') == '' ? 'selected' : '' }}>Status</option>
+                                                    <option value="" {{ request('status_kontrak') == '' ? 'selected' : '' }}>All Status</option>
                                                     <option value="Active" {{ request('status_kontrak') == 'Active' ? 'selected' : '' }}>Active</option>
                                                     <option value="Terminated" {{ request('status_kontrak') == 'Terminated' ? 'selected' : '' }}>Terminated</option>
                                                     <option value="Expired" {{ request('status_kontrak') == 'Expired' ? 'selected' : '' }}>Expired</option>
-                                                    <option value="Non-Active" {{ request('status_kontrak') == 'Non-Active' ? 'selected' : '' }}>Non-Active</option>
+                                                    <option value="Extended" {{ request('status_kontrak') == 'Extended' ? 'selected' : '' }}>Non-Active</option>
                                                 </select>
                                             </div>
                                         </div>

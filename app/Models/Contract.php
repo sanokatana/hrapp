@@ -19,7 +19,7 @@ class Contract extends Model
         'end_date',
         'contract_type',
         'position',
-        'salary',
+        'reasoning',
         'contract_file',
         'created_by',
         'status',

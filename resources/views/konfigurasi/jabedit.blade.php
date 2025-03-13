@@ -71,6 +71,7 @@
             <option {{ $jabatan->jabatan == 'Head Of Department' ? 'selected' : '' }} value="Head Of Department">Head Of Department</option>
             <option {{ $jabatan->jabatan == 'Section Head' ? 'selected' : '' }} value="Section Head">Section Head</option>
             <option {{ $jabatan->jabatan == 'Officer' ? 'selected' : '' }} value="Officer">Officer</option>
+            <option {{ $jabatan->jabatan == 'Internship' ? 'selected' : '' }} value="Internship">Officer</option>
         </select>
     </div>
     <div class="row mt-3">

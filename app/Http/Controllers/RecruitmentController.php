@@ -966,18 +966,26 @@ class RecruitmentController extends Controller
 
             // Handle NIP generation/assignment
             if (empty($request->nip)) {
-                // Automatic NIP generation
-                $lastNip = DB::table('karyawan')
+                // Get the 10 most recent active employees
+                $recentNips = DB::table('karyawan')
                     ->where('status_kar', 'Aktif')
                     ->whereNotNull('nip')
-                    ->orderByRaw('CAST(nip AS UNSIGNED) DESC')
-                    ->value('nip');
+                    ->orderBy('id', 'DESC')
+                    ->limit(10)
+                    ->pluck('nip')
+                    ->toArray();
 
-                // If no NIP exists, start from 1, otherwise increment the last NIP
-                $nip = $lastNip ? (intval($lastNip) + 1) : 1;
+                if (empty($recentNips)) {
+                    // If no NIPs exist, start from 1
+                    $nip = '0001';
+                } else {
+                    // Convert NIPs to integers and find the highest
+                    $numericNips = array_map('intval', $recentNips);
+                    $highestNip = max($numericNips);
 
-                // Format NIP to maintain consistent length (e.g., 6 digits)
-                $nip = str_pad($nip, 4, '0', STR_PAD_LEFT);
+                    // Increment the highest NIP
+                    $nip = str_pad($highestNip + 1, 4, '0', STR_PAD_LEFT);
+                }
             } else {
                 $nip = $request->nip;
             }

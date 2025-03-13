@@ -39,25 +39,6 @@ class LaporanController extends Controller
     public function exportData(Request $request)
     {
 
-        // DB::statement('TRUNCATE TABLE presensi');
-
-        // // Insert data from att_log in mysql2 connection to hrmschl.presensi in the default connection
-        // DB::connection('mysql2')->transaction(function () {
-        //     DB::connection('mysql2')->statement("
-        //         INSERT INTO hrmschl.presensi (nip, nik, tgl_presensi, jam_in)
-        //         SELECT
-        //             al.pin AS nip,
-        //             k.nik AS nik, -- Fetch nik from the karyawan table
-        //             DATE(al.scan_date) AS tgl_presensi,
-        //             TIME(al.scan_date) AS jam_in
-        //         FROM
-        //             db_absen.att_log al
-        //         LEFT JOIN
-        //             hrmschl.karyawan k ON al.pin = k.nip
-        //     ");
-        // });
-
-
         // Get filter inputs
         $filterMonth = $request->input('bulan', Carbon::now()->month);
         $filterYear = $request->input('tahun', Carbon::now()->year);
@@ -72,15 +53,6 @@ class LaporanController extends Controller
         $daysInMonth = Carbon::create($filterYear, $filterMonth)->daysInMonth;
 
         $totalWorkdays = $this->getTotalWorkdays($filterYear, $filterMonth);
-
-        // Get karyawan data with filters, excluding "Security" department
-        // $karyawanQuery = DB::table('karyawan')
-        //     ->where('status_kar', 'Aktif') // Add this condition to filter by status_kar
-        //     ->whereNotIn('kode_dept', function ($query) {
-        //         $query->select('kode_dept')
-        //             ->from('department')
-        //             ->where('grade', '=', 'NS');
-        //     });
 
         $karyawanQuery = DB::table('karyawan')
             ->where('status_kar', 'Aktif');
