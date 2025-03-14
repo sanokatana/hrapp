@@ -40,7 +40,10 @@ class PerformanceController extends Controller
             $contract->days_left = $today->diffInDays($end_date, false); // Calculate remaining days
         }
 
-        return view('performance.notification', compact('contracts'));
+        $hrd = Karyawan::whereIn('jabatan', [25, 47])
+        ->get();
+
+        return view('performance.notification', compact('contracts', 'hrd'));
     }
 
     public function dashboard()
@@ -236,6 +239,7 @@ class PerformanceController extends Controller
 
         $type = $request->query('type');
         $management = $request->query('management');
+        $hrd = $request->query('hrd');
 
         // Indonesian month abbreviations (4 letters max)
         $bulanIndo = [
@@ -270,6 +274,7 @@ class PerformanceController extends Controller
         $contractData = [
             'nama_lengkap' => $employee->nama_lengkap,
             'kode_dept' => $employee->kode_dept,
+            'hrd_name' => $request->query('hrd'), // Make sure we're using query parameter
             'jabatan_name' => $jabatan->nama_jabatan ?? '-',
             'atasan_name' => $employeeAtasan->nama_lengkap ?? '-',
             'tgl_masuk' => Carbon::parse($employee->tgl_masuk)->format('d-m-Y'),

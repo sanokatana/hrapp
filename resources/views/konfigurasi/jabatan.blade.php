@@ -232,6 +232,7 @@
                             <option {{ Request('jabatan_posisi') == 'Section Head' ? 'selected' : '' }} value="Section Head">Section Head</option>
                             <option {{ Request('jabatan_posisi') == 'Officer' ? 'selected' : '' }} value="Officer">Officer</option>
                             <option {{ Request('jabatan_posisi') == 'Internship' ? 'selected' : '' }} value="Internship">Internship</option>
+                            <option {{ Request('jabatan_posisi') == 'Non-Staff' ? 'selected' : '' }} value="Non-Staff">Non-Staff</option>
                         </select>
                     </div>
                     <div class="row mt-3">

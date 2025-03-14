@@ -145,6 +145,16 @@
                         </select>
                     </div>
 
+                    <div class="mb-3">
+                        <label class="form-label">HRD</label>
+                        <select class="form-select" name="hrd" id="hrd" required>
+                            <option value="">Select HRD</option>
+                            @foreach($hrd as $h)
+                                <option value="{{ $h->nama_lengkap }}">{{ $h->nama_lengkap }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <div class="mt-4">
                         <button type="submit" class="btn btn-primary w-100">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -346,9 +356,13 @@
         const contractId = $('#print_contract_id').val();
         const contractType = $('#contract_type').val();
         const management = $('#management').val();
+        const hrd = $('#hrd').val(); // Make sure this is getting the value
+
+        // For debugging
+        console.log('HRD:', hrd);
 
         // Open print window in new tab with all parameters
-        window.open(`/performance/printEvaluation/${contractId}?type=${contractType}&management=${management}`, '_blank');
+        window.open(`/performance/printEvaluation/${contractId}?type=${contractType}&management=${management}&hrd=${encodeURIComponent(hrd)}`, '_blank');
 
         // Close the modal
         $('#modal-printContract').modal('hide');

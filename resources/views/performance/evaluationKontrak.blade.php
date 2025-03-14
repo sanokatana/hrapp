@@ -1,6 +1,7 @@
+<!DOCTYPE html>
 <html>
 <head>
-<title>PT Cipta Harmoi Lestari</title>
+<title>PT Cipta Harmoni Lestari</title>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 <style>
 body {padding:0; margin:0; text-align:center; background-color:#777}
@@ -5550,6 +5551,12 @@ body {padding:0; margin:0; text-align:center; background-color:#777}
                      y="0"
                      id="tspan2672">:</tspan></text>
               </g>
+            </g>
+            <g
+               id="g2676">
+              <g
+                 id="g2678"
+                 clip-path="url(#clipPath2682)" />
             </g>
           </g>
         </g>
@@ -16555,7 +16562,7 @@ body {padding:0; margin:0; text-align:center; background-color:#777}
            id="text944"><tspan
              x="0 5.7600002"
              y="0"
-             id="tspan942">b)   Terlambat / absen</tspan></text>
+             id="tspan942">b)   Terlambat absen</tspan></text>
       </g>
     </g>
     <g
@@ -16569,14 +16576,6 @@ body {padding:0; margin:0; text-align:center; background-color:#777}
       <g
          id="g956"
          clip-path="url(#clipPath960)">
-        <text
-           xml:space="preserve"
-           transform="matrix(1,0,0,-1,108.02,576.43)"
-           style="font-variant:normal;font-weight:normal;font-size:11.04px;font-family:'Times New Roman';-inkscape-font-specification:TimesNewRomanPSMT;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
-           id="text964"><tspan
-             x="0 6.94416 11.9784 15.80928 19.1544 24.188641 32.93232 38.684158 43.718399 46.942081 49.812481 53.1576 56.028 61.172642 66.80304 71.351517 76.385757"
-             y="0"
-             id="tspan962"></tspan></text>
       </g>
     </g>
     <g
@@ -16592,7 +16591,7 @@ body {padding:0; margin:0; text-align:center; background-color:#777}
          clip-path="url(#clipPath980)">
         <text
            xml:space="preserve"
-           transform="matrix(1,0,0,-1,188.22,576.43)"
+           transform="matrix(1,0,0,-1,182.22,576.43)"
            style="font-variant:normal;font-weight:normal;font-size:11.04px;font-family:'Times New Roman';-inkscape-font-specification:TimesNewRomanPSMT;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
            id="text984"><tspan
              x="0 3.22368 8.3683205 13.99872 17.222401 22.974239 25.844641 31.596479 36.630718 40.461601 43.806721 46.67712 52.428959 55.420799 61.051201 66.085442 69.30912"
@@ -16676,7 +16675,7 @@ body {padding:0; margin:0; text-align:center; background-color:#777}
          clip-path="url(#clipPath1060)">
         <text
            xml:space="preserve"
-           transform="matrix(1,0,0,-1,185.1,563.71)"
+           transform="matrix(1,0,0,-1,186.1,563.71)"
            style="font-variant:normal;font-weight:normal;font-size:11.04px;font-family:'Times New Roman';-inkscape-font-specification:TimesNewRomanPSMT;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
            id="text1064"><tspan
              x="0 2.76 7.31952 12.4752 15.2352 20.51232 22.908001 28.063681 32.623199 35.979359 38.860802 41.256481 46.5336 48.929279 54.084961 58.644482 61.40448"
@@ -20007,67 +20006,75 @@ body {padding:0; margin:0; text-align:center; background-color:#777}
     </clipPath>
     <clipPath
        clipPathUnits="userSpaceOnUse"
-       id="clipPath1032">
+       id="clipPath1028">
       <path
          d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
          clip-rule="evenodd"
-         id="path1030" />
+         id="path1026" />
     </clipPath>
     <clipPath
        clipPathUnits="userSpaceOnUse"
-       id="clipPath1040">
+       id="clipPath1036">
       <path
          d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
          clip-rule="evenodd"
-         id="path1038" />
+         id="path1034" />
     </clipPath>
     <clipPath
        clipPathUnits="userSpaceOnUse"
-       id="clipPath1048">
+       id="clipPath1044">
       <path
          d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
          clip-rule="evenodd"
-         id="path1046" />
+         id="path1042" />
     </clipPath>
     <clipPath
        clipPathUnits="userSpaceOnUse"
-       id="clipPath1056">
+       id="clipPath1052">
       <path
          d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
          clip-rule="evenodd"
-         id="path1054" />
+         id="path1050" />
     </clipPath>
     <clipPath
        clipPathUnits="userSpaceOnUse"
-       id="clipPath1064">
+       id="clipPath1060">
       <path
          d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
          clip-rule="evenodd"
-         id="path1062" />
+         id="path1058" />
     </clipPath>
     <clipPath
        clipPathUnits="userSpaceOnUse"
-       id="clipPath1076">
+       id="clipPath1072">
       <path
          d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
          clip-rule="evenodd"
-         id="path1074" />
+         id="path1070" />
     </clipPath>
     <clipPath
        clipPathUnits="userSpaceOnUse"
-       id="clipPath1084">
+       id="clipPath1080">
       <path
          d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
          clip-rule="evenodd"
-         id="path1082" />
+         id="path1078" />
     </clipPath>
     <clipPath
        clipPathUnits="userSpaceOnUse"
-       id="clipPath1092">
+       id="clipPath1088">
       <path
          d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
          clip-rule="evenodd"
-         id="path1090" />
+         id="path1086" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath1096">
+      <path
+         d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
+         clip-rule="evenodd"
+         id="path1094" />
     </clipPath>
     <clipPath
        clipPathUnits="userSpaceOnUse"
@@ -20079,67 +20086,67 @@ body {padding:0; margin:0; text-align:center; background-color:#777}
     </clipPath>
     <clipPath
        clipPathUnits="userSpaceOnUse"
-       id="clipPath1116">
+       id="clipPath1112">
       <path
          d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
          clip-rule="evenodd"
-         id="path1114" />
+         id="path1110" />
     </clipPath>
     <clipPath
        clipPathUnits="userSpaceOnUse"
-       id="clipPath1124">
+       id="clipPath1120">
       <path
          d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
          clip-rule="evenodd"
-         id="path1122" />
+         id="path1118" />
     </clipPath>
     <clipPath
        clipPathUnits="userSpaceOnUse"
-       id="clipPath1136">
+       id="clipPath1132">
       <path
          d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
          clip-rule="evenodd"
-         id="path1134" />
+         id="path1130" />
     </clipPath>
     <clipPath
        clipPathUnits="userSpaceOnUse"
-       id="clipPath1144">
+       id="clipPath1140">
       <path
          d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
          clip-rule="evenodd"
-         id="path1142" />
+         id="path1138" />
     </clipPath>
     <clipPath
        clipPathUnits="userSpaceOnUse"
-       id="clipPath1152">
+       id="clipPath1148">
       <path
          d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
          clip-rule="evenodd"
-         id="path1150" />
+         id="path1146" />
     </clipPath>
     <clipPath
        clipPathUnits="userSpaceOnUse"
-       id="clipPath1160">
+       id="clipPath1156">
       <path
          d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
          clip-rule="evenodd"
-         id="path1158" />
+         id="path1154" />
     </clipPath>
     <clipPath
        clipPathUnits="userSpaceOnUse"
-       id="clipPath1168">
+       id="clipPath1164">
       <path
          d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
          clip-rule="evenodd"
-         id="path1166" />
+         id="path1162" />
     </clipPath>
     <clipPath
        clipPathUnits="userSpaceOnUse"
-       id="clipPath1176">
+       id="clipPath1172">
       <path
          d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
          clip-rule="evenodd"
-         id="path1174" />
+         id="path1170" />
     </clipPath>
     <clipPath
        clipPathUnits="userSpaceOnUse"
@@ -20167,19 +20174,27 @@ body {padding:0; margin:0; text-align:center; background-color:#777}
     </clipPath>
     <clipPath
        clipPathUnits="userSpaceOnUse"
-       id="clipPath1212">
+       id="clipPath1208">
       <path
          d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
          clip-rule="evenodd"
-         id="path1210" />
+         id="path1206" />
     </clipPath>
     <clipPath
        clipPathUnits="userSpaceOnUse"
-       id="clipPath1220">
+       id="clipPath1216">
       <path
          d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
          clip-rule="evenodd"
-         id="path1218" />
+         id="path1214" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath1224">
+      <path
+         d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
+         clip-rule="evenodd"
+         id="path1222" />
     </clipPath>
     <clipPath
        clipPathUnits="userSpaceOnUse"
@@ -20188,118 +20203,6 @@ body {padding:0; margin:0; text-align:center; background-color:#777}
          d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
          clip-rule="evenodd"
          id="path1230" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath1240">
-      <path
-         d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
-         clip-rule="evenodd"
-         id="path1238" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath1248">
-      <path
-         d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
-         clip-rule="evenodd"
-         id="path1246" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath1256">
-      <path
-         d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
-         clip-rule="evenodd"
-         id="path1254" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath1264">
-      <path
-         d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
-         clip-rule="evenodd"
-         id="path1262" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath1272">
-      <path
-         d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
-         clip-rule="evenodd"
-         id="path1270" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath1280">
-      <path
-         d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
-         clip-rule="evenodd"
-         id="path1278" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath1288">
-      <path
-         d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
-         clip-rule="evenodd"
-         id="path1286" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath1300">
-      <path
-         d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
-         clip-rule="evenodd"
-         id="path1298" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath1308">
-      <path
-         d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
-         clip-rule="evenodd"
-         id="path1306" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath1316">
-      <path
-         d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
-         clip-rule="evenodd"
-         id="path1314" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath1324">
-      <path
-         d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
-         clip-rule="evenodd"
-         id="path1322" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath1332">
-      <path
-         d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
-         clip-rule="evenodd"
-         id="path1330" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath1340">
-      <path
-         d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
-         clip-rule="evenodd"
-         id="path1338" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath1348">
-      <path
-         d="M 8.869e-6,0 H 595.20001 V 841.68 H 8.869e-6 Z"
-         clip-rule="evenodd"
-         id="path1346" />
     </clipPath>
   </defs>
   <g
@@ -21043,7 +20946,7 @@ body {padding:0; margin:0; text-align:center; background-color:#777}
                id="text728"><tspan
                  x="0"
                  y="0"
-                 id="tspan726"></tspan></text>
+                 id="tspan726">:</tspan></text>
           </g>
         </g>
         <g
@@ -21296,154 +21199,163 @@ body {padding:0; margin:0; text-align:center; background-color:#777}
        id="g1014">
       <g
          id="g1016"
-         clip-path="url(#clipPath1020)">
+         clip-path="url(#clipPath1020)" />
+    </g>
+    <g
+       id="g1022">
+      <g
+         id="g1024"
+         clip-path="url(#clipPath1028)" />
+    </g>
+    <g
+       id="g1030">
+      <g
+         id="g1032"
+         clip-path="url(#clipPath1036)" />
+    </g>
+    <g
+       id="g1038">
+      <g
+         id="g1040"
+         clip-path="url(#clipPath1044)" />
+    </g>
+    <g
+       id="g1046">
+      <g
+         id="g1048"
+         clip-path="url(#clipPath1052)" />
+    </g>
+    <g
+       id="g1054">
+      <g
+         id="g1056"
+         clip-path="url(#clipPath1060)">
         <text
            xml:space="preserve"
-           transform="matrix(1,0,0,-1,108.02,304.13)"
+           transform="matrix(1,0,0,-1,225.05,304.73)"
            style="font-variant:normal;font-weight:normal;font-size:12px;font-family:'Times New Roman';-inkscape-font-specification:TimesNewRomanPSMT;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
-           id="text1024"><tspan
-             x="0 5.7600002 11.52 17.280001 23.040001 28.799999 34.560001 40.32 46.080002 51.84 57.599998 63.360001 69.120003 74.879997 80.639999 86.400002 92.160004 97.919998 103.56 109.32 115.08 120.72 126.48"
+           id="text1064"><tspan
+             x="0 5.7600002 11.52 17.280001 23.040001 28.799999 34.560001 40.32 46.080002 51.84 57.599998 63.360001 69.120003 74.879997 80.639999 86.400002 92.160004 97.919998 103.56 109.2 114.96 120.72 126.48"
              y="0"
-             id="tspan1022">_______________________</tspan></text>
+             id="tspan1062">_______________________</tspan></text>
       </g>
     </g>
     <g
-       id="g1026">
+       id="g1066">
       <g
-         id="g1028"
-         clip-path="url(#clipPath1032)" />
+         id="g1068"
+         clip-path="url(#clipPath1072)" />
     </g>
     <g
-       id="g1034">
+       id="g1074">
       <g
-         id="g1036"
-         clip-path="url(#clipPath1040)" />
+         id="g1076"
+         clip-path="url(#clipPath1080)" />
     </g>
     <g
-       id="g1042">
+       id="g1082">
       <g
-         id="g1044"
-         clip-path="url(#clipPath1048)" />
+         id="g1084"
+         clip-path="url(#clipPath1088)" />
     </g>
     <g
-       id="g1050">
+       id="g1090">
       <g
-         id="g1052"
-         clip-path="url(#clipPath1056)" />
-    </g>
-    <g
-       id="g1058">
-      <g
-         id="g1060"
-         clip-path="url(#clipPath1064)">
-        <text
-           xml:space="preserve"
-           transform="matrix(1,0,0,-1,396.07,304.13)"
-           style="font-variant:normal;font-weight:normal;font-size:12px;font-family:'Times New Roman';-inkscape-font-specification:TimesNewRomanPSMT;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
-           id="text1068"><tspan
-             x="0 5.7600002 11.52 17.280001 23.040001 28.799999 34.560001 40.32 46.080002 51.84 57.599998 63.360001 69.120003 74.879997 80.639999 86.400002 92.160004 97.919998 103.56 109.32 115.08 120.72 126.48"
-             y="0"
-             id="tspan1066">_______________________</tspan></text>
-      </g>
-    </g>
-    <g
-       id="g1070">
-      <g
-         id="g1072"
-         clip-path="url(#clipPath1076)" />
-    </g>
-    <g
-       id="g1078">
-      <g
-         id="g1080"
-         clip-path="url(#clipPath1084)" />
-    </g>
-    <g
-       id="g1086">
-      <g
-         id="g1088"
-         clip-path="url(#clipPath1092)">
-        <text
-           xml:space="preserve"
-           transform="matrix(1,0,0,-1,108.02,290.3)"
-           style="font-variant:normal;font-weight:normal;font-size:12px;font-family:'Times New Roman';-inkscape-font-specification:TimesNewRomanPSMT;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
-           id="text1096"><tspan
-             x="0 8.6639996 13.92"
-             y="0"
-             id="tspan1094">Nam</tspan></text>
-      </g>
+         id="g1092"
+         clip-path="url(#clipPath1096)" />
     </g>
     <g
        id="g1098">
       <g
          id="g1100"
-         clip-path="url(#clipPath1104)">
+         clip-path="url(#clipPath1104)" />
+    </g>
+    <g
+       id="g1106">
+      <g
+         id="g1108"
+         clip-path="url(#clipPath1112)" />
+    </g>
+    <g
+       id="g1114">
+      <g
+         id="g1116"
+         clip-path="url(#clipPath1120)">
         <text
            xml:space="preserve"
-           transform="matrix(1,0,0,-1,131.3,290.3)"
+           transform="matrix(1,0,0,-1,225.05,290.9)"
            style="font-variant:normal;font-weight:normal;font-size:12px;font-family:'Times New Roman';-inkscape-font-specification:TimesNewRomanPSMT;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
-           id="text1108"><tspan
-             x="0"
+           id="text1124"><tspan
+             x="0 8.6639996 13.92 23.256001 28.584 31.584 34.919998 37.919998 46.584 49.919998 53.028 56.868 66.204002 70.199997 76.199997 82.199997"
              y="0"
-             id="tspan1106">a</tspan></text>
+             id="tspan1122">Nama : Al Imron </tspan></text>
       </g>
     </g>
     <g
-       id="g1110">
+       id="g1206">
       <g
-         id="g1112"
-         clip-path="url(#clipPath1116)" />
+         id="g1208"
+         clip-path="url(#clipPath1212)" />
     </g>
     <g
-       id="g1118">
+       id="g1214">
       <g
-         id="g1120"
-         clip-path="url(#clipPath1124)">
+         id="g1216"
+         clip-path="url(#clipPath1220)">
         <text
            xml:space="preserve"
-           transform="matrix(1,0,0,-1,139.58,290.3)"
+           transform="matrix(1,0,0,-1,225.05,276.5)"
            style="font-variant:normal;font-weight:normal;font-size:12px;font-family:'Times New Roman';-inkscape-font-specification:TimesNewRomanPSMT;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
-           id="text1128"><tspan
-             x="0"
+           id="text1224"><tspan
+             x="0 8.6639996 13.92 23.256001 28.584 31.584 34.919998 37.919998 46.584 49.919998 53.028 56.868 66.204002 70.199997 76.199997 82.199997"
              y="0"
-             id="tspan1126">: {{ $data->management }}</tspan></text>
+             id="tspan1222">Tgl :</tspan></text>
       </g>
     </g>
     <g
-       id="g1130">
+       id="g1126">
       <g
-         id="g1132"
-         clip-path="url(#clipPath1136)" />
+         id="g1128"
+         clip-path="url(#clipPath1132)" />
     </g>
     <g
-       id="g1138">
+       id="g1134">
       <g
-         id="g1140"
-         clip-path="url(#clipPath1144)" />
+         id="g1136"
+         clip-path="url(#clipPath1140)" />
     </g>
     <g
-       id="g1146">
+       id="g1142">
       <g
-         id="g1148"
-         clip-path="url(#clipPath1152)" />
+         id="g1144"
+         clip-path="url(#clipPath1148)" />
     </g>
     <g
-       id="g1154">
+       id="g1150">
       <g
-         id="g1156"
-         clip-path="url(#clipPath1160)" />
+         id="g1152"
+         clip-path="url(#clipPath1156)" />
     </g>
     <g
-       id="g1162">
+       id="g1158">
       <g
-         id="g1164"
-         clip-path="url(#clipPath1168)" />
+         id="g1160"
+         clip-path="url(#clipPath1164)" />
     </g>
     <g
-       id="g1170">
+       id="g1166">
       <g
-         id="g1172"
-         clip-path="url(#clipPath1176)" />
+         id="g1168"
+         clip-path="url(#clipPath1172)">
+        <text
+           xml:space="preserve"
+           transform="matrix(1,0,0,-1,225.05,277.1)"
+           style="font-variant:normal;font-weight:normal;font-size:12px;font-family:'Times New Roman';-inkscape-font-specification:TimesNewRomanPSMT;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           id="text1176"><tspan
+             x="0 7.3319998 13.332 16.667999 31.667999"
+             y="0"
+             id="tspan1174">Tgl :</tspan></text>
+      </g>
     </g>
     <g
        id="g1178">
@@ -21461,37 +21373,25 @@ body {padding:0; margin:0; text-align:center; background-color:#777}
        id="g1194">
       <g
          id="g1196"
-         clip-path="url(#clipPath1200)">
-        <text
-           xml:space="preserve"
-           transform="matrix(1,0,0,-1,396.07,290.3)"
-           style="font-variant:normal;font-weight:normal;font-size:12px;font-family:'Times New Roman';-inkscape-font-specification:TimesNewRomanPSMT;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
-           id="text1204"><tspan
-             x="0 8.6639996 13.92 23.256001 28.584 31.584 34.919998 37.919998 46.584 49.919998 53.028 56.868 66.204002 70.199997 76.199997 82.199997"
-             y="0"
-             id="tspan1202">Nama : Al Imron </tspan></text>
-      </g>
+         clip-path="url(#clipPath1200)" />
     </g>
     <g
-       id="g1206">
+       id="g1202">
       <g
-         id="g1208"
-         clip-path="url(#clipPath1212)" />
+         id="g1204"
+         clip-path="url(#clipPath1208)" />
     </g>
     <g
-       id="g1214">
+       id="g1210">
       <g
-         id="g1216"
-         clip-path="url(#clipPath1220)">
-        <text
-           xml:space="preserve"
-           transform="matrix(1,0,0,-1,108.02,276.5)"
-           style="font-variant:normal;font-weight:normal;font-size:12px;font-family:'Times New Roman';-inkscape-font-specification:TimesNewRomanPSMT;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
-           id="text1224"><tspan
-             x="0 7.3319998 13.332 16.667999 31.667999"
-             y="0"
-             id="tspan1222">Tgl :</tspan></text>
-      </g>
+         id="g1212"
+         clip-path="url(#clipPath1216)" />
+    </g>
+    <g
+       id="g1218">
+      <g
+         id="g1220"
+         clip-path="url(#clipPath1224)" />
     </g>
     <g
        id="g1226">
@@ -21499,159 +21399,66 @@ body {padding:0; margin:0; text-align:center; background-color:#777}
          id="g1228"
          clip-path="url(#clipPath1232)" />
     </g>
-    <g
-       id="g1234">
-      <g
-         id="g1236"
-         clip-path="url(#clipPath1240)" />
-    </g>
-    <g
-       id="g1242">
-      <g
-         id="g1244"
-         clip-path="url(#clipPath1248)" />
-    </g>
-    <g
-       id="g1250">
-      <g
-         id="g1252"
-         clip-path="url(#clipPath1256)" />
-    </g>
-    <g
-       id="g1258">
-      <g
-         id="g1260"
-         clip-path="url(#clipPath1264)" />
-    </g>
-    <g
-       id="g1266">
-      <g
-         id="g1268"
-         clip-path="url(#clipPath1272)" />
-    </g>
-    <g
-       id="g1274">
-      <g
-         id="g1276"
-         clip-path="url(#clipPath1280)" />
-    </g>
-    <g
-       id="g1282">
-      <g
-         id="g1284"
-         clip-path="url(#clipPath1288)">
-        <text
-           xml:space="preserve"
-           transform="matrix(1,0,0,-1,396.07,276.5)"
-           style="font-variant:normal;font-weight:normal;font-size:12px;font-family:'Times New Roman';-inkscape-font-specification:TimesNewRomanPSMT;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
-           id="text1292"><tspan
-             x="0 7.3319998 13.332 16.667999 31.667999"
-             y="0"
-             id="tspan1290">Tgl :</tspan></text>
-      </g>
-    </g>
-    <g
-       id="g1294">
-      <g
-         id="g1296"
-         clip-path="url(#clipPath1300)" />
-    </g>
-    <g
-       id="g1302">
-      <g
-         id="g1304"
-         clip-path="url(#clipPath1308)" />
-    </g>
-    <g
-       id="g1310">
-      <g
-         id="g1312"
-         clip-path="url(#clipPath1316)" />
-    </g>
-    <g
-       id="g1318">
-      <g
-         id="g1320"
-         clip-path="url(#clipPath1324)" />
-    </g>
-    <g
-       id="g1326">
-      <g
-         id="g1328"
-         clip-path="url(#clipPath1332)" />
-    </g>
-    <g
-       id="g1334">
-      <g
-         id="g1336"
-         clip-path="url(#clipPath1340)" />
-    </g>
-    <g
-       id="g1342">
-      <g
-         id="g1344"
-         clip-path="url(#clipPath1348)" />
-    </g>
     <path
        d="m 231.75,546.88 142.5,0.05"
        style="fill:none;stroke:#000000;stroke-width:0.75;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
-       id="path1350" />
+       id="path1234" />
     <path
        d="m 392.25,546.13 142.5,0.05"
        style="fill:none;stroke:#000000;stroke-width:0.75;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
-       id="path1352" />
+       id="path1236" />
     <path
        d="M 73.5,546.93 216,546.98"
        style="fill:none;stroke:#000000;stroke-width:0.75;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
-       id="path1354" />
+       id="path1238" />
     <path
        d="m 24,817.2 h 0.48 v 0.48 H 24 Z"
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
-       id="path1356" />
+       id="path1240" />
     <path
        d="m 24,817.2 h 0.48 v 0.48 H 24 Z"
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
-       id="path1358" />
+       id="path1242" />
     <path
        d="m 24.48,817.2 h 546.34 v 0.48 H 24.48 Z"
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
-       id="path1360" />
+       id="path1244" />
     <path
        d="m 570.82,817.2 h 0.48004 v 0.48 H 570.82 Z"
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
-       id="path1362" />
+       id="path1246" />
     <path
        d="m 570.82,817.2 h 0.48004 v 0.48 H 570.82 Z"
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
-       id="path1364" />
+       id="path1248" />
     <path
        d="m 24,24.36 h 0.48 V 817.2 H 24 Z"
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
-       id="path1366" />
+       id="path1250" />
     <path
        d="m 570.82,24.36 h 0.48004 V 817.2 H 570.82 Z"
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
-       id="path1368" />
+       id="path1252" />
     <path
        d="m 24,23.88 h 0.48 v 0.47998 H 24 Z"
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
-       id="path1370" />
+       id="path1254" />
     <path
        d="m 24,23.88 h 0.48 v 0.47998 H 24 Z"
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
-       id="path1372" />
+       id="path1256" />
     <path
        d="m 24.48,23.88 h 546.34 v 0.47998 H 24.48 Z"
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
-       id="path1374" />
+       id="path1258" />
     <path
        d="m 570.82,23.88 h 0.48004 v 0.47998 H 570.82 Z"
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
-       id="path1376" />
+       id="path1260" />
     <path
        d="m 570.82,23.88 h 0.48004 v 0.47998 H 570.82 Z"
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
-       id="path1378" />
+       id="path1262" />
   </g>
 </svg>
 

@@ -142,7 +142,8 @@
                                         data-dept="{{ $j->kode_dept }}"
                                         data-type="{{ $j->jabatan === 'Head of Department' || $j->jabatan === 'Section Head' ? 3 :
                                            ($j->jabatan === 'Internship' ? 2 :
-                                           ($j->jabatan === 'Officer' ? 1 : null)) }}">
+                                           ($j->jabatan === 'Officer' ? 1 :
+                                           ($j->jabatan === 'Non-Staff' ? 1 : null ))) }}">
                                         {{ $j->nama_jabatan }} - {{ $j->site }}
                                     </option>
                                     @endforeach

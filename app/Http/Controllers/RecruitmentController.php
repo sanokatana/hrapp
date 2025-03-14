@@ -1388,7 +1388,7 @@ class RecruitmentController extends Controller
                         Mail::html($emailContent, function ($message) use ($email, $nama_candidate, $nama_posisi) {
                             $message->to($email)
                                 ->subject("Selamat {$nama_candidate} Anda telah berhasil diterima untuk posisi {$nama_posisi}")
-                                ->cc(['humanresources@ciptaharmoni.com', auth()->user()->email])
+                                ->cc(['human.resources@ciptaharmoni.com', auth()->user()->email])
                                 ->priority(1);
 
                             // Add importance headers
