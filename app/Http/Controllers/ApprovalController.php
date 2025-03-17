@@ -187,9 +187,10 @@ class ApprovalController extends Controller
                 Pengajuan Absensi Karyawan<br><br>
                 Nama : {$nama_lengkap}<br>
                 NIK : {$nik}<br>
-                Tanggal Izin : " . DateHelper::formatIndonesianDate($tgl_izin) . "<br>
-                Tanggal Izin Sampai : " . (!empty($tgl_izin_akhir) ? DateHelper::formatIndonesianDate($tgl_izin_akhir) : '') . "<br>
-                Jumlah Hari : {$jml_hari}<br>
+                Tanggal Izin : " . DateHelper::formatIndonesianDate($tgl_izin) . "<br>" .
+                ($tgl_izin !== $tgl_izin_akhir ?
+                    "Tanggal Izin Sampai : " . DateHelper::formatIndonesianDate($tgl_izin_akhir) . "<br>" : "") .
+                "Jumlah Hari : {$jml_hari}<br>
                 Status : " . DateHelper::getStatusText($izin->status) . "<br>
                 Waktu Izin: {$pukul}<br>
                 Keterangan : {$keterangan}<br>";
@@ -499,9 +500,10 @@ class ApprovalController extends Controller
                     NIK : {$nik}<br>
                     Periode Cuti : {$periode}<br>
                     Sisa Cuti : {$leaveApplication->sisa_cuti}<br>
-                    Tanggal Cuti : " . DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti) . "<br>
-                    Tanggal Cuti Sampai : " . (!empty($tgl_cuti_sampai) ? DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti_sampai) : '') . "<br>
-                    Jumlah Hari : {$leaveApplication->jml_hari}<br>
+                    Tanggal Cuti : " . DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti) . "<br>" .
+                    ($leaveApplication->tgl_cuti !== $leaveApplication->tgl_cuti_sampai ?
+                        "Tanggal Cuti Sampai : " . DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti_sampai) . "<br>" : "") .
+                    "Jumlah Hari : {$leaveApplication->jml_hari}<br>
                     Sisa Cuti Setelah : {$leaveApplication->sisa_cuti_setelah}<br>
                     Karywan Pengganti : {$leaveApplication->kar_ganti}<br>
                     Note : {$leaveApplication->note}<br><br>

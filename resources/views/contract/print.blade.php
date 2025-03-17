@@ -493,7 +493,6 @@
         </li>
         <li data-list-text="II.">
             <p style="padding-left: 26pt;text-indent: -21pt;text-align: left;">&nbsp&nbsp&nbsp&nbsp&nbsp&nbspNama &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp: &nbsp&nbsp&nbsp&nbsp{{ strtoupper($contract->nama_lengkap) }}</p>
-            <p style="text-indent: 0pt;text-align: left;"><br></p>
             <table style="border-collapse:collapse;margin-left:25.444pt" cellspacing="0">
                 <tbody>
                     <tr style="height:12pt">
@@ -592,13 +591,13 @@
             <p style="padding-left: 19pt;text-indent: -14pt;text-align: left;">&nbsp PIHAK KEDUA setuju untuk bekerja dan
                 melakukan tugas serta pekerjaan untuk keperluan dan kepentingan PIHAK PERTAMA dalam menjalankan usaha
                 Perseroan untuk jangka waktu tertentu dan dimulai pada:</p>
-            <p style="padding-left: 19pt;text-indent: 0pt;line-height: 12pt;text-align: left;">Hari : {{$dateNow4}}</p>
-            <p style="padding-left: 19pt;text-indent: 0pt;text-align: left;">Tanggal : {{$dateNow5}}</p>
+            <p style="padding-left: 19pt;text-indent: 0pt;line-height: 12pt;text-align: left;">Hari &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp: {{$dateNow4}}</p>
+            <p style="padding-left: 19pt;text-indent: 0pt;text-align: left;">Tanggal &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp: {{$dateNow5}}</p>
         </li>
         <li data-list-text="2.">
             <p style="padding-top: 12pt;padding-left: 19pt;text-indent: -14pt;text-align: left;">&nbsp Untuk pertama kalinya
-                jabatan PIHAK KEDUA pada Perseroan adalah : <br> Jabatan / Level : {{$namaJabatan->nama_jabatan}}</p>
-            <p style="padding-left: 19pt;text-indent: 0pt;text-align: left;">Melapor kepada : {{$atasanJabatan->nama_jabatan}}</p>
+                jabatan PIHAK KEDUA pada Perseroan adalah : <br> Jabatan / Level &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp: {{$namaJabatan->nama_jabatan}}</p>
+            <p style="padding-left: 19pt;text-indent: 0pt;text-align: left;">Melapor kepada &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp: {{$atasanJabatan->nama_jabatan}}</p>
         </li>
         <li data-list-text="3.">
             <p style="padding-top: 12pt;padding-left: 19pt;text-indent: -14pt;text-align: justify;">&nbsp;Dengan memperhatikan
@@ -858,28 +857,28 @@
             <table style="border-collapse:collapse;margin-left:60.72pt" cellspacing="0">
                 <tbody>
                     <tr style="height:65pt">
-                        <td style="width:196pt">
+                        <td style="width:196pt; height: 150px">
                             <p class="s3"
                                 style="padding-right: 90pt;text-indent: 0pt;line-height: 10pt;text-align: center;">PIHAK
                                 KEDUA</p>
                         </td>
-                        <td style="width:162pt">
+                        <td style="width:162pt; height: 150px">
                             <p class="s3"
                                 style="padding-left: 90pt;text-indent: 0pt;line-height: 10pt;text-align: center;">PIHAK
                                 PERTAMA</p>
                         </td>
                     </tr>
                     <tr style="height:65pt">
-                        <td style="width:196pt">
+                        <td style="width:196pt;">
                             <p style="text-indent: 0pt;text-align: left;"><br></p>
                             <p class="s3"
-                                style="padding-right: 90pt;text-indent: 0pt;line-height: 11pt;text-align: center;">
+                                style="padding-right: 110px;text-indent: 0pt;line-height: 20pt;text-align: center;white-space: nowrap;overflow: hidden;">
                                 ({{ strtoupper($contract->nama_lengkap) }})</p>
                         </td>
                         <td style="width:162pt">
                             <p style="text-indent: 0pt;text-align: left;"><br></p>
                             <p class="s3"
-                                style="padding-left: 90pt;text-indent: 0pt;line-height: 11pt;text-align: center;">(AL
+                                style="padding-left: 90pt;text-indent: 0pt;line-height: 20pt;text-align: center;">(AL
                                 IMRON)</p>
                         </td>
                     </tr>

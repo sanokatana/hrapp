@@ -727,9 +727,10 @@ class PresensiController extends Controller
                         Waktu Pembuatan: {$currentDate->format('H:i')}<br>
                         NIK : {$nik}<br>
                         NIP : {$nip}<br>
-                        Tanggal Izin : " . DateHelper::formatIndonesianDate($tgl_izin) . "<br>
-                        Tanggal Izin Sampai : " . (!empty($tgl_izin_akhir) ? DateHelper::formatIndonesianDate($tgl_izin_akhir) : '') . "<br>
-                        Jumlah Hari : {$jml_hari}<br>
+                        Tanggal Izin : " . DateHelper::formatIndonesianDate($tgl_izin) . "<br>" .
+                        ($tgl_izin !== $tgl_izin_akhir ?
+                            "Tanggal Izin Sampai : " . DateHelper::formatIndonesianDate($tgl_izin_akhir) . "<br>" : "") .
+                        "Jumlah Hari : {$jml_hari}<br>
                         Status : " . DateHelper::getStatusText($status) . "<br>
                         Waktu Izin: {$pukul}<br>
                         Keterangan : {$keterangan}<br><br>
