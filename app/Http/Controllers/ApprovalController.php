@@ -284,7 +284,7 @@ class ApprovalController extends Controller
 
         // Check if the approval is atasan or management level
         if ($leaveApplication->status_approved == 0) {
-            // This is an Atasan approval
+            // This is an Atasan approval (first approval)
             $newToken = Str::random(40);
             $updateData = [
                 'status_approved' => $status,
@@ -292,44 +292,71 @@ class ApprovalController extends Controller
                 'approval_token' => ($status == 1) ? $newToken : null, // Generate new token only if approved
             ];
 
-            // If the atasan is Al.Imron, Setia, or Andreas, update status_management too
-            if (in_array($atasan->email, ['al.imron@ciptaharmoni.com', 'setia.rusli@ciptaharmoni.com', 'andreas.audyanto@ciptaharmoni.com'])) {
+            // If atasan is also management (Al.Imron, Setia, or Andreas)
+            // update both status_approved and status_management
+            if (in_array($atasan->email, [
+                'al.imron@ciptaharmoni.com',
+                'setia.rusli@ciptaharmoni.com',
+                'andreas.audyanto@ciptaharmoni.com'
+            ])) {
                 $updateData['status_management'] = $status;
                 $updateData['tgl_status_management'] = $currentDate;
             }
 
             DB::table('pengajuan_cuti')->where('id', $leaveApplication->id)->update($updateData);
 
-            // Generate new approve and deny URLs for management
-            $approveUrl = url("/approve/cuti/$newToken?status=1");
-            $denyUrl = url("/approve/cuti/$newToken?status=2");
-            $leaveApplication->nama_karyawan = $karyawan->nama_lengkap;
+            // Only send emails if approved (status == 1)
+            if ($status == 1) {
+                // Generate URLs for management approval
+                $approveUrl = url("/approve/cuti/$newToken?status=1");
+                $denyUrl = url("/approve/cuti/$newToken?status=2");
+                $leaveApplication->nama_karyawan = $karyawan->nama_lengkap;
 
-            // Send email only if it's not Al.Imron approving
-            // Determine management notification logic
-            $managementEmails = [];
-
-            if (in_array($atasan->email, ['setia.rusli@ciptaharmoni.com', 'andreas.audyanto@ciptaharmoni.com'])) {
-                $managementEmails = ['al.imron@ciptaharmoni.com']; // Only notify Al.Imron
-                $showApprovalButtons = false;
-            } else {
-                $managementEmails = [
-                    'al.imron@ciptaharmoni.com',
-                    'setia.rusli@ciptaharmoni.com',
-                    'andreas.audyanto@ciptaharmoni.com'
-                ];
+                // Determine who to notify based on who approved
+                $managementEmails = [];
                 $showApprovalButtons = true;
-            }
 
-            Mail::to($managementEmails)
-                ->send(new CutiApprovalNotification(
-                    $leaveApplication,
-                    $approveUrl,
-                    $denyUrl,
-                    $showApprovalButtons
-                ));
+                switch ($atasan->email) {
+                    case 'al.imron@ciptaharmoni.com':
+                        // If Al Imron approves, no need to send email
+                        $managementEmails = [];
+                        break;
+
+                    case 'setia.rusli@ciptaharmoni.com':
+                        // If Setia approves, notify Al Imron and Andreas
+                        $managementEmails = [
+                            'al.imron@ciptaharmoni.com',
+                            'andreas.audyanto@ciptaharmoni.com'
+                        ];
+                        break;
+
+                    case 'andreas.audyanto@ciptaharmoni.com':
+                        // If Andreas approves, notify Al Imron and Setia
+                        $managementEmails = [
+                            'al.imron@ciptaharmoni.com',
+                            'setia.rusli@ciptaharmoni.com'
+                        ];
+                        break;
+
+                    default:
+                        // If someone else approves, only notify Al Imron
+                        $managementEmails = ['al.imron@ciptaharmoni.com'];
+                        break;
+                }
+
+                // Send emails if there are recipients
+                if (!empty($managementEmails)) {
+                    Mail::to($managementEmails)
+                        ->send(new CutiApprovalNotification(
+                            $leaveApplication,
+                            $approveUrl,
+                            $denyUrl,
+                            $showApprovalButtons
+                        ));
+                }
+            }
         } else {
-            // This is a Management approval
+            // This is a Management approval (second approval)
             DB::table('pengajuan_cuti')
                 ->where('id', $leaveApplication->id)
                 ->update([
@@ -983,28 +1010,48 @@ class ApprovalController extends Controller
                     // Add employee name to leave application object
                     $leaveApplication->nama_karyawan = $karyawan->nama_lengkap;
 
-                    // Determine management notification logic
+                    // Determine management notification logic based on atasan's email
                     $managementEmails = [];
+                    $showApprovalButtons = true;
 
-                    if (in_array($currentUserEmail, ['setia.rusli@ciptaharmoni.com', 'andreas.audyanto@ciptaharmoni.com'])) {
-                        $managementEmails = ['al.imron@ciptaharmoni.com']; // Only notify Al.Imron
-                        $showApprovalButtons = false;
-                    } else {
-                        $managementEmails = [
-                            'al.imron@ciptaharmoni.com',
-                            'setia.rusli@ciptaharmoni.com',
-                            'andreas.audyanto@ciptaharmoni.com'
-                        ];
-                        $showApprovalButtons = true;
+                    switch ($currentUserEmail) {
+                        case 'al.imron@ciptaharmoni.com':
+                            // If Al Imron is atasan, no need to send email
+                            $managementEmails = [];
+                            break;
+
+                        case 'setia.rusli@ciptaharmoni.com':
+                            // If Setia is atasan, notify Al Imron and Andreas
+                            $managementEmails = [
+                                'al.imron@ciptaharmoni.com',
+                                'andreas.audyanto@ciptaharmoni.com'
+                            ];
+                            break;
+
+                        case 'andreas.audyanto@ciptaharmoni.com':
+                            // If Andreas is atasan, notify Al Imron and Setia
+                            $managementEmails = [
+                                'al.imron@ciptaharmoni.com',
+                                'setia.rusli@ciptaharmoni.com'
+                            ];
+                            break;
+
+                        default:
+                            // If atasan is someone else, only notify Al Imron
+                            $managementEmails = ['al.imron@ciptaharmoni.com'];
+                            break;
                     }
 
-                    Mail::to($managementEmails)
-                        ->send(new CutiApprovalNotification(
-                            $leaveApplication,
-                            $approveUrl,
-                            $denyUrl,
-                            $showApprovalButtons
-                        ));
+                    // Only send email if there are recipients
+                    if (!empty($managementEmails)) {
+                        Mail::to($managementEmails)
+                            ->send(new CutiApprovalNotification(
+                                $leaveApplication,
+                                $approveUrl,
+                                $denyUrl,
+                                $showApprovalButtons
+                            ));
+                    }
                 }
 
                 // Handle cuti/tunda logic

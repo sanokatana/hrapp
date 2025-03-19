@@ -1080,8 +1080,8 @@
             <div style="display: table-row;">
                 <div class="number-cell"></div>
                 <div style="display: table-row;">
-                    <div class="number-cell">c)</div>
-                    <p class="text-cell">Apabila tidak tercapai bulan berikutnya dikenakan sanksi SP3 dan dengan sendirinya perjanjian kerja dinyatakan berakhir;</p>
+                    <div class="number-cell">d)</div>
+                    <p class="text-cell">Jika dalam bulan berjalan target penjualan tercapai, maka salah satu SP akan dihapuskan;</p>
                 </div>
             </div>
             @else

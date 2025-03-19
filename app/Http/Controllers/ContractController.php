@@ -148,7 +148,7 @@ class ContractController extends Controller
             'end_date' => $end_date,
             'contract_type' => 'PKWT',
             'position' => $position,
-            'status' => $status,
+            'status' => 'Active',
             'created_by' => $name,
             'hari_kerja' => $hari_kerja
         ];
@@ -164,7 +164,7 @@ class ContractController extends Controller
                 'end_date' => $end_date,
                 'contract_type' => 'PKWT',
                 'position' => $position,
-                'status' => $status,
+                'status' => 'Active',
                 'changed_by' => $name,
                 'change_reason' => $reasoning,
                 'hari_kerja' => $hari_kerja
@@ -175,8 +175,6 @@ class ContractController extends Controller
             return Redirect::back()->with(['warning' => 'Data Gagal Disimpan']);
         }
     }
-
-
 
     public function edit(Request $request)
     {

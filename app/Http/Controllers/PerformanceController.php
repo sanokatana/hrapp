@@ -27,10 +27,6 @@ class PerformanceController extends Controller
             ->join('karyawan', 'kontrak.nik', '=', 'karyawan.nik')
             ->select('kontrak.no_kontrak', 'kontrak.end_date', 'karyawan.nama_lengkap', 'kontrak.nik', 'kontrak.position', 'kontrak.id')
             ->where('kontrak.status', 'Active')
-            ->whereBetween('kontrak.end_date', [
-                $today,
-                $today->copy()->addMonths(3)  // Contract end date within the next 3 months
-            ])
             ->orderBy('kontrak.end_date') // Order by end_date to get the soonest ending contracts first
             ->get();
 

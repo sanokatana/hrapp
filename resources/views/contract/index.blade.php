@@ -356,17 +356,6 @@
                                 <input type="text" value="" class="form-control" name="position" id="position" placeholder="Position">
                             </div>
                         </div>
-                        <div class="col-12">
-                            <div class="form-label">Status</div>
-                            <select name="status" id="status" class="form-select">
-                                <option value="">Choose</option>
-                                <option value="Active">Active</option>
-                                <option value="Extended">Extended</option>
-                                <option value="Terminated">Terminated</option>
-                                <option value="Expired">Expired</option>
-                                <option value="Non-Active">Non-Active</option>
-                            </select>
-                        </div>
                     </div>
                     <div class="row mt-3">
                         <div class="col-12">
@@ -458,7 +447,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="/kontrak/peningkatanOrExtend" method="POST" id="formKontrak" enctype="multipart/form-data">
+                <form action="/performance/peningkatanOrExtend" method="POST" id="formKontrak" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="id" id="contractId">
 
@@ -469,6 +458,8 @@
                             <option value="">Pilih</option>
                             <option value="extend">Extend Contract</option>
                             <option value="peningkatan">Peningkatan (Tetap)</option>
+                            <option value="tidak_lanjut">Tidak Lanjut</option>
+                            <option value="mengakhiri">Mengakhiri</option>
                         </select>
                     </div>
 
@@ -509,6 +500,25 @@
                         <div class="form-group mt-3">
                             <label for="diketahui">Diketahui Oleh</label>
                             <input type="text" class="form-control" id="diketahui" name="diketahui">
+                        </div>
+                    </div>
+
+                    <div id="tidakLanjutFields" style="display:none;">
+                        <div class="form-group mt-3">
+                            <label for="alasan">Alasan</label>
+                            <textarea class="form-control" id="alasan" name="alasan" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Mengakhiri Fields -->
+                    <div id="mengakhiriFields" style="display:none;">
+                        <div class="form-group mt-3">
+                            <label for="tgl_mengakhiri">Tanggal Mengakhiri</label>
+                            <input type="date" class="form-control" id="tgl_mengakhiri" name="tgl_mengakhiri">
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="alasan_mengakhiri">Alasan Mengakhiri</label>
+                            <textarea class="form-control" id="alasan_mengakhiri" name="alasan_mengakhiri" rows="3"></textarea>
                         </div>
                     </div>
 
@@ -561,6 +571,28 @@
         });
     });
 
+    $('#actionType').change(function() {
+        var actionType = $(this).val();
+        $('#extendFields').hide();
+        $('#peningkatanFields').hide();
+        $('#tidakLanjutFields').hide();
+        $('#mengakhiriFields').hide();
+
+        switch(actionType) {
+            case 'extend':
+                $('#extendFields').show();
+                break;
+            case 'peningkatan':
+                $('#peningkatanFields').show();
+                break;
+            case 'tidak_lanjut':
+                $('#tidakLanjutFields').show();
+                break;
+            case 'mengakhiri':
+                $('#mengakhiriFields').show();
+                break;
+        }
+    });
 
 
     $(function() {
@@ -657,13 +689,6 @@
                 // Handle form submission
                 $('#formEditContract').on('submit', function(event) {
                     var reasoning = $('#reasoning').val().trim();
-                    // var salaryInput = $('#salaryedit');
-                    // var salary = salaryInput.val().replace(/[^\d]/g, ''); // Remove all non-digit characters
-
-                    // let salaryField = document.getElementById('salaryedit');
-                    // salaryField.value = salaryField.value.replace(/[^\d]/g, '');
-
-                    // Check if reasoning is empty
                     if (reasoning === "") {
                         event.preventDefault(); // Prevent form submission
                         Swal.fire({
@@ -676,44 +701,10 @@
                         });
                     }
                 });
-
-                // $('#salaryedit').on('input', function(e) {
-                //     let value = e.target.value.replace(/[^\d]/g, ''); // Remove all non-digit characters
-
-                //     if (value) {
-                //         e.target.value = 'Rp ' + parseInt(value, 10).toLocaleString('id-ID');
-                //     } else {
-                //         e.target.value = ''; // Clear the input if there's no value
-                //     }
-                // });
-
-                // Initialize the input field correctly
-                // $(document).ready(function() {
-                //     let salaryInput = $('#salary');
-                //     let initialValue = salaryInput.val().replace(/[^\d]/g, '');
-                //     if (initialValue) {
-                //         salaryInput.val('Rp ' + parseInt(initialValue, 10).toLocaleString('id-ID'));
-                //     }
-                // });
             } else {
                 console.log('Form Contract not found'); // Debugging
             }
         }
-
-
-
-        // document.getElementById('salary').addEventListener('input', function(e) {
-        //     // Remove any non-digit characters and format the number as currency
-        //     let value = e.target.value.replace(/[^\d]/g, ''); // Remove all non-digit characters
-
-        //     // Convert the cleaned-up string back to an integer
-        //     if (value) {
-        //         // Format as currency using Indonesian Rupiah style
-        //         e.target.value = 'Rp ' + parseInt(value, 10).toLocaleString('id-ID');
-        //     } else {
-        //         e.target.value = ''; // Clear the input if there's no value
-        //     }
-        // });
 
 
         $('#nik').on('blur', function() {
@@ -752,7 +743,7 @@
 
                         if (response.length > 0) {
                             response.forEach(function(employee) {
-                                dropdownMenu.append('<a class="dropdown-item" href="#" data-nik="' + employee.nik + '" data-tgl="' + employee.tgl_masuk + '">' + employee.nama_lengkap + '</a>');
+                                dropdownMenu.append('<a class="dropdown-item" href="#" data-nik="' + employee.nik + '" data-tgl="' + employee.tgl_masuk + '" data-position="' + employee.position + '">' + employee.nama_lengkap + '</a>');
                             });
 
                             dropdownMenu.show();
@@ -772,11 +763,12 @@
             var selectedName = $(this).text();
             var selectedNIK = $(this).data('nik');
             var selectedTgl = $(this).data('tgl');
+            var selectedPosition = $(this).data('position');
 
             $('#nama_lengkap').val(selectedName);
             $('#nik').val(selectedNIK); // Assuming you want to set employee ID to another field like 'nik'
             $('#start_date').val(selectedTgl); // Assuming you want to set employee ID to another field like 'nik'
-
+            $('#position').val(selectedPosition); // Assuming you want to set employee ID to another field like 'nik'
             $('#employeeList').hide();
         });
 
@@ -843,25 +835,6 @@
                 }
             });
         });
-
-        // $(".print-confirm").click(function(e) {
-        //     var form = $(this).closest('form');
-        //     e.preventDefault();
-        //     Swal.fire({
-        //         title: "Apakah Yakin?",
-        //         text: "Kontrak Akan Ke Print!",
-        //         icon: "info",
-        //         showCancelButton: true,
-        //         confirmButtonColor: "#3085d6",
-        //         cancelButtonColor: "#d33",
-        //         confirmButtonText: "Continue"
-        //     }).then((result) => {
-        //         if (result.isConfirmed) {
-        //             form.submit();
-        //         }
-        //     });
-        // });
-
         $('#formContract').submit(function() {
             // let salaryField = document.getElementById('salary');
             // salaryField.value = salaryField.value.replace(/[^\d]/g, '');
