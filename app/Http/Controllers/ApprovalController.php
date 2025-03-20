@@ -55,7 +55,7 @@ class ApprovalController extends Controller
         WHEN pengajuan_izin.status_approved = 0 AND pengajuan_izin.status_approved_hrd = 0 THEN 0
         ELSE 1
     END ASC'
-        );
+        )->orderBy('nama_atasan', 'asc'); // Order by atasan name in ascending order
 
         // Apply filters
         if (!empty($request->dari) && !empty($request->sampai)) {
@@ -85,6 +85,7 @@ class ApprovalController extends Controller
 
         $izin = DB::table('pengajuan_izin')->where('id', $id)->first();
         $nik = $izin->nik;
+        $nip = $izin->nip;
         $tgl_izin = Carbon::parse($izin->tgl_izin);
         $tgl_izin_akhir = Carbon::parse($izin->tgl_izin_akhir);
         $jml_hari = $izin->jml_hari;
@@ -108,44 +109,24 @@ class ApprovalController extends Controller
         // Handle Potong Cuti
         if ($keputusan === 'Potong Cuti') {
             $potongcuti = $request->potongcuti;
-            $tgl_potong = Carbon::parse($request->tgl_potong);
-            $tgl_potong_sampai = Carbon::parse($request->tgl_potong_sampai);
-            $keputusan_potong = $request->keputusan_potong;
+            // Deduct leave balance
+            $cuti = DB::table('cuti')->where('nik', $nik)->where('status', 1)->first();
+            if ($cuti) {
+                // Log before update
+                Log::info("Before update - Cuti ID: {$cuti->id}, Current sisa_cuti: {$cuti->sisa_cuti}, Will deduct: {$potongcuti}");
 
-            if ($keputusan_potong !== 'Potong Cuti') {
-                // Adjust leave dates
-                if ($tgl_potong->eq($tgl_izin)) {
-                    $updateData['tgl_izin'] = $tgl_potong_sampai->copy()->addDay();
-                } elseif ($tgl_potong_sampai->eq($tgl_izin_akhir)) {
-                    $updateData['tgl_izin_akhir'] = $tgl_potong->copy()->subDay();
-                }
-
-                $updateData['jml_hari'] = $izin->jml_hari - $potongcuti;
-            }
-
-            // Insert cut leave record
-            DB::table('pengajuan_izin')->insert([
-                'nik' => $nik,
-                'tgl_izin' => $tgl_potong,
-                'tgl_izin_akhir' => $tgl_potong_sampai,
-                'jml_hari' => $potongcuti,
-                'foto' => 'No Document',
-                'tgl_create' => $currentDate,
-                'status' => 'Tmk',
-                'keterangan' => $keterangan,
-                'keputusan' => 'Potong Cuti',
-                'status_approved' => 0,
-                'status_approved_hrd' => 0,
-            ]);
-
-            // Deduct leave balance if approved
-            if ($status_approved_hrd == 1) {
-                $cuti = DB::table('cuti')->where('nik', $nik)->where('status', 1)->first();
-                if ($cuti) {
-                    DB::table('cuti')->where('id', $cuti->id)->update([
-                        'sisa_cuti' => $cuti->sisa_cuti - $potongcuti
+                // Use the specific cuti ID to update
+                $updated = DB::table('cuti')
+                    ->where('id', $cuti->id)
+                    ->update([
+                        'sisa_cuti' => DB::raw('sisa_cuti - ' . $potongcuti)
                     ]);
-                }
+
+                // Log after update
+                $updatedCuti = DB::table('cuti')->find($cuti->id);
+                Log::info("After update - Updated: {$updated}, New sisa_cuti: {$updatedCuti->sisa_cuti}");
+            } else {
+                Log::warning("No active cuti record found for NIK: {$nik}");
             }
         }
 
@@ -216,7 +197,7 @@ class ApprovalController extends Controller
             try {
                 Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $currentDate, $foto, $nik) {
 
-                    $message->to($atasan->email)
+                    $message->to('chandrazahran@gmail.com')
                         ->subject("Pengajuan Izin Dari {$nama_lengkap} - {$currentDate->format('Y-m-d H:i:s')}")
                         ->priority(1);
 
@@ -419,7 +400,10 @@ class ApprovalController extends Controller
         $query->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
         $query->join('jabatan as current_jabatan', 'karyawan.jabatan', '=', 'current_jabatan.id');
         $query->leftJoin('jabatan as superior_jabatan', 'current_jabatan.jabatan_atasan', '=', 'superior_jabatan.id');
-        $query->leftJoin('karyawan as superior', 'superior.jabatan', '=', 'superior_jabatan.id');
+        $query->leftJoin('karyawan as superior', function ($join) {
+            $join->on('superior.jabatan', '=', 'superior_jabatan.id')
+                ->where('superior.status_kar', 'Aktif'); // Ensure atasan is active
+        });
         $query->leftJoin('tipe_cuti', 'pengajuan_cuti.tipe', '=', 'tipe_cuti.id_tipe_cuti');
 
         $query->select(
@@ -437,7 +421,7 @@ class ApprovalController extends Controller
             WHEN status_approved = 0 AND status_approved_hrd = 0 AND status_management = 0 THEN 0
             ELSE 1
         END ASC'
-        );
+        )->orderBy('nama_atasan', 'asc'); // Order by atasan name in ascending order
 
         // Apply date filter
         if (!empty($request->dari) && !empty($request->sampai)) {

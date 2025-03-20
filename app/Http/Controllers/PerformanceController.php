@@ -19,27 +19,60 @@ class PerformanceController extends Controller
 {
     public function notification()
     {
-        // Calculate the current date
         $today = Carbon::now();
+        $threeMonthsFromNow = $today->copy()->addMonths(3);
 
-        // Get contracts ending within 1, 2, or 3 months from today
-        $contracts = DB::table('kontrak')
+        // Get all active contracts
+        $allContracts = DB::table('kontrak')
             ->join('karyawan', 'kontrak.nik', '=', 'karyawan.nik')
-            ->select('kontrak.no_kontrak', 'kontrak.end_date', 'karyawan.nama_lengkap', 'kontrak.nik', 'kontrak.position', 'kontrak.id')
+            ->select(
+                'kontrak.no_kontrak',
+                'kontrak.start_date',
+                'kontrak.end_date',
+                'karyawan.nama_lengkap',
+                'kontrak.nik',
+                'kontrak.position',
+                'kontrak.id'
+            )
             ->where('kontrak.status', 'Active')
-            ->orderBy('kontrak.end_date') // Order by end_date to get the soonest ending contracts first
+            ->where('karyawan.status_kar', 'Aktif')
+            ->orderBy('kontrak.start_date')
             ->get();
 
-        // Calculate days remaining for each contract and filter contracts to only show those with end dates within the next 3 months
-        foreach ($contracts as $contract) {
+        // Separate contracts into end date notifications and 3-month evaluations
+        $contracts = collect();
+        $evaluationContracts = collect();
+
+        foreach ($allContracts as $contract) {
             $end_date = Carbon::parse($contract->end_date);
-            $contract->days_left = $today->diffInDays($end_date, false); // Calculate remaining days
+            $start_date = Carbon::parse($contract->start_date);
+            $three_month_date = $start_date->copy()->addMonths(3);
+
+            // Calculate days until contract ends
+            $days_until_end = $today->diffInDays($end_date, false);
+
+            // Calculate days until 3-month evaluation
+            $days_until_evaluation = $today->diffInDays($three_month_date, false);
+
+            // For contracts nearing end date
+            if ($days_until_end > 0 && $days_until_end <= 90) {
+                $contract->days_left = $days_until_end;
+                $contract->notification_type = 'end_contract';
+                $contracts->push($contract);
+            }
+
+            // For contracts needing 3-month evaluation
+            // Only show if evaluation date is within the next 3 months
+            if ($days_until_evaluation > 0 && $three_month_date->lte($threeMonthsFromNow)) {
+                $contract->days_left = $days_until_evaluation;
+                $contract->notification_type = 'evaluation';
+                $evaluationContracts->push($contract);
+            }
         }
 
-        $hrd = Karyawan::whereIn('jabatan', [25, 47])
-        ->get();
+        $hrd = Karyawan::whereIn('jabatan', [25, 47])->get();
 
-        return view('performance.notification', compact('contracts', 'hrd'));
+        return view('performance.notification', compact('contracts', 'evaluationContracts', 'hrd'));
     }
 
     public function dashboard()

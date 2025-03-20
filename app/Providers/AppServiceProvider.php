@@ -29,16 +29,6 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') === 'local') {
             DB::connection('mysql2')->enableQueryLog();
         }
-
-        // Add query time logging in local environment
-        DB::listen(function ($query) {
-            if ($query->time > 100) { // Log queries that take more than 100ms
-                Log::channel('queries')->info(
-                    $query->sql,
-                    ['bindings' => $query->bindings, 'time' => $query->time]
-                );
-            }
-        });
         // Enable query caching
         DB::connection('mysql2')->getPdo()->setAttribute(
             PDO::ATTR_EMULATE_PREPARES,
