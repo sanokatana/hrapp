@@ -201,7 +201,7 @@ class ApprovalController extends Controller
             try {
                 Mail::html($emailContent, function ($message) use ($atasan, $nama_lengkap, $currentDate, $foto, $nik) {
 
-                    $message->to('chandrazahran@gmail.com')
+                    $message->to($atasan->email)
                         ->subject("Pengajuan Izin Dari {$nama_lengkap} - {$currentDate->format('Y-m-d H:i:s')}")
                         ->priority(1);
 
