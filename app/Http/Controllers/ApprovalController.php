@@ -85,7 +85,6 @@ class ApprovalController extends Controller
 
         $izin = DB::table('pengajuan_izin')->where('id', $id)->first();
         $nik = $izin->nik;
-        $nip = $izin->nip;
         $tgl_izin = Carbon::parse($izin->tgl_izin);
         $tgl_izin_akhir = Carbon::parse($izin->tgl_izin_akhir);
         $jml_hari = $izin->jml_hari;
@@ -108,21 +107,26 @@ class ApprovalController extends Controller
 
         // Handle Potong Cuti
         if ($keputusan === 'Potong Cuti') {
-            $potongcuti = $request->potongcuti;
-            // Deduct leave balance
+            $potongcuti = $izin->jml_hari;
+
+            // Pastikan $potongcuti bernilai valid
+            if (!is_numeric($potongcuti) || $potongcuti <= 0) {
+                Log::error("Invalid potongcuti value: {$potongcuti} for NIK: {$nik}");
+                return back()->with('error', 'Jumlah potong cuti tidak valid.');
+            }
+
+            // Ambil data cuti
             $cuti = DB::table('cuti')->where('nik', $nik)->where('status', 1)->first();
             if ($cuti) {
-                // Log before update
                 Log::info("Before update - Cuti ID: {$cuti->id}, Current sisa_cuti: {$cuti->sisa_cuti}, Will deduct: {$potongcuti}");
 
-                // Use the specific cuti ID to update
                 $updated = DB::table('cuti')
                     ->where('id', $cuti->id)
                     ->update([
-                        'sisa_cuti' => DB::raw('sisa_cuti - ' . $potongcuti)
+                        'sisa_cuti' => DB::raw('sisa_cuti - ' . (int)$potongcuti) // Perbolehkan nilai negatif
                     ]);
 
-                // Log after update
+                // Ambil kembali data setelah update
                 $updatedCuti = DB::table('cuti')->find($cuti->id);
                 Log::info("After update - Updated: {$updated}, New sisa_cuti: {$updatedCuti->sisa_cuti}");
             } else {
