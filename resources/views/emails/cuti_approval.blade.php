@@ -7,26 +7,26 @@
     <p><strong>Approved Leave</strong></p>
     <p><strong>Pengajuan Cuti Karyawan</strong></p>
 
-    <p><strong>Nama:</strong> {{ $leaveApplication->nama_karyawan }}</p>
-    <p><strong>NIK:</strong> {{ $leaveApplication->nik }}</p>
+    <p><strong>Nama:</strong> {{ $leaveApplication->nama_karyawan ?? 'N/A' }}</p>
+    <p><strong>NIK:</strong> {{ $leaveApplication->nik ?? 'N/A' }}</p>
 
-    @if($leaveApplication->jenis_cuti == 'Cuti Tahunan')
-        <p><strong>Periode Cuti:</strong> {{ $leaveApplication->periode }}</p>
-        <p><strong>Sisa Cuti:</strong> {{ $leaveApplication->sisa_cuti }}</p>
+    @if(isset($leaveApplication->jenis_cuti) && $leaveApplication->jenis_cuti == 'Cuti Tahunan')
+        <p><strong>Periode Cuti:</strong> {{ $leaveApplication->periode ?? 'N/A' }}</p>
+        <p><strong>Sisa Cuti:</strong> {{ $leaveApplication->sisa_cuti ?? 'N/A' }}</p>
     @endif
 
-    <p><strong>Tanggal Cuti:</strong> {{ \App\Helpers\DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti) }}</p>
+    <p><strong>Tanggal Cuti:</strong> {{ isset($leaveApplication->tgl_cuti) ? \App\Helpers\DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti) : 'N/A' }}</p>
     <p><strong>Tanggal Cuti Sampai:</strong>
-        {{ !empty($leaveApplication->tgl_cuti_sampai) ? \App\Helpers\DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti_sampai) : '' }}
+        {{ isset($leaveApplication->tgl_cuti_sampai) ? \App\Helpers\DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti_sampai) : 'N/A' }}
     </p>
-    <p><strong>Jumlah Hari:</strong> {{ $leaveApplication->jml_hari }}</p>
+    <p><strong>Jumlah Hari:</strong> {{ $leaveApplication->jml_hari ?? 'N/A' }}</p>
 
-    @if($leaveApplication->jenis_cuti == 'Cuti Tahunan')
-        <p><strong>Sisa Cuti Setelah:</strong> {{ $leaveApplication->sisa_cuti_setelah }}</p>
-        <p><strong>Karyawan Pengganti:</strong> {{ $leaveApplication->kar_ganti }}</p>
+    @if(isset($leaveApplication->jenis_cuti) && $leaveApplication->jenis_cuti == 'Cuti Tahunan')
+        <p><strong>Sisa Cuti Setelah:</strong> {{ $leaveApplication->sisa_cuti_setelah ?? 'N/A' }}</p>
+        <p><strong>Karyawan Pengganti:</strong> {{ $leaveApplication->kar_ganti ?? 'N/A' }}</p>
     @endif
 
-    <p><strong>Note:</strong> {{ $leaveApplication->note }}</p>
+    <p><strong>Note:</strong> {{ $leaveApplication->note ?? 'N/A' }}</p>
 
     @if($showApprovalButtons)
         <br>

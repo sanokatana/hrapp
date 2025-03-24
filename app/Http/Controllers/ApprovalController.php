@@ -487,6 +487,17 @@ class ApprovalController extends Controller
         $leaveApplication = DB::table('pengajuan_cuti')->where('id', $id)->first();
 
         if ($leaveApplication && $status_approved_hrd == 2) {
+            // Update all approval statuses to denied
+            DB::table('pengajuan_cuti')
+                ->where('id', $id)
+                ->update([
+                    'status_approved' => 2,
+                    'status_management' => 2,
+                    'tgl_status_approved' => $currentDate,
+                    'tgl_status_management' => $currentDate
+                ]);
+
+            // Handle cuti record updates
             $cutiRecord = DB::table('cuti')->where('nik', $nik)->where('tahun', $periode)->first();
             $newSisaCuti = $cutiRecord->sisa_cuti + $leaveApplication->jml_hari;
 
