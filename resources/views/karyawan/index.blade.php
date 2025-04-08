@@ -69,10 +69,10 @@ use App\Helpers\DateHelper;
                                     </svg>
                                     Add Data
                                 </a>
-                                <a href="#" class="btn btn-primary" id="btnUploadCSV">
+                                <a href="#" class="btn btn-orange" id="btnUploadCSV">
                                     Upload CSV
                                 </a>
-                                <a href="/karyawan/export" class="btn btn-primary">
+                                <a href="/karyawan/export" class="btn btn-green">
                                     Export CSV
                                 </a>
                             </div>

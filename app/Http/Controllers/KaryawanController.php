@@ -17,6 +17,7 @@ use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\KaryawanExport;
 use App\Models\Contract;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\ImageManagerStatic as Image;
@@ -442,7 +443,8 @@ class KaryawanController extends Controller
 
     public function export()
     {
-        return Excel::download(new KaryawanExport, 'karyawan.xlsx');
+        $date = Carbon::now()->format('d-m-Y');
+        return Excel::download(new KaryawanExport, "DATABASE CHL - {$date}.xlsx");
     }
 
     public function resign(Request $request, $id)
