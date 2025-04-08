@@ -99,7 +99,19 @@ class PerformanceController extends Controller
         $statusStats = $this->getStatusDistribution();
 
         // Get recent contracts
-        $recentContracts = Contract::orderBy('id', 'desc')
+        $recentContracts = DB::table('kontrak')
+            ->join('karyawan', 'kontrak.nik', '=', 'karyawan.nik')
+            ->leftJoin('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+            ->select(
+                'karyawan.nama_lengkap',
+                'kontrak.no_kontrak',
+                'kontrak.start_date',
+                'kontrak.end_date',
+                'jabatan.nama_jabatan as position',
+                'kontrak.status'
+            )
+            ->where('kontrak.status', 'Active')
+            ->orderBy('kontrak.id', 'desc')
             ->limit(10)
             ->get();
 
@@ -115,34 +127,42 @@ class PerformanceController extends Controller
     }
 
     private function getMonthlyTrends()
-    {
-        $months = [];
-        $newContracts = [];
-        $endingContracts = [];
+{
+    $months = [];
+    $newContracts = [];
+    $endingContracts = [];
 
-        // Get data for the last 12 months
-        for ($i = 11; $i >= 0; $i--) {
-            $date = Carbon::now()->subMonths($i);
-            $monthYear = $date->format('M Y');
-            $months[] = $monthYear;
+    // Get current date and last year
+    $currentDate = Carbon::now();
+    $startDate = Carbon::createFromDate($currentDate->year - 1, 1, 1); // January of last year
+    $endDate = Carbon::createFromDate($currentDate->year, 12, 31);     // December of current year
 
-            // Count new contracts
-            $newContracts[] = Contract::whereYear('start_date', $date->year)
-                ->whereMonth('start_date', $date->month)
-                ->count();
+    // Get data for all months in the range
+    $currentMonth = $startDate->copy();
+    while ($currentMonth->lte($endDate)) {
+        // Add month to array
+        $months[] = $currentMonth->format('M Y');
 
-            // Count ending contracts
-            $endingContracts[] = Contract::whereYear('end_date', $date->year)
-                ->whereMonth('end_date', $date->month)
-                ->count();
-        }
+        // Count new contracts
+        $newContracts[] = Contract::whereYear('start_date', $currentMonth->year)
+            ->whereMonth('start_date', $currentMonth->month)
+            ->count();
 
-        return [
-            'months' => $months,
-            'new' => $newContracts,
-            'ending' => $endingContracts
-        ];
+        // Count ending contracts
+        $endingContracts[] = Contract::whereYear('end_date', $currentMonth->year)
+            ->whereMonth('end_date', $currentMonth->month)
+            ->count();
+
+        // Move to next month
+        $currentMonth->addMonth();
     }
+
+    return [
+        'months' => $months,
+        'new' => $newContracts,
+        'ending' => $endingContracts
+    ];
+}
 
     private function getStatusDistribution()
     {

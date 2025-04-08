@@ -108,7 +108,7 @@
         <!-- Charts Row -->
         <div class="row mt-4">
             <!-- Monthly Contract Trends -->
-            <div class="col-lg-8">
+            <div class="col-lg-12">
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Monthly Contract Trends</h3>
@@ -120,7 +120,7 @@
             </div>
 
             <!-- Contract Status Distribution -->
-            <div class="col-lg-4">
+            <div class="col-lg-12 mt-4">
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Contract Status Distribution</h3>
