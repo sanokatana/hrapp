@@ -376,7 +376,8 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::post('/sk/view', [SkController::class, 'view']);
     Route::post('/sk/{id}/update', [SkController::class, 'update']);
     Route::post('/sk/{id}/delete', [SkController::class, 'delete']);
-    Route::post('/sk/{id}/print', [SkController::class, 'printContract']);
+    // Route::post('/sk/{id}/print', [SkController::class, 'printContract']);
+    Route::match(['get', 'post'], '/sk/{id}/print', [SkController::class, 'printContract']);
 
     //Performance
     Route::get('/performance/dashboard', [PerformanceController::class, 'dashboard'])->name('performance.dashboard');

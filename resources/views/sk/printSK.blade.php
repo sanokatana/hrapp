@@ -5,7 +5,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>9dad3cfa-7b10-4909-b305-cb5dde1d4ed3</title>
-    <meta name="author" content="Theresia Roelen" />
+    <meta name="author" content="CHL" />
     <style type="text/css">
         * {
             margin: 0;
@@ -107,7 +107,7 @@
     <div class="centered">
         <img src="{{ asset('assets/img/logoDoc.png') }}" alt="image" />
         <div>
-            <h1>PT BANGUN INDAH HARMONI</h1>
+            <h1>PT {{ strtoupper($ptDetails->long_name ?? 'BANGUN INDAH HARMONI') }}</h1>
             <p class="s1">Alamat : Pisa Grande Blok C 35-38 Jl. Boulevard Raya Gading Serpong </p>
             <p class="s1">Klp. Dua, Kec. Klp. Dua,
                 Tangerang, Banten 15810</p>

@@ -168,6 +168,7 @@ class SkController extends Controller
     public function printContract($id, Request $request)
     {
         $print_type = $request->print_type ?? 'sk';
+        $autoPrint = $request->autoPrint ?? true;  // Default to true for backward compatibility
 
         $sk = DB::table('tb_sk')
             ->select(
@@ -186,17 +187,23 @@ class SkController extends Controller
             ->where('tb_sk.id', $id)
             ->first();
 
+        // Fetch PT details from tb_pt table
+        $ptDetails = DB::table('tb_pt')
+            ->where('short_name', $sk->nama_pt)
+            ->first();
+
         $dateNow = DateHelper::formatIndonesiaDate($sk->tgl_sk);
         $namaJabatan = DB::table('jabatan')
-        ->where('id', $sk->jabatan)
-        ->first();
+            ->where('id', $sk->jabatan)
+            ->first();
+
         // Determine which view to use based on print_type
         if ($print_type === 'iom') {
             // For IOM PGT
-            return view('sk.print', compact('sk', 'dateNow', 'namaJabatan'));
+            return view('sk.print', compact('sk', 'dateNow', 'namaJabatan', 'ptDetails', 'autoPrint'));
         } else {
             // For regular SK
-            return view('sk.printSK', compact('sk', 'dateNow', 'namaJabatan'));
+            return view('sk.printSK', compact('sk', 'dateNow', 'namaJabatan', 'ptDetails', 'autoPrint'));
         }
     }
 }

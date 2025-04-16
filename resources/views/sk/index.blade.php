@@ -575,47 +575,53 @@
         });
 
         $('.print-options').click(function(e) {
-            e.preventDefault();
-            var skId = $(this).closest('form').find('.sk-id').val();
-            $('#printOptionsForm').attr('action', '/sk/' + skId + '/print');
-            $('#modal-print-options').modal('show');
-        });
+    e.preventDefault();
+    var skId = $(this).closest('form').find('.sk-id').val();
+    $('#modal-print-options').data('sk-id', skId);
+    $('#modal-print-options').modal('show');
+});
 
-        // Print SK
-        $('.print-sk').click(function() {
-            $('#print_type').val('sk');
-            Swal.fire({
-                title: "Apakah Yakin?",
-                text: "SK Akan Di Print!",
-                icon: "info",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Continue"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $('#printOptionsForm').submit();
-                }
-            });
-        });
+// Print SK
+$('.print-sk').click(function() {
+    var skId = $('#modal-print-options').data('sk-id');
 
-        // Print IOM
-        $('.print-iom').click(function() {
-            $('#print_type').val('iom');
-            Swal.fire({
-                title: "Apakah Yakin?",
-                text: "IOM PGT Akan Di Print!",
-                icon: "info",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Continue"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $('#printOptionsForm').submit();
-                }
-            });
-        });
+    Swal.fire({
+        title: "Apakah Yakin?",
+        text: "SK Akan Di Print!",
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Continue"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Open in new tab instead of form submission
+            window.open('/sk/' + skId + '/print?print_type=sk', '_blank');
+            $('#modal-print-options').modal('hide');
+        }
+    });
+});
+
+// Print IOM
+$('.print-iom').click(function() {
+    var skId = $('#modal-print-options').data('sk-id');
+
+    Swal.fire({
+        title: "Apakah Yakin?",
+        text: "IOM PGT Akan Di Print!",
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Continue"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Open in new tab instead of form submission
+            window.open('/sk/' + skId + '/print?print_type=iom', '_blank');
+            $('#modal-print-options').modal('hide');
+        }
+    });
+});
 
         $('#formSK').submit(function() {
             var nik = $('#nik').val();

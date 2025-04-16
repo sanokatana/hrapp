@@ -65,6 +65,12 @@
             overflow: visible;
         }
     </style>
+    <script>
+        // Trigger print dialog on page load
+        window.onload = function() {
+            window.print();
+        };
+    </script>
 </head>
 
 <body style="margin-right: 35px;margin-left: 35px">
@@ -176,21 +182,17 @@
             </td>
         </tr>
         <tr style="height:30pt">
-            <td
-                style="width:101pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                <p class="s4" style="padding-top: 8pt;text-indent: 0pt;text-align: center;">Mochammad Zicki D</p>
+            <td style="width:101pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
+                <p class="s4" style="text-indent: 0pt;text-align: center;">Mochammad Zicki D</p>
             </td>
-            <td
-                style="width:129pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                <p class="s4" style="padding-top: 8pt;padding-left: 22pt;text-indent: 0pt;text-align: left;">{{$sk->diketahui}}</p>
+            <td style="width:129pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
+                <p class="s4" style="text-indent: 0pt;text-align: center;">{{$sk->diketahui}}</p>
             </td>
-            <td
-                style="width:123pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                <p class="s4" style="padding-top: 8pt;text-indent: 0pt;text-align: center;">Al Imron</p>
+            <td style="width:123pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
+                <p class="s4" style="text-indent: 0pt;text-align: center;">Al Imron</p>
             </td>
-            <td
-                style="width:122pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                <p class="s4" style="padding-top: 8pt;text-indent: 0pt;text-align: center;">Johannes Tanuwijaya</p>
+            <td style="width:122pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
+                <p class="s4" style="text-indent: 0pt;text-align: center;">Johannes Tanuwijaya</p>
             </td>
         </tr>
     </table>
