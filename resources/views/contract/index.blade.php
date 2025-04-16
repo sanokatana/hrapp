@@ -479,7 +479,7 @@
                         </div>
                         <div class="form-group mt-3">
                             <label for="masa_probation">Masa Probation</label>
-                            <input type="number" class="form-control" id="masa_probation" name="masa_probation">
+                            <input type="text" class="form-control" id="masa_probation" name="masa_probation">
                         </div>
                         <div class="form-group mt-3">
                             <label for="diketahui">Diketahui Oleh</label>

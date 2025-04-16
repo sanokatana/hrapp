@@ -252,6 +252,13 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::post('/konfigurasi/jabatan/{id}/update', [KonfigurasiController::class, 'jabatanupdate'])->name('jabatan.update');
     Route::post('/konfigurasi/jabatan/{id_tipe_cuti}/delete', [KonfigurasiController::class, 'jabatandelete']);
 
+    //Konfigurasi PT
+    Route::get('/konfigurasi/pt', [KonfigurasiController::class, 'pt']);
+    Route::post('/konfigurasi/pt/store', [KonfigurasiController::class, 'ptstore']);
+    Route::post('/konfigurasi/pt/edit', [KonfigurasiController::class, 'ptedit']);
+    Route::post('/konfigurasi/pt/{id}/update', [KonfigurasiController::class, 'ptupdate'])->name('pt.update');
+    Route::post('/konfigurasi/pt/{id_tipe_cuti}/delete', [KonfigurasiController::class, 'ptdelete']);
+
     //Konfigurasi Libur Nasional
     Route::get('/konfigurasi/libur-nasional', [KonfigurasiController::class, 'libur']);
     Route::post('/konfigurasi/libur-nasional/store', [KonfigurasiController::class, 'liburstore']);

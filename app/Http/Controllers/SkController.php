@@ -165,30 +165,38 @@ class SkController extends Controller
         }
     }
 
-    public function printContract($id)
+    public function printContract($id, Request $request)
     {
+        $print_type = $request->print_type ?? 'sk';
+
         $sk = DB::table('tb_sk')
-        ->select(
-            'tb_sk.*',
-            'karyawan.nama_lengkap',
-            'karyawan.jabatan',
-            'karyawan.tgl_masuk',
-            'karyawan.grade',
-            'karyawan.kode_dept',
-            'jabatan.nama_jabatan' // Get nama_jabatan directly
-        )
-        ->join('karyawan', 'tb_sk.nik', '=', 'karyawan.nik')
-        ->leftJoin('jabatan', 'karyawan.jabatan', '=', 'jabatan.id') // Join to get nama_jabatan
-        ->where('tb_sk.id', $id)
-        ->first();
+            ->select(
+                'tb_sk.*',
+                'karyawan.nama_lengkap',
+                'karyawan.jabatan',
+                'karyawan.tgl_masuk',
+                'karyawan.grade',
+                'karyawan.nama_pt',
+                'karyawan.tgl_masuk',
+                'karyawan.kode_dept',
+                'jabatan.nama_jabatan'
+            )
+            ->join('karyawan', 'tb_sk.nik', '=', 'karyawan.nik')
+            ->leftJoin('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+            ->where('tb_sk.id', $id)
+            ->first();
 
         $dateNow = DateHelper::formatIndonesiaDate($sk->tgl_sk);
-
         $namaJabatan = DB::table('jabatan')
         ->where('id', $sk->jabatan)
         ->first();
-        // Pass data to the view
-
-        return view('sk.printSK', compact('sk', 'dateNow', 'namaJabatan'));
+        // Determine which view to use based on print_type
+        if ($print_type === 'iom') {
+            // For IOM PGT
+            return view('sk.print', compact('sk', 'dateNow', 'namaJabatan'));
+        } else {
+            // For regular SK
+            return view('sk.printSK', compact('sk', 'dateNow', 'namaJabatan'));
+        }
     }
 }

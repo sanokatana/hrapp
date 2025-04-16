@@ -431,6 +431,46 @@ class PerformanceController extends Controller
         }
     }
 
+    private function generateSKNumber($nik)
+    {
+        // Get employee data
+        $karyawan = DB::table('karyawan')
+            ->where('nik', $nik)
+            ->where('status_kar', 'Aktif')
+            ->first();
+
+        if (!$karyawan) {
+            throw new Exception("Employee not found with NIK: $nik");
+        }
+
+        // Get the last SK number
+        $lastSK = DB::table('tb_sk')
+            ->orderBy('id', 'desc')
+            ->value('no_sk');
+
+        // Extract the number from last SK
+        if ($lastSK) {
+            $parts = explode('/', $lastSK);
+            $lastNumber = (int)$parts[0];
+            $nextNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
+        } else {
+            $nextNumber = '001';
+        }
+
+        // Get current month as Roman numeral
+        $currentMonth = date('n');
+        $romanMonths = [
+            1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV',
+            5 => 'V', 6 => 'VI', 7 => 'VII', 8 => 'VIII',
+            9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'
+        ];
+        $romanMonth = $romanMonths[$currentMonth];
+        $currentYear = date('Y');
+
+        // Generate the SK number
+        return "{$nextNumber}/{$karyawan->nama_pt}-HRD/SK.Pgt/{$romanMonth}/{$currentYear}";
+    }
+
     private function generateContractNumber()
     {
         $user = Auth::guard('user')->user();

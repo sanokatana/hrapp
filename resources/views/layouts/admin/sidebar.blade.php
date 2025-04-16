@@ -755,6 +755,10 @@
                                     href="/konfigurasi/lokasikantor">
                                     Lokasi Kantor
                                 </a>
+                                <a class="dropdown-item {{request()->is(['konfigurasi/pt']) ? 'active' : ''}}"
+                                    href="/konfigurasi/pt">
+                                    Table PT
+                                </a>
                             </div>
                         </div>
                     </div>

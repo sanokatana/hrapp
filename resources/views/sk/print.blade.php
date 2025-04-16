@@ -119,38 +119,25 @@
             </td>
         </tr>
         <tr style="height:45pt">
-            <td
-                style="width:35pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                <p style="padding-top: 2pt;text-indent: 0pt;text-align: left;"><br /></p>
-                <p class="s2" style="text-indent: 0pt;text-align: center;">1</p>
-            </td>
-            <td
-                style="width:129pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                <p style="padding-top: 2pt;text-indent: 0pt;text-align: left;"><br /></p>
-                <p class="s3" style="text-indent: 0pt;text-align: center;">{{$sk->nama_lengkap}}</p>
-            </td>
-            <td
-                style="width:41pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                <p style="padding-top: 2pt;text-indent: 0pt;text-align: left;"><br /></p>
-                <p class="s2" style="padding-left: 12pt;text-indent: 0pt;text-align: left;">{{$sk->nama_pt}}</p>
-            </td>
-            <td
-                style="width:88pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                <p style="padding-top: 2pt;text-indent: 0pt;text-align: left;"><br /></p>
-                <p class="s2" style="padding-left: 13pt;text-indent: 0pt;text-align: left;">{{$dateNow1}}</p>
-            </td>
-            <td
-                style="width:73pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                <p class="s2" style="padding-top: 8pt;padding-left: 21pt;text-indent: -13pt;text-align: left;">
-                    {{$namaJabatan->nama_jabatan}}</p>
-            </td>
-            <td
-                style="width:112pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                <p class="s2"
-                    style="padding-top: 8pt;padding-left: 16pt;padding-right: 15pt;text-indent: 11pt;text-align: left;">
-                    {{$sk->masa_probation}}</p>
-            </td>
-        </tr>
+        <td style="width:35pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
+            <p class="s2" style="text-indent: 0pt;text-align: center;">1</p>
+        </td>
+        <td style="width:129pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
+            <p class="s3" style="text-indent: 0pt;text-align: center;">{{$sk->nama_lengkap}}</p>
+        </td>
+        <td style="width:41pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
+            <p class="s2" style="text-indent: 0pt;text-align: center;">{{$sk->nama_pt}}</p>
+        </td>
+        <td style="width:88pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
+            <p class="s2" style="text-indent: 0pt;text-align: center;">{{$sk->tgl_masuk}}</p>
+        </td>
+        <td style="width:73pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
+            <p class="s2" style="text-indent: 0pt;text-align: center;">{{$namaJabatan->nama_jabatan}}</p>
+        </td>
+        <td style="width:112pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
+            <p class="s2" style="text-indent: 0pt;text-align: center;">{{$sk->masa_probation}}</p>
+        </td>
+    </tr>
     </table>
     <p style="padding-top: 13pt;padding-left: 7pt;text-indent: 0pt;text-align: justify;">Demikian permohonan ini kami
         sampaikan, atas persetujuannya Bapak kami ucapkan terima kasih.</p>

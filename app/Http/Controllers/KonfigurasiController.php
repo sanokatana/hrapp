@@ -414,4 +414,77 @@ class KonfigurasiController extends Controller
         }
     }
 
+
+    public function pt(Request $request)
+    {
+        // Don't call get() before paginate()
+        $pt = DB::table('tb_pt')
+            ->paginate(25)
+            ->appends($request->all());
+
+        return view("konfigurasi.pt", compact('pt'));
+    }
+
+
+    public function ptstore(Request $request){
+        $short_name = $request->short_name;
+        $long_name = $request->long_name;
+        $data = [
+            'short_name' => $short_name,
+            'long_name' => $long_name,
+        ];
+
+        $simpan = DB::table('tb_pt')
+        ->insert($data);
+        if($simpan){
+            return Redirect::back()->with(['success'=>'PT Berhasil Di Simpan']);
+        }else {
+            return Redirect::back()->with(['warning'=>'PT Gagal Di Simpan']);
+        }
+    }
+    public function ptedit(Request $request){
+        $id = $request->id;
+
+        // Get the specific PT record by ID
+        $pt = DB::table('tb_pt')
+            ->where('id', $id)
+            ->first();
+
+        // Check if record exists
+        if (!$pt) {
+            return redirect()->back()->with('error', 'PT record not found');
+        }
+
+        return view("konfigurasi.ptedit", compact('pt'));
+    }
+
+
+    public function ptupdate(Request $request, $id)
+    {
+        $short_name = $request->short_name;
+        $long_name = $request->long_name;
+        $data = [
+            'short_name' => $short_name,
+            'long_name' => $long_name,
+        ];
+
+        $update = DB::table('tb_pt')->where('id', $id)->update($data);
+
+        if ($update) {
+            return redirect()->back()->with(['success' => 'Data Berhasil Di Update']);
+        } else {
+            return redirect()->back()->with(['warning' => 'Data Gagal Di Update']);
+        }
+    }
+
+    public function ptdelete($id)
+    {
+        $delete = DB::table('tb_pt')->where('id', $id)->delete();
+        if ($delete) {
+            return Redirect::back()->with(['success' => 'Data Berhasil Di Hapus']);
+        } else {
+            return Redirect::back()->with(['warning' => 'Data Gagal Di Hapus']);
+        }
+    }
+
 }

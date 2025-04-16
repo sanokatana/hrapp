@@ -134,9 +134,15 @@
                                                     </div>
                                                     <form action="/sk/{{$d->id}}/print" method="POST" class="mb-1">
                                                         @csrf
-                                                        <a class="btn btn-warning btn-sm print-confirm">
-                                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 18 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-printer"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
+                                                        <a class="btn btn-warning btn-sm print-options">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" />
+                                                                <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" />
+                                                                <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" />
+                                                            </svg>
                                                         </a>
+                                                        <input type="hidden" class="sk-id" value="{{$d->id}}">
                                                     </form>
                                                     <form action="/sk/{{$d->id}}/delete" method="POST">
                                                         @csrf
@@ -241,7 +247,8 @@
                                 <input type="date" value="" class="form-control" name="tgl_sk" id="tgl_sk" placeholder="">
                             </div>
                         </div>
-                    </div><div class="row">
+                    </div>
+                    <div class="row">
                         <div class="col-12">
                             <div class="form-label">Masa Probation</div>
                             <div class="input-icon mb-3">
@@ -275,7 +282,7 @@
                             <div class="form-label">Diketahui</div>
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-check">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-check">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                         <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
                                         <path d="M6 21v-2a4 4 0 0 1 4 -4h4" />
@@ -347,7 +354,49 @@
         </div>
     </div>
 </div>
+<!-- Print Options Modal -->
+<div class="modal modal-blur fade" id="modal-print-options" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Print Options</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <h3>Select Print Format</h3>
+                <p class="text-muted">Choose which document format you want to print.</p>
 
+                <form id="printOptionsForm" action="" method="POST">
+                    @csrf
+                    <input type="hidden" name="print_type" id="print_type" value="">
+
+                    <div class="d-flex justify-content-center mt-3">
+                        <button type="button" class="btn btn-primary mx-2 print-sk">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-text" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+                                <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
+                                <path d="M9 9l1 0"></path>
+                                <path d="M9 13l6 0"></path>
+                                <path d="M9 17l6 0"></path>
+                            </svg>
+                            Print SK
+                        </button>
+
+                        <button type="button" class="btn btn-info mx-2 print-iom">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-mail" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z"></path>
+                                <path d="M3 7l9 6l9 -6"></path>
+                            </svg>
+                            Print IOM PGT
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal modal-blur fade" id="modal-uploadContract" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -525,12 +574,19 @@
             });
         });
 
-        $(".print-confirm").click(function(e) {
-            var form = $(this).closest('form');
+        $('.print-options').click(function(e) {
             e.preventDefault();
+            var skId = $(this).closest('form').find('.sk-id').val();
+            $('#printOptionsForm').attr('action', '/sk/' + skId + '/print');
+            $('#modal-print-options').modal('show');
+        });
+
+        // Print SK
+        $('.print-sk').click(function() {
+            $('#print_type').val('sk');
             Swal.fire({
                 title: "Apakah Yakin?",
-                text: "Kontrak Akan Ke Print!",
+                text: "SK Akan Di Print!",
                 icon: "info",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
@@ -538,7 +594,25 @@
                 confirmButtonText: "Continue"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    form.submit();
+                    $('#printOptionsForm').submit();
+                }
+            });
+        });
+
+        // Print IOM
+        $('.print-iom').click(function() {
+            $('#print_type').val('iom');
+            Swal.fire({
+                title: "Apakah Yakin?",
+                text: "IOM PGT Akan Di Print!",
+                icon: "info",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Continue"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#printOptionsForm').submit();
                 }
             });
         });
