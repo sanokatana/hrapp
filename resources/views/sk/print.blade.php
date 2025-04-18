@@ -78,7 +78,7 @@
     <p style="padding-top: 13pt;text-indent: 0pt;text-align: left;"><br /></p>
     <p style="padding-left: 8pt;text-indent: 0pt;text-align: left;">Kepada Yth &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: Bapak Johannes Tanuwijaya</p>
     <p style="padding-left: 7pt;text-indent: 0pt;text-align: left;">Dari &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: Management</p>
-    <p style="padding-left: 7pt;text-indent: 0pt;text-align: left;">Tanggal &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{$dateNow}}</p>
+    <p style="padding-left: 7pt;text-indent: 0pt;text-align: left;">Tanggal &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{$dateNow1}}</p>
     <p style="padding-left: 7pt;text-indent: 0pt;text-align: left;">Perihal &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: Surat Keputusan Pengangkatan Karyawan</p>
     <p style="padding-top: 2pt;text-indent: 0pt;text-align: left;"><br /></p>
     <p style="padding-left: 5pt;text-indent: 0pt;line-height: 1pt;text-align: left;" />

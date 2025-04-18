@@ -69,8 +69,9 @@ class SkController extends Controller
             }
 
             // Get the current month and year
-            $currentMonth = date('n');
-            $currentYear = date('Y');
+            $skDate = Carbon::parse($tgl_sk);
+            $skMonth = $skDate->month;
+            $skYear = $skDate->year;
 
             // Convert the month to Roman numerals
             $romanMonths = [
@@ -87,10 +88,10 @@ class SkController extends Controller
                 11 => 'XI',
                 12 => 'XII'
             ];
-            $romanMonth = $romanMonths[$currentMonth];
+            $romanMonth = $romanMonths[$skMonth];
 
             // Generate the no_kontrak value
-            $no_sk = "{$nextNumber}/{$nama_pt}-HRD/SK.Pgt/{$romanMonth}/{$currentYear}";
+            $no_sk = "{$nextNumber}/{$nama_pt}-HRD/SK.Pgt/{$romanMonth}/{$skYear}";
         }
 
         $data = [
@@ -193,6 +194,7 @@ class SkController extends Controller
             ->first();
 
         $dateNow = DateHelper::formatIndonesiaDate($sk->tgl_sk);
+        $dateNow1 = DateHelper::formatIndonesiaDate(Carbon::now());
         $namaJabatan = DB::table('jabatan')
             ->where('id', $sk->jabatan)
             ->first();
@@ -200,7 +202,7 @@ class SkController extends Controller
         // Determine which view to use based on print_type
         if ($print_type === 'iom') {
             // For IOM PGT
-            return view('sk.print', compact('sk', 'dateNow', 'namaJabatan', 'ptDetails', 'autoPrint'));
+            return view('sk.print', compact('sk', 'dateNow', 'dateNow1', 'namaJabatan', 'ptDetails', 'autoPrint'));
         } else {
             // For regular SK
             return view('sk.printSK', compact('sk', 'dateNow', 'namaJabatan', 'ptDetails', 'autoPrint'));

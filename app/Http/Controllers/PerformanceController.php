@@ -127,42 +127,42 @@ class PerformanceController extends Controller
     }
 
     private function getMonthlyTrends()
-{
-    $months = [];
-    $newContracts = [];
-    $endingContracts = [];
+    {
+        $months = [];
+        $newContracts = [];
+        $endingContracts = [];
 
-    // Get current date and last year
-    $currentDate = Carbon::now();
-    $startDate = Carbon::createFromDate($currentDate->year - 1, 1, 1); // January of last year
-    $endDate = Carbon::createFromDate($currentDate->year, 12, 31);     // December of current year
+        // Get current date and last year
+        $currentDate = Carbon::now();
+        $startDate = Carbon::createFromDate($currentDate->year - 1, 1, 1); // January of last year
+        $endDate = Carbon::createFromDate($currentDate->year, 12, 31);     // December of current year
 
-    // Get data for all months in the range
-    $currentMonth = $startDate->copy();
-    while ($currentMonth->lte($endDate)) {
-        // Add month to array
-        $months[] = $currentMonth->format('M Y');
+        // Get data for all months in the range
+        $currentMonth = $startDate->copy();
+        while ($currentMonth->lte($endDate)) {
+            // Add month to array
+            $months[] = $currentMonth->format('M Y');
 
-        // Count new contracts
-        $newContracts[] = Contract::whereYear('start_date', $currentMonth->year)
-            ->whereMonth('start_date', $currentMonth->month)
-            ->count();
+            // Count new contracts
+            $newContracts[] = Contract::whereYear('start_date', $currentMonth->year)
+                ->whereMonth('start_date', $currentMonth->month)
+                ->count();
 
-        // Count ending contracts
-        $endingContracts[] = Contract::whereYear('end_date', $currentMonth->year)
-            ->whereMonth('end_date', $currentMonth->month)
-            ->count();
+            // Count ending contracts
+            $endingContracts[] = Contract::whereYear('end_date', $currentMonth->year)
+                ->whereMonth('end_date', $currentMonth->month)
+                ->count();
 
-        // Move to next month
-        $currentMonth->addMonth();
+            // Move to next month
+            $currentMonth->addMonth();
+        }
+
+        return [
+            'months' => $months,
+            'new' => $newContracts,
+            'ending' => $endingContracts
+        ];
     }
-
-    return [
-        'months' => $months,
-        'new' => $newContracts,
-        'ending' => $endingContracts
-    ];
-}
 
     private function getStatusDistribution()
     {
@@ -386,8 +386,8 @@ class PerformanceController extends Controller
                     $contract->status = 'Extended';
                     $contract->save();
 
-                    // Generate new SK number
-                    $no_sk = $this->generateSKNumber($contract->nik);
+                    // Generate new SK number using tgl_sk
+                    $no_sk = $this->generateSKNumber($contract->nik, $request->tgl_sk);
 
                     $karyawan = DB::table('karyawan')
                         ->where('nik', $contract->nik)
@@ -431,7 +431,7 @@ class PerformanceController extends Controller
         }
     }
 
-    private function generateSKNumber($nik)
+    private function generateSKNumber($nik, $tgl_sk = null)
     {
         // Get employee data
         $karyawan = DB::table('karyawan')
@@ -457,18 +457,29 @@ class PerformanceController extends Controller
             $nextNumber = '001';
         }
 
-        // Get current month as Roman numeral
-        $currentMonth = date('n');
+        // Use tgl_sk date if provided, otherwise use current date
+        $skDate = $tgl_sk ? Carbon::parse($tgl_sk) : Carbon::now();
+        $skMonth = $skDate->month;
+        $skYear = $skDate->year;
+
         $romanMonths = [
-            1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV',
-            5 => 'V', 6 => 'VI', 7 => 'VII', 8 => 'VIII',
-            9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'
+            1 => 'I',
+            2 => 'II',
+            3 => 'III',
+            4 => 'IV',
+            5 => 'V',
+            6 => 'VI',
+            7 => 'VII',
+            8 => 'VIII',
+            9 => 'IX',
+            10 => 'X',
+            11 => 'XI',
+            12 => 'XII'
         ];
-        $romanMonth = $romanMonths[$currentMonth];
-        $currentYear = date('Y');
+        $romanMonth = $romanMonths[$skMonth];
 
         // Generate the SK number
-        return "{$nextNumber}/{$karyawan->nama_pt}-HRD/SK.Pgt/{$romanMonth}/{$currentYear}";
+        return "{$nextNumber}/{$karyawan->nama_pt}-HRD/SK.Pgt/{$romanMonth}/{$skYear}";
     }
 
     private function generateContractNumber()
@@ -530,9 +541,18 @@ class PerformanceController extends Controller
     private function getRomanMonth($month)
     {
         $romanMonths = [
-            1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV',
-            5 => 'V', 6 => 'VI', 7 => 'VII', 8 => 'VIII',
-            9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'
+            1 => 'I',
+            2 => 'II',
+            3 => 'III',
+            4 => 'IV',
+            5 => 'V',
+            6 => 'VI',
+            7 => 'VII',
+            8 => 'VIII',
+            9 => 'IX',
+            10 => 'X',
+            11 => 'XI',
+            12 => 'XII'
         ];
         return $romanMonths[$month];
     }
