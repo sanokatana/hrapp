@@ -438,6 +438,8 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
 
     //Recruitment - Pipeline
     Route::get('/recruitment/pipeline', [RecruitmentController::class, 'pipeline']);
+
+    Route::get('/kontrak/{id}/get-supervisor', [ContractController::class, 'getSupervisor']);
 });
 
 

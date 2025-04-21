@@ -492,7 +492,7 @@
             <p style="text-indent: 0pt;text-align: left;"><br></p>
         </li>
         <li data-list-text="II.">
-            <p style="padding-left: 26pt;text-indent: -21pt;text-align: left;">&nbsp&nbsp&nbsp&nbsp&nbsp&nbspNama &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp: &nbsp&nbsp&nbsp&nbsp{{ strtoupper($contract->nama_lengkap) }}</p>
+            <p style="padding-left: 26pt;text-indent: -21pt;text-align: left;">&nbsp&nbsp&nbsp&nbsp&nbsp&nbspNama &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp: &nbsp&nbsp&nbsp&nbsp{{ strtoupper($employee->nama_lengkap) }}</p>
             <table style="border-collapse:collapse;margin-left:25.444pt" cellspacing="0">
                 <tbody>
                     <tr style="height:12pt">
@@ -506,7 +506,7 @@
                         </td>
                         <td style="width:286pt">
                             <p class="s3"
-                                style="padding-left: 5pt;text-indent: 0pt;line-height: 10pt;text-align: left;">{{ $contract->sex === 'M' ? 'Pria' : 'Wanita' }}
+                                style="padding-left: 5pt;text-indent: 0pt;line-height: 10pt;text-align: left;">{{ $employee->sex === 'M' ? 'Pria' : 'Wanita' }}
                             </p>
                         </td>
                     </tr>
@@ -522,7 +522,7 @@
                         <td style="width:286pt">
                             <p class="s3"
                                 style="padding-left: 5pt;text-indent: 0pt;line-height: 11pt;text-align: left;">
-                                {{$contract->nik_ktp}}
+                                {{$employee->nik_ktp}}
                             </p>
                         </td>
                     </tr>
@@ -537,7 +537,7 @@
                         </td>
                         <td style="width:286pt">
                             <p class="s3"
-                                style="padding-left: 5pt;text-indent: 0pt;line-height: 11pt;text-align: left;">{{$contract->birthplace}},
+                                style="padding-left: 5pt;text-indent: 0pt;line-height: 11pt;text-align: left;">{{$employee->birthplace}},
                                 {{$dateNow2}}
                             </p>
                         </td>
@@ -597,7 +597,14 @@
         <li data-list-text="2.">
             <p style="padding-top: 12pt;padding-left: 19pt;text-indent: -14pt;text-align: left;">&nbsp Untuk pertama kalinya
                 jabatan PIHAK KEDUA pada Perseroan adalah : <br> Jabatan / Level &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp: {{$namaJabatan->nama_jabatan}}</p>
-            <p style="padding-left: 19pt;text-indent: 0pt;text-align: left;">Melapor kepada &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp: {{$atasanJabatan->nama_jabatan}}</p>
+            <p style="padding-left: 19pt;text-indent: 0pt;text-align: left;">Melapor kepada &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp :  @if(isset($customSupervisor))
+                {{ $customSupervisor }}
+                @elseif(isset($atasanJabatan) && $atasanJabatan)
+                {{ $atasanJabatan->nama_jabatan }}
+                @else
+                -
+                @endif
+            </p>
         </li>
         <li data-list-text="3.">
             <p style="padding-top: 12pt;padding-left: 19pt;text-indent: -14pt;text-align: justify;">&nbsp;Dengan memperhatikan
@@ -873,7 +880,7 @@
                             <p style="text-indent: 0pt;text-align: left;"><br></p>
                             <p class="s3"
                                 style="padding-right: 110px;text-indent: 0pt;line-height: 20pt;text-align: center;white-space: nowrap;overflow: hidden;">
-                                ({{ strtoupper($contract->nama_lengkap) }})</p>
+                                ({{ strtoupper($employee->nama_lengkap) }})</p>
                         </td>
                         <td style="width:162pt">
                             <p style="text-indent: 0pt;text-align: left;"><br></p>
@@ -894,7 +901,7 @@
             <div style="display: table-row;">
                 <div class="number-cell">1.</div>
                 <p class="text-cell">Waktu kerja
-                diatur sesuai dengan peraturan perusahaan.</p>
+                    diatur sesuai dengan peraturan perusahaan.</p>
             </div>
             <div style="display: table-row;">
                 <div class="number-cell">2.</div>
@@ -906,7 +913,7 @@
             <div style="display: table-row;">
                 <div class="number-cell">3.</div>
                 <p class="text-cell">Waktu kerja
-                Biaya Rawat Inap diberikan
+                    Biaya Rawat Inap diberikan
                     setara dengan golongan dengan menggunakan standar Rumah Sakit yang sudah atau akan bekerja sama
                     dengan Perusahaan.</p>
             </div>
@@ -1155,7 +1162,7 @@
     <p style="text-indent: 0pt;text-align: left;"><br></p>
     <p style="text-indent: 0pt;text-align: left;"><br></p>
     <p style="text-indent: 0pt;text-align: left;"><br></p>
-    <p style="padding-left: 1pt;text-indent: 0pt;text-align: center; margin-right: 200px;">({{ strtoupper($contract->nama_lengkap) }})</p>
+    <p style="padding-left: 1pt;text-indent: 0pt;text-align: center; margin-right: 200px;">({{ strtoupper($employee->nama_lengkap) }})</p>
 </body>
 
 </html>

@@ -315,7 +315,6 @@ class ContractController extends Controller
                 'count' => $expiredContracts->count(),
                 'message' => 'Contracts checked successfully'
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -455,10 +454,18 @@ class ContractController extends Controller
 
             // Try to parse Indonesian format (dd Bulan yyyy)
             $indonesianMonths = [
-                'Januari' => '01', 'Februari' => '02', 'Maret' => '03',
-                'April' => '04', 'Mei' => '05', 'Juni' => '06',
-                'Juli' => '07', 'Agustus' => '08', 'September' => '09',
-                'Oktober' => '10', 'November' => '11', 'Desember' => '12'
+                'Januari' => '01',
+                'Februari' => '02',
+                'Maret' => '03',
+                'April' => '04',
+                'Mei' => '05',
+                'Juni' => '06',
+                'Juli' => '07',
+                'Agustus' => '08',
+                'September' => '09',
+                'Oktober' => '10',
+                'November' => '11',
+                'Desember' => '12'
             ];
 
             // Split the date string
@@ -480,7 +487,6 @@ class ContractController extends Controller
 
             // Try Carbon's parse as last resort
             return Carbon::parse($dateString)->format('Y-m-d');
-
         } catch (Exception $e) {
             // Log the error and return null or throw exception
             Log::error("Date parsing error for: $dateString - " . $e->getMessage());
@@ -720,64 +726,196 @@ class ContractController extends Controller
     }
 
 
-    public function printContract(Request $request, $id)
+    public function printContract($id, Request $request)
     {
-        $contract = DB::table('kontrak')
-            ->select('kontrak.*', 'karyawan.nama_lengkap', 'karyawan.sex', 'karyawan.nik_ktp', 'karyawan.birthplace', 'karyawan.dob', 'karyawan.address', 'karyawan.jabatan')
-            ->join('karyawan', 'kontrak.nik', '=', 'karyawan.nik')
-            ->where('kontrak.id', $id)
+        $contractType = $request->type ?? 'Non-Sales';
+        $supervisorId = $request->supervisor_id;
+        $supervisorName = $request->supervisor_name; // Get the manual supervisor name
+
+        // Get the contract
+        $contract = Contract::findOrFail($id);
+
+        // Get employee data directly
+        $employee = DB::table('karyawan')
+            ->where('nik', $contract->nik)
             ->first();
 
-        if (!$contract) {
-            abort(404, 'Contract not found');
+        // Get supervisor info
+        $atasanJabatan = null;
+        $customSupervisor = null;
+
+        if ($supervisorName) {
+            // Use the manually entered supervisor name directly
+            $customSupervisor = $supervisorName;
+        } elseif ($supervisorId) {
+            // Get supervisor from ID
+            $atasanJabatan = DB::table('jabatan')
+                ->select('jabatan.*')
+                ->join('karyawan', 'jabatan.id', '=', 'karyawan.jabatan')
+                ->where('karyawan.id', $supervisorId)
+                ->first();
+        } elseif ($employee && $employee->jabatan) {
+            // Try to find supervisor based on position hierarchy
+            $jabatanInfo = DB::table('jabatan')
+                ->where('id', $employee->jabatan)
+                ->first();
+
+            if ($jabatanInfo && $jabatanInfo->jabatan_atasan) {
+                $atasanJabatan = DB::table('jabatan')
+                    ->where('id', $jabatanInfo->jabatan_atasan)
+                    ->first();
+            }
         }
 
-        $dateNow = DateHelper::formatIndonesianDates($contract->start_date);
-        $dateNow2 = DateHelper::formatIndonesianDate($contract->dob);
-        $dateNow3 = DateHelper::formatIndonesiaDate(Carbon::now());
-        $dateNow4 = DateHelper::formatDateDay($contract->start_date);
+        // Rest of your code...
+        $dateNow = DateHelper::formatIndonesiaDate(Carbon::now());
+        $dateNow2 = DateHelper::formatIndonesiaDate($employee->DOB);
+        $dateNow4 = Carbon::parse($contract->start_date)->format('l');
         $dateNow5 = DateHelper::formatIndonesiaDate($contract->start_date);
         $dateNow6 = DateHelper::formatIndonesiaDate($contract->end_date);
 
-        // Calculate contract duration in months
+        // Calculate months
         $startDate = Carbon::parse($contract->start_date);
-        $endDate = Carbon::parse($contract->end_date)->addDay(); // Include the full last month
-        $months = $startDate->diffInMonths($endDate);
-        $monthsInWords = DateHelper::convertToIndonesianWords($months);
-
-        $wrappedAddress = wordwrap($contract->address, 50, "\n", true);
-        $addressParts = explode("\n", $wrappedAddress);
-        $addressLine1 = $addressParts[0] ?? '';
-        $addressLine2 = $addressParts[1] ?? '';
-
-        $namaJabatan = DB::table('jabatan')
-            ->where('id', $contract->jabatan)
-            ->first();
-
-        $atasanJabatan = DB::table('jabatan')
-            ->where('id', optional($namaJabatan)->jabatan_atasan)
-            ->first();
-
-        // Get the type from the request (default to Non-Sales)
+        $endDate = Carbon::parse($contract->end_date)->addDay();
+        $months = $endDate->diffInMonths($startDate);
+        $monthsInWords = $this->numberToWords($months);
         $type = $request->query('type', 'Non-Sales');
 
-        // Pass data to the view
+        // Address formatting
+        $addressParts = [];
+        if ($employee) {
+            $addressParts[] = $employee->address;
+            $parts = [];
+            if ($employee->address_kel) $parts[] = $employee->address_kel;
+            if ($employee->address_kec) $parts[] = $employee->address_kec;
+            if (!empty($parts)) $addressParts[] = implode(', ', $parts);
+
+            $parts = [];
+            if ($employee->address_kota) $parts[] = $employee->address_kota;
+            if ($employee->address_prov) $parts[] = $employee->address_prov;
+            if (!empty($parts)) $addressParts[] = implode(', ', $parts);
+        }
+
+        $addressLine1 = isset($addressParts[0]) ? $addressParts[0] : '';
+        $addressLine2 = (isset($addressParts[1]) ? $addressParts[1] : '') . (isset($addressParts[2]) ? ', ' . $addressParts[2] : '');
+
+        // Get the job position name
+        $namaJabatan = DB::table('jabatan')
+            ->where('id', $employee->jabatan ?? 0)
+            ->first();
+
         return view('contract.print', compact(
             'contract',
-            'monthsInWords',
-            'months',
+            'employee',
             'dateNow',
             'dateNow2',
-            'addressLine1',
-            'addressLine2',
-            'dateNow3',
             'dateNow4',
-            'namaJabatan',
-            'atasanJabatan',
             'dateNow5',
             'dateNow6',
-            'type'
+            'addressLine1',
+            'addressLine2',
+            'namaJabatan',
+            'atasanJabatan',
+            'customSupervisor',
+            'months',
+            'monthsInWords',
+            'type',
+            'contractType'
         ));
     }
 
+    // Helper function to convert numbers to words
+    private function numberToWords($number)
+    {
+        $words = [
+            1 => 'Satu',
+            2 => 'Dua',
+            3 => 'Tiga',
+            4 => 'Empat',
+            5 => 'Lima',
+            6 => 'Enam',
+            7 => 'Tujuh',
+            8 => 'Delapan',
+            9 => 'Sembilan',
+            10 => 'Sepuluh',
+            11 => 'Sebelas',
+            12 => 'Dua Belas'
+        ];
+
+        return $words[$number] ?? $number;
+    }
+
+    public function getSupervisor($id)
+    {
+        // Get the contract directly without trying to load relationships
+        $contract = Contract::findOrFail($id);
+
+        // Variables for supervisor information
+        $supervisorId = null;
+        $supervisorName = null;
+        $supervisorPosition = null;
+
+        if ($contract && $contract->nik) {
+            // Get employee data directly using the NIK from the contract
+            $employee = DB::table('karyawan')
+                ->select('karyawan.id', 'karyawan.jabatan', 'karyawan.nama_lengkap')
+                ->where('karyawan.nik', $contract->nik)
+                ->first();
+
+            if ($employee && $employee->jabatan) {
+                // Get the jabatan_atasan for this position
+                $jabatanInfo = DB::table('jabatan')
+                    ->select('jabatan.id', 'jabatan.nama_jabatan', 'jabatan.jabatan_atasan')
+                    ->where('jabatan.id', $employee->jabatan)
+                    ->first();
+
+                if ($jabatanInfo && $jabatanInfo->jabatan_atasan) {
+                    // Get the supervisor position name
+                    $supervisorJabatan = DB::table('jabatan')
+                        ->select('jabatan.id', 'jabatan.nama_jabatan')
+                        ->where('jabatan.id', $jabatanInfo->jabatan_atasan)
+                        ->first();
+
+                    if ($supervisorJabatan) {
+                        // Find an employee with this supervisor position
+                        $supervisor = DB::table('karyawan')
+                            ->select('karyawan.id', 'karyawan.nama_lengkap', 'jabatan.nama_jabatan')
+                            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+                            ->where('karyawan.jabatan', $supervisorJabatan->id)
+                            ->first();
+
+                        if ($supervisor) {
+                            $supervisorId = $supervisor->id;
+                            $supervisorName = $supervisor->nama_lengkap;
+                            $supervisorPosition = $supervisorJabatan->nama_jabatan;
+                        } else {
+                            // If no employee found with that position, just get the position name
+                            $supervisorPosition = $supervisorJabatan->nama_jabatan;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Get list of available supervisors (management positions)
+        $availableSupervisors = DB::table('karyawan')
+            ->select('karyawan.id', 'karyawan.nama_lengkap as name', 'jabatan.nama_jabatan as position')
+            ->leftJoin('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+            ->where(function ($query) {
+                $query->whereIn('jabatan.nama_jabatan', ['Manager', 'Supervisor', 'Head', 'Director', 'GM', 'Leader'])
+                    ->orWhere('jabatan.nama_jabatan', 'LIKE', '%manager%')
+                    ->orWhere('jabatan.nama_jabatan', 'LIKE', '%supervisor%')
+                    ->orWhere('jabatan.nama_jabatan', 'LIKE', '%head%')
+                    ->orWhere('jabatan.nama_jabatan', 'LIKE', '%leader%');
+            })
+            ->orderBy('karyawan.nama_lengkap')
+            ->get();
+
+        return response()->json([
+            'supervisor_name' => $supervisorName,
+            'supervisor_position' => $supervisorPosition,
+            'supervisor_id' => $supervisorId,
+            'available_supervisors' => $availableSupervisors
+        ]);
+    }
 }

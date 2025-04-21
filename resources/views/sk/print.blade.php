@@ -125,59 +125,109 @@
             </td>
         </tr>
         <tr style="height:45pt">
-        <td style="width:35pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
-            <p class="s2" style="text-indent: 0pt;text-align: center;">1</p>
-        </td>
-        <td style="width:129pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
-            <p class="s3" style="text-indent: 0pt;text-align: center;">{{$sk->nama_lengkap}}</p>
-        </td>
-        <td style="width:41pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
-            <p class="s2" style="text-indent: 0pt;text-align: center;">{{$sk->nama_pt}}</p>
-        </td>
-        <td style="width:88pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
-            <p class="s2" style="text-indent: 0pt;text-align: center;">{{$sk->tgl_masuk}}</p>
-        </td>
-        <td style="width:73pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
-            <p class="s2" style="text-indent: 0pt;text-align: center;">{{$namaJabatan->nama_jabatan}}</p>
-        </td>
-        <td style="width:112pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
-            <p class="s2" style="text-indent: 0pt;text-align: center;">{{$sk->masa_probation}}</p>
-        </td>
-    </tr>
+            <td style="width:35pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
+                <p class="s2" style="text-indent: 0pt;text-align: center;">1</p>
+            </td>
+            <td style="width:129pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
+                <p class="s2" style="text-indent: 0pt;text-align: center;">{{$sk->nama_lengkap}}</p>
+            </td>
+            <td style="width:41pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
+                <p class="s2" style="text-indent: 0pt;text-align: center;">{{$sk->nama_pt}}</p>
+            </td>
+            <td style="width:88pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
+                <p class="s2" style="text-indent: 0pt;text-align: center;">
+                    @php
+                    $months = [
+                    '01' => 'Jan',
+                    '02' => 'Feb',
+                    '03' => 'Mar',
+                    '04' => 'Apr',
+                    '05' => 'Mei',
+                    '06' => 'Jun',
+                    '07' => 'Jul',
+                    '08' => 'Agt',
+                    '09' => 'Sep',
+                    '10' => 'Okt',
+                    '11' => 'Nov',
+                    '12' => 'Des'
+                    ];
+                    $dateParts = explode('-', date('d-m-Y', strtotime($sk->tgl_masuk)));
+                    echo $dateParts[0] . ' ' . $months[$dateParts[1]] . ' ' . $dateParts[2];
+                    @endphp
+                </p>
+            </td>
+            <td style="width:73pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
+                <p class="s2" style="text-indent: 0pt;text-align: center;">{{$namaJabatan->nama_jabatan}}</p>
+            </td>
+            <td style="width:112pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
+                <p class="s2" style="text-indent: 0pt;text-align: center;">{{$sk->masa_probation}}</p>
+            </td>
+        </tr>
     </table>
     <p style="padding-top: 13pt;padding-left: 7pt;text-indent: 0pt;text-align: justify;">Demikian permohonan ini kami
         sampaikan, atas persetujuannya Bapak kami ucapkan terima kasih.</p>
     <p style="text-indent: 0pt;text-align: left;"><br /></p>
     <table style="border-collapse:collapse;margin-left:7.274pt" cellspacing="0">
+        @if($diketahuiOleh == 'Al Imron')
         <tr style="height:30pt">
-            <td
-                style="width:101pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+            <td style="width:101pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                 <p class="s4" style="padding-top: 8pt;text-indent: 0pt;text-align: center;">Dibuat oleh,</p>
             </td>
-            <td style="width:252pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                colspan="2">
+            <td style="width:252pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" colspan="2">
                 <p class="s4" style="padding-top: 8pt;text-indent: 0pt;text-align: center;">Diketahui oleh,</p>
             </td>
-            <td
-                style="width:122pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+            <td style="width:122pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                 <p class="s4" style="padding-top: 8pt;text-indent: 0pt;text-align: center;">Disetujui oleh,</p>
             </td>
         </tr>
         <tr style="height:87pt">
-            <td
-                style="width:101pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+            <td style="width:101pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                 <p style="text-indent: 0pt;text-align: left;"><br /></p>
             </td>
-            <td
-                style="width:129pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+            <td style="width:252pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" colspan="2">
                 <p style="text-indent: 0pt;text-align: left;"><br /></p>
             </td>
-            <td
-                style="width:123pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+            <td style="width:122pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                 <p style="text-indent: 0pt;text-align: left;"><br /></p>
             </td>
-            <td
-                style="width:122pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+        </tr>
+        <tr style="height:30pt">
+            <td style="width:101pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
+                <p class="s4" style="text-indent: 0pt;text-align: center;">Mochammad Zicki D</p>
+            </td>
+            <td style="width:252pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle" colspan="2">
+                <p class="s4" style="text-indent: 0pt;text-align: center;">Al Imron</p>
+            </td>
+            <td style="width:122pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
+                <p class="s4" style="text-indent: 0pt;text-align: center;">Johannes Tanuwijaya</p>
+            </td>
+        </tr>
+        @else
+        <tr style="height:30pt">
+            <td style="width:101pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 8pt;text-indent: 0pt;text-align: center;">Dibuat oleh,</p>
+            </td>
+            <td style="width:129pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 8pt;text-indent: 0pt;text-align: center;">Diketahui oleh,</p>
+            </td>
+            <td style="width:123pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 8pt;text-indent: 0pt;text-align: center;">Diketahui oleh,</p>
+            </td>
+            <td style="width:122pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s4" style="padding-top: 8pt;text-indent: 0pt;text-align: center;">Disetujui oleh,</p>
+            </td>
+        </tr>
+        <tr style="height:87pt">
+            <td style="width:101pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+            <td style="width:129pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+            <td style="width:123pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p style="text-indent: 0pt;text-align: left;"><br /></p>
+            </td>
+            <td style="width:122pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                 <p style="text-indent: 0pt;text-align: left;"><br /></p>
             </td>
         </tr>
@@ -186,7 +236,7 @@
                 <p class="s4" style="text-indent: 0pt;text-align: center;">Mochammad Zicki D</p>
             </td>
             <td style="width:129pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
-                <p class="s4" style="text-indent: 0pt;text-align: center;">{{$sk->diketahui}}</p>
+                <p class="s4" style="text-indent: 0pt;text-align: center;">{{ $diketahuiOleh }}</p>
             </td>
             <td style="width:123pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;vertical-align:middle">
                 <p class="s4" style="text-indent: 0pt;text-align: center;">Al Imron</p>
@@ -195,6 +245,7 @@
                 <p class="s4" style="text-indent: 0pt;text-align: center;">Johannes Tanuwijaya</p>
             </td>
         </tr>
+        @endif
     </table>
 </body>
 

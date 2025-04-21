@@ -169,7 +169,8 @@ class SkController extends Controller
     public function printContract($id, Request $request)
     {
         $print_type = $request->print_type ?? 'sk';
-        $autoPrint = $request->autoPrint ?? true;  // Default to true for backward compatibility
+        $autoPrint = $request->autoPrint ?? true;
+        $diketahuiOleh = $request->diketahui_oleh;
 
         $sk = DB::table('tb_sk')
             ->select(
@@ -201,8 +202,8 @@ class SkController extends Controller
 
         // Determine which view to use based on print_type
         if ($print_type === 'iom') {
-            // For IOM PGT
-            return view('sk.print', compact('sk', 'dateNow', 'dateNow1', 'namaJabatan', 'ptDetails', 'autoPrint'));
+            // For IOM PGT, also pass the diketahui_oleh parameter
+            return view('sk.print', compact('sk', 'dateNow', 'dateNow1', 'namaJabatan', 'ptDetails', 'autoPrint', 'diketahuiOleh'));
         } else {
             // For regular SK
             return view('sk.printSK', compact('sk', 'dateNow', 'namaJabatan', 'ptDetails', 'autoPrint'));

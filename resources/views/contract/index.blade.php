@@ -58,7 +58,7 @@
 
                                 <a href="#" class="btn btn-warning" id="btnCheckContract">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-check">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                         <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
                                         <path d="M12 7v5l3 3" />
                                         <path d="M15 19l2 2l4 -4" />
@@ -217,11 +217,60 @@
             </div>
             <div class="modal-body">
                 <div class="col-12">
-                <button class="btn btn-primary btn-block print-option w-100" data-type="Sales">Sales</button>
+                    <button class="btn btn-primary btn-block w-100 select-contract-type" data-type="Sales">Sales</button>
                 </div>
                 <div class="col-12 mt-4">
-                <button class="btn btn-secondary btn-block print-option w-100" data-type="Non-Sales">Non-Sales</button>
+                    <button class="btn btn-secondary btn-block w-100 select-contract-type" data-type="Non-Sales">Non-Sales</button>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Second Modal: Supervisor Selection -->
+<div id="supervisorModal" class="modal modal-blur fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Jabatan Selection</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="supervisorForm">
+                    <div class="mb-3">
+                        <label class="form-label">Melapor Kepada:</label>
+                        <div id="supervisorInfo" class="alert alert-info">
+                            <strong id="supervisorName">Supervisor Name</strong>
+                            <span class="text-muted d-block">Position: <span id="supervisorPosition">Supervisor Position</span></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-label">Choose Option:</div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="supervisorOption" id="optionAutomatic" value="automatic" checked>
+                            <label class="form-check-label" for="optionAutomatic">
+                                Automatic (Use default Jabatan Atasan)
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="supervisorOption" id="optionManual" value="manual">
+                            <label class="form-check-label" for="optionManual">
+                                Manual (Enter custom Jataban Atasan name)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="manualSupervisorField" class="mb-3 d-none">
+                        <label class="form-label">Enter Jabatan Atasan Name:</label>
+                        <input type="text" class="form-control" id="manualSupervisorText" placeholder="Enter Jabatan Atasan name">
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="confirmPrint">Confirm & Print</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -259,7 +308,7 @@
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-check">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path stroke="none" d="M0 0h24H0z" fill="none" />
                                         <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
                                         <path d="M6 21v-2a4 4 0 0 1 4 -4h4" />
                                         <path d="M15 19l2 2l4 -4" />
@@ -562,7 +611,7 @@
         $('#tidakLanjutFields').hide();
         $('#mengakhiriFields').hide();
 
-        switch(actionType) {
+        switch (actionType) {
             case 'extend':
                 $('#extendFields').show();
                 break;
@@ -862,23 +911,100 @@
 
     $(document).ready(function() {
         let contractId = null;
+        let contractType = null;
+        let supervisorId = null;
 
-        // Open modal on print button click
+        // Open first modal on print button click
         $(".print-confirm").click(function(e) {
             e.preventDefault();
             contractId = $(this).data("id");
             $("#printModal").modal("show");
         });
 
-        // Handle Sales or Non-Sales print option
-        $(".print-option").click(function() {
-            let type = $(this).data("type");
-            if (contractId) {
-                let url = "/kontrak/" + contractId + "/print?type=" + type;
-                window.open(url, '_blank'); // Open in new tab
+        // Handle Sales or Non-Sales selection
+        $(".select-contract-type").click(function() {
+            contractType = $(this).data("type");
+            $("#printModal").modal("hide");
+
+            // Load supervisor data
+            $.ajax({
+                url: '/kontrak/' + contractId + '/get-supervisor',
+                type: 'GET',
+                success: function(response) {
+                    // Display supervisor info
+                    $("#supervisorName").text(response.supervisor_name || 'Not assigned');
+                    $("#supervisorPosition").text(response.supervisor_position || 'Not assigned');
+                    supervisorId = response.supervisor_id;
+
+                    // Fill manual supervisor dropdown
+                    var supervisorSelect = $("#manualSupervisor");
+                    supervisorSelect.empty();
+                    supervisorSelect.append('<option value="">Select Supervisor</option>');
+
+                    if (response.available_supervisors && response.available_supervisors.length > 0) {
+                        $.each(response.available_supervisors, function(i, supervisor) {
+                            supervisorSelect.append(
+                                $('<option></option>').val(supervisor.id).text(supervisor.name + ' (' + supervisor.position + ')')
+                            );
+                        });
+                    }
+
+                    // Show the supervisor modal
+                    $("#supervisorModal").modal("show");
+                },
+                error: function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load supervisor information.'
+                    });
+                }
+            });
+        });
+
+        // Toggle manual supervisor field
+        // Toggle manual supervisor field
+        $('input[name="supervisorOption"]').change(function() {
+            if ($(this).val() === 'manual') {
+                $("#manualSupervisorField").removeClass('d-none');
+            } else {
+                $("#manualSupervisorField").addClass('d-none');
             }
         });
-    });
 
+        // Handle print confirmation
+        $("#confirmPrint").click(function() {
+            let selectedOption = $('input[name="supervisorOption"]:checked').val();
+            let supervisorParam = '';
+
+            if (selectedOption === 'automatic') {
+                // Use the supervisor ID for automatic selection
+                supervisorParam = supervisorId ? `supervisor_id=${supervisorId}` : '';
+            } else {
+                // Use the manually entered supervisor name
+                let manualSupervisorText = $("#manualSupervisorText").val().trim();
+                if (!manualSupervisorText) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Missing Information',
+                        text: 'Please enter a jabatan name'
+                    });
+                    return;
+                }
+                supervisorParam = `supervisor_name=${encodeURIComponent(manualSupervisorText)}`;
+            }
+
+            // Close the modal
+            $("#supervisorModal").modal("hide");
+
+            // Open the print in a new tab
+            let url = "/kontrak/" + contractId + "/print?type=" + contractType;
+            if (supervisorParam) {
+                url += "&" + supervisorParam;
+            }
+
+            window.open(url, '_blank');
+        });
+    });
 </script>
 @endpush

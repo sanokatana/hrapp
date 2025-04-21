@@ -427,6 +427,67 @@
         </div>
     </div>
 </div>
+
+<!-- Diketahui Oleh Selection Modal for IOM -->
+<div class="modal modal-blur fade" id="modal-diketahui-selection" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Diketahui Oleh</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <p class="text-muted">Pilih siapa yang mengetahui IOM ini:</p>
+
+                <div class="form-selectgroup form-selectgroup-boxes d-flex flex-column">
+                    <label class="form-selectgroup-item flex-fill">
+                        <input type="radio" name="diketahui-person" value="Al Imron" class="form-selectgroup-input" checked>
+                        <div class="form-selectgroup-label d-flex align-items-center p-3">
+                            <div class="me-3">
+                                <span class="form-selectgroup-check"></span>
+                            </div>
+                            <div>
+                                <span class="font-weight-bold">Al Imron</span>
+                                <span class="d-block text-muted">Associate Director</span>
+                            </div>
+                        </div>
+                    </label>
+                    <label class="form-selectgroup-item flex-fill">
+                        <input type="radio" name="diketahui-person" value="Setia Iskandar Rusli" class="form-selectgroup-input">
+                        <div class="form-selectgroup-label d-flex align-items-center p-3">
+                            <div class="me-3">
+                                <span class="form-selectgroup-check"></span>
+                            </div>
+                            <div>
+                                <span class="font-weight-bold">Setia Iskandar Rusli</span>
+                                <span class="d-block text-muted">Director</span>
+                            </div>
+                        </div>
+                    </label>
+                    <label class="form-selectgroup-item flex-fill">
+                        <input type="radio" name="diketahui-person" value="Andreas Audyanto" class="form-selectgroup-input">
+                        <div class="form-selectgroup-label d-flex align-items-center p-3">
+                            <div class="me-3">
+                                <span class="form-selectgroup-check"></span>
+                            </div>
+                            <div>
+                                <span class="font-weight-bold">Andreas Audyanto</span>
+                                <span class="d-block text-muted">Director</span>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="mt-4">
+                    <button type="button" class="btn btn-primary w-100" id="confirm-diketahui">
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('myscript')
@@ -575,53 +636,60 @@
         });
 
         $('.print-options').click(function(e) {
-    e.preventDefault();
-    var skId = $(this).closest('form').find('.sk-id').val();
-    $('#modal-print-options').data('sk-id', skId);
-    $('#modal-print-options').modal('show');
-});
+            e.preventDefault();
+            var skId = $(this).closest('form').find('.sk-id').val();
+            $('#modal-print-options').data('sk-id', skId);
+            $('#modal-print-options').modal('show');
+        });
 
-// Print SK
-$('.print-sk').click(function() {
-    var skId = $('#modal-print-options').data('sk-id');
+        // Print SK
+        $('.print-sk').click(function() {
+            var skId = $('#modal-print-options').data('sk-id');
 
-    Swal.fire({
-        title: "Apakah Yakin?",
-        text: "SK Akan Di Print!",
-        icon: "info",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Continue"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Open in new tab instead of form submission
-            window.open('/sk/' + skId + '/print?print_type=sk', '_blank');
-            $('#modal-print-options').modal('hide');
-        }
-    });
-});
+            Swal.fire({
+                title: "Apakah Yakin?",
+                text: "SK Akan Di Print!",
+                icon: "info",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Continue"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Open in new tab instead of form submission
+                    window.open('/sk/' + skId + '/print?print_type=sk', '_blank');
+                    $('#modal-print-options').modal('hide');
+                }
+            });
+        });
 
-// Print IOM
-$('.print-iom').click(function() {
-    var skId = $('#modal-print-options').data('sk-id');
+        // Print IOM
+        $('.print-iom').click(function() {
+            var skId = $('#modal-print-options').data('sk-id');
 
-    Swal.fire({
-        title: "Apakah Yakin?",
-        text: "IOM PGT Akan Di Print!",
-        icon: "info",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Continue"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Open in new tab instead of form submission
-            window.open('/sk/' + skId + '/print?print_type=iom', '_blank');
-            $('#modal-print-options').modal('hide');
-        }
-    });
-});
+
+        // Close the first modal
+        $('#modal-print-options').modal('hide');
+
+        // Store the SK ID for later use
+        $('#modal-diketahui-selection').data('sk-id', skId);
+
+        // Show the diketahui selection modal
+        $('#modal-diketahui-selection').modal('show');
+
+        });
+
+        // Handle the diketahui confirmation
+        $('#confirm-diketahui').click(function() {
+            var skId = $('#modal-diketahui-selection').data('sk-id');
+            var diketahuiPerson = $('input[name="diketahui-person"]:checked').val();
+
+            // Close the diketahui modal
+            $('#modal-diketahui-selection').modal('hide');
+
+            // Open in new tab with the diketahui parameter
+            window.open('/sk/' + skId + '/print?print_type=iom&diketahui_oleh=' + encodeURIComponent(diketahuiPerson), '_blank');
+        });
 
         $('#formSK').submit(function() {
             var nik = $('#nik').val();
