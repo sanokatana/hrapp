@@ -20,7 +20,7 @@ class PerformanceController extends Controller
     public function notification()
     {
         $today = Carbon::now();
-        $threeMonthsFromNow = $today->copy()->addMonths(3);
+        $sixMonthsFromNow = $today->copy()->addMonths(3); // updated from 3 to 6
 
         // Get all active contracts
         $allContracts = DB::table('kontrak')
@@ -39,7 +39,6 @@ class PerformanceController extends Controller
             ->orderBy('kontrak.start_date')
             ->get();
 
-        // Separate contracts into end date notifications and 3-month evaluations
         $contracts = collect();
         $evaluationContracts = collect();
 
@@ -48,31 +47,35 @@ class PerformanceController extends Controller
             $start_date = Carbon::parse($contract->start_date);
             $three_month_date = $start_date->copy()->addMonths(3);
 
-            // Calculate days until contract ends
             $days_until_end = $today->diffInDays($end_date, false);
-
-            // Calculate days until 3-month evaluation
             $days_until_evaluation = $today->diffInDays($three_month_date, false);
 
-            // For contracts nearing end date
-            if ($days_until_end > 0 && $days_until_end <= 90) {
+            // Show contracts ending within 6 months
+            if ($days_until_end > 0 && $days_until_end <= 90) { // updated from 90 to 180
                 $contract->days_left = $days_until_end;
                 $contract->notification_type = 'end_contract';
                 $contracts->push($contract);
             }
 
-            // For contracts needing 3-month evaluation
-            // Only show if evaluation date is within the next 3 months
-            if ($days_until_evaluation > 0 && $three_month_date->lte($threeMonthsFromNow)) {
+            // Still show 3-month evaluations (optional)
+            if ($days_until_evaluation > 0 && $three_month_date->lte($sixMonthsFromNow)) { // changed 3-month window to 6-month
                 $contract->days_left = $days_until_evaluation;
                 $contract->notification_type = 'evaluation';
                 $evaluationContracts->push($contract);
             }
         }
 
+        $pastDueEvaluations = DB::table('kontrak')
+        ->join('karyawan', 'kontrak.nik', '=', 'karyawan.nik')
+        ->select('kontrak.*', DB::raw('DATEDIFF(NOW(), DATE_ADD(start_date, INTERVAL 3 MONTH)) as days_overdue'),
+        'karyawan.nama_lengkap',)
+        ->where('status_eval', 0)
+        ->whereRaw('DATEDIFF(NOW(), start_date) > 90')  // More than 3 months
+        ->get();
+
         $hrd = Karyawan::whereIn('jabatan', [25, 47])->get();
 
-        return view('performance.notification', compact('contracts', 'evaluationContracts', 'hrd'));
+        return view('performance.notification', compact('contracts', 'pastDueEvaluations', 'evaluationContracts', 'hrd'));
     }
 
     public function dashboard()
@@ -271,6 +274,7 @@ class PerformanceController extends Controller
         // Get employee data using NIK from contract
         $employee = DB::table('karyawan')
             ->where('nik', $contract->nik)
+            ->where('status_kar', 'Aktif')
             ->first();
 
         if (!$employee) {
@@ -284,6 +288,7 @@ class PerformanceController extends Controller
 
         $employeeAtasan = DB::table('karyawan')
             ->where('jabatan', $jabatan->jabatan_atasan)
+            ->where('status_kar', 'Aktif')
             ->first();
 
         $type = $request->query('type');

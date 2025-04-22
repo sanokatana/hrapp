@@ -17,19 +17,23 @@
         white-space: nowrap;
     }
     .contract-table .col-contract {
-        width: 50%;
+        width: 25%;
     }
     .contract-table .col-date {
-        width: 30%;
+        width: 20%;
     }
     .contract-table .col-actions {
-        width: 40%;
+        width: 10%;
     }
     .btn-group .btn {
         margin-right: 5px;
     }
     .btn-group .btn:last-child {
         margin-right: 0;
+    }
+    /* Add this for stacked buttons */
+    .d-flex.flex-column.gap-2 > button {
+        margin-bottom: 8px;
     }
 </style>
 @if(session('success'))
@@ -72,6 +76,7 @@
                     <tr>
                         <th class="col-contract">Contract Details</th>
                         <th class="col-date">Start Date</th>
+                        <th class="col-date">Duration</th>
                         <th class="col-date">End Date</th>
                         <th class="col-actions">Actions</th>
                     </tr>
@@ -81,7 +86,9 @@
                     <tr>
                         <td class="col-contract">
                             <a href="#" id="{{ $contract->id }}" class="text-reset view">
-                                <b>Kontrak</b> | <b>{{ $contract->no_kontrak }}</b> | {{ $contract->nama_lengkap }} - {{ $contract->position }}
+                                <b>Kontrak</b> |
+                                <b>{{ $contract->no_kontrak }}</b><br>
+                                {{ $contract->nama_lengkap }} - {{ $contract->position }}
                             </a>
                         </td>
                         <td class="col-date">
@@ -99,6 +106,20 @@
                         <td class="col-date">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M12 8v4l2 2"></path>
+                                <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path>
+                            </svg>
+                            <?php
+                            $startDate = \Carbon\Carbon::parse($contract->start_date);
+                            $today = \Carbon\Carbon::now();
+                            $months = $today->diffInMonths($startDate);
+                            $days = $today->copy()->subMonths($months)->diffInDays($startDate);
+                            echo $months . ' Months ' . $days . ' Days';
+                            ?>
+                        </td>
+                        <td class="col-date">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                 <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"></path>
                                 <path d="M16 3v4"></path>
                                 <path d="M8 3v4"></path>
@@ -112,7 +133,7 @@
                             </div>
                         </td>
                         <td class="col-actions">
-                            <div class="btn-group">
+                            <div class="d-flex flex-column gap-2">
                                 <button class="btn btn-sm btn-primary print-confirm" data-id="{{ $contract->id }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -123,6 +144,115 @@
                                     Print Contract
                                 </button>
                                 <button class="btn btn-sm btn-info print-contract" data-id="{{ $contract->id }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-report" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                        <path d="M17 17h-10a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2z"></path>
+                                        <path d="M9 5h6a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-6"></path>
+                                        <path d="M14 8h-8"></path>
+                                        <path d="M14 12h-8"></path>
+                                        <path d="M14 16h-8"></path>
+                                    </svg>
+                                    Print Evaluation
+                                </button>
+                                <button class="btn btn-sm btn-warning contract-action" data-id="{{ $contract->id }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                        <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
+                                        <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
+                                        <path d="M16 5l3 3"></path>
+                                    </svg>
+                                    Action
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Past 3 Months Evaluation Table -->
+<div class="card mt-4">
+    <div class="card-body">
+        <div class="card-header">
+            <h3 class="card-title">Past 3 Months Evaluation</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="table card-table table-vcenter contract-table">
+                <thead>
+                    <tr>
+                        <th class="col-contract">Contract Details</th>
+                        <th class="col-date">Start Date</th>
+                        <th class="col-date">Duration</th>
+                        <th class="col-date">Evaluation Due Date</th>
+                        <th class="col-actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($pastDueEvaluations as $contract)
+                    <tr>
+                        <td class="col-contract">
+                            <a href="#" id="{{ $contract->id }}" class="text-reset view">
+                                <b>Evaluasi Tertunda</b><br>
+                                <b>{{ $contract->no_kontrak }}</b><br>
+                                {{ $contract->nama_lengkap }} - {{ $contract->position }}
+                            </a>
+                        </td>
+                        <td class="col-date">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"></path>
+                                <path d="M16 3v4"></path>
+                                <path d="M8 3v4"></path>
+                                <path d="M4 11h16"></path>
+                                <path d="M11 15h1"></path>
+                                <path d="M12 15v3"></path>
+                            </svg>
+                            {{ \Carbon\Carbon::parse($contract->start_date)->format('F d, Y') }}
+                        </td>
+                        <td class="col-date">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M12 8v4l2 2"></path>
+                                <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path>
+                            </svg>
+                            <?php
+                            $startDate = \Carbon\Carbon::parse($contract->start_date);
+                            $today = \Carbon\Carbon::now();
+                            $months = $today->diffInMonths($startDate);
+                            $days = $today->copy()->subMonths($months)->diffInDays($startDate);
+                            echo $months . ' Months ' . $days . ' Days';
+                            ?>
+                        </td>
+                        <td class="col-date">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"></path>
+                                <path d="M16 3v4"></path>
+                                <path d="M8 3v4"></path>
+                                <path d="M4 11h16"></path>
+                                <path d="M11 15h1"></path>
+                                <path d="M12 15v3"></path>
+                            </svg>
+                            {{ \Carbon\Carbon::parse($contract->start_date)->addMonths(3)->format('F d, Y') }}
+                            <div class="text-muted small text-danger">
+                                <strong>{{ abs($contract->days_overdue) }} hari terlambat</strong>
+                            </div>
+                        </td>
+                        <td class="col-actions">
+                            <div class="d-flex flex-column gap-2">
+                                <button class="btn btn-sm btn-primary print-confirm" data-id="{{ $contract->id }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                        <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2"></path>
+                                        <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4"></path>
+                                        <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z"></path>
+                                    </svg>
+                                    Print Contract
+                                </button>
+                                <button class="btn btn-sm btn-danger print-contract" data-id="{{ $contract->id }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-report" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                         <path d="M17 17h-10a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2z"></path>
@@ -164,6 +294,7 @@
                     <tr>
                         <th class="col-contract">Contract Details</th>
                         <th class="col-date">Start Date</th>
+                        <th class="col-date">Duration</th>
                         <th class="col-date">Evaluation Date</th>
                         <th class="col-actions">Actions</th>
                     </tr>
@@ -173,7 +304,9 @@
                     <tr>
                         <td class="col-contract">
                             <a href="#" id="{{ $contract->id }}" class="text-reset view">
-                                <b>Evaluasi 3 Bulan</b> | <b>{{ $contract->no_kontrak }}</b> | {{ $contract->nama_lengkap }} - {{ $contract->position }}
+                                <b>Evaluasi 3 Bulan</b> |
+                                <b>{{ $contract->no_kontrak }}</b><br>
+                                {{ $contract->nama_lengkap }} - {{ $contract->position }}
                             </a>
                         </td>
                         <td class="col-date">
@@ -191,6 +324,20 @@
                         <td class="col-date">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M12 8v4l2 2"></path>
+                                <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path>
+                            </svg>
+                            <?php
+                            $startDate = \Carbon\Carbon::parse($contract->start_date);
+                            $today = \Carbon\Carbon::now();
+                            $months = $today->diffInMonths($startDate);
+                            $days = $today->copy()->subMonths($months)->diffInDays($startDate);
+                            echo $months . ' Months ' . $days . ' Days';
+                            ?>
+                        </td>
+                        <td class="col-date">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                 <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"></path>
                                 <path d="M16 3v4"></path>
                                 <path d="M8 3v4"></path>
@@ -204,7 +351,7 @@
                             </div>
                         </td>
                         <td class="col-actions">
-                            <div class="btn-group">
+                            <div class="d-flex flex-column gap-2">
                                 <button class="btn btn-sm btn-primary print-confirm" data-id="{{ $contract->id }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
