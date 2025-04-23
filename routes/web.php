@@ -386,6 +386,7 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::get('/performance/notificationEmail', [PerformanceController::class, 'notificationEmail']);
     Route::post('/performance/peningkatanOrExtend', [PerformanceController::class, 'peningkatanOrExtend']);
     Route::post('/contracts/send-email', [PerformanceController::class, 'sendEmail'])->name('contracts.sendEmail');
+    Route::post('/performance/update-eval-status', [PerformanceController::class, 'updateEvalStatus'])->name('performance.updateEvalStatus');
 
 
     //Recruitment - Candidate

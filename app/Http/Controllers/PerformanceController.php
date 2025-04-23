@@ -32,7 +32,8 @@ class PerformanceController extends Controller
                 'karyawan.nama_lengkap',
                 'kontrak.nik',
                 'kontrak.position',
-                'kontrak.id'
+                'kontrak.id',
+                'kontrak.status_eval'
             )
             ->where('kontrak.status', 'Active')
             ->where('karyawan.status_kar', 'Aktif')
@@ -66,12 +67,16 @@ class PerformanceController extends Controller
         }
 
         $pastDueEvaluations = DB::table('kontrak')
-        ->join('karyawan', 'kontrak.nik', '=', 'karyawan.nik')
-        ->select('kontrak.*', DB::raw('DATEDIFF(NOW(), DATE_ADD(start_date, INTERVAL 3 MONTH)) as days_overdue'),
-        'karyawan.nama_lengkap',)
-        ->where('status_eval', 0)
-        ->whereRaw('DATEDIFF(NOW(), start_date) > 90')  // More than 3 months
-        ->get();
+            ->join('karyawan', 'kontrak.nik', '=', 'karyawan.nik')
+            ->select(
+                'kontrak.*',
+                DB::raw('DATEDIFF(NOW(), DATE_ADD(start_date, INTERVAL 3 MONTH)) as days_overdue'),
+                'karyawan.nama_lengkap',
+            )
+            ->where('status_eval', 0)
+            ->where('karyawan.status_kar', 'Aktif')
+            ->whereRaw('DATEDIFF(NOW(), start_date) > 90')  // More than 3 months
+            ->get();
 
         $hrd = Karyawan::whereIn('jabatan', [25, 47])->get();
 
@@ -560,5 +565,23 @@ class PerformanceController extends Controller
             12 => 'XII'
         ];
         return $romanMonths[$month];
+    }
+
+    public function updateEvalStatus(Request $request)
+    {
+        $request->validate([
+            'contract_id' => 'required|exists:kontrak,id',  // Uses 'kontrak' table instead of 'contracts'
+            'status_eval' => 'required|boolean'
+        ]);
+
+        try {
+            $contract = Contract::findOrFail($request->contract_id);
+            $contract->status_eval = $request->status_eval;
+            $contract->save();
+
+            return response()->json(['success' => true]);
+        } catch (Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
     }
 }
