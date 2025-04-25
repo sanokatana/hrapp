@@ -744,7 +744,20 @@ class RecruitmentController extends Controller
                 <li>Waktu             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$interview_time} - Selesai</li>
                 <li>Posisi di lamar   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$nama_posisi}</li>
                 <li>Tahap Interview   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$stage_interview_name}</li>
-                <li>Interviewer       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {$interviewer} & {$interviewer2}</li>
+                <li>Interviewer       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
+            EOD;
+
+                        // Conditionally format the interviewer text
+                        if (empty($interviewer2)) {
+                            $emailContent .= "{$interviewer}";
+                        } elseif ($interviewer == $interviewer2) {
+                            $emailContent .= "{$interviewer}";
+                        } else {
+                            $emailContent .= "{$interviewer} & {$interviewer2}";
+                        }
+
+                        $emailContent .= <<<EOD
+            </li>
                 <li>Alamat            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: CHL Group Marketing Lounge,<br>
                 Ruko Sorrento Place No. 18-19 PJQJ+R8G, Jl. Ir.Sukarno, Curug Sangereng, Kec.Klp. Dua, Kabupaten Tangerang, Banten 15810.
                 <a href='https://goo.gl/maps/Ko81dv9gxMHmMC7p9'>Google Maps</a><br>
@@ -756,7 +769,7 @@ class RecruitmentController extends Controller
             Zicki Darmawan<br>
             HR CHL Group<br>
             <a href="https://www.ciptaharmoni.com/">www.ciptaharmoni.com</a><br><br><br><br>
-        EOD;
+            EOD;
 
             // Send email
             Mail::html($emailContent, function ($message) use ($email, $nama_candidate, $email_user, $stage_interview_name) {

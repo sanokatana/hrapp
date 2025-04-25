@@ -20,7 +20,16 @@ class PerformanceController extends Controller
     public function notification()
     {
         $today = Carbon::now();
-        $sixMonthsFromNow = $today->copy()->addMonths(3); // updated from 3 to 6
+        $sixMonthsFromNow = $today->copy()->addMonths(3);
+
+        // First, get a list of NIKs that have more than one contract
+        // These are employees who have had previous contracts
+        $employeesWithPreviousContracts = DB::table('kontrak')
+            ->select('nik')
+            ->groupBy('nik')
+            ->havingRaw('COUNT(*) > 1')
+            ->pluck('nik')
+            ->toArray();
 
         // Get all active contracts
         $allContracts = DB::table('kontrak')
@@ -51,21 +60,26 @@ class PerformanceController extends Controller
             $days_until_end = $today->diffInDays($end_date, false);
             $days_until_evaluation = $today->diffInDays($three_month_date, false);
 
-            // Show contracts ending within 6 months
-            if ($days_until_end > 0 && $days_until_end <= 90) { // updated from 90 to 180
+            // Show contracts ending within 90 days (for contract renewal notifications)
+            if ($days_until_end > 0 && $days_until_end <= 90) {
                 $contract->days_left = $days_until_end;
                 $contract->notification_type = 'end_contract';
                 $contracts->push($contract);
             }
 
-            // Still show 3-month evaluations (optional)
-            if ($days_until_evaluation > 0 && $three_month_date->lte($sixMonthsFromNow)) { // changed 3-month window to 6-month
+            // Only show 3-month evaluations for employees who have previous contracts
+            if (
+                !in_array($contract->nik, $employeesWithPreviousContracts) &&
+                $days_until_evaluation > 0 &&
+                $three_month_date->lte($sixMonthsFromNow)
+            ) {
                 $contract->days_left = $days_until_evaluation;
                 $contract->notification_type = 'evaluation';
                 $evaluationContracts->push($contract);
             }
         }
 
+        // For past due evaluations, also filter by employees without previous contracts
         $pastDueEvaluations = DB::table('kontrak')
             ->join('karyawan', 'kontrak.nik', '=', 'karyawan.nik')
             ->select(
@@ -76,6 +90,7 @@ class PerformanceController extends Controller
             ->where('status_eval', 0)
             ->where('karyawan.status_kar', 'Aktif')
             ->whereRaw('DATEDIFF(NOW(), start_date) > 90')  // More than 3 months
+            ->whereNotIn('kontrak.nik', $employeesWithPreviousContracts) // Add this filter
             ->get();
 
         $hrd = Karyawan::whereIn('jabatan', [25, 47])->get();
