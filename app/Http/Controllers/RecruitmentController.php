@@ -1654,13 +1654,20 @@ class RecruitmentController extends Controller
         // Fill the family members with actual data
         foreach ($pendidikanData as $index => $pendidikan) {
             if ($index < 8) { // Only fill up to 4 rows
+                $dari_sampai = '';
+
+                // Only format and show dates if both from and to dates exist
+                if (!empty($pendidikan->dari) && !empty($pendidikan->sampai)) {
+                    $dari_sampai = date('d M y', strtotime($pendidikan->dari)) . ' - ' . date('d M y', strtotime($pendidikan->sampai));
+                }
+
                 $pendidikanList[$index] = [
                     'tingkat_besar' => $pendidikan->tingkat_besar,
                     'nama_sekolah' => $pendidikan->nama_sekolah,
                     'tempat_sekolah' => $pendidikan->tempat_sekolah,
                     'jurusan_studi' => $pendidikan->jurusan_studi,
                     'berijazah' => $pendidikan->berijazah,
-                    'dari_sampai' => date('d M y', strtotime($pendidikan->dari)) . ' - ' . date('d M y', strtotime($pendidikan->sampai)),
+                    'dari_sampai' => $dari_sampai, // Use the conditionally formatted string
                     'keterangan' => $pendidikan->keterangan,
                 ];
             }

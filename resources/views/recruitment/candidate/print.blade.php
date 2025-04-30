@@ -1052,7 +1052,6 @@ use App\Helpers\DateHelper;
         <p class="MsoNormal" style="margin-left:18.5pt;"><span class="dotted-line">{{$candidates->sakit_lama}}</span></p>
         <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.15pt; margin-left:0in;text-indent:0in;"><strong>&nbsp;</strong></p>
         <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.3pt; margin-left:0in;text-indent:0in;"><strong>&nbsp;</strong></p>
-        <p class="MsoNormal" style="margin:0in;text-indent:0in;"><strong>&nbsp;</strong></p>
         <p class="MsoNormal" style="margin-top:0in;margin-right:0in;margin-bottom:5.25pt; margin-left:-.25pt;">
             <strong>H. GAMBARAN POSISI SAAT INI&nbsp;</strong>
         </p>
@@ -1073,7 +1072,7 @@ use App\Helpers\DateHelper;
         if (file_exists($imagePath)) {
             echo '<img src="' . asset('storage/uploads/candidate/' . $candidates->candidate_id . '.' . Str::slug($candidates->nama_candidate) . '/' . $candidates->gambaran_posisi) . '" alt="Gambaran Posisi" style="max-width: 100%; height: auto; margin-top: 10px;">';
         } else {
-            echo '<p style="color: red;">Image not found.</p>';
+            echo '<p style="color: red;"></p>';
         }
         ?>
 
