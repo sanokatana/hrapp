@@ -17,10 +17,23 @@ use App\Models\SK;
 
 class PerformanceController extends Controller
 {
-    public function notification()
+    public function notification(Request $request)
     {
+        $years = DB::table('kontrak')
+            ->selectRaw('MIN(YEAR(start_date)) as earliest_year, MAX(YEAR(end_date)) as latest_year')
+            ->first();
+
+        $earliestYear = $years->earliest_year;
+        $latestYear = $years->latest_year;
+
+        // Get search parameters from request
+        $searchMonth = $request->input('bulan');
+        $searchYear = $request->input('tahun');
+        $isSearching = !empty($searchMonth) || !empty($searchYear);
+
         $today = Carbon::now();
-        $sixMonthsFromNow = $today->copy()->addMonths(3);
+        $threeMonthsFromNow = $today->copy()->addMonths(3);
+        $sixMonthsFromNow = $today->copy()->addMonths(6);
 
         // First, get a list of NIKs that have more than one contract
         // These are employees who have had previous contracts
@@ -31,8 +44,52 @@ class PerformanceController extends Controller
             ->pluck('nik')
             ->toArray();
 
-        // Get all active contracts
-        $allContracts = DB::table('kontrak')
+        // Build base query for active contracts
+        $contractQuery = DB::table('kontrak')
+            ->join('karyawan', 'kontrak.nik', '=', 'karyawan.nik')
+            ->select(
+                'kontrak.no_kontrak',
+                'kontrak.start_date',
+                'kontrak.end_date',
+                'karyawan.nama_lengkap',
+                'kontrak.nik',
+                'kontrak.position',
+                'kontrak.id',
+                'kontrak.status_eval'
+            )
+            ->where('kontrak.status', 'Active')
+            ->where('karyawan.status_kar', 'Aktif');
+
+        // If searching by month/year, apply those filters for contracts
+        if ($isSearching) {
+            if (!empty($searchMonth)) {
+                $contractQuery->whereMonth('kontrak.end_date', $searchMonth);
+            }
+            if (!empty($searchYear)) {
+                $contractQuery->whereYear('kontrak.end_date', $searchYear);
+            }
+        } else {
+            // If not searching, only show contracts ending within 90 days
+            $contractQuery->whereBetween('kontrak.end_date', [$today, $threeMonthsFromNow]);
+        }
+
+        // Get contract notifications
+        $contractData = $contractQuery->orderBy('kontrak.end_date')->get();
+        $contracts = collect();
+
+        foreach ($contractData as $contract) {
+            $end_date = Carbon::parse($contract->end_date);
+            $days_until_end = $today->diffInDays($end_date, false);
+
+            // Include all active contracts that match our criteria
+            $contract->days_left = $days_until_end;
+            $contract->notification_type = 'end_contract';
+            $contracts->push($contract);
+        }
+
+        // SEPARATE QUERY: Build query for evaluation notifications
+        // This specifically gets first-time employees who need 3-month evaluations
+        $evaluationQuery = DB::table('kontrak')
             ->join('karyawan', 'kontrak.nik', '=', 'karyawan.nik')
             ->select(
                 'kontrak.no_kontrak',
@@ -46,40 +103,26 @@ class PerformanceController extends Controller
             )
             ->where('kontrak.status', 'Active')
             ->where('karyawan.status_kar', 'Aktif')
-            ->orderBy('kontrak.start_date')
-            ->get();
+            ->whereNotIn('kontrak.nik', $employeesWithPreviousContracts); // Only first-time employees
 
-        $contracts = collect();
+        // Get evaluation notifications
+        $evaluationData = $evaluationQuery->orderBy('kontrak.start_date')->get();
         $evaluationContracts = collect();
 
-        foreach ($allContracts as $contract) {
-            $end_date = Carbon::parse($contract->end_date);
+        foreach ($evaluationData as $contract) {
             $start_date = Carbon::parse($contract->start_date);
             $three_month_date = $start_date->copy()->addMonths(3);
-
-            $days_until_end = $today->diffInDays($end_date, false);
             $days_until_evaluation = $today->diffInDays($three_month_date, false);
 
-            // Show contracts ending within 90 days (for contract renewal notifications)
-            if ($days_until_end > 0 && $days_until_end <= 90) {
-                $contract->days_left = $days_until_end;
-                $contract->notification_type = 'end_contract';
-                $contracts->push($contract);
-            }
-
-            // Only show 3-month evaluations for employees who have previous contracts
-            if (
-                !in_array($contract->nik, $employeesWithPreviousContracts) &&
-                $days_until_evaluation > 0 &&
-                $three_month_date->lte($sixMonthsFromNow)
-            ) {
+            // Only include evaluations that are upcoming (positive days) and within our window
+            if ($days_until_evaluation > 0 && $three_month_date->lte($sixMonthsFromNow)) {
                 $contract->days_left = $days_until_evaluation;
                 $contract->notification_type = 'evaluation';
                 $evaluationContracts->push($contract);
             }
         }
 
-        // For past due evaluations, also filter by employees without previous contracts
+        // Past due evaluations query remains unchanged
         $pastDueEvaluations = DB::table('kontrak')
             ->join('karyawan', 'kontrak.nik', '=', 'karyawan.nik')
             ->select(
@@ -90,14 +133,23 @@ class PerformanceController extends Controller
             ->where('status_eval', 0)
             ->where('karyawan.status_kar', 'Aktif')
             ->whereRaw('DATEDIFF(NOW(), start_date) > 90')  // More than 3 months
-            ->whereNotIn('kontrak.nik', $employeesWithPreviousContracts) // Add this filter
+            ->whereNotIn('kontrak.nik', $employeesWithPreviousContracts)
             ->get();
 
         $hrd = Karyawan::whereIn('jabatan', [25, 47])->get();
 
-        return view('performance.notification', compact('contracts', 'pastDueEvaluations', 'evaluationContracts', 'hrd'));
+        // Pass search parameters to the view
+        return view('performance.notification', compact(
+            'contracts',
+            'pastDueEvaluations',
+            'evaluationContracts',
+            'hrd',
+            'earliestYear',
+            'latestYear',
+            'searchMonth',
+            'searchYear'
+        ));
     }
-
     public function dashboard()
     {
         // Get current date and month

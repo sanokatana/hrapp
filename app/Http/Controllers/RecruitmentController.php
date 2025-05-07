@@ -80,7 +80,19 @@ class RecruitmentController extends Controller
         $nama_candidate = $request->nama_candidate;
         $email = $request->email;
         $job_opening_id = $request->job_opening_id;
-        $current_stage_id = 1;
+        $job_opening = DB::table('job_openings')
+            ->select('title', 'recruitment_type_id')
+            ->where('id', $job_opening_id)
+            ->first();
+
+        // Fetch the first stage ID for this recruitment type
+        $firstStage = DB::table('hiring_stages')
+            ->where('recruitment_type_id', $job_opening->recruitment_type_id)
+            ->orderBy('sequence', 'asc')  // Order by sequence to get the first stage
+            ->first();
+
+        // Set the current stage to the first stage of this recruitment type
+        $current_stage_id = $firstStage ? $firstStage->id : 1; // Fallback to 1 if no stages defined
         $status = 'In Process';
         $email_user = Auth::guard('user')->user()->email;
 
@@ -747,16 +759,16 @@ class RecruitmentController extends Controller
                 <li>Interviewer       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
             EOD;
 
-                        // Conditionally format the interviewer text
-                        if (empty($interviewer2)) {
-                            $emailContent .= "{$interviewer}";
-                        } elseif ($interviewer == $interviewer2) {
-                            $emailContent .= "{$interviewer}";
-                        } else {
-                            $emailContent .= "{$interviewer} & {$interviewer2}";
-                        }
+            // Conditionally format the interviewer text
+            if (empty($interviewer2)) {
+                $emailContent .= "{$interviewer}";
+            } elseif ($interviewer == $interviewer2) {
+                $emailContent .= "{$interviewer}";
+            } else {
+                $emailContent .= "{$interviewer} & {$interviewer2}";
+            }
 
-                        $emailContent .= <<<EOD
+            $emailContent .= <<<EOD
             </li>
                 <li>Alamat            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: CHL Group Marketing Lounge,<br>
                 Ruko Sorrento Place No. 18-19 PJQJ+R8G, Jl. Ir.Sukarno, Curug Sangereng, Kec.Klp. Dua, Kabupaten Tangerang, Banten 15810.
@@ -1175,8 +1187,8 @@ class RecruitmentController extends Controller
             // THEN do the file handling
             $candidateId = $candidateData->candidate_id;
             $nama_candidate = Str::slug($candidateData->nama_lengkap);
-            $sourceFolder = storage_path("app/public/uploads/candidate/{$candidateId}.{$nama_candidate}");
-            $destinationFolder = storage_path("app/public/uploads/karyawan/{$nik}.{$candidateData->nama_lengkap}/files");
+            $sourceFolder = storage_path("public/uploads/candidate/{$candidateId}.{$nama_candidate}");
+            $destinationFolder = storage_path("public/uploads/karyawan/{$nik}.{$candidateData->nama_lengkap}/files");
 
             // Create destination directory if it doesn't exist
             if (!file_exists($destinationFolder)) {
