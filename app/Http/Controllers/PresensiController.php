@@ -1230,127 +1230,146 @@ class PresensiController extends Controller
 
 
     public function batalCuti(Request $request)
-    {
-        $cutiIds = $request->input('cuti_ids');
-        $email_karyawan = Auth::guard('karyawan')->user()->email;
+{
+    $cutiIds = $request->input('cuti_ids');
+    $email_karyawan = Auth::guard('karyawan')->user()->email;
 
-        if ($cutiIds) {
-            DB::beginTransaction();
+    if ($cutiIds) {
+        DB::beginTransaction();
 
-            try {
-                // Check if any status is already 3
-                $existingStatus = PengajuanCuti::whereIn('id', $cutiIds)
-                    ->where(function ($query) {
-                        $query->where('status_approved', 3)
-                            ->orWhere('status_approved_hrd', 3)
-                            ->orWhere('status_management', 3);
-                    })
-                    ->exists();
+        try {
+            // Check if any status is already 3
+            $existingStatus = PengajuanCuti::whereIn('id', $cutiIds)
+                ->where(function ($query) {
+                    $query->where('status_approved', 3)
+                        ->orWhere('status_approved_hrd', 3)
+                        ->orWhere('status_management', 3);
+                })
+                ->exists();
 
-                if ($existingStatus) {
-                    return response()->json(['success' => false, 'message' => 'Cuti ini sudah di batalkan']);
-                }
+            if ($existingStatus) {
+                return response()->json(['success' => false, 'message' => 'Cuti ini sudah di batalkan']);
+            }
 
-                // Fetch leave applications
-                $leaveApplications = PengajuanCuti::whereIn('id', $cutiIds)->get();
+            // Fetch leave applications
+            $leaveApplications = PengajuanCuti::whereIn('id', $cutiIds)->get();
 
-                // Update statuses to 3
-                PengajuanCuti::whereIn('id', $cutiIds)
-                    ->update([
-                        'status_approved' => 3,
-                        'status_approved_hrd' => 3,
-                        'status_management' => 3,
-                    ]);
-
-                foreach ($leaveApplications as $leaveApplication) {
-                    $employee = DB::table('karyawan')->where('nik', $leaveApplication->nik)->first();
-                    $cutiRecord = DB::table('cuti')
-                        ->where('nik', $leaveApplication->nik)
-                        ->where('tahun', $leaveApplication->periode)
-                        ->first();
-
-                    if ($cutiRecord) {
-                        $newSisaCuti = $cutiRecord->sisa_cuti + $leaveApplication->jml_hari;
-
-                        DB::table('cuti')
-                            ->where('nik', $leaveApplication->nik)
-                            ->where('tahun', $leaveApplication->periode)
-                            ->update(['sisa_cuti' => $newSisaCuti]);
-                    }
-
-                    // Email notification logic
-                    $emailContent = "
-                        Pembatalan Cuti Karyawan<br><br>
-                        Nama : {$employee->nama_lengkap}<br>
-                        Tanggal Pembatalan : " . DateHelper::formatIndonesianDate(now()->toDateString()) . "<br>
-                        NIK : {$leaveApplication->nik}<br>
-                        NIP : {$leaveApplication->nip}<br>
-                        Periode : {$leaveApplication->periode}<br>
-                        Tanggal Cuti : " . DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti) . "<br>
-                        Tanggal Cuti Sampai : " . DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti_sampai) . "<br>
-                        Jumlah Hari : {$leaveApplication->jml_hari}<br>
-                        Sisa Cuti Setelah Pembatalan : {$newSisaCuti}<br><br>
-
-                        Terima Kasih
-                    ";
-
-                    Mail::html($emailContent, function ($message) use ($leaveApplication, $email_karyawan) {
-                        $ccList = [
-                            'human.resources@ciptaharmoni.com',
-                            'al.imron@ciptaharmoni.com',
-                            'mahardika@ciptaharmoni.com',
-                        ];
-
-                        if (!empty($email_karyawan) && filter_var($email_karyawan, FILTER_VALIDATE_EMAIL)) {
-                            $ccList[] = $email_karyawan;
-                        } else {
-                            Log::warning("Invalid or empty email_karyawan: {$email_karyawan}");
-                        }
-
-                        $atasanEmail = null;
-                        if ($leaveApplication->nik) {
-                            $employee = DB::table('karyawan')->where('nik', $leaveApplication->nik)->first();
-                            if ($employee && $employee->jabatan) {
-                                $jabatanAtasan = DB::table('jabatan')->where('id', $employee->jabatan)->value('jabatan_atasan');
-                                if ($jabatanAtasan) {
-                                    $atasan = DB::table('karyawan')->where('jabatan', $jabatanAtasan)->first();
-                                    if ($atasan && $atasan->email) {
-                                        $atasanEmail = $atasan->email;
-                                    }
-                                }
-                            }
-                        }
-
-                        if ($atasanEmail) {
-                            $message->to($atasanEmail)
-                                ->subject("Pembatalan Cuti: {$employee->nama_lengkap}")
-                                ->cc($ccList)
-                                ->priority(1);
-
-                            $message->getHeaders()->addTextHeader('Importance', 'high');
-                            $message->getHeaders()->addTextHeader('X-Priority', '1');
-                        } else {
-                            Log::warning("Atasan email not found for employee NIK: {$leaveApplication->nik}");
-                        }
-                    });
-                }
-
-                DB::commit();
-
-                return response()->json(['success' => true, 'message' => 'Pengajuan cuti berhasil dibatalkan']);
-            } catch (\Exception $e) {
-                DB::rollBack();
-
-                Log::error('Error in batalCuti method', [
-                    'error' => $e->getMessage(),
-                    'cuti_ids' => $cutiIds,
-                    'trace' => $e->getTraceAsString(),
+            // Update statuses to 3
+            PengajuanCuti::whereIn('id', $cutiIds)
+                ->update([
+                    'status_approved' => 3,
+                    'status_approved_hrd' => 3,
+                    'status_management' => 3,
                 ]);
 
-                return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
-            }
-        }
+            // Prepare a consolidated email for all cancellations
+            $emailContent = "Pembatalan Cuti Karyawan<br><br>";
+            $totalDaysReturned = 0;
+            $employeeNik = null;
+            $employeeName = null;
 
-        return response()->json(['success' => false, 'message' => 'Tidak ada pengajuan cuti yang dipilih']);
+            foreach ($leaveApplications as $leaveApplication) {
+                $employee = DB::table('karyawan')->where('nik', $leaveApplication->nik)->first();
+                $employeeNik = $leaveApplication->nik; // Store for supervisor lookup
+                $employeeName = $employee->nama_lengkap; // Store for email subject
+
+                $cutiRecord = DB::table('cuti')
+                    ->where('nik', $leaveApplication->nik)
+                    ->where('tahun', $leaveApplication->periode)
+                    ->first();
+
+                if ($cutiRecord) {
+                    $newSisaCuti = $cutiRecord->sisa_cuti + $leaveApplication->jml_hari;
+                    $totalDaysReturned += $leaveApplication->jml_hari;
+
+                    DB::table('cuti')
+                        ->where('nik', $leaveApplication->nik)
+                        ->where('tahun', $leaveApplication->periode)
+                        ->update(['sisa_cuti' => $newSisaCuti]);
+                }
+
+                // Add this leave application to the email content
+                $emailContent .= "
+                    Nama : {$employee->nama_lengkap}<br>
+                    Tanggal Pembatalan : " . DateHelper::formatIndonesianDate(now()->toDateString()) . "<br>
+                    NIK : {$leaveApplication->nik}<br>
+                    NIP : {$leaveApplication->nip}<br>
+                    Periode : {$leaveApplication->periode}<br>
+                    Tanggal Cuti : " . DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti) . "<br>
+                    Tanggal Cuti Sampai : " . DateHelper::formatIndonesianDate($leaveApplication->tgl_cuti_sampai) . "<br>
+                    Jumlah Hari : {$leaveApplication->jml_hari}<br>
+                    Sisa Cuti Setelah Pembatalan : {$newSisaCuti}<br>
+                    <hr>
+                ";
+            }
+
+            // Add a summary to the email content
+            $emailContent .= "
+                <b>Total hari cuti yang dikembalikan: {$totalDaysReturned}</b><br><br>
+                Terima Kasih
+            ";
+
+            // Find supervisor email (using the last employee's data)
+            $atasanEmail = null;
+            if ($employeeNik) {
+                $employee = DB::table('karyawan')->where('nik', $employeeNik)->first();
+                if ($employee && $employee->jabatan) {
+                    $jabatanAtasan = DB::table('jabatan')->where('id', $employee->jabatan)->value('jabatan_atasan');
+                    if ($jabatanAtasan) {
+                        $atasan = DB::table('karyawan')->where('jabatan', $jabatanAtasan)->first();
+                        if ($atasan && $atasan->email) {
+                            $atasanEmail = $atasan->email;
+                        }
+                    }
+                }
+            }
+
+            // Send a single email with all the information
+            Mail::html($emailContent, function ($message) use ($atasanEmail, $employeeName, $email_karyawan) {
+                $ccList = [
+                    'human.resources@ciptaharmoni.com',
+                    'al.imron@ciptaharmoni.com',
+                    'mahardika@ciptaharmoni.com',
+                ];
+
+                if (!empty($email_karyawan) && filter_var($email_karyawan, FILTER_VALIDATE_EMAIL)) {
+                    $ccList[] = $email_karyawan;
+                }
+
+                // If supervisor found, send to them, otherwise send to HR
+                if ($atasanEmail && filter_var($atasanEmail, FILTER_VALIDATE_EMAIL)) {
+                    $message->to($atasanEmail);
+                } else {
+                    $message->to('human.resources@ciptaharmoni.com');
+                    // Remove HR from CC since they're now the primary recipient
+                    $ccList = array_diff($ccList, ['human.resources@ciptaharmoni.com']);
+                    Log::warning("Atasan email not found for employee, sending to HR instead");
+                }
+
+                $message->subject("Pembatalan Cuti: {$employeeName}")
+                    ->cc($ccList)
+                    ->priority(1);
+
+                $message->getHeaders()->addTextHeader('Importance', 'high');
+                $message->getHeaders()->addTextHeader('X-Priority', '1');
+            });
+
+            DB::commit();
+
+            return response()->json(['success' => true, 'message' => 'Pengajuan cuti berhasil dibatalkan']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            Log::error('Error in batalCuti method', [
+                'error' => $e->getMessage(),
+                'cuti_ids' => $cutiIds,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+        }
     }
+
+    return response()->json(['success' => false, 'message' => 'Tidak ada pengajuan cuti yang dipilih']);
+}
 }

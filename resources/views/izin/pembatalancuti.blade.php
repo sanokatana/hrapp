@@ -122,23 +122,82 @@ use App\Helpers\DateHelper;
         }).get();
 
         if (selectedIds.length > 0) {
-            $.ajax({
-                url: $(this).attr('action'),
-                method: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    cuti_ids: selectedIds
-                },
-                success: function(response) {
-                    if (response.success) {
-                        Swal.fire('Success', 'Cuti has been successfully canceled!', 'success');
-                    } else {
-                        Swal.fire('Error', 'Something went wrong. Please try again.', 'error');
-                    }
+            // Show confirmation dialog first
+            Swal.fire({
+                title: 'Konfirmasi Pembatalan',
+                text: 'Apakah Anda yakin ingin membatalkan cuti yang dipilih?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, batalkan!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Disable the button and show loading state
+                    $('#batalBtn').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...');
+
+                    // Disable all checkboxes
+                    $("input[name='cuti_ids[]']").prop('disabled', true);
+
+                    // Show loading overlay
+                    Swal.fire({
+                        title: 'Memproses...',
+                        text: 'Mohon tunggu sebentar',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // Send AJAX request
+                    $.ajax({
+                        url: $(this).attr('action'),
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            cuti_ids: selectedIds
+                        },
+                        success: function(response) {
+                            // Close loading overlay
+                            Swal.close();
+
+                            if (response.success) {
+                                Swal.fire({
+                                    title: 'Berhasil!',
+                                    text: 'Cuti berhasil dibatalkan',
+                                    icon: 'success',
+                                    allowOutsideClick: false,
+                                    allowEscapeKey: false
+                                }).then((result) => {
+                                    // Reload page to show updated status
+                                    window.location.reload();
+                                });
+                            } else {
+                                // Re-enable button and checkboxes on failure
+                                $('#batalBtn').prop('disabled', false).html('<ion-icon name="search-outline"></ion-icon>Batalkan');
+                                $("input[name='cuti_ids[]']").prop('disabled', false);
+
+                                Swal.fire('Error', response.message || 'Terjadi kesalahan. Silakan coba lagi.', 'error');
+                            }
+                        },
+                        error: function(xhr) {
+                            // Close loading overlay
+                            Swal.close();
+
+                            // Re-enable button and checkboxes on error
+                            $('#batalBtn').prop('disabled', false).html('<ion-icon name="search-outline"></ion-icon>Batalkan');
+                            $("input[name='cuti_ids[]']").prop('disabled', false);
+
+                            Swal.fire('Error', 'Terjadi kesalahan pada server. Silakan coba lagi nanti.', 'error');
+                        }
+                    });
                 }
             });
         } else {
-            Swal.fire('No selection', 'Please select at least one Cuti to cancel.', 'warning');
+            Swal.fire('Tidak ada pilihan', 'Silakan pilih setidaknya satu cuti untuk dibatalkan.', 'warning');
         }
     });
 </script>
