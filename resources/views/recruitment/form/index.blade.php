@@ -89,6 +89,7 @@
                                         <option value="B">B</option>
                                         <option value="AB">AB</option>
                                         <option value="O">O</option>
+                                        <option value="-">-</option>
                                     </select>
                                 </div>
                             </div>
@@ -184,15 +185,27 @@
 
                             <!-- No. KTP/SIM -->
                             <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">No. KTP/SIM <span style="color: red;">*</span></label>
+                                <label class="col-md-3 col-form-label">Jenis Identitas <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="no_ktp_sim" id="no_ktp_sim" placeholder="No. KTP/SIM" maxlength="100">
+                                    <select class="form-select" name="jenis_identitas" id="jenis_identitas">
+                                        <option value="">Pilih</option>
+                                        <option value="KTP">KTP</option>
+                                        <option value="SIM">SIM</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- No. KTP/SIM -->
+                            <div class="row mb-3 align-items-center">
+                                <label class="col-md-3 col-form-label" id="label_no_identitas">No. Identitas <span style="color: red;">*</span></label>
+                                <div class="col-md-9">
+                                    <input type="text" class="form-control" name="no_ktp_sim" id="no_ktp_sim" placeholder="No. Identitas" maxlength="100">
                                 </div>
                             </div>
 
                             <!-- Tgl Berlaku KTP/SIM -->
-                            <div class="row mb-3 align-items-center">
-                                <label class="col-md-3 col-form-label">Tgl Berlaku KTP/SIM <span style="color: red;">*</span></label>
+                            <div class="row mb-3 align-items-center" id="tgl_berlaku_container">
+                                <label class="col-md-3 col-form-label">Tgl Berlaku SIM <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
                                     <input type="date" class="form-control" name="tgl_ktp_sim" id="tgl_ktp_sim">
                                 </div>
@@ -1286,6 +1299,47 @@
         }
     });
 
+    // Jenis Identitas handling
+    document.addEventListener('DOMContentLoaded', function() {
+        const jenisIdentitasSelect = document.getElementById('jenis_identitas');
+        const tglBerlakuContainer = document.getElementById('tgl_berlaku_container');
+        const tglKtpSimInput = document.getElementById('tgl_ktp_sim');
+        const labelNoIdentitas = document.getElementById('label_no_identitas');
+        const noKtpSimInput = document.getElementById('no_ktp_sim');
+
+        // Hide expiration date field by default
+        tglBerlakuContainer.style.display = 'none';
+        tglKtpSimInput.required = false;
+
+        // Check identity type on change
+        jenisIdentitasSelect.addEventListener('change', function() {
+            if (this.value === 'KTP') {
+                // KTP doesn't need expiration date (seumur hidup)
+                labelNoIdentitas.innerHTML = 'No. KTP <span style="color: red;">*</span>';
+                noKtpSimInput.placeholder = 'No. KTP';
+                tglBerlakuContainer.style.display = 'none';
+                tglKtpSimInput.required = false;
+                tglKtpSimInput.value = ''; // Clear the value
+            } else if (this.value === 'SIM') {
+                // SIM needs expiration date
+                labelNoIdentitas.innerHTML = 'No. SIM <span style="color: red;">*</span>';
+                noKtpSimInput.placeholder = 'No. SIM';
+                tglBerlakuContainer.style.display = 'flex';
+                tglKtpSimInput.required = true;
+            } else {
+                // Default state (no selection)
+                labelNoIdentitas.innerHTML = 'No. Identitas <span style="color: red;">*</span>';
+                noKtpSimInput.placeholder = 'No. Identitas';
+                tglBerlakuContainer.style.display = 'none';
+                tglKtpSimInput.required = false;
+                tglKtpSimInput.value = ''; // Clear the value
+            }
+        });
+
+        // Initialize the field on page load
+        jenisIdentitasSelect.dispatchEvent(new Event('change'));
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
         let pekerjaanCount = 1;
 
@@ -1360,10 +1414,6 @@
                 {
                     id: '#no_ktp_sim',
                     message: 'No. KTP/SIM Harus Diisi'
-                },
-                {
-                    id: '#tgl_ktp_sim',
-                    message: 'Tanggal Berlaku KTP/SIM Harus Diisi'
                 },
                 {
                     id: '#no_npwp',

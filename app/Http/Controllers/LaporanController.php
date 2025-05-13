@@ -31,9 +31,12 @@ class LaporanController extends Controller
             ->selectRaw('MIN(YEAR(scan_date)) as earliest_year, MAX(YEAR(scan_date)) as latest_year')
             ->first();
 
+        $departments = DB::table('department')
+            ->get();
+
         $earliestYear = $years->earliest_year;
         $latestYear = $years->latest_year;
-        return view('laporan.attendance', compact('earliestYear', 'latestYear'));
+        return view('laporan.attendance', compact('earliestYear', 'latestYear', 'departments'));
     }
 
     public function exportData(Request $request)
@@ -378,97 +381,135 @@ class LaporanController extends Controller
     // Helper function to determine attendance status
     private function getAttendanceStatus($date, $attendance, $isCuti, $isIzin, $work_start, $morning_start, $afternoon_start, $status_work)
     {
+
+        // Check for OFF day after night shift
+        if ($status_work === 'OFF' && $attendance) {
+            $jam_in = Carbon::parse($attendance->earliest_jam_in);
+            // If clock-in is before 12pm (noon), it's likely from previous night shift
+            if ($jam_in->format('H:i:s') < '12:00:00') {
+                return 'OFF';
+            }
+        }
+
+        // Check for Cuti - but handle weekends differently for non-shift workers
         if ($isCuti) {
-            if ($date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY) {
-                // If there is attendance, return 'P' instead of 'L'
+            // For non-shift workers (empty status_work or 'OFF'), show 'L' on weekends
+            if (($status_work === 'L' || $status_work === 'OFF') && $date->isWeekend()) {
                 return 'L';
-            } else {
-                return 'C';
             }
+            return 'C'; // Show Cuti for all other cases
         }
 
+        // If the employee has izin (Permission), handle multiple izin with priority
         if ($isIzin) {
-            $status = $isIzin->status;
-            $keputusan = $isIzin->keputusan;
-            $pukul = $isIzin->pukul;
+            // If $isIzin is an array or collection of multiple izin
+            $priorityOrder = ['Tmk', 'Ta', 'Dt', 'Tam', 'Tjo'];
+            $selectedIzin = null;
 
-            if ($status == 'Tmk') {
-                return $keputusan == 'Sakit' ? 'S' : ($keputusan == 'Ijin' ? 'I' : ($keputusan == 'Mangkir' ? 'MK' : ($keputusan == 'Tugas Luar' ? 'D' : 'C')));
-            }
+            // Convert to array if it's not already
+            $izinArray = is_array($isIzin) ? $isIzin : [$isIzin];
 
-            if ($status == 'Ta') {
-                return  $keputusan == 'Ijin' ? 'I' : ($keputusan == 'Tugas Luar' ? 'D' : 'P');
-            }
-
-            if ($status == 'Dt' && $attendance) {
-                $jam_in = Carbon::parse($attendance->earliest_jam_in);
-                if ($jam_in->gte(Carbon::parse($morning_start)) && $jam_in->lt(Carbon::parse($afternoon_start))) {
-                    // if ($pukul && abs($jam_in->diffInMinutes(Carbon::parse($pukul))) <= 5 && $keputusan == 'Terlambat') {
-                    //     return $status_work;
-                    // } else {
-                    //     return $status_work;
-                    // }
-                    return $status_work;
-                }
-            }
-
-            if ($status == 'Tam') {
-                $jam_in = $attendance ? Carbon::parse($attendance->earliest_jam_in) : null;
-                if (!$jam_in || $jam_in->lt(Carbon::parse($morning_start)) || $jam_in->gte(Carbon::parse($afternoon_start))) {
-                    return $status_work;
-                }
-            }
-
-            if ($status == 'Tjo') {
-                return 'OFF'; // Specific status for Tukar Jadwal Off
-            }
-        }
-
-        if ($status_work == 'OFF' && $attendance) {
-            $jam_in = Carbon::parse($attendance->earliest_jam_in);
-            if ($jam_in->lt(Carbon::parse($morning_start))) {
-                $latest_jam_in_after_morning = Carbon::parse($attendance->latest_jam_in_after_morning ?? $jam_in);
-                if ($latest_jam_in_after_morning->gte(Carbon::parse($morning_start))) {
-                    return $latest_jam_in_after_morning->gt(Carbon::parse($work_start)) ? 'T' : 'P';
-                } else {
-                    return 'T'; // No valid attendance after morning_start
-                }
-            } else {
-                return $jam_in->gte(Carbon::parse($morning_start)) && $jam_in->lt(Carbon::parse($afternoon_start))
-                    ? ($jam_in->gt(Carbon::parse($work_start)) ? 'T' : 'P')
-                    : 'T';
-            }
-        } else if ($attendance) {
-            $jam_in = Carbon::parse($attendance->earliest_jam_in);
-
-            // If attendance is before morning start
-            if ($jam_in->lt(Carbon::parse($work_start))) {
-                $latest_jam_in_after_morning = Carbon::parse($attendance->latest_jam_in_after_morning ?? $jam_in);
-
-                // Check if there is any valid attendance after the morning start time
-                if ($latest_jam_in_after_morning->gte(Carbon::parse($morning_start))) {
-                    return $latest_jam_in_after_morning->gt(Carbon::parse($work_start)) ? 'T' : 'P';
-                } else {
-                    // Handle weekend case separately
-                    if ($date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY) {
-                        // If there is attendance, return 'P' instead of 'L'
-                        return 'L';
+            // Find the highest priority izin
+            foreach ($priorityOrder as $priority) {
+                foreach ($izinArray as $izin) {
+                    if ($izin->status === $priority) {
+                        $selectedIzin = $izin;
+                        break 2; // Break both loops when found
                     }
-                    return ''; // No valid attendance after morning_start
                 }
-            } else {
-                // Attendance occurs during the day, before or after morning_start
-                return $jam_in->gte(Carbon::parse($morning_start)) && $jam_in->lt(Carbon::parse($afternoon_start))
-                    ? ($jam_in->gt(Carbon::parse($work_start)) ? 'T' : $status_work)
-                    : 'T';
             }
-        } else {
-            // Handle case when there is no attendance
-            return $date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY ? 'L' : '';
+
+            // If we found a prioritized izin, handle it
+            if ($selectedIzin) {
+                switch ($selectedIzin->status) {
+                    case 'Tmk':
+                        return $this->handleTmkStatus($selectedIzin->keputusan);
+                    case 'Ta':
+                        return $this->handleTaStatus($selectedIzin->keputusan);
+                    case 'Dt':
+                        return $this->handleDtStatus($attendance, $morning_start, $afternoon_start, $status_work);
+                    case 'Tam':
+                        return $this->handleTamStatus($attendance, $morning_start, $afternoon_start, $status_work, $selectedIzin->keputusan);
+                    case 'Tjo':
+                        return 'OFF';
+                }
+            }
         }
+
+        // Check if it's a national holiday (LN)
+        if ($this->isNationalHoliday($date)) {
+            // For shift workers (non-empty status_work), treat it as a regular work day
+            if ($status_work !== 'P' && $status_work !== 'OFF') {
+                if ($attendance) {
+                    return $this->handleAttendance($attendance, $work_start, $morning_start, $afternoon_start, $status_work);
+                }
+                return ''; // Missing attendance on a holiday for shift worker
+            }
+
+            // For non-shift workers or OFF shifts
+            if ($attendance) {
+                return $this->handleAttendance($attendance, $work_start, $morning_start, $afternoon_start, $status_work);
+            }
+            return 'LN';
+        }
+
+        if ($attendance) {
+            return $this->handleAttendance($attendance, $work_start, $morning_start, $afternoon_start, $status_work);
+        }
+
+        if ($status_work === 'OFF') {
+            return 'OFF';
+        }
+
+        if ($status_work === 'L') {
+            if ($attendance) {
+                return $this->handleAttendance($attendance, $work_start, $morning_start, $afternoon_start, $status_work);
+            } else {
+                return 'L';
+            }
+        }
+
+        // For shift workers, don't return 'L' on weekends if they have a non-OFF status_work
+        if ($status_work !== 'OFF' && $status_work !== '') {
+            return ''; // Empty for missing attendance, regardless of weekend
+        }
+
+        // Only return 'L' for weekend if not a shift worker
+        return $date->isWeekend() ? 'L' : '';
     }
 
+    private function isNationalHoliday($date)
+    {
+        $dateString = $date->format('Y-m-d');
 
+        // Cache the national holidays for better performance
+        $cacheKey = 'national_holidays_' . $date->format('Y_m');
+
+        $nationalHolidays = cache()->remember($cacheKey, 60, function () use ($date) {
+            return DB::table('libur_nasional')
+                ->whereMonth('tgl_libur', $date->month)
+                ->whereYear('tgl_libur', $date->year)
+                ->pluck('tgl_libur')
+                ->map(fn($date) => Carbon::parse($date)->format('Y-m-d'))
+                ->toArray();
+        });
+
+        return in_array($dateString, $nationalHolidays);
+    }
+
+    private function handleAttendance($attendance, $work_start, $morning_start, $afternoon_start, $status_work)
+    {
+        if (!$attendance) {
+            return ''; // Return empty if no attendance is available
+        }
+
+        // If earliest_jam_in is null, set it to 7:00 AM
+        $jam_in = Carbon::parse($attendance->earliest_jam_in ?? '07:00');
+
+        return $jam_in->gte(Carbon::parse($morning_start)) && $jam_in->lt(Carbon::parse($afternoon_start))
+            ? ($jam_in->gt(Carbon::parse($work_start)) ? 'T' : $status_work)
+            : 'T'; // Late if after work_start
+    }
 
     // Helper function to determine if the date falls within a leave period
     private function checkCuti($cuti, $nik, $date)
@@ -479,6 +520,64 @@ class LaporanController extends Controller
             }
         }
         return false;
+    }
+
+    private function handleTmkStatus($keputusan)
+    {
+        return match ($keputusan) {
+            'Sakit' => 'S:SAKIT', // Internal status code for Sick
+            'Ijin' => 'I',
+            'Mangkir' => 'MK',
+            'Tugas Luar' => 'D',
+            default => 'C',
+        };
+    }
+
+    // Separate method for handling 'Ta' (Ijin or Tugas Luar)
+    private function handleTaStatus($keputusan)
+    {
+        return match ($keputusan) {
+            'Ijin' => 'I',
+            'Tugas Luar' => 'D',
+            default => 'P',
+        };
+    }
+
+    // Handle the case where the employee is working in the day
+    // Handle the case where the employee is working in the day
+    private function handleDtStatus($attendance, $morning_start, $afternoon_start, $status_work)
+    {
+        if (!$attendance) {
+            return 'P'; // Return empty if no attendance is available
+        }
+
+        // If earliest_jam_in is null, set it to 7:00 AM
+        $jam_in = Carbon::parse($attendance->earliest_jam_in ?? '07:00');
+
+        if ($jam_in->gte(Carbon::parse($morning_start)) && $jam_in->lt(Carbon::parse($afternoon_start))) {
+            return $status_work;
+        }
+
+        return 'P'; // No valid attendance during working hours
+    }
+
+    // Handle the case where the employee is working with delayed attendance
+    private function handleTamStatus($attendance, $morning_start, $afternoon_start, $status_work, $keputusan)
+    {
+        if (!$attendance) {
+            if ($keputusan === 'Tugas Luar') {
+                return 'D';
+            }
+            return 'P'; // Return empty if no attendance is available
+        }
+
+        // If earliest_jam_in is null, set it to 7:00 AM
+        $jam_in = Carbon::parse($attendance->earliest_jam_in ?? '07:00');
+
+        if (!$jam_in || $jam_in->lt(Carbon::parse($morning_start)) || $jam_in->gte(Carbon::parse($afternoon_start))) {
+            return $status_work;
+        }
+        return ''; // No valid attendance during working hours
     }
 
     // Helper function to determine if the date falls within an izin period
@@ -500,30 +599,18 @@ class LaporanController extends Controller
     {
         $classes = [];
 
+        // Split status if it's a special case
+        $displayStatus = $status;
+        $type = null;
+
+        if (str_contains($status, ':')) {
+            $parts = explode(':', $status);
+            $displayStatus = $parts[0];
+            $type = $parts[1] ?? null;
+        }
+
         // Check if the date is a weekend
-        if ($date->dayOfWeek == Carbon::SATURDAY || $date->dayOfWeek == Carbon::SUNDAY) {
-            switch ($status) {
-                case 'T':
-                    $classes[] = 'late';
-                    break;
-                case 'P':
-                    $classes[] = ''; // No specific class for present on weekends
-                    break;
-                case 'M':
-                    $classes[] = 'kerja-malem'; // No specific class for present on weekends
-                    break;
-                case 'LN':
-                    $classes[] = 'dark-yellow';
-                    break;
-                case 'OFF':
-                    $classes[] = 'tukar_off'; // New class for Tukar Jadwal Off
-                    break;
-                default:
-                    $classes[] = 'weekend';
-                    break;
-            }
-        } else {
-            switch ($status) {
+            switch ($displayStatus) {
                 case 'T':
                     $classes[] = 'late';
                     break;
@@ -540,10 +627,15 @@ class LaporanController extends Controller
                     $classes[] = 'izin';
                     break;
                 case 'M':
-                    $classes[] = 'kerja-malem'; // No specific class for present on weekends
+                    $classes[] = '';
                     break;
                 case 'S':
-                    $classes[] = 'sakit';
+                    // Check if it's Sick or Siang
+                    if ($type === 'SAKIT') {
+                        $classes[] = 'sakit';
+                    } else {
+                        $classes[] = 'shift-siang';
+                    }
                     break;
                 case 'MK':
                     $classes[] = 'mangkir';
@@ -552,12 +644,12 @@ class LaporanController extends Controller
                     $classes[] = 'tugas_luar';
                     break;
                 case 'OFF':
-                    $classes[] = 'tukar_off'; // New class for Tukar Jadwal Off
+                    $classes[] = 'tukar_off';
                     break;
                 default:
                     break;
             }
-        }
+
 
         return implode(' ', $classes);
     }

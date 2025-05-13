@@ -55,10 +55,17 @@ use App\Helpers\DateHelper;
                                         <tr style="text-align: center;">
                                             <th>Nama Karyawan</th>
                                             <th>Jabatan</th>
+                                            <th>
+                                                @if(Auth::guard('user')->user()->level == 'Management')
+                                                    Nama Atasan
+                                                @else
+                                                @endif
+                                            </th>
                                             <th>Tanggal Izin <br> Sampai Tanggal</th>
                                             <th>Jmlh</th>
                                             <th>Tipe Izin</th>
                                             <th>Keterangan</th>
+                                            <th>Keputusan HRD</th>
                                             <th>Pukul</th>
                                             <th>Document</th>
                                             <th> Status HRD <br>-------------------<br> Status Atasan </th>
@@ -70,6 +77,12 @@ use App\Helpers\DateHelper;
                                         <tr style="text-align: center;">
                                             <td>{{ $d->nama_lengkap }}</td>
                                             <td>{{ $d->nama_jabatan }}</td>
+                                            <td>
+                                                @if(Auth::guard('user')->user()->level == 'Management')
+                                                    {{ $d->nama_atasan }}
+                                                @else
+                                                @endif
+                                            </td>
                                             <td>@if ($d->tgl_izin)
                                                 <span>{{ DateHelper::formatIndonesianDate($d->tgl_izin) }}<br>
                                                     @endif
@@ -82,6 +95,7 @@ use App\Helpers\DateHelper;
                                             <td>{{ $d->jml_hari }} </td>
                                             <td>{{ DateHelper::getStatusText($d->status) }}</td>
                                             <td>{{ $d->keterangan}} </td>
+                                            <td>{{ $d->keputusan}} </td>
                                             <td>
                                                 @if ($d->pukul)
                                                 {{ DateHelper::formatTimeToPM($d->pukul) }}
@@ -129,25 +143,6 @@ use App\Helpers\DateHelper;
                                                 <span class="badge bg-red mt-1" style="color: white; width:120px">Cancelled</span>
                                                 @endif
                                             </td>
-                                            <!-- <td>
-                                                @if ($d->status_approved_hrd == 1)
-                                                    @if ($d->status_approved == 0)
-                                                    <a href="#" class="badge bg-success btnApprove" style="width:120px; justify-content:space-between" data-id="{{ $d->id }}">
-                                                        Approve
-                                                    </a>
-                                                    @else
-                                                    <a href="#" class="badge bg-danger btnBatalApprove" style="width:120px" id="btnBatalApprove" data-id="{{ $d->id }}">
-                                                        Batalkan
-                                                    </a>
-                                                    @endif
-                                                    <br>
-                                                @else
-                                                    <a class="badge bg-yellow btnWait" style="width:120px" id="btnBatalApprove" data-id="{{ $d->id }}">
-                                                        Waiting HRD
-                                                    </a>
-                                                <br>
-                                                @endif
-                                            </td> -->
 
 
                                             <td>

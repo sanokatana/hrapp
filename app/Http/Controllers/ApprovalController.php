@@ -613,7 +613,10 @@ class ApprovalController extends Controller
 
 
     //--------------------------------------------------------------------------------------------------------------------------------------------------------
-
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------//--------------------------------------------------------------------------------------------------------------------------------------------------------//--------------------------------------------------------------------------------------------------------------------------------------------------------//--------------------------------------------------------------------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------
     // MANAGER / ATASAN CODE
 
 
@@ -626,12 +629,23 @@ class ApprovalController extends Controller
         $currentUserJabatanId = $currentUser->jabatan;
         $currentUserKodeDept = $currentUser->kode_dept;
 
-        // Base query: Join necessary tables
+        // Base query: Join necessary tables with proper aliases
         $query = Pengajuanizin::query();
-        $query->join('karyawan', 'pengajuan_izin.nik', '=', 'karyawan.nik')
-            ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept')
-            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
-            ->select('pengajuan_izin.*', 'karyawan.nama_lengkap', 'karyawan.jabatan', 'department.nama_dept', 'jabatan.nama_jabatan');
+        $query->join('karyawan as k1', 'pengajuan_izin.nik', '=', 'k1.nik')
+            ->join('department', 'k1.kode_dept', '=', 'department.kode_dept')
+            ->join('jabatan as current_jabatan', 'k1.jabatan', '=', 'current_jabatan.id')
+            ->leftJoin('jabatan as superior_jabatan', 'current_jabatan.jabatan_atasan', '=', 'superior_jabatan.id')
+            ->leftJoin('karyawan as superior', function ($join) {
+                $join->on('superior.jabatan', '=', 'superior_jabatan.id')
+                    ->where('superior.status_kar', 'Aktif'); // Ensure atasan is active
+            })
+            ->select(
+                'pengajuan_izin.*',
+                'k1.nama_lengkap',
+                'current_jabatan.nama_jabatan',
+                'department.nama_dept',
+                'superior.nama_lengkap as nama_atasan'
+            );
 
         // Only include pending requests
         $query->where(function ($q) {
@@ -650,11 +664,11 @@ class ApprovalController extends Controller
 
             // Prioritize subordinates' requests by ordering
             $query->orderByRaw("
-            CASE
-                WHEN pengajuan_izin.nik IN ('" . implode("','", $subordinateNiks) . "') THEN 1
-                ELSE 2
-            END
-        ");
+                CASE
+                    WHEN pengajuan_izin.nik IN ('" . implode("','", $subordinateNiks) . "') THEN 1
+                    ELSE 2
+                END
+            ");
         } else {
             // Non-management Logic
             $jabatanAtasan = Jabatan::where('id', $currentUserJabatanId)->value('jabatan_atasan');
@@ -670,12 +684,13 @@ class ApprovalController extends Controller
             }
         }
 
+        // Order by employee name and atasan name
+        $query->orderBy('nama_lengkap', 'asc');
+        $query->orderBy('nama_atasan', 'asc');
+
         // Paginate results
         $izinapproval = $query->paginate(20);
         $izinapproval->appends($request->all());
-
-        // Debugging Output (optional, for testing only)
-        // dd($query->toSql(), $query->getBindings());
 
         // Return the view
         return view('approval.izinapproval', compact('izinapproval'));
@@ -876,15 +891,29 @@ class ApprovalController extends Controller
         $query = PengajuanCuti::query();
         $query->join('karyawan', 'pengajuan_cuti.nik', '=', 'karyawan.nik')
             ->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept')
-            ->join('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
+            ->join('jabatan as current_jabatan', 'karyawan.jabatan', '=', 'current_jabatan.id')
+            ->leftJoin('jabatan as superior_jabatan', 'current_jabatan.jabatan_atasan', '=', 'superior_jabatan.id')
+            ->leftJoin('karyawan as superior', function ($join) {
+                $join->on('superior.jabatan', '=', 'superior_jabatan.id')
+                    ->where('superior.status_kar', 'Aktif'); // Ensure atasan is active
+            })
             ->leftJoin('tipe_cuti', 'pengajuan_cuti.tipe', '=', 'tipe_cuti.id_tipe_cuti')
-            ->select('pengajuan_cuti.*', 'karyawan.nama_lengkap', 'karyawan.jabatan', 'department.nama_dept', 'karyawan.tgl_masuk', 'tipe_cuti.tipe_cuti', 'jabatan.nama_jabatan');
+            ->select(
+                'pengajuan_cuti.*',
+                'karyawan.nama_lengkap',
+                'current_jabatan.nama_jabatan',
+                'department.nama_dept',
+                'karyawan.tgl_masuk',
+                'tipe_cuti.tipe_cuti',
+                'superior.nama_lengkap as nama_atasan'
+            );
 
         $query->where(function ($q) {
             $q->where('status_approved', 0)
                 ->orWhere('status_approved_hrd', 0)
                 ->orWhere('status_management', 0);
         });
+
         // Check if the user belongs to the Management department
         if ($currentUserKodeDept === 'Management') {
             // Management can only see requests where status_approved = 1 and status_approved_hrd = 1
@@ -917,6 +946,10 @@ class ApprovalController extends Controller
                 $query->whereIn('pengajuan_cuti.nik', $employeeNiks);
             }
         }
+
+        // Order by atasan name
+        $query->orderBy('nama_lengkap', 'asc');
+        $query->orderBy('nama_atasan', 'asc');
 
         // Paginate the results
         $cutiapproval = $query->paginate(50);

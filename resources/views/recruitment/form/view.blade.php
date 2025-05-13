@@ -94,6 +94,7 @@
                                         <option value="B" {{ (isset($candidateData) && $candidateData->gol_darah == 'B') ? 'selected' : '' }}>B</option>
                                         <option value="AB" {{ (isset($candidateData) && $candidateData->gol_darah == 'AB') ? 'selected' : '' }}>AB</option>
                                         <option value="O" {{ (isset($candidateData) && $candidateData->gol_darah == 'O') ? 'selected' : '' }}>O</option>
+                                        <option value="-" {{ (isset($candidateData) && $candidateData->gol_darah == '-') ? 'selected' : '' }}>-</option>
                                     </select>
                                 </div>
                             </div>

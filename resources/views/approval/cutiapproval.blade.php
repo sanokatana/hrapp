@@ -55,6 +55,7 @@ use App\Helpers\DateHelper;
                                         <tr style="text-align: center;">
                                             <th>Nama Karyawan</th>
                                             <th>Jabatan</th>
+                                            <th>Nama Atasan</th>
                                             <th>Periode</th>
                                             <th>Tanggal Cuti <br> Sampai Tanggal</th>
                                             <th>Sisa Cuti</th>
@@ -73,6 +74,7 @@ use App\Helpers\DateHelper;
                                         <tr style="text-align: center;">
                                             <td>{{ $d->nama_lengkap }}</td>
                                             <td>{{ $d->nama_jabatan }}</td>
+                                            <td>{{ $d->nama_atasan }}</td>
                                             <td>{{ $d->periode }}</td>
                                             <td>@if ($d->tgl_cuti)
                                                 {{ DateHelper::formatIndonesianDate($d->tgl_cuti) }}
