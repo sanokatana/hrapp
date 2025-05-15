@@ -294,6 +294,7 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::get('/attendance/showdaymonitor', [AttendanceController::class, 'showdaymonitor']);
     Route::get('/attendance/database', [AttendanceController::class, 'database']);
     Route::post('/attendance/databaseupdate', [AttendanceController::class, 'databaseupdate']);
+    Route::get('/attendance/export-excel', [AttendanceController::class, 'exportExcel'])->name('attendance.export-excel');
 
     //Time Attendance
     Route::get('/timeatt/table', [TimeAttendanceController::class, 'index']);

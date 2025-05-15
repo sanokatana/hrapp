@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\AttendanceExport;
+use App\Exports\AttendanceExport2;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -909,45 +910,45 @@ class AttendanceController extends Controller
         }
 
         // Check if the date is a weekend
-            switch ($displayStatus) {
-                case 'T':
-                    $classes[] = 'late';
-                    break;
-                case 'LN':
-                    $classes[] = 'dark-yellow';
-                    break;
-                case 'L':
-                    $classes[] = 'weekend';
-                    break;
-                case 'C':
-                    $classes[] = 'cuti';
-                    break;
-                case 'I':
-                    $classes[] = 'izin';
-                    break;
-                case 'M':
-                    $classes[] = '';
-                    break;
-                case 'S':
-                    // Check if it's Sick or Siang
-                    if ($type === 'SAKIT') {
-                        $classes[] = 'sakit';
-                    } else {
-                        $classes[] = 'shift-siang';
-                    }
-                    break;
-                case 'MK':
-                    $classes[] = 'mangkir';
-                    break;
-                case 'D':
-                    $classes[] = 'tugas_luar';
-                    break;
-                case 'OFF':
-                    $classes[] = 'tukar_off';
-                    break;
-                default:
-                    break;
-            }
+        switch ($displayStatus) {
+            case 'T':
+                $classes[] = 'late';
+                break;
+            case 'LN':
+                $classes[] = 'dark-yellow';
+                break;
+            case 'L':
+                $classes[] = 'weekend';
+                break;
+            case 'C':
+                $classes[] = 'cuti';
+                break;
+            case 'I':
+                $classes[] = 'izin';
+                break;
+            case 'M':
+                $classes[] = '';
+                break;
+            case 'S':
+                // Check if it's Sick or Siang
+                if ($type === 'SAKIT') {
+                    $classes[] = 'sakit';
+                } else {
+                    $classes[] = 'shift-siang';
+                }
+                break;
+            case 'MK':
+                $classes[] = 'mangkir';
+                break;
+            case 'D':
+                $classes[] = 'tugas_luar';
+                break;
+            case 'OFF':
+                $classes[] = 'tukar_off';
+                break;
+            default:
+                break;
+        }
 
 
         return implode(' ', $classes);
@@ -1158,51 +1159,16 @@ class AttendanceController extends Controller
                                 }
 
 
-                            $prevDayDate = Carbon::parse($tanggal)->subDay();
-                            $prevDayCycleDay = (($daysSinceStart - 1) % $patternLength) + 1;
+                                $prevDayDate = Carbon::parse($tanggal)->subDay();
+                                $prevDayCycleDay = (($daysSinceStart - 1) % $patternLength) + 1;
 
-                            $prevDayShift = DB::table('shift_pattern_cycle')
-                                ->where('pattern_id', $shiftPatternId)
-                                ->where('cycle_day', $prevDayCycleDay)
-                                ->join('shift', 'shift.id', '=', 'shift_pattern_cycle.shift_id')
-                                ->value('shift.status');
+                                $prevDayShift = DB::table('shift_pattern_cycle')
+                                    ->where('pattern_id', $shiftPatternId)
+                                    ->where('cycle_day', $prevDayCycleDay)
+                                    ->join('shift', 'shift.id', '=', 'shift_pattern_cycle.shift_id')
+                                    ->value('shift.status');
 
-                            if ($shiftTimes->status === 'M') { // Night shift
-                                $key = $tanggal . '_' . $nip;
-                                if (!isset($processedPresensi[$key])) {
-                                    $processedPresensi[$key] = [
-                                        'tanggal' => $tanggal,
-                                        'nip' => $nip,
-                                        'nama_lengkap' => $record->nama_lengkap,
-                                        'nama_dept' => $record->nama_dept,
-                                        'jam_masuk' => '',
-                                        'jam_pulang' => '',
-                                        'shift_start_time' => $shiftTimes->start_time
-                                    ];
-                                }
-
-                                if ($time >= $window_start && $time <= $window_end) {
-                                    if (
-                                        empty($processedPresensi[$key]['jam_masuk']) ||
-                                        $time < strtotime($processedPresensi[$key]['jam_masuk'])
-                                    ) {
-                                        $processedPresensi[$key]['jam_masuk'] = $jam_in;
-                                    }
-                                } elseif ($time <= strtotime('12:00:00')) {
-                                    $prevKey = Carbon::parse($tanggal)->subDay()->format('Y-m-d') . '_' . $nip;
-                                    if (isset($processedPresensi[$prevKey])) {
-                                        $processedPresensi[$prevKey]['jam_pulang'] = $jam_in;
-                                    }
-                                }
-                            } else { // Other shifts (P, S, MD) or OFF
-                                if ($time <= strtotime('12:00:00') && $prevDayShift === 'M') {
-                                    // If early morning scan and previous day was night shift
-                                    $prevKey = Carbon::parse($tanggal)->subDay()->format('Y-m-d') . '_' . $nip;
-                                    if (isset($processedPresensi[$prevKey])) {
-                                        $processedPresensi[$prevKey]['jam_pulang'] = $jam_in;
-                                    }
-                                } else {
-                                    // Normal day shift processing
+                                if ($shiftTimes->status === 'M') { // Night shift
                                     $key = $tanggal . '_' . $nip;
                                     if (!isset($processedPresensi[$key])) {
                                         $processedPresensi[$key] = [
@@ -1212,9 +1178,10 @@ class AttendanceController extends Controller
                                             'nama_dept' => $record->nama_dept,
                                             'jam_masuk' => '',
                                             'jam_pulang' => '',
-                                            'shift_start_time' => date('H:i:s', $shift_start)
+                                            'shift_start_time' => $shiftTimes->start_time
                                         ];
                                     }
+
                                     if ($time >= $window_start && $time <= $window_end) {
                                         if (
                                             empty($processedPresensi[$key]['jam_masuk']) ||
@@ -1222,12 +1189,46 @@ class AttendanceController extends Controller
                                         ) {
                                             $processedPresensi[$key]['jam_masuk'] = $jam_in;
                                         }
-                                    } elseif ($time >= strtotime($shiftTimes->latest_time)) {
-                                        $processedPresensi[$key]['jam_pulang'] = $jam_in;
+                                    } elseif ($time <= strtotime('12:00:00')) {
+                                        $prevKey = Carbon::parse($tanggal)->subDay()->format('Y-m-d') . '_' . $nip;
+                                        if (isset($processedPresensi[$prevKey])) {
+                                            $processedPresensi[$prevKey]['jam_pulang'] = $jam_in;
+                                        }
+                                    }
+                                } else { // Other shifts (P, S, MD) or OFF
+                                    if ($time <= strtotime('12:00:00') && $prevDayShift === 'M') {
+                                        // If early morning scan and previous day was night shift
+                                        $prevKey = Carbon::parse($tanggal)->subDay()->format('Y-m-d') . '_' . $nip;
+                                        if (isset($processedPresensi[$prevKey])) {
+                                            $processedPresensi[$prevKey]['jam_pulang'] = $jam_in;
+                                        }
+                                    } else {
+                                        // Normal day shift processing
+                                        $key = $tanggal . '_' . $nip;
+                                        if (!isset($processedPresensi[$key])) {
+                                            $processedPresensi[$key] = [
+                                                'tanggal' => $tanggal,
+                                                'nip' => $nip,
+                                                'nama_lengkap' => $record->nama_lengkap,
+                                                'nama_dept' => $record->nama_dept,
+                                                'jam_masuk' => '',
+                                                'jam_pulang' => '',
+                                                'shift_start_time' => date('H:i:s', $shift_start)
+                                            ];
+                                        }
+                                        if ($time >= $window_start && $time <= $window_end) {
+                                            if (
+                                                empty($processedPresensi[$key]['jam_masuk']) ||
+                                                $time < strtotime($processedPresensi[$key]['jam_masuk'])
+                                            ) {
+                                                $processedPresensi[$key]['jam_masuk'] = $jam_in;
+                                            }
+                                        } elseif ($time >= strtotime($shiftTimes->latest_time)) {
+                                            $processedPresensi[$key]['jam_pulang'] = $jam_in;
+                                        }
                                     }
                                 }
                             }
-                        }
                         }
                     }
                 }
@@ -1437,5 +1438,147 @@ class AttendanceController extends Controller
             Log::error('Database update failed: ' . $e->getMessage());
             return redirect()->back()->with('danger', 'Failed to update the database.');
         }
+    }
+
+    public function exportExcel(Request $request)
+    {
+        // Reuse the same data preparation as in index method
+        $filterMonth = $request->input('bulan', Carbon::now()->month);
+        $filterYear = $request->input('tahun', Carbon::now()->year);
+
+        $filterName = $request->input('nama_lengkap');
+        $filterDept = $request->input('kode_dept');
+
+        // Create a new request with all filters to pass to getKaryawanData
+        $filteredRequest = new Request([
+            'nama_lengkap' => $filterName,
+            'kode_dept' => $filterDept
+        ]);
+
+        // Check if there's new data by comparing timestamps
+        $lastUpdateKey = "last_update_{$filterMonth}_{$filterYear}";
+        $shouldRefreshCache = $this->shouldRefreshCache($filterMonth, $filterYear, $lastUpdateKey);
+
+        if ($shouldRefreshCache) {
+            $this->clearAttendanceCache($filterMonth, $filterYear);
+        }
+
+        // Get the departments
+        $departments = cache()->remember('departments', 60, function () {
+            return DB::table('department')->get();
+        });
+
+        // Get the number of days in the selected month
+        $daysInMonth = Carbon::create($filterYear, $filterMonth)->daysInMonth;
+        $totalWorkdays = $this->getTotalWorkdays($filterYear, $filterMonth);
+
+        // Get karyawan data with filters
+        $karyawan = $this->getKaryawanData($request, $filterMonth, $filterYear);
+
+        // Get presensi data from cache
+        $presensi = cache()->remember("presensi_{$filterMonth}_{$filterYear}", 60, function () use ($filterMonth, $filterYear) {
+            $records = DB::connection('mysql2')
+                ->table('db_absen.att_log as presensi')
+                ->select([
+                    'presensi.pin',
+                    DB::raw('DATE(presensi.scan_date) as scan_date'),
+                    DB::raw('MIN(TIME(presensi.scan_date)) as earliest_jam_in')
+                ])
+                ->whereMonth('presensi.scan_date', $filterMonth)
+                ->whereYear('presensi.scan_date', $filterYear)
+                ->groupBy('presensi.pin', DB::raw('DATE(presensi.scan_date)'))
+                ->get();
+
+            // Transform and group the data by pin
+            return $records->groupBy(function ($record) {
+                return $record->pin;
+            })->map(function ($pinRecords) {
+                return $pinRecords->map(function ($record) {
+                    return (object)[
+                        'pin' => $record->pin,
+                        'scan_date' => $record->scan_date,
+                        'earliest_jam_in' => $record->earliest_jam_in,
+                    ];
+                });
+            });
+        });
+
+        // Get national holidays for the selected month
+        $liburNasional = cache()->remember("libur_nasional_{$filterMonth}_{$filterYear}", 60, function () use ($filterMonth, $filterYear) {
+            return DB::table('libur_nasional')
+                ->whereMonth('tgl_libur', $filterMonth)
+                ->whereYear('tgl_libur', $filterYear)
+                ->pluck('tgl_libur')
+                ->map(fn($date) => Carbon::parse($date)->format('Y-m-d'));
+        });
+
+        // Cache leave data
+        $cuti = cache()->remember("cuti_{$filterMonth}_{$filterYear}", 60, function () use ($filterMonth, $filterYear) {
+            return DB::table('pengajuan_cuti')
+                ->select('nik', 'tgl_cuti', 'tgl_cuti_sampai')
+                ->where('status_approved', 1)
+                ->where('status_approved_hrd', 1)
+                ->where('status_management', 1)
+                ->where(function ($query) use ($filterMonth, $filterYear) {
+                    $query->whereMonth('tgl_cuti', $filterMonth)
+                        ->whereYear('tgl_cuti', $filterYear)
+                        ->orWhereMonth('tgl_cuti_sampai', $filterMonth)
+                        ->whereYear('tgl_cuti_sampai', $filterYear);
+                })
+                ->get();
+        });
+
+        // Cache izin data
+        $izin = cache()->remember("izin_{$filterMonth}_{$filterYear}", 60, function () use ($filterMonth, $filterYear) {
+            return DB::table('pengajuan_izin')
+                ->select('nik', 'tgl_izin', 'tgl_izin_akhir', 'status', 'keputusan', 'pukul')
+                ->where('status_approved', 1)
+                ->where('status_approved_hrd', 1)
+                ->where(function ($query) use ($filterMonth, $filterYear) {
+                    $query->whereMonth('tgl_izin', $filterMonth)
+                        ->whereYear('tgl_izin', $filterYear)
+                        ->orWhereMonth('tgl_izin_akhir', $filterMonth)
+                        ->whereYear('tgl_izin_akhir', $filterYear);
+                })
+                ->get();
+        });
+
+        // Cache employee holiday data
+        $liburKaryawan = cache()->remember("libur_karyawan_{$filterMonth}_{$filterYear}", 60, function () use ($filterMonth, $filterYear) {
+            return DB::table('libur_kar')
+                ->whereMonth('month', $filterMonth)
+                ->whereYear('month', $filterYear)
+                ->pluck('id', 'nik');
+        });
+
+        $liburKarDays = DB::table('libur_kar_day')
+            ->whereIn('libur_id', $liburKaryawan)
+            ->pluck('tanggal', 'libur_id');
+
+        // Process presensi and cuti data to format for display
+        $attendanceData = $this->processLargeDataSet(
+            $departments,
+            $karyawan,
+            $presensi,
+            $filterMonth,
+            $filterYear,
+            $daysInMonth,
+            $totalWorkdays,
+            $liburNasional,
+            $cuti,
+            $izin,
+            $liburKaryawan,
+            $liburKarDays
+        );
+
+        // Get month name in Indonesian
+        $monthName = Carbon::create($filterYear, $filterMonth, 1)->locale('id')->monthName;
+        $fileName = "Laporan_Kehadiran_{$monthName}_{$filterYear}.xlsx";
+
+        // Return Excel download using AttendanceExport (not AttendanceExport2)
+        return Excel::download(
+            new AttendanceExport($attendanceData),
+            $fileName
+        );
     }
 }

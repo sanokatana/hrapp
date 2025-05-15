@@ -610,45 +610,45 @@ class LaporanController extends Controller
         }
 
         // Check if the date is a weekend
-            switch ($displayStatus) {
-                case 'T':
-                    $classes[] = 'late';
-                    break;
-                case 'LN':
-                    $classes[] = 'dark-yellow';
-                    break;
-                case 'L':
-                    $classes[] = 'weekend';
-                    break;
-                case 'C':
-                    $classes[] = 'cuti';
-                    break;
-                case 'I':
-                    $classes[] = 'izin';
-                    break;
-                case 'M':
-                    $classes[] = '';
-                    break;
-                case 'S':
-                    // Check if it's Sick or Siang
-                    if ($type === 'SAKIT') {
-                        $classes[] = 'sakit';
-                    } else {
-                        $classes[] = 'shift-siang';
-                    }
-                    break;
-                case 'MK':
-                    $classes[] = 'mangkir';
-                    break;
-                case 'D':
-                    $classes[] = 'tugas_luar';
-                    break;
-                case 'OFF':
-                    $classes[] = 'tukar_off';
-                    break;
-                default:
-                    break;
-            }
+        switch ($displayStatus) {
+            case 'T':
+                $classes[] = 'late';
+                break;
+            case 'LN':
+                $classes[] = 'dark-yellow';
+                break;
+            case 'L':
+                $classes[] = 'weekend';
+                break;
+            case 'C':
+                $classes[] = 'cuti';
+                break;
+            case 'I':
+                $classes[] = 'izin';
+                break;
+            case 'M':
+                $classes[] = '';
+                break;
+            case 'S':
+                // Check if it's Sick or Siang
+                if ($type === 'SAKIT') {
+                    $classes[] = 'sakit';
+                } else {
+                    $classes[] = 'shift-siang';
+                }
+                break;
+            case 'MK':
+                $classes[] = 'mangkir';
+                break;
+            case 'D':
+                $classes[] = 'tugas_luar';
+                break;
+            case 'OFF':
+                $classes[] = 'tukar_off';
+                break;
+            default:
+                break;
+        }
 
 
         return implode(' ', $classes);
@@ -1761,5 +1761,690 @@ class LaporanController extends Controller
         $cutiAtasan = collect(array_values($atasanStats));
 
         return view('laporan.cutiAtasan', compact('cutiAtasan'));
+    }
+
+    public function sendDailyReportPengajuan()
+    {
+        // Get current date and yesterday's date
+        $hariini = Carbon::now()->format('Y-m-d');
+        $yesterday = Carbon::yesterday()->format('Y-m-d');
+
+        // Initialize counters and arrays for reporting
+        $totalAdjusted = 0;
+        $canceledRequests = 0;
+        $dateAdjustedRequests = 0;
+        $adjustmentDetails = [];
+
+        // Find all approved leave requests (Tmk, Ta, Tjo) that are active or recent
+        $leaveRequests = DB::table('pengajuan_izin')
+            ->whereIn('status', ['Tmk', 'Ta', 'Tjo'])
+            ->where('status_approved', 1)  // Approved by atasan
+            ->where('status_approved_hrd', 1)  // Approved by HR
+            ->where(function ($query) use ($hariini, $yesterday) {
+                $query->where('tgl_izin', '<=', $hariini)
+                    ->where('tgl_izin_akhir', '>=', $yesterday);
+            })
+            ->get();
+
+        // Process each leave request
+        foreach ($leaveRequests as $request) {
+            $nik = $request->nik;
+            $nip = $request->nip;
+            $startDate = Carbon::parse($request->tgl_izin);
+            $endDate = Carbon::parse($request->tgl_izin_akhir);
+            $requestType = $request->status; // Tmk, Ta, or Tjo
+            $employeeName = DB::table('karyawan')->where('nik', $nik)->value('nama_lengkap');
+
+            // Initialize employee adjustment record
+            $employeeAdjustment = [
+                'name' => $employeeName,
+                'request_type' => $requestType,
+                'original_dates' => "{$startDate->format('d-m-Y')} to {$endDate->format('d-m-Y')}",
+                'adjustment_type' => 'None',
+                'new_dates' => 'N/A',
+                'attendance_dates' => []
+            ];
+
+            // Check attendance for each day of the leave period
+            $attendanceDays = [];
+            $allDaysInPeriod = [];
+            $currentDate = $startDate->copy();
+
+            while ($currentDate->lte($endDate)) {
+                $dateString = $currentDate->format('Y-m-d');
+                $allDaysInPeriod[] = $dateString;
+
+                // Check if employee clocked in on this date
+                $hasAttendance = DB::connection('mysql2')
+                    ->table('db_absen.att_log')
+                    ->where('pin', $nip)
+                    ->whereDate('scan_date', $dateString)
+                    ->exists();
+
+                if ($hasAttendance) {
+                    $attendanceDays[] = $dateString;
+                    $employeeAdjustment['attendance_dates'][] = $dateString;
+                }
+
+                $currentDate->addDay();
+            }
+
+            // Make decisions based on attendance
+            if (count($attendanceDays) === count($allDaysInPeriod)) {
+                // Employee worked on all leave days - cancel the request
+                DB::table('pengajuan_izin')
+                    ->where('id', $request->id)
+                    ->update([
+                        'status_approved' => 3,      // Set to canceled
+                        'status_approved_hrd' => 3,  // Set to canceled
+                        'keterangan' => $request->keterangan . " [AUTO-CANCELED: Employee worked on all leave days]"
+                    ]);
+
+                $employeeAdjustment['adjustment_type'] = 'Canceled';
+                $canceledRequests++;
+            } elseif (!empty($attendanceDays)) {
+                // Employee worked on some leave days - adjust the dates
+                $newStartDate = $startDate->copy();
+                $newEndDate = $endDate->copy();
+                $daysToRemove = [];
+
+                // Sort attendance days
+                sort($attendanceDays);
+
+                // Handle different types of requests differently
+                if ($requestType == 'Tmk' || $requestType == 'Ta') {
+                    // For Tmk and Ta, if the employee worked on any day, cancel that day from the request
+                    $remainingDays = array_diff($allDaysInPeriod, $attendanceDays);
+
+                    if (empty($remainingDays)) {
+                        // All days have attendance, cancel the request
+                        DB::table('pengajuan_izin')
+                            ->where('id', $request->id)
+                            ->update([
+                                'status_approved' => 3,
+                                'status_approved_hrd' => 3,
+                                'keterangan' => $request->keterangan . " [AUTO-CANCELED: Employee worked on all leave days]"
+                            ]);
+
+                        $employeeAdjustment['adjustment_type'] = 'Canceled';
+                        $canceledRequests++;
+                    } else {
+                        // Some days remain, create separate requests for non-consecutive day ranges
+                        $dayRanges = [];
+                        $currentRange = [];
+
+                        sort($remainingDays);
+                        $previousDay = null;
+
+                        foreach ($remainingDays as $day) {
+                            $currentDay = Carbon::parse($day);
+
+                            if ($previousDay === null || $currentDay->diffInDays(Carbon::parse($previousDay)) === 1) {
+                                $currentRange[] = $day;
+                            } else {
+                                if (!empty($currentRange)) {
+                                    $dayRanges[] = $currentRange;
+                                }
+                                $currentRange = [$day];
+                            }
+
+                            $previousDay = $day;
+                        }
+
+                        if (!empty($currentRange)) {
+                            $dayRanges[] = $currentRange;
+                        }
+
+                        // If we have exactly one range, update the existing request
+                        if (count($dayRanges) === 1) {
+                            $range = $dayRanges[0];
+                            $newStartDate = Carbon::parse($range[0]);
+                            $newEndDate = Carbon::parse($range[count($range) - 1]);
+                            $newJmlHari = $newEndDate->diffInDays($newStartDate) + 1;
+
+                            DB::table('pengajuan_izin')
+                                ->where('id', $request->id)
+                                ->update([
+                                    'tgl_izin' => $newStartDate->format('Y-m-d'),
+                                    'tgl_izin_akhir' => $newEndDate->format('Y-m-d'),
+                                    'jml_hari' => $newJmlHari,
+                                    'keterangan' => $request->keterangan . " [AUTO-ADJUSTED: Employee worked on " . implode(', ', $attendanceDays) . "]"
+                                ]);
+
+                            $employeeAdjustment['adjustment_type'] = 'Date Adjusted';
+                            $employeeAdjustment['new_dates'] = "{$newStartDate->format('d-m-Y')} to {$newEndDate->format('d-m-Y')}";
+                            $dateAdjustedRequests++;
+                        }
+                        // For multiple non-consecutive ranges, this is complex - in a real system we might:
+                        // 1. Keep the first range in the original request
+                        // 2. Create new requests for additional ranges
+                        // For this example, we'll just keep the first range
+                        else if (count($dayRanges) > 1) {
+                            // For multiple non-consecutive ranges:
+                            // 1. Cancel the original request
+                            // 2. Create new requests for each range
+
+                            DB::table('pengajuan_izin')
+                                ->where('id', $request->id)
+                                ->update([
+                                    'status_approved' => 3, // Set to canceled
+                                    'status_approved_hrd' => 3, // Set to canceled
+                                    'keterangan' => $request->keterangan . " [AUTO-CANCELED: Request split due to attendance on " . implode(', ', $attendanceDays) . "]"
+                                ]);
+
+                            // Create new requests for each continuous period
+                            foreach ($dayRanges as $range) {
+                                $newStartDate = Carbon::parse($range[0]);
+                                $newEndDate = Carbon::parse($range[count($range) - 1]);
+                                $newJmlHari = $newEndDate->diffInDays($newStartDate) + 1;
+
+                                // Create a new request with the same details but different dates
+                                DB::table('pengajuan_izin')->insert([
+                                    'nik' => $request->nik,
+                                    'nip' => $request->nip,
+                                    'tgl_izin' => $newStartDate->format('Y-m-d'),
+                                    'tgl_izin_akhir' => $newEndDate->format('Y-m-d'),
+                                    'status' => $request->status,
+                                    'jml_hari' => $newJmlHari,
+                                    'keterangan' => $request->keterangan . " [AUTO-CREATED: Split from request #" . $request->id . "]",
+                                    'status_approved' => 1, // Approved
+                                    'status_approved_hrd' => 1, // Approved by HR
+                                    'tgl_status_approved' => $request->tgl_status_approved,
+                                    'tgl_status_approved_hrd' => $request->tgl_status_approved_hrd,
+                                    'tgl_create' => Carbon::now()->format('Y-m-d H:i:s'),
+                                    'pukul' => $request->pukul,
+                                    'keputusan' => $request->keputusan,
+                                    'tgl_jadwal_off' => $request->tgl_jadwal_off,
+                                ]);
+                            }
+
+                            $employeeAdjustment['adjustment_type'] = 'Canceled and Split into ' . count($dayRanges) . ' New Requests';
+                            $employeeAdjustment['new_dates'] = count($dayRanges) . " separate periods";
+                            $canceledRequests++;
+                        }
+                    }
+                }
+                // For Tjo (Tukar Jadwal Off), adjust start date if necessary
+                elseif ($requestType == 'Tjo') {
+                    // Determine new start date (first day without attendance)
+                    foreach ($allDaysInPeriod as $day) {
+                        if (in_array($day, $attendanceDays)) {
+                            $daysToRemove[] = $day;
+                            if ($day === $startDate->format('Y-m-d')) {
+                                $newStartDate->addDay();
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+
+                    // Only adjust if necessary
+                    if ($newStartDate->gt($startDate) || !empty($daysToRemove)) {
+                        // Calculate new number of days
+                        $newJmlHari = $endDate->diffInDays($newStartDate) + 1;
+
+                        // Update the request
+                        DB::table('pengajuan_izin')
+                            ->where('id', $request->id)
+                            ->update([
+                                'tgl_izin' => $newStartDate->format('Y-m-d'),
+                                'jml_hari' => $newJmlHari,
+                                'keterangan' => $request->keterangan . " [AUTO-ADJUSTED: Employee worked on " . implode(', ', $daysToRemove) . "]"
+                            ]);
+
+                        $employeeAdjustment['adjustment_type'] = 'Date Adjusted';
+                        $employeeAdjustment['new_dates'] = "{$newStartDate->format('d-m-Y')} to {$endDate->format('d-m-Y')}";
+                        $dateAdjustedRequests++;
+                    }
+                }
+            }
+
+            // Add to report if any adjustment was made
+            if ($employeeAdjustment['adjustment_type'] !== 'None') {
+                $adjustmentDetails[] = $employeeAdjustment;
+                $totalAdjusted++;
+            }
+        }
+
+        // Prepare email content if adjustments were made
+        if ($totalAdjusted > 0) {
+            // Build detailed HTML table for the report
+            $detailsTable = "<table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse;'>
+            <tr style='background-color: #f2f2f2;'>
+                <th>Karyawan</th>
+                <th>Jenis Pengajuan</th>
+                <th>Tanggal Awal</th>
+                <th>Jenis Penyesuaian</th>
+                <th>Tanggal Baru</th>
+                <th>Tanggal Kehadiran</th>
+            </tr>";
+
+            foreach ($adjustmentDetails as $detail) {
+                $attendanceDatesStr = !empty($detail['attendance_dates']) ?
+                    implode('<br>', array_map(function ($date) {
+                        return Carbon::parse($date)->format('d-m-Y');
+                    }, $detail['attendance_dates'])) : 'None';
+
+                $detailsTable .= "<tr>
+                <td>{$detail['name']}</td>
+                <td>{$detail['request_type']}</td>
+                <td>{$detail['original_dates']}</td>
+                <td>{$detail['adjustment_type']}</td>
+                <td>{$detail['new_dates']}</td>
+                <td>{$attendanceDatesStr}</td>
+            </tr>";
+            }
+
+            $detailsTable .= "</table>";
+
+            // Build email content
+            $emailContent = "
+                <h1>Laporan Penyesuaian Pengajuan Izin - " . Carbon::now()->format('d M Y') . "</h1>
+                <p>Sistem telah secara otomatis menyesuaikan pengajuan izin karyawan yang melakukan presensi selama hari izin yang disetujui.</p>
+
+                <h2>Ringkasan:</h2>
+                <ul>
+                    <li><strong>Total Pengajuan Disesuaikan:</strong> {$totalAdjusted}</li>
+                    <li><strong>Pengajuan Dibatalkan:</strong> {$canceledRequests}</li>
+                    <li><strong>Pengajuan Tanggal Disesuaikan:</strong> {$dateAdjustedRequests}</li>
+                </ul>
+
+                <h2>Detail Penyesuaian:</h2>
+                {$detailsTable}
+                <br>
+                <p>Penyesuaian ini dilakukan secara otomatis oleh sistem karena karyawan melakukan presensi selama hari izin yang telah disetujui.</p>
+                <p>Silakan periksa perubahan ini di <a href='https://hrms.ciptaharmoni.com/panel'>HRMS Panel</a>.</p>
+                <br><br>
+                <p>Terima kasih,</p>
+            ";
+
+            // Send email
+            $hrEmails = ['human.resources@ciptaharmoni.com'];
+            $tanggalHari = DateHelper::formatIndonesianDate($hariini);
+
+            foreach ($hrEmails as $email) {
+                if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    Mail::html($emailContent, function ($message) use ($email, $tanggalHari) {
+                        $message->to($email)
+                            ->subject("Laporan Penyesuaian Pengajuan Izin Tanggal {$tanggalHari}");
+                    });
+                }
+            }
+
+            Session::flash('success', 'Laporan Penyesuaian Pengajuan Izin berhasil dikirim. ' . $totalAdjusted . ' pengajuan disesuaikan.');
+        } else {
+            Session::flash('info', 'Tidak ada pengajuan izin yang perlu disesuaikan.');
+        }
+
+        // Redirect back to the dashboard
+        return redirect()->route('panel.dashboardadmin');
+    }
+
+    public function sendDailyReportCuti()
+    {
+        // Get current date and yesterday's date
+        $hariini = Carbon::now()->format('Y-m-d');
+        $yesterday = Carbon::yesterday()->format('Y-m-d');
+
+        // Initialize counters and arrays for reporting
+        $totalAdjusted = 0;
+        $canceledRequests = 0;
+        $dateAdjustedRequests = 0;
+        $splitRequests = 0;
+        $totalReturnedDays = 0;
+        $adjustmentDetails = [];
+
+        // Find all approved cuti requests that are active or recent
+        $cutiRequests = DB::table('pengajuan_cuti')
+            ->where('status_approved', 1)  // Approved by atasan
+            ->where('status_approved_hrd', 1)  // Approved by HR
+            ->where('status_management', 1)  // Approved by management
+            ->where(function ($query) use ($hariini, $yesterday) {
+                $query->where('tgl_cuti', '<=', $hariini)
+                    ->where('tgl_cuti_sampai', '>=', $yesterday);
+            })
+            ->get();
+
+        // Process each cuti request
+        foreach ($cutiRequests as $request) {
+            $nik = $request->nik;
+            $nip = $request->nip;
+            $startDate = Carbon::parse($request->tgl_cuti);
+            $endDate = Carbon::parse($request->tgl_cuti_sampai);
+            $jenisCuti = $request->jenis;
+            $periode = $request->periode;
+            $employeeName = DB::table('karyawan')->where('nik', $nik)->value('nama_lengkap');
+
+            // Initialize employee adjustment record
+            $employeeAdjustment = [
+                'name' => $employeeName,
+                'cuti_type' => $jenisCuti,
+                'original_dates' => "{$startDate->format('d-m-Y')} to {$endDate->format('d-m-Y')}",
+                'original_days' => $request->jml_hari,
+                'adjustment_type' => 'None',
+                'new_dates' => 'N/A',
+                'returned_days' => 0,
+                'attendance_dates' => []
+            ];
+
+            // Check attendance for each day of the cuti period
+            $attendanceDays = [];
+            $allDaysInPeriod = [];
+            $currentDate = $startDate->copy();
+
+            while ($currentDate->lte($endDate)) {
+                $dateString = $currentDate->format('Y-m-d');
+                $allDaysInPeriod[] = $dateString;
+
+                // Check if employee clocked in on this date
+                $hasAttendance = DB::connection('mysql2')
+                    ->table('db_absen.att_log')
+                    ->where('pin', $nip)
+                    ->whereDate('scan_date', $dateString)
+                    ->exists();
+
+                if ($hasAttendance) {
+                    $attendanceDays[] = $dateString;
+                    $employeeAdjustment['attendance_dates'][] = $dateString;
+                }
+
+                $currentDate->addDay();
+            }
+
+            // Make decisions based on attendance
+            if (count($attendanceDays) === count($allDaysInPeriod)) {
+                // Employee worked on all cuti days - cancel the request and return all cuti days
+
+                // Get current cuti balance
+                $cutiRecord = DB::table('cuti')
+                    ->where('nik', $nik)
+                    ->where('tahun', $periode)
+                    ->first();
+
+                if ($cutiRecord) {
+                    // Update cuti balance by returning the used days
+                    $newSisaCuti = $cutiRecord->sisa_cuti + $request->jml_hari;
+
+                    DB::table('cuti')
+                        ->where('nik', $nik)
+                        ->where('tahun', $periode)
+                        ->update([
+                            'sisa_cuti' => $newSisaCuti
+                        ]);
+
+                    // Mark the adjustment details
+                    $employeeAdjustment['returned_days'] = $request->jml_hari;
+                    $totalReturnedDays += $request->jml_hari;
+                }
+
+                // Cancel the request
+                DB::table('pengajuan_cuti')
+                    ->where('id', $request->id)
+                    ->update([
+                        'status_approved' => 3,      // Set to canceled
+                        'status_approved_hrd' => 3,  // Set to canceled
+                        'status_management' => 3,    // Set to canceled
+                        'note' => ($request->note ? $request->note . " | " : "") .
+                            "[AUTO-CANCELED: Employee worked on all leave days. {$request->jml_hari} cuti days returned]"
+                    ]);
+
+                $employeeAdjustment['adjustment_type'] = 'Canceled - All Days Returned';
+                $canceledRequests++;
+            } elseif (!empty($attendanceDays)) {
+                // Employee worked on some cuti days - handle based on the pattern
+
+                // Get all days without attendance (these are the actual cuti days)
+                $leaveDays = array_diff($allDaysInPeriod, $attendanceDays);
+
+                // If no cuti days remain, cancel the request
+                if (empty($leaveDays)) {
+                    // Get current cuti balance
+                    $cutiRecord = DB::table('cuti')
+                        ->where('nik', $nik)
+                        ->where('tahun', $periode)
+                        ->first();
+
+                    if ($cutiRecord) {
+                        // Update cuti balance by returning all the used days
+                        $newSisaCuti = $cutiRecord->sisa_cuti + $request->jml_hari;
+
+                        DB::table('cuti')
+                            ->where('nik', $nik)
+                            ->where('tahun', $periode)
+                            ->update([
+                                'sisa_cuti' => $newSisaCuti
+                            ]);
+
+                        // Mark the adjustment details
+                        $employeeAdjustment['returned_days'] = $request->jml_hari;
+                        $totalReturnedDays += $request->jml_hari;
+                    }
+
+                    DB::table('pengajuan_cuti')
+                        ->where('id', $request->id)
+                        ->update([
+                            'status_approved' => 3,
+                            'status_approved_hrd' => 3,
+                            'status_management' => 3,
+                            'note' => ($request->note ? $request->note . " | " : "") .
+                                "[AUTO-CANCELED: Employee worked on all leave days. {$request->jml_hari} cuti days returned]"
+                        ]);
+
+                    $employeeAdjustment['adjustment_type'] = 'Canceled - All Days Returned';
+                    $canceledRequests++;
+                } else {
+                    // Find continuous periods of cuti
+                    $leavePeriods = [];
+                    $currentPeriod = [];
+
+                    sort($leaveDays);
+                    $previousDay = null;
+
+                    foreach ($leaveDays as $day) {
+                        $currentDay = Carbon::parse($day);
+
+                        if ($previousDay === null || $currentDay->diffInDays(Carbon::parse($previousDay)) === 1) {
+                            $currentPeriod[] = $day;
+                        } else {
+                            if (!empty($currentPeriod)) {
+                                $leavePeriods[] = $currentPeriod;
+                            }
+                            $currentPeriod = [$day];
+                        }
+
+                        $previousDay = $day;
+                    }
+
+                    if (!empty($currentPeriod)) {
+                        $leavePeriods[] = $currentPeriod;
+                    }
+
+                    // Calculate number of days to return to cuti balance
+                    $returnedDays = count($attendanceDays);
+
+                    // Get current cuti balance
+                    $cutiRecord = DB::table('cuti')
+                        ->where('nik', $nik)
+                        ->where('tahun', $periode)
+                        ->first();
+
+                    if ($cutiRecord) {
+                        // Update cuti balance by returning the used days
+                        $newSisaCuti = $cutiRecord->sisa_cuti + $returnedDays;
+
+                        DB::table('cuti')
+                            ->where('nik', $nik)
+                            ->where('tahun', $periode)
+                            ->update([
+                                'sisa_cuti' => $newSisaCuti
+                            ]);
+
+                        // Mark the adjustment details
+                        $employeeAdjustment['returned_days'] = $returnedDays;
+                        $totalReturnedDays += $returnedDays;
+                    }
+
+                    // If only one continuous period, update the original request
+                    if (count($leavePeriods) === 1) {
+                        $period = $leavePeriods[0];
+                        $newStartDate = Carbon::parse($period[0]);
+                        $newEndDate = Carbon::parse($period[count($period) - 1]);
+                        $newJmlHari = $newEndDate->diffInDays($newStartDate) + 1;
+
+                        DB::table('pengajuan_cuti')
+                            ->where('id', $request->id)
+                            ->update([
+                                'tgl_cuti' => $newStartDate->format('Y-m-d'),
+                                'tgl_cuti_sampai' => $newEndDate->format('Y-m-d'),
+                                'jml_hari' => $newJmlHari,
+                                'note' => ($request->note ? $request->note . " | " : "") .
+                                    "[AUTO-ADJUSTED: Employee worked on " . implode(', ', $attendanceDays) .
+                                    ". {$returnedDays} cuti days returned]"
+                            ]);
+
+                        $employeeAdjustment['adjustment_type'] = 'Date Adjusted - ' . $returnedDays . ' Days Returned';
+                        $employeeAdjustment['new_dates'] = "{$newStartDate->format('d-m-Y')} to {$newEndDate->format('d-m-Y')}";
+                        $dateAdjustedRequests++;
+                    }
+                    // If multiple periods, split into separate requests
+                    else if (count($leavePeriods) > 1) {
+                        // Batalkan pengajuan asli dan buat yang baru untuk setiap periode
+                        $firstPeriod = $leavePeriods[0];
+                        $firstStartDate = Carbon::parse($firstPeriod[0]);
+                        $firstEndDate = Carbon::parse($firstPeriod[count($firstPeriod) - 1]);
+                        $firstJmlHari = $firstEndDate->diffInDays($firstStartDate) + 1;
+
+                        DB::table('pengajuan_cuti')
+                            ->where('id', $request->id)
+                            ->update([
+                                'tgl_cuti' => $firstStartDate->format('Y-m-d'),
+                                'tgl_cuti_sampai' => $firstEndDate->format('Y-m-d'),
+                                'jml_hari' => $firstJmlHari,
+                                'note' => ($request->note ? $request->note . " | " : "") .
+                                    "[DIBAGI: Karyawan bekerja pada " . implode(', ', $attendanceDays) .
+                                    ". {$returnedDays} hari cuti dikembalikan. Pengajuan asli dibagi.]"
+                            ]);
+
+                        // Buat pengajuan baru untuk periode tambahan
+                        for ($i = 1; $i < count($leavePeriods); $i++) {
+                            $period = $leavePeriods[$i];
+                            $periodStartDate = Carbon::parse($period[0]);
+                            $periodEndDate = Carbon::parse($period[count($period) - 1]);
+                            $periodJmlHari = $periodEndDate->diffInDays($periodStartDate) + 1;
+
+                            // Buat pengajuan baru dengan detail yang sama tetapi tanggal berbeda
+                            DB::table('pengajuan_cuti')->insertGetId([
+                                'nik' => $request->nik,
+                                'nip' => $request->nip,
+                                'tgl_cuti' => $periodStartDate->format('Y-m-d'),
+                                'tgl_cuti_sampai' => $periodEndDate->format('Y-m-d'),
+                                'jenis' => $request->jenis,
+                                'jml_hari' => $periodJmlHari,
+                                'note' => ($request->note ? $request->note . " | " : "") .
+                                    "[DIBUAT-OTOMATIS: Dibagi dari pengajuan #" . $request->id . "]",
+                                'status_approved' => 1, // Approved
+                                'status_approved_hrd' => 1, // Approved by HR
+                                'status_management' => 1, // Approved by Management
+                                'tgl_status_approved' => $request->tgl_status_approved,
+                                'tgl_status_approved_hrd' => $request->tgl_status_approved_hrd,
+                                'tgl_status_management' => $request->tgl_status_management,
+                                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                'periode' => $request->periode,
+                                'tipe' => $request->tipe
+                            ]);
+                        }
+
+                        $employeeAdjustment['adjustment_type'] = 'Dibagi menjadi ' . count($leavePeriods) . ' pengajuan - ' . $returnedDays . ' Hari Dikembalikan';
+                        $employeeAdjustment['new_dates'] = count($leavePeriods) . " periode terpisah";
+                        $splitRequests++;
+                    }
+                }
+            }
+
+            // Add to report if any adjustment was made
+            if ($employeeAdjustment['adjustment_type'] !== 'None') {
+                $adjustmentDetails[] = $employeeAdjustment;
+                $totalAdjusted++;
+            }
+        }
+
+        // Prepare email content if adjustments were made
+        if ($totalAdjusted > 0) {
+            // Build detailed HTML table for the report
+            $detailsTable = "<table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse;'>
+            <tr style='background-color: #f2f2f2;'>
+                <th>Karyawan</th>
+                <th>Jenis Cuti</th>
+                <th>Tanggal Awal</th>
+                <th>Jenis Penyesuaian</th>
+                <th>Tanggal Baru</th>
+                <th>Hari Dikembalikan</th>
+                <th>Tanggal Kehadiran</th>
+            </tr>";
+
+            foreach ($adjustmentDetails as $detail) {
+                $attendanceDatesStr = !empty($detail['attendance_dates']) ?
+                    implode('<br>', array_map(function ($date) {
+                        return Carbon::parse($date)->format('d-m-Y');
+                    }, $detail['attendance_dates'])) : 'None';
+
+                $detailsTable .= "<tr>
+                <td>{$detail['name']}</td>
+                <td>{$detail['cuti_type']}</td>
+                <td>{$detail['original_dates']}</td>
+                <td>{$detail['adjustment_type']}</td>
+                <td>{$detail['new_dates']}</td>
+                <td>{$detail['returned_days']}</td>
+                <td>{$attendanceDatesStr}</td>
+            </tr>";
+            }
+
+            $detailsTable .= "</table>";
+
+            // Build email content
+            $emailContent = "
+            <h1>Laporan Penyesuaian Cuti dan Pengembalian Saldo - " . Carbon::now()->format('d M Y') . "</h1>
+            <p>Sistem telah secara otomatis menyesuaikan pengajuan cuti karyawan yang melakukan presensi selama hari cuti yang disetujui dan mengembalikan saldo cuti yang tidak terpakai.</p>
+
+            <h2>Ringkasan:</h2>
+            <ul>
+                <li><strong>Total Pengajuan Disesuaikan:</strong> {$totalAdjusted}</li>
+                <li><strong>Pengajuan Dibatalkan:</strong> {$canceledRequests}</li>
+                <li><strong>Pengajuan Tanggal Disesuaikan:</strong> {$dateAdjustedRequests}</li>
+                <li><strong>Pengajuan Dibagi:</strong> {$splitRequests}</li>
+                <li><strong>Total Hari Cuti Dikembalikan:</strong> {$totalReturnedDays}</li>
+            </ul>
+
+            <h2>Detail Penyesuaian:</h2>
+            {$detailsTable}
+            <br>
+            <p>Penyesuaian ini dilakukan secara otomatis oleh sistem karena karyawan melakukan presensi selama hari cuti yang telah disetujui.</p>
+            <p>Saldo cuti mereka telah diperbarui untuk mengembalikan hari-hari yang tidak digunakan.</p>
+            <p>Silakan periksa perubahan ini di <a href='https://hrms.ciptaharmoni.com/panel'>HRMS Panel</a>.</p>
+            <br><br>
+            <p>Terima kasih,</p>
+            ";
+
+            // Send email
+            $hrEmails = ['human.resources@ciptaharmoni.com'];
+            $tanggalHari = DateHelper::formatIndonesianDate($hariini);
+
+            foreach ($hrEmails as $email) {
+                if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    Mail::html($emailContent, function ($message) use ($email, $tanggalHari) {
+                        $message->to($email)
+                            ->subject("Laporan Penyesuaian Cuti & Pengembalian Saldo Tanggal {$tanggalHari}");
+                    });
+                }
+            }
+
+            Session::flash('success', 'Laporan Penyesuaian Cuti berhasil dikirim. ' . $totalAdjusted . ' pengajuan disesuaikan dan ' . $totalReturnedDays . ' hari cuti dikembalikan.');
+        } else {
+            Session::flash('info', 'Tidak ada pengajuan cuti yang perlu disesuaikan.');
+        }
+
+        // Redirect back to the dashboard
+        return redirect()->route('panel.dashboardadmin');
     }
 }

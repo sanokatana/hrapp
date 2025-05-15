@@ -885,6 +885,7 @@ class ApprovalController extends Controller
         // Get the current user's details
         $currentUser = Karyawan::where('nik', $nik)->first();
         $currentUserJabatanId = $currentUser->jabatan;
+        $currentUserEmail = $currentUser->email;
         $currentUserKodeDept = $currentUser->kode_dept;
 
         // Begin query on pengajuan_cuti table
@@ -908,34 +909,67 @@ class ApprovalController extends Controller
                 'superior.nama_lengkap as nama_atasan'
             );
 
+        // Base filter: Only show pending requests
         $query->where(function ($q) {
             $q->where('status_approved', 0)
                 ->orWhere('status_approved_hrd', 0)
                 ->orWhere('status_management', 0);
         });
 
-        // Check if the user belongs to the Management department
-        if ($currentUserKodeDept === 'Management') {
-            // Management can only see requests where status_approved = 1 and status_approved_hrd = 1
-
+        // Special case for Al Imron (final Management approver)
+        if ($currentUserEmail === 'al.imron@ciptaharmoni.com') {
+            // Get NIKs of Al Imron's direct subordinates
             $subordinateNiks = Karyawan::join('jabatan as j1', 'karyawan.jabatan', '=', 'j1.id')
                 ->join('jabatan as j2', 'j1.jabatan_atasan', '=', 'j2.id')
                 ->where('j2.id', $currentUserJabatanId)
                 ->pluck('karyawan.nik')
                 ->toArray();
 
-            // Prioritize subordinates' requests by ordering
+            // Create a sophisticated ordering for Al Imron:
+            // 1. Direct subordinates (highest priority)
+            // 2. Requests with HR and atasan approval that need Management approval
+            // 3. Other requests
             $query->orderByRaw("
-                CASE
-                    WHEN pengajuan_cuti.nik IN ('" . implode("','", $subordinateNiks) . "') THEN 1
-                    ELSE 2
-                END
-            ");
-        } else {
-            // Otherwise, check if the user is an Atasan
+            CASE
+                -- His direct subordinates first
+                WHEN pengajuan_cuti.nik IN ('" . implode("','", $subordinateNiks) . "') THEN 1
+
+                -- Then requests where both HR and atasan have approved (ready for final management approval)
+                WHEN pengajuan_cuti.status_approved = 1
+                    AND pengajuan_cuti.status_approved_hrd = 1
+                    AND pengajuan_cuti.status_management = 0 THEN 2
+
+                -- Requests where atasan has approved but HR hasn't
+                WHEN pengajuan_cuti.status_approved = 1
+                    AND pengajuan_cuti.status_approved_hrd = 0
+                    AND pengajuan_cuti.status_management = 0 THEN 3
+
+                -- Requests where neither atasan nor HR has approved
+                WHEN pengajuan_cuti.status_approved = 0 THEN 4
+
+                -- All other cases
+                ELSE 5
+            END
+        ");
+        }
+        // For Andreas/Setia or other users in Management department
+        elseif ($currentUserKodeDept === 'Management') {
+            // Management users (except Al Imron) should only see requests from their subordinates
+            $subordinateNiks = Karyawan::join('jabatan as j1', 'karyawan.jabatan', '=', 'j1.id')
+                ->join('jabatan as j2', 'j1.jabatan_atasan', '=', 'j2.id')
+                ->where('j2.id', $currentUserJabatanId)
+                ->pluck('karyawan.nik')
+                ->toArray();
+
+            // Only show requests from direct subordinates
+            $query->whereIn('pengajuan_cuti.nik', $subordinateNiks);
+        }
+        // For regular atasan (non-Management)
+        else {
+            // Check if the user is an Atasan
             $jabatanAtasan = Jabatan::where('id', $currentUserJabatanId)->value('jabatan_atasan');
 
-            // If the user is an Atasan, only show requests where status_approved is 0 (pending)
+            // If the user is an Atasan, only show requests from subordinates
             if ($jabatanAtasan) {
                 $employeeNiks = Karyawan::join('jabatan as j1', 'karyawan.jabatan', '=', 'j1.id')
                     ->join('jabatan as j2', 'j1.jabatan_atasan', '=', 'j2.id')
@@ -944,12 +978,20 @@ class ApprovalController extends Controller
 
                 // Apply filter by NIKs (subordinates only) and only show requests where status_approved is 0 (pending)
                 $query->whereIn('pengajuan_cuti.nik', $employeeNiks);
+                $query->where('status_approved', 0);
             }
         }
 
         // Order by atasan name
-        $query->orderBy('nama_lengkap', 'asc');
         $query->orderBy('nama_atasan', 'asc');
+        $query->orderByRaw("
+        CASE
+            WHEN status_approved = 0 THEN 1
+            WHEN status_management = 0 THEN 2
+            WHEN status_approved_hrd = 0 THEN 3
+            ELSE 4
+        END ASC
+    ");
 
         // Paginate the results
         $cutiapproval = $query->paginate(50);
@@ -992,17 +1034,20 @@ class ApprovalController extends Controller
         $karyawanNik = $leaveApplication->nik;
         $karyawan = DB::table('karyawan')->where('nik', $karyawanNik)->first();
 
-        // Determine the user's role
+        // Determine if user is Atasan for this employee
         $isAtasan = Karyawan::join('jabatan as j1', 'karyawan.jabatan', '=', 'j1.id')
             ->join('jabatan as j2', 'j1.jabatan_atasan', '=', 'j2.id')
             ->where('karyawan.nik', $karyawanNik)
             ->where('j2.id', $currentUserJabatanId)
             ->exists();
 
-        $isManagement = $currentUser->kode_dept == 'Management';
+        // Check if current user is Al Imron (the only final Management approver)
+        $isManagement = $currentUserEmail === 'al.imron@ciptaharmoni.com';
 
         // Update fields based on role
         $updateFields = [];
+
+        // If Al Imron is approving as both Atasan and Management
         if ($isAtasan && $isManagement) {
             $updateFields = [
                 'status_approved' => $status_approved,
@@ -1010,12 +1055,16 @@ class ApprovalController extends Controller
                 'status_management' => $status_approved,
                 'tgl_status_management' => $currentDate,
             ];
-        } elseif ($isAtasan) {
+        }
+        // For other Management members (Setia/Andreas) or regular atasan
+        elseif ($isAtasan) {
             $updateFields = [
                 'status_approved' => $status_approved,
                 'tgl_status_approved' => $currentDate,
             ];
-        } elseif ($isManagement) {
+        }
+        // Only Al Imron can approve as Management when not an Atasan
+        elseif ($isManagement) {
             $updateFields = [
                 'status_management' => $status_approved,
                 'tgl_status_management' => $currentDate,
@@ -1042,36 +1091,12 @@ class ApprovalController extends Controller
                     // Add employee name to leave application object
                     $leaveApplication->nama_karyawan = $karyawan->nama_lengkap;
 
-                    // Determine management notification logic based on atasan's email
+                    // Always notify Al Imron for Management approval unless Al Imron is the one approving
                     $managementEmails = [];
                     $showApprovalButtons = true;
 
-                    switch ($currentUserEmail) {
-                        case 'al.imron@ciptaharmoni.com':
-                            // If Al Imron is atasan, no need to send email
-                            $managementEmails = [];
-                            break;
-
-                        case 'setia.rusli@ciptaharmoni.com':
-                            // If Setia is atasan, notify Al Imron and Andreas
-                            $managementEmails = [
-                                'al.imron@ciptaharmoni.com',
-                                'andreas.audyanto@ciptaharmoni.com'
-                            ];
-                            break;
-
-                        case 'andreas.audyanto@ciptaharmoni.com':
-                            // If Andreas is atasan, notify Al Imron and Setia
-                            $managementEmails = [
-                                'al.imron@ciptaharmoni.com',
-                                'setia.rusli@ciptaharmoni.com'
-                            ];
-                            break;
-
-                        default:
-                            // If atasan is someone else, only notify Al Imron
-                            $managementEmails = ['al.imron@ciptaharmoni.com'];
-                            break;
+                    if ($currentUserEmail !== 'al.imron@ciptaharmoni.com') {
+                        $managementEmails = ['al.imron@ciptaharmoni.com'];
                     }
 
                     // Only send email if there are recipients
@@ -1109,6 +1134,7 @@ class ApprovalController extends Controller
                                 'sisa_cuti' => $newSisa,
                             ]);
 
+                        // If declined by anyone, update management status too to ensure request is fully closed
                         DB::table('pengajuan_cuti')
                             ->where('id', $id)
                             ->update([
@@ -1117,8 +1143,8 @@ class ApprovalController extends Controller
                             ]);
                     }
 
-                    if ($isManagement && $status_approved == 1) { // Approved by Management
-                        // Remove Tunda only if Management is the final approver
+                    if ($isManagement && $status_approved == 1) { // Approved by Management (only Al Imron)
+                        // Remove Tunda only if Management (Al Imron) approves
                         $newTunda = max(0, $currentTunda - $leaveApplication->jml_hari);
 
                         DB::table('cuti')

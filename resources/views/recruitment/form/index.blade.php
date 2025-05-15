@@ -129,14 +129,15 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Alamat RT <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <textarea class="form-control" name="alamat_rt" id="alamat_rt" rows="1" placeholder="Alamat RT" maxlength="20"></textarea>
+                                    <input type="number" class="form-control" name="alamat_rt" id="alamat_rt" placeholder="Alamat RT" maxlength="20">
                                 </div>
                             </div>
 
+                            <!-- For RW: Change from textarea to input with type="number" -->
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Alamat RW <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <textarea class="form-control" name="alamat_rw" id="alamat_rw" rows="1" placeholder="Alamat RW" maxlength="20"></textarea>
+                                    <input type="number" class="form-control" name="alamat_rw" id="alamat_rw" placeholder="Alamat RW" maxlength="20">
                                 </div>
                             </div>
 
@@ -171,7 +172,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">Alamat POS <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <textarea class="form-control" name="alamat_pos" id="alamat_pos" rows="1" placeholder="Alamat POS" maxlength="20"></textarea>
+                                    <input type="number" class="form-control" name="alamat_pos" id="alamat_pos" placeholder="Alamat POS" maxlength="20">
                                 </div>
                             </div>
 
@@ -199,10 +200,9 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label" id="label_no_identitas">No. Identitas <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="no_ktp_sim" id="no_ktp_sim" placeholder="No. Identitas" maxlength="100">
+                                    <input type="number" class="form-control" name="no_ktp_sim" id="no_ktp_sim" placeholder="No. Identitas" maxlength="16">
                                 </div>
                             </div>
-
                             <!-- Tgl Berlaku KTP/SIM -->
                             <div class="row mb-3 align-items-center" id="tgl_berlaku_container">
                                 <label class="col-md-3 col-form-label">Tgl Berlaku SIM <span style="color: red;">*</span></label>
@@ -215,7 +215,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-md-3 col-form-label">No. NPWP <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="no_npwp" placeholder="No. NPWP" id="no_npwp" maxlength="100">
+                                    <input type="number" class="form-control" name="no_npwp" placeholder="No. NPWP" id="no_npwp" maxlength="15">
                                 </div>
                             </div>
 

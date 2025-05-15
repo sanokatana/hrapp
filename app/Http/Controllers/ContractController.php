@@ -52,7 +52,7 @@ class ContractController extends Controller
 
         // Order the results with Active contracts first
         $query->orderByRaw("CASE WHEN kontrak.status = 'Active' THEN 0 ELSE 1 END");
-        $query->orderBy('kontrak.no_kontrak', 'DESC');
+        $query->orderByRaw("CAST(SUBSTRING_INDEX(kontrak.no_kontrak, '/', 1) AS UNSIGNED) DESC");
 
         // Paginate the results
         $contract = $query->paginate(50)->appends($request->query());
@@ -586,13 +586,12 @@ class ContractController extends Controller
                     ->orderBy('id', 'desc')
                     ->value('no_kontrak');
 
-                // Extract the number (xxx) from the last contract
                 if ($lastContract) {
                     $parts = explode('/', $lastContract);
                     $lastNumber = (int)$parts[0];
-                    $nextNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT); // Increment and pad with leading zeros
+                    $nextNumber = (string)($lastNumber + 1); // Simply increment without padding
                 } else {
-                    $nextNumber = '001'; // If no previous contract, start with 001
+                    $nextNumber = '001';
                 }
 
                 // Simplify the user's name to 3 letters
