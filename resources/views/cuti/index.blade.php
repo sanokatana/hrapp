@@ -55,13 +55,13 @@
                                     </svg>
                                     Add Data
                                 </a>
-                                <a href="{{ route('cek.cuti.karyawan') }}" class="btn btn-primary" id="btnCekCuti">
+                                <a href="{{ route('cek.cuti.karyawan') }}" class="btn btn-info" id="btnCekCuti">
                                     Cek Cuti Karyawan
                                 </a>
-                                <a href="#" class="btn btn-primary" id="btnUploadCuti">
+                                <a href="#" class="btn btn-danger" id="btnUploadCuti">
                                     Upload Cuti
                                 </a>
-                                <a href="/cuti/export" class="btn btn-primary">
+                                <a href="/cuti/export" class="btn btn-success">
                                     Export CSV
                                 </a>
                             </div>
@@ -70,7 +70,7 @@
                             <div class="col-12">
                                 <form action="/cuti" method="GET">
                                     <div class="row">
-                                    <div class="col-2">
+                                        <div class="col-2">
                                             <div class="form-group">
                                                 <input type="text" name="nama_kar" id="nama_kar" class="form-control" placeholder="Nama Karyawan" autocomplete="off" value="{{ Request('nama_kar')}}">
                                             </div>
@@ -225,7 +225,7 @@
                             <div class="input-icon mb-3">
                                 <span class="input-icon-addon">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-check">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                         <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
                                         <path d="M6 21v-2a4 4 0 0 1 4 -4h4" />
                                         <path d="M15 19l2 2l4 -4" />
@@ -311,7 +311,7 @@
                             <div class="form-group mb-3">
                                 <select name="status" id="status" class="form-select">
                                     <option value="pilih">Pilih Level</option>
-                                    <option value="0" >Non-Aktif</option>
+                                    <option value="0">Non-Aktif</option>
                                     <option value="1">Aktif</option>\
                                 </select>
                             </div>
@@ -387,11 +387,208 @@
         </div>
     </div>
 </div>
+
+<!-- Modal for displaying cuti updates -->
+<div class="modal modal-blur fade" id="modal-cuti-preview" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Konfirmasi Pembaruan Cuti Karyawan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Karyawan berikut telah melewati periode cuti dan akan diperbarui:</p>
+                <div class="table-responsive">
+                    <table id="preview-table" class="table table-vcenter table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Nama Karyawan</th>
+                                <th>NIK</th>
+                                <th>Periode</th>
+                                <th>Sisa Cuti Sebelumnya</th>
+                                <th>Sisa Cuti Baru</th>
+                                <th>Lama Bekerja</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Will be populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" id="btn-confirm-update">Lanjutkan Update</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('myscript')
 <script>
     $(function() {
+        $('#btnCekCuti').on('click', function(e) {
+            e.preventDefault();
+
+            // Show loading message
+            Swal.fire({
+                title: 'Memeriksa...',
+                text: 'Sedang memeriksa karyawan dengan periode cuti berakhir',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // AJAX call to get employees with expired periods
+            $.ajax({
+                url: '{{ route("cek.cuti.preview") }}',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    Swal.close();
+
+                    if (response.employees.length > 0) {
+                        // Populate the modal with employee data
+                        populatePreviewModal(response.employees);
+                        $('#modal-cuti-preview').modal('show');
+                    } else {
+                        Swal.fire({
+                            title: 'Informasi',
+                            text: 'Tidak ada karyawan yang periode cutinya telah berakhir',
+                            icon: 'info'
+                        });
+                    }
+                },
+                error: function() {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Terjadi kesalahan saat memeriksa data',
+                        icon: 'error'
+                    });
+                }
+            });
+        });
+
+        // Function to populate the preview modal
+        function populatePreviewModal(employees) {
+    var tbody = $('#preview-table tbody');
+    tbody.empty();
+
+    // Calculate the new values for each employee
+    employees.forEach(function(emp) {
+        // Ensure we're working with numbers by explicitly converting
+        var sisaCuti = parseInt(emp.sisa_cuti) || 0;
+        var pinjam = parseInt(emp.pinjam) || 0;
+        var tunda = parseInt(emp.tunda) || 0;
+
+        // Determine entitlement based on employee status
+        var entitlement = emp.employee_status === 'Tetap' ? 15 : 12;
+
+        // Calculate employment duration in YEARS at the end of current period
+        var joinDate = new Date(emp.tgl_masuk);
+        var periodEndDate = new Date(emp.periode_akhir);
+
+        // Calculate total months for display
+        var employmentMonths = (periodEndDate.getFullYear() - joinDate.getFullYear()) * 12 +
+                             (periodEndDate.getMonth() - joinDate.getMonth());
+
+        // Calculate years for decision logic
+        var employmentYears = Math.floor(employmentMonths / 12);
+
+        // Check if this is the first year period (start date equals join date)
+        var periodStartDate = new Date(emp.periode_awal);
+        var isFirstYearPeriod = (
+            periodStartDate.getFullYear() === joinDate.getFullYear() &&
+            periodStartDate.getMonth() === joinDate.getMonth() &&
+            periodStartDate.getDate() === joinDate.getDate()
+        );
+
+        // Determine leave logic based on employment duration
+        var newSisaCuti;
+        var statusText = '';
+        var isNegative = sisaCuti < 0;
+
+        if (employmentYears < 1) {
+            // Less than 1 year of employment - keep existing balance
+            newSisaCuti = sisaCuti;
+            statusText = '<span class="badge bg-info text-white">Under 1 Year</span>';
+        } else if (employmentYears === 1) {
+            // Exactly 1 year - different rules based on balance
+            if (isNegative) {
+                // Negative balance - give them full entitlement plus negative balance
+                newSisaCuti = entitlement + sisaCuti; // Adding negative = subtracting
+                statusText = '<span class="badge bg-warning text-white">1 Year (Negative + New)</span>';
+            } else {
+                // Positive balance - carry over existing balance
+                newSisaCuti = sisaCuti;
+                statusText = '<span class="badge bg-primary text-white">1 Year (Carryover)</span>';
+            }
+        } else {
+            // More than 1 year of employment
+            if (isNegative) {
+                // Negative balance - give them full entitlement plus negative balance
+                newSisaCuti = entitlement + sisaCuti;
+                statusText = '<span class="badge bg-danger text-white">Negative Balance</span>';
+            } else {
+                // Positive balance - get fresh entitlement
+                newSisaCuti = entitlement;
+                statusText = '<span class="badge bg-secondary text-white">Regular Renewal</span>';
+            }
+        }
+
+        // Adjust for pinjam and tunda
+        newSisaCuti = newSisaCuti - pinjam + tunda;
+
+        // Calculate new period
+        var newPeriode = parseInt(emp.tahun) + 1;
+
+        // Add calculation explanation for clearer understanding
+        var calcExplanation = '';
+        if (isNegative) {
+            calcExplanation = `<small class="d-block text-muted">${entitlement} + (${sisaCuti}) = ${entitlement + sisaCuti}</small>`;
+            if (pinjam > 0 || tunda > 0) {
+                calcExplanation += `<small class="d-block text-muted">Adjust: ${pinjam > 0 ? '-'+pinjam : ''} ${tunda > 0 ? '+'+tunda : ''}</small>`;
+            }
+        }
+
+        var row = `
+            <tr>
+                <td>${emp.nama_lengkap} ${statusText}</td>
+                <td>${emp.nik}</td>
+                <td>${emp.tahun} → ${newPeriode}</td>
+                <td>${sisaCuti < 0 ? '<span class="text-danger">'+sisaCuti+'</span>' : sisaCuti}</td>
+                <td>
+                    ${newSisaCuti < 0 ? '<span class="text-danger">'+newSisaCuti+'</span>' : newSisaCuti}
+                    ${calcExplanation}
+                </td>
+                <td>${employmentMonths} months (${employmentYears} years)</td>
+            </tr>
+        `;
+        tbody.append(row);
+    });
+}
+
+        // Handle confirm button in preview modal
+        $('#btn-confirm-update').on('click', function() {
+            // Close the preview modal
+            $('#modal-cuti-preview').modal('hide');
+
+            // Show loading message
+            Swal.fire({
+                title: 'Sedang Memproses',
+                text: 'Memperbarui data cuti karyawan...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Redirect to the actual update route
+            window.location.href = '{{ route("cek.cuti.karyawan") }}';
+        });
+
         $('#btnTambahCuti').click(function() {
             $('#modal-inputcuti').modal("show");
         });
@@ -402,13 +599,15 @@
 
         $('#nik').on('blur', function() {
             var nik = $(this).val();
-            if(nik !== "") {
+            if (nik !== "") {
                 $.ajax({
                     url: '/cuti/getEmployeeByNik',
                     type: 'GET',
-                    data: {nik: nik},
+                    data: {
+                        nik: nik
+                    },
                     success: function(response) {
-                        if(response) {
+                        if (response) {
                             $('#nama_lengkap').val(response.nama_lengkap);
                         } else {
                             $('#nama_lengkap').val('');
@@ -425,7 +624,9 @@
                 $.ajax({
                     url: '/cuti/getEmployeeName',
                     type: 'GET',
-                    data: {nama_lengkap: nama_lengkap},
+                    data: {
+                        nama_lengkap: nama_lengkap
+                    },
                     success: function(response) {
                         var dropdownMenu = $('#employeeList');
                         dropdownMenu.empty();

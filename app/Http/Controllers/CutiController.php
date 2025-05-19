@@ -24,7 +24,7 @@ class CutiController extends Controller
         $query->select('cuti.*', 'karyawan.nama_lengkap', 'karyawan.tgl_masuk', 'department.nama_dept');
         $query->join('karyawan', function ($join) {
             $join->on('cuti.nik', '=', 'karyawan.nik')
-                 ->where('karyawan.status_kar', '=', 'Aktif');
+                ->where('karyawan.status_kar', '=', 'Aktif');
         });
         $query->join('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
         // Order by NIK
@@ -140,54 +140,126 @@ class CutiController extends Controller
     }
 
     public function cekCutiKaryawan()
+{
+    $today = Carbon::today();
+    $updatedEmployees = []; // Array to store employee update details
+
+    // Fetch relevant cuti records and karyawan details
+    $cutiRecords = DB::table('cuti')
+        ->join('karyawan', 'cuti.nik', '=', 'karyawan.nik')
+        ->select('cuti.*', 'karyawan.employee_status', 'karyawan.nama_lengkap', 'karyawan.tgl_masuk')
+        ->where('periode_akhir', '<', $today)
+        ->where('status', 1) // Only active records
+        ->get();
+
+    foreach ($cutiRecords as $record) {
+        $newPeriode = $record->tahun + 1;
+        $newPeriodeAwal = Carbon::parse($record->periode_akhir)->addDay()->format('Y-m-d');
+        $newPeriodeAkhir = Carbon::parse($record->periode_akhir)->addYear()->format('Y-m-d');
+
+        // Determine entitlement based on employee status
+        $entitlement = $record->employee_status === 'Tetap' ? 15 : 12;
+
+        // Store original sisa_cuti for logging
+        $originalSisaCuti = $record->sisa_cuti;
+
+        // Calculate employment duration in YEARS at the end of current period
+        $employmentEndDate = Carbon::parse($record->periode_akhir);
+        $joinDate = Carbon::parse($record->tgl_masuk);
+        $employmentYears = $joinDate->diffInYears($employmentEndDate);
+        $employmentMonths = $joinDate->diffInMonths($employmentEndDate);
+
+        // Check if the period is exactly the first year (period matches join date + 1 year)
+        $isFirstYearPeriod = ($record->periode_awal == $joinDate->format('Y-m-d'));
+
+        // Handle different scenarios based on employment duration and balance
+        if ($employmentYears < 1) {
+            // Less than 1 year of employment - keep existing balance
+            $newSisaCuti = $originalSisaCuti;
+        } else if ($employmentYears == 1) {
+            // Exactly 1 year of employment - different rules based on balance
+            if ($originalSisaCuti < 0) {
+                // Negative balance - give them full entitlement plus negative balance
+                $newSisaCuti = $entitlement + $originalSisaCuti; // Adding negative = subtracting the absolute value
+            } else {
+                // Positive balance - carry over existing balance
+                $newSisaCuti = $originalSisaCuti;
+            }
+        } else {
+            // More than 1 year of employment
+            if ($originalSisaCuti < 0) {
+                // Negative balance - give them full entitlement plus negative balance
+                $newSisaCuti = $entitlement + $originalSisaCuti; // Adding negative = subtracting the absolute value
+            } else {
+                // Positive balance - get fresh entitlement
+                $newSisaCuti = $entitlement;
+            }
+        }
+
+        // Adjust sisa_cuti based on pinjam and tunda
+        $newSisaCuti -= $record->pinjam ?? 0;
+        $newSisaCuti += $record->tunda ?? 0;
+
+        // Insert a new record for the next period
+        DB::table('cuti')->insert([
+            'nik' => $record->nik,
+            'nip' => $record->nip,
+            'tahun' => $newPeriode,
+            'periode_awal' => $newPeriodeAwal,
+            'periode_akhir' => $newPeriodeAkhir,
+            'sisa_cuti' => $newSisaCuti,
+            'status' => 1,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        // Update the current record's status to inactive
+        DB::table('cuti')
+            ->where('id', $record->id)
+            ->update(['status' => 0]);
+
+        // Store employee update information with employment duration and special markers
+        $updatedEmployees[] = [
+            'nama' => $record->nama_lengkap,
+            'nik' => $record->nik,
+            'periode_lama' => $record->tahun,
+            'periode_baru' => $newPeriode,
+            'sisa_cuti_lama' => $originalSisaCuti,
+            'sisa_cuti_baru' => $newSisaCuti,
+            'employment_years' => $employmentYears,
+            'employment_months' => $employmentMonths,
+            'is_first_period' => $isFirstYearPeriod,
+            'is_negative' => $originalSisaCuti < 0,
+            'entitlement' => $entitlement
+        ];
+    }
+
+    // Store updated employees in session for displaying in view
+    session(['updated_employees' => $updatedEmployees]);
+
+    return redirect()->back()->with('success', 'Cuti karyawan berhasil diperbarui.');
+}
+
+    public function cekCutiKaryawanPreview()
     {
         $today = Carbon::today();
 
         // Fetch relevant cuti records and karyawan details
         $cutiRecords = DB::table('cuti')
             ->join('karyawan', 'cuti.nik', '=', 'karyawan.nik')
-            ->select('cuti.*', 'karyawan.employee_status')
+            ->select(
+                'cuti.*',
+                'karyawan.employee_status',
+                'karyawan.nama_lengkap',
+                'karyawan.tgl_masuk'
+            )
             ->where('periode_akhir', '<', $today)
             ->where('status', 1) // Only active records
             ->get();
 
-        foreach ($cutiRecords as $record) {
-            $newPeriode = $record->tahun + 1;
-            $newPeriodeAwal = Carbon::parse($record->periode_akhir)->addDay()->format('Y-m-d');
-            $newPeriodeAkhir = Carbon::parse($record->periode_akhir)->addYear()->format('Y-m-d');
-
-            // Determine entitlement based on employee status
-            $entitlement = $record->employee_status === 'Tetap' ? 15 : 12;
-
-            // Adjust entitlement if sisa_cuti is negative
-            $newSisaCuti = $record->sisa_cuti < 0
-                ? $entitlement - abs($record->sisa_cuti)
-                : $entitlement;
-
-            // Adjust sisa_cuti based on pinjam and tunda
-            $newSisaCuti -= $record->pinjam ?? 0;
-            $newSisaCuti += $record->tunda ?? 0;
-
-            // Insert a new record for the next period
-            DB::table('cuti')->insert([
-                'nik' => $record->nik,
-                'nip' => $record->nip,
-                'tahun' => $newPeriode,
-                'periode_awal' => $newPeriodeAwal,
-                'periode_akhir' => $newPeriodeAkhir,
-                'sisa_cuti' => $newSisaCuti,
-                'status' => 1,
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
-
-            // Update the current record's status to inactive
-            DB::table('cuti')
-                ->where('id', $record->id)
-                ->update(['status' => 0]);
-        }
-
-        return redirect()->back()->with('success', 'Cuti karyawan has been updated successfully.');
+        return response()->json([
+            'employees' => $cutiRecords
+        ]);
     }
 
     public function getEmployeeByNik(Request $request)

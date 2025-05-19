@@ -176,6 +176,7 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::post('/cuti/uploadCuti', [CutiController::class, 'uploadCuti']);
     Route::get('/cuti/downloadTemplate', [CutiController::class, 'downloadTemplate']);
     Route::get('/cuti/export', [CutiController::class, 'export'])->name('export.cuti');
+    Route::get('/cuti/preview', [CutiController::class, 'cekCutiKaryawanPreview'])->name('cek.cuti.preview');
 
     //Department
     Route::get('/department', [DepartmentController::class, 'index']);
