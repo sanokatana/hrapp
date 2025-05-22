@@ -585,60 +585,200 @@ class PresensiController extends Controller
     }
 
     public function getFolder(Request $request)
-    {
+{
+    $user = Auth::guard('karyawan')->user();
+    $nik = $user->nik;
+    $nama_lengkap = $user->nama_lengkap;
+
+    // Get the current path from the request or use the base path
+    $currentPath = $request->get('path', "public/uploads/karyawan/{$nik}.{$nama_lengkap}");
+
+    // Check if the folder exists, if not, create it
+    if (!Storage::exists($currentPath)) {
+        Storage::makeDirectory($currentPath);
+    }
+
+    // Get all directories and files
+    $directories = Storage::directories($currentPath);
+    $files = Storage::files($currentPath);
+
+    // Convert directories to a more usable format
+    $directoryList = array_map(function ($dir) {
+        return [
+            'path' => $dir,
+            'name' => basename($dir),
+            'type' => 'folder'
+        ];
+    }, $directories);
+
+    // Convert files to a more usable format
+    $fileList = array_map(function ($file) {
+        return [
+            'path' => $file,
+            'url' => Storage::url($file),
+            'name' => basename($file),
+            'type' => 'file'
+        ];
+    }, $files);
+
+    // Combine directories and files
+    $items = array_merge($directoryList, $fileList);
+
+    // Get parent directory path if not in root
+    $parentPath = null;
+    if ($currentPath !== "public/uploads/karyawan/{$nik}.{$nama_lengkap}") {
+        $parentPath = dirname($currentPath);
+    }
+
+    return view('presensi.files', [
+        'items' => $items,
+        'currentPath' => $currentPath,
+        'parentPath' => $parentPath,
+        'nama_lengkap' => $nama_lengkap
+    ]);
+}
+
+public function checkFile(Request $request)
+{
+    $user = Auth::guard('karyawan')->user();
+    $nik = $user->nik;
+    $nama_lengkap = $user->nama_lengkap;
+
+    // Get employee record to check document status fields
+    $karyawan = DB::table('karyawan')->where('nik', $nik)->first();
+
+    // Document status information
+    $documentStatus = (object)[
+        'file_photo' => $karyawan->file_photo ?? null,
+        'file_ktp' => $karyawan->file_ktp ?? null,
+        'file_kk' => $karyawan->file_kk ?? null,
+        'file_npwp' => $karyawan->file_npwp ?? null,
+        'file_ijazah' => $karyawan->file_ijazah ?? null,
+        'file_sim' => $karyawan->file_sim ?? null,
+        'file_skck' => $karyawan->file_skck ?? null,
+        'file_cv' => $karyawan->file_cv ?? null,
+    ];
+
+    // Get the current path from the request or use the base path
+    $currentPath = $request->get('path', "public/uploads/karyawan/{$nik}.{$nama_lengkap}");
+
+    // Create "files" subfolder if we're in the main folder
+    $filesPath = "public/uploads/karyawan/{$nik}.{$nama_lengkap}/files";
+
+    // Check if the current folder exists, if not, create it
+    if (!Storage::exists($currentPath)) {
+        Storage::makeDirectory($currentPath);
+    }
+
+    // Make sure files folder exists
+    if (!Storage::exists($filesPath)) {
+        Storage::makeDirectory($filesPath);
+    }
+
+    // Get all directories and files
+    $directories = Storage::directories($currentPath);
+    $files = Storage::files($currentPath);
+
+    // Convert directories to a more usable format
+    $directoryList = array_map(function ($dir) {
+        return [
+            'path' => $dir,
+            'name' => basename($dir),
+            'type' => 'folder'
+        ];
+    }, $directories);
+
+    // Convert files to a more usable format
+    $fileList = array_map(function ($file) {
+        return [
+            'path' => $file,
+            'url' => Storage::url($file),
+            'name' => basename($file),
+            'type' => 'file'
+        ];
+    }, $files);
+
+    // Combine directories and files
+    $items = array_merge($directoryList, $fileList);
+
+    // Get parent directory path if not in root
+    $parentPath = null;
+    if ($currentPath !== "public/uploads/karyawan/{$nik}.{$nama_lengkap}") {
+        $parentPath = dirname($currentPath);
+    }
+
+    return view('presensi.files', [
+        'items' => $items,
+        'currentPath' => $currentPath,
+        'parentPath' => $parentPath,
+        'nama_lengkap' => $nama_lengkap,
+        'nik' => $nik,  // Pass NIK to the view
+        'documentStatus' => $documentStatus
+    ]);
+}
+
+public function uploadDocument(Request $request)
+{
+    // Validate the request
+    $request->validate([
+        'document_type' => 'required|in:photo,ktp,kk,npwp,ijazah,sim,skck,cv',
+        'document_file' => 'required|file|mimes:jpeg,png,jpg,pdf|max:5120', // 5MB max
+    ]);
+
+    try {
+        // Get the logged in employee
         $user = Auth::guard('karyawan')->user();
         $nik = $user->nik;
         $nama_lengkap = $user->nama_lengkap;
 
-        // Get the current path from the request or use the base path
-        $currentPath = $request->get('path', "public/uploads/karyawan/{$nik}.{$nama_lengkap}");
+        // Map document type to database field
+        $fieldMap = [
+            'photo' => 'file_photo',
+            'ktp' => 'file_ktp',
+            'kk' => 'file_kk',
+            'npwp' => 'file_npwp',
+            'ijazah' => 'file_ijazah',
+            'sim' => 'file_sim',
+            'skck' => 'file_skck',
+            'cv' => 'file_cv'
+        ];
 
-        // Check if the folder exists, if not, create it
-        if (!Storage::exists($currentPath)) {
-            Storage::makeDirectory($currentPath);
+        $fileField = $fieldMap[$request->document_type];
+
+        // Process file upload
+        $file = $request->file('document_file');
+        $fileExtension = $file->getClientOriginalExtension();
+        $fileName = $nik . '_' . $request->document_type . '_' . time() . '.' . $fileExtension;
+
+        // Create storage directory if it doesn't exist
+        $storagePath = "public/uploads/karyawan/{$nik}.{$nama_lengkap}/files";
+        if (!Storage::exists($storagePath)) {
+            Storage::makeDirectory($storagePath);
         }
 
-        // Get all directories and files
-        $directories = Storage::directories($currentPath);
-        $files = Storage::files($currentPath);
+        // Upload file
+        $file->storeAs($storagePath, $fileName);
 
-        // Convert directories to a more usable format
-        $directoryList = array_map(function ($dir) {
-            return [
-                'path' => $dir,
-                'name' => basename($dir),
-                'type' => 'folder'
-            ];
-        }, $directories);
+        // Store only the filename in the database
+        DB::table('karyawan')
+            ->where('nik', $nik)
+            ->update([
+                $fileField => $fileName,
+                'updated_at' => now()
+            ]);
 
-        // Convert files to a more usable format
-        $fileList = array_map(function ($file) {
-            return [
-                'path' => $file,
-                'url' => Storage::url($file),
-                'name' => basename($file),
-                'type' => 'file'
-            ];
-        }, $files);
-
-        // Combine directories and files
-        $items = array_merge($directoryList, $fileList);
-
-        // Get parent directory path if not in root
-        $parentPath = null;
-        if ($currentPath !== "public/uploads/karyawan/{$nik}.{$nama_lengkap}") {
-            $parentPath = dirname($currentPath);
-        }
-
-        return view('presensi.files', [
-            'items' => $items,
-            'currentPath' => $currentPath,
-            'parentPath' => $parentPath,
-            'nama_lengkap' => $nama_lengkap
+        return response()->json([
+            'success' => true,
+            'message' => 'Document uploaded successfully',
+            'file_path' => asset("storage/uploads/karyawan/{$nik}.{$nama_lengkap}/files/{$fileName}")
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error uploading document: ' . $e->getMessage()
         ]);
     }
-
-
+}
 
     public function buatizin()
     {

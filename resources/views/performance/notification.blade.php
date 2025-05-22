@@ -346,15 +346,6 @@
                                         </td>
                                         <td class="col-actions">
                                             <div class="d-flex flex-column gap-1">
-                                                <button class="btn btn-sm btn-primary print-confirm" data-id="{{ $contract->id }}">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                        <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2"></path>
-                                                        <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4"></path>
-                                                        <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z"></path>
-                                                    </svg>
-                                                    Print Contract
-                                                </button>
                                                 <button class="btn btn-sm btn-danger print-contract" data-id="{{ $contract->id }}">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-report" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -366,26 +357,6 @@
                                                     </svg>
                                                     Print Evaluation
                                                 </button>
-                                                @if($contract->status_eval == 1)
-                                                <button class="btn btn-sm btn-outline-warning toggle-eval-status" data-id="{{ $contract->id }}" data-status="0">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hourglass" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                        <path d="M6.5 7h11"></path>
-                                                        <path d="M6.5 17h11"></path>
-                                                        <path d="M6 20v-2a6 6 0 1 1 12 0v2a1 1 0 0 1 -1 1h-10a1 1 0 0 1 -1 -1z"></path>
-                                                        <path d="M6 4v2a6 6 0 1 0 12 0v-2a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1z"></path>
-                                                    </svg>
-                                                    Mark as Pending
-                                                </button>
-                                                @else
-                                                <button class="btn btn-sm btn-success toggle-eval-status" data-id="{{ $contract->id }}" data-status="1">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                        <path d="M5 12l5 5l10 -10"></path>
-                                                    </svg>
-                                                    Mark as Processed
-                                                </button>
-                                                @endif
                                                 <button class="btn btn-sm btn-warning contract-action" data-id="{{ $contract->id }}">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -395,6 +366,12 @@
                                                     </svg>
                                                     Action
                                                 </button>
+                                                <div id="finishEvaluationFields" style="display:none;">
+                                                    <div class="form-group mt-3">
+                                                        <label for="reasoning">Catatan Evaluasi</label>
+                                                        <textarea class="form-control" id="reasoning" name="reasoning" rows="3" placeholder="Masukkan catatan evaluasi"></textarea>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </td>
                                     </tr>
@@ -475,15 +452,6 @@
                                         </td>
                                         <td class="col-actions">
                                             <div class="d-flex flex-column gap-1">
-                                                <button class="btn btn-sm btn-primary print-confirm" data-id="{{ $contract->id }}">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                        <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2"></path>
-                                                        <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4"></path>
-                                                        <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z"></path>
-                                                    </svg>
-                                                    Print Contract
-                                                </button>
                                                 <button class="btn btn-sm btn-info print-contract" data-id="{{ $contract->id }}">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-report" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -495,26 +463,6 @@
                                                     </svg>
                                                     Print Evaluation
                                                 </button>
-                                                @if($contract->status_eval == 1)
-                                                <button class="btn btn-sm btn-outline-warning toggle-eval-status" data-id="{{ $contract->id }}" data-status="0">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hourglass" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                        <path d="M6.5 7h11"></path>
-                                                        <path d="M6.5 17h11"></path>
-                                                        <path d="M6 20v-2a6 6 0 1 1 12 0v2a1 1 0 0 1 -1 1h-10a1 1 0 0 1 -1 -1z"></path>
-                                                        <path d="M6 4v2a6 6 0 1 0 12 0v-2a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1z"></path>
-                                                    </svg>
-                                                    Mark as Pending
-                                                </button>
-                                                @else
-                                                <button class="btn btn-sm btn-success toggle-eval-status" data-id="{{ $contract->id }}" data-status="1">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                        <path d="M5 12l5 5l10 -10"></path>
-                                                    </svg>
-                                                    Mark as Processed
-                                                </button>
-                                                @endif
                                                 <button class="btn btn-sm btn-warning contract-action" data-id="{{ $contract->id }}">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -524,6 +472,12 @@
                                                     </svg>
                                                     Action
                                                 </button>
+                                                <div id="finishEvaluationFields" style="display:none;">
+                                                    <div class="form-group mt-3">
+                                                        <label for="reasoning">Catatan Evaluasi</label>
+                                                        <textarea class="form-control" id="reasoning" name="reasoning" rows="3" placeholder="Masukkan catatan evaluasi"></textarea>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </td>
                                     </tr>
@@ -762,6 +716,7 @@
         $('#peningkatanFields').hide();
         $('#tidakLanjutFields').hide();
         $('#mengakhiriFields').hide();
+        $('#finishEvaluationFields').hide();
 
         switch (actionType) {
             case 'extend':
@@ -776,7 +731,38 @@
             case 'mengakhiri':
                 $('#mengakhiriFields').show();
                 break;
+            case 'finish_evaluation':
+                $('#finishEvaluationFields').show();
+                break;
         }
+    });
+
+    $('.contract-action').click(function(e) {
+        e.preventDefault();
+        const contractId = $(this).data('id');
+        const isEvaluation = $(this).closest('tr').find('td:first-child a').text().includes('Evaluasi');
+
+        $('#contractId').val(contractId);
+
+        // Reset the dropdown
+        const actionTypeSelect = $('#actionType');
+        actionTypeSelect.empty();
+        actionTypeSelect.append('<option value="">Pilih</option>');
+
+        // Show only relevant options based on context
+        if (isEvaluation) {
+            // For evaluation tables, show only these two options
+            actionTypeSelect.append('<option value="finish_evaluation">Finish Evaluation</option>');
+            actionTypeSelect.append('<option value="tidak_lanjut">Tidak Lanjut</option>');
+        } else {
+            // For contract end notifications, show all options
+            actionTypeSelect.append('<option value="extend">Extend Contract</option>');
+            actionTypeSelect.append('<option value="peningkatan">Peningkatan (Tetap)</option>');
+            actionTypeSelect.append('<option value="tidak_lanjut">Tidak Lanjut</option>');
+            actionTypeSelect.append('<option value="mengakhiri">Mengakhiri</option>');
+        }
+
+        $('#modal-skContract').modal('show');
     });
 
     $('.view').click(function() {
@@ -811,30 +797,11 @@
         const management = $('#management').val();
         const hrd = $('#hrd').val();
 
-        // Update the status_eval to 1 (printed/in progress)
-        $.ajax({
-            url: '/performance/update-eval-status',
-            type: 'POST',
-            data: {
-                _token: "{{ csrf_token() }}",
-                contract_id: contractId,
-                status_eval: 1
-            },
-            success: function() {
-                console.log('Evaluation status updated');
+        // Just open the print window without updating the status
+        window.open(`/performance/printEvaluation/${contractId}?type=${contractType}&management=${management}&hrd=${encodeURIComponent(hrd)}`, '_blank');
 
-                // Open print window in new tab
-                window.open(`/performance/printEvaluation/${contractId}?type=${contractType}&management=${management}&hrd=${encodeURIComponent(hrd)}`, '_blank');
-
-                // Close the modal
-                $('#modal-printContract').modal('hide');
-            },
-            error: function() {
-                // Still open the print window even if status update fails
-                window.open(`/performance/printEvaluation/${contractId}?type=${contractType}&management=${management}&hrd=${encodeURIComponent(hrd)}`, '_blank');
-                $('#modal-printContract').modal('hide');
-            }
-        });
+        // Close the modal
+        $('#modal-printContract').modal('hide');
     });
 
     // Contract Action Button Handler

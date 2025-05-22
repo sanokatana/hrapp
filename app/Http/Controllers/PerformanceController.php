@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Exception;
 use App\Models\SK;
+use Illuminate\Support\Str;
 
 class PerformanceController extends Controller
 {
@@ -58,7 +59,8 @@ class PerformanceController extends Controller
                 'kontrak.status_eval'
             )
             ->where('kontrak.status', 'Active')
-            ->where('karyawan.status_kar', 'Aktif');
+            ->where('karyawan.status_kar', 'Aktif')
+            ->where('kontrak.status', 'Active');
 
         // If searching by month/year, apply those filters for contracts
         if ($isSearching) {
@@ -103,6 +105,7 @@ class PerformanceController extends Controller
             )
             ->where('kontrak.status', 'Active')
             ->where('karyawan.status_kar', 'Aktif')
+            ->where('kontrak.status', 'Active')
             ->whereNotIn('kontrak.nik', $employeesWithPreviousContracts); // Only first-time employees
 
         // Get evaluation notifications
@@ -132,6 +135,7 @@ class PerformanceController extends Controller
             )
             ->where('status_eval', 0)
             ->where('karyawan.status_kar', 'Aktif')
+            ->where('kontrak.status', 'Active')
             ->whereRaw('DATEDIFF(NOW(), start_date) > 90')  // More than 3 months
             ->whereNotIn('kontrak.nik', $employeesWithPreviousContracts)
             ->get();
@@ -398,11 +402,11 @@ class PerformanceController extends Controller
         $endYear = $endDate->format('Y');
 
         $contractData = [
-            'nama_lengkap' => $employee->nama_lengkap,
+            'nama_lengkap' => Str::title(strtolower($employee->nama_lengkap)),
             'kode_dept' => $employee->kode_dept,
-            'hrd_name' => $request->query('hrd'), // Make sure we're using query parameter
+            'hrd_name' => Str::title(strtolower($request->query('hrd'))),
             'jabatan_name' => $jabatan->nama_jabatan ?? '-',
-            'atasan_name' => $employeeAtasan->nama_lengkap ?? '-',
+            'atasan_name' => isset($employeeAtasan->nama_lengkap) ? Str::title(strtolower($employeeAtasan->nama_lengkap)) : '-',
             'tgl_masuk' => Carbon::parse($employee->tgl_masuk)->format('d-m-Y'),
             'periode_evaluasi' => [
                 'formatted' => "{$startMonth} {$startYear} - {$endMonth} {$endYear}"
@@ -485,14 +489,35 @@ class PerformanceController extends Controller
                     break;
 
                 case 'tidak_lanjut':
-                    $contract->status = 'Expired';
+                    $contract->status = 'Terminated';
+                    $contract->status_eval = 1;
                     $contract->reasoning = $request->alasan;
                     $contract->save();
+
+                    // Update employee status to Non-Aktif
+                    DB::table('karyawan')
+                        ->where('nik', $contract->nik)
+                        ->where('status_kar', 'Aktif')
+                        ->update(['status_kar' => 'Non-Aktif']);
                     break;
 
                 case 'mengakhiri':
-                    $contract->status = 'Terminated';
+                    $contract->status = 'Expired';
                     $contract->reasoning = $request->alasan_mengakhiri;
+                    $contract->save();
+
+                    // Update employee status to Non-Aktif
+                    DB::table('karyawan')
+                        ->where('nik', $contract->nik)
+                        ->where('status_kar', 'Aktif')
+                        ->update(['status_kar' => 'Non-Aktif']);
+                    break;
+
+                case 'finish_evaluation':
+                    // Update the contract with evaluation status completed
+                    $contract->status_eval = 1;
+                    $contract->reasoning = $request->reasoning;
+                    $contract->evaluasi_date = now();
                     $contract->save();
                     break;
             }
@@ -507,7 +532,6 @@ class PerformanceController extends Controller
             return redirect()->back()->with('danger', 'Error updating contract: ' . $e->getMessage());
         }
     }
-
     private function generateSKNumber($nik, $tgl_sk = null)
     {
         // Get employee data

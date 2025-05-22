@@ -114,8 +114,8 @@ Route::middleware(['auth:karyawan'])->group(function () {
     Route::post('/presensi/pembatalancutiYes', [PresensiController::class, 'batalCuti']);
 
     // In web.php or your routes file
-    Route::get('/presensi/checkFile', [PresensiController::class, 'getFolder'])->name('presensi.checkFile');
-
+    Route::get('/presensi/checkFile', [PresensiController::class, 'checkFile'])->name('presensi.checkFile');
+    Route::post('/presensi/uploadDocument', [PresensiController::class, 'uploadDocument'])->name('presensi.uploadDocument');
 
     //Cuti
     Route::get('/presensi/cuti', [PengajuanCutiController::class, 'cuti']);
