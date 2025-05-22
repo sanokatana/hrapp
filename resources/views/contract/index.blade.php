@@ -66,10 +66,10 @@
                                     Check Contract
                                 </a>
 
-                                <a href="#" class="btn btn-primary" id="btnUploadCSV">
+                                <a href="#" class="btn btn-success" id="btnUploadCSV">
                                     Upload Excel
                                 </a>
-                                <a href="/kontrak/exportData" class="btn btn-primary">
+                                <a href="/kontrak/exportData" class="btn btn-info">
                                     Export Contract Excel
                                 </a>
                             </div>

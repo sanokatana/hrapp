@@ -12,6 +12,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\KonfigurasiController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\ParklaringController;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
 use App\Http\Controllers\PengajuanCutiController;
@@ -48,7 +49,7 @@ Route::middleware(['guest:web'])->group(function () {
     })->name('home');
 });
 
-Route::group([], function (){
+Route::group([], function () {
 
     Route::get('/approve/cuti/{token}', [ApprovalController::class, 'approveViaTokenCuti'])->name('approve.cuti');
     Route::get('/approve/izin/{token}', [ApprovalController::class, 'approveViaToken'])->name('approve.izin');
@@ -80,8 +81,6 @@ Route::middleware(['auth:candidate'])->group(function () {
     Route::post('/candidate/data/store', [CandidateController::class, 'candidate_store_form']);
     Route::get('/candidate/data/perlengkapan', [CandidateController::class, 'candidate_data_perlengkapan']);
     Route::post('/candidate/data/store/perlengkapan', [CandidateController::class, 'storePerlengkapan']);
-
-
 });
 
 Route::middleware(['auth:karyawan'])->group(function () {
@@ -297,6 +296,16 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::post('/attendance/databaseupdate', [AttendanceController::class, 'databaseupdate']);
     Route::get('/attendance/export-excel', [AttendanceController::class, 'exportExcel'])->name('attendance.export-excel');
 
+
+    Route::get('/parklaring', [ParklaringController::class, 'index']);
+    Route::post('/parklaring/store', [ParklaringController::class, 'store']);
+    Route::get('/parklaring/getEmployeeByNik', [ParklaringController::class, 'getEmployeeByNik']);
+    Route::get('/parklaring/getEmployeeName', [ParklaringController::class, 'getEmployeeName']);
+    Route::post('/parklaring/view', [ParklaringController::class, 'view']);
+    Route::get('/parklaring/{id}/print', [ParklaringController::class, 'print']);
+    Route::post('/parklaring/{id}/delete', [ParklaringController::class, 'delete']);
+    Route::get('/parklaring/export', [ParklaringController::class, 'export']);
+
     //Time Attendance
     Route::get('/timeatt/table', [TimeAttendanceController::class, 'index']);
     Route::get('/timeatt/att_monitoring', [TimeAttendanceController::class, 'att_monitoring']);
@@ -444,5 +453,3 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
 
     Route::get('/kontrak/{id}/get-supervisor', [ContractController::class, 'getSupervisor']);
 });
-
-
