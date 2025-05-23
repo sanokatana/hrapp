@@ -1057,7 +1057,7 @@ body {padding:0; margin:0; text-align:center; background-color:#777}
                id="text64"><tspan
                  x="0"
                  y="0"
-                 id="tspan62">PT {{ $parklaring->nama_pt }}</tspan></text>
+                 id="tspan62">PT {{ $nama_pt_upper }}</tspan></text>
           </g>
         </g>
         <g
@@ -1771,7 +1771,7 @@ body {padding:0; margin:0; text-align:center; background-color:#777}
            id="text750"><tspan
              x="0"
              y="0"
-             id="tspan748">{{ $parklaring->jabatan }}; </tspan></text>
+             id="tspan748">{{ $parklaring->jabatan }} </tspan></text>
       </g>
     </g>
     <g
@@ -2154,7 +2154,7 @@ body {padding:0; margin:0; text-align:center; background-color:#777}
            id="text1102"><tspan
              x="0"
              y="0"
-             id="tspan1100">PT {{ $parklaring->nama_pt }}</tspan></text>
+             id="tspan1100">PT {{ $nama_pt_title }}</tspan></text>
       </g>
     </g>
     <g
