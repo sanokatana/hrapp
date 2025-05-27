@@ -150,7 +150,15 @@ class ParklaringController extends Controller
     public function print($id)
     {
         $parklaring = DB::table('parklaring')
-            ->select('parklaring.*', 'karyawan.nama_lengkap', 'karyawan.tgl_masuk', 'karyawan.jabatan', 'department.kode_dept as departemen', 'jabatan.nama_jabatan as jabatan', 'tb_pt.long_name as nama_pt')
+            ->select(
+                'parklaring.*',
+                'karyawan.nama_lengkap',
+                'karyawan.tgl_masuk',
+                'karyawan.jabatan',
+                'department.kode_dept as departemen',
+                'jabatan.nama_jabatan as jabatan',
+                'tb_pt.long_name as nama_pt'
+            )
             ->leftJoin('karyawan', 'parklaring.nik', '=', 'karyawan.nik')
             ->leftJoin('department', 'karyawan.kode_dept', '=', 'department.kode_dept')
             ->leftJoin('jabatan', 'karyawan.jabatan', '=', 'jabatan.id')
@@ -158,10 +166,13 @@ class ParklaringController extends Controller
             ->where('parklaring.id', $id)
             ->first();
 
-
         if (!$parklaring) {
             return redirect('/parklaring')->with('danger', 'Data Parklaring tidak ditemukan');
         }
+
+        // Add variations of nama_pt
+        $nama_pt_upper = strtoupper($parklaring->nama_pt);
+        $nama_pt_title = ucwords(strtolower($parklaring->nama_pt));
 
         $karyawan = DB::table('karyawan')
             ->where('nik', $parklaring->nik)
@@ -183,26 +194,63 @@ class ParklaringController extends Controller
             $masa_kerja .= $diff->d . ' hari';
         }
 
-        $tgl_masuk = Carbon::parse($karyawan->tgl_masuk)->format('d F Y');
-        $tgl_terakhir = Carbon::parse($parklaring->tgl_terakhir)->format('d F Y');
+        $tgl_masuk = $tgl_masuk->format('d F Y');
+        $tgl_terakhir = $tgl_terakhir->format('d F Y');
         $tgl_cetak = Carbon::now()->locale('id')->isoFormat('D MMMM Y');
+
         $tgl_masuk_formatted = \App\Helpers\DateHelper::formatIndonesiaDate($karyawan->tgl_masuk);
         $tgl_terakhir_formatted = \App\Helpers\DateHelper::formatIndonesiaDate($parklaring->tgl_terakhir);
         $masa_kerja_range = $tgl_masuk_formatted . ' - ' . $tgl_terakhir_formatted;
+
         // HRD Manager - This could be from a setting or fixed value
         $hrd_manager = 'Nama HRD Manager'; // Replace with actual value or setting
 
-        return view('parklaring.printParklaring', compact('parklaring','masa_kerja_range', 'karyawan', 'masa_kerja', 'tgl_masuk', 'tgl_terakhir_formatted', 'tgl_cetak', 'hrd_manager'));
+        return view('parklaring.printParklaring', compact(
+            'parklaring',
+            'masa_kerja_range',
+            'karyawan',
+            'masa_kerja',
+            'tgl_masuk',
+            'tgl_terakhir_formatted',
+            'tgl_cetak',
+            'hrd_manager',
+            'nama_pt_upper',
+            'nama_pt_title'
+        ));
     }
 
     public function delete($id)
     {
-        $deleted = DB::table('parklaring')->where('id', $id)->delete();
+        try {
+            // First get the parklaring record to find the associated employee
+            $parklaring = DB::table('parklaring')->where('id', $id)->first();
 
-        if($deleted) {
-            return redirect('/parklaring')->with('success', 'Data Parklaring berhasil dihapus');
-        } else {
-            return redirect('/parklaring')->with('danger', 'Data Parklaring gagal dihapus');
+            if (!$parklaring) {
+                return redirect('/parklaring')->with('danger', 'Data Parklaring tidak ditemukan');
+            }
+
+            // Store the NIK before deleting
+            $nik = $parklaring->nik;
+
+            // Delete the parklaring record
+            $deleted = DB::table('parklaring')->where('id', $id)->delete();
+
+            if ($deleted) {
+                // Update the employee status back to Aktif
+                DB::table('karyawan')
+                    ->where('nik', $nik)
+                    ->update([
+                        'status_kar' => 'Aktif',
+                        'tgl_resign' => null,
+                        'updated_at' => now()
+                    ]);
+
+                return redirect('/parklaring')->with('success', 'Data Parklaring berhasil dihapus dan status karyawan dikembalikan menjadi Aktif');
+            } else {
+                return redirect('/parklaring')->with('danger', 'Data Parklaring gagal dihapus');
+            }
+        } catch (\Exception $e) {
+            return redirect('/parklaring')->with('danger', 'Error: ' . $e->getMessage());
         }
     }
 

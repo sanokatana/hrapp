@@ -1057,7 +1057,7 @@ body {padding:0; margin:0; text-align:center; background-color:#777}
                id="text64"><tspan
                  x="0"
                  y="0"
-                 id="tspan62">PT {{ $parklaring->nama_pt }}</tspan></text>
+                 id="tspan62">PT {{ $nama_pt_upper }}</tspan></text>
           </g>
         </g>
         <g
@@ -1660,9 +1660,9 @@ body {padding:0; margin:0; text-align:center; background-color:#777}
            transform="matrix(1,0,0,-1,158.54,495.31)"
            style="font-variant:normal;font-weight:normal;font-size:11.04px;font-family:'Times New Roman';-inkscape-font-specification:TimesNewRomanPSMT;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
            id="text648"><tspan
-             x="0 6.1382399 12.83952 15.59952 21.737761 26.51808 30.22752 35.62608 41.14608 46.66608 52.186081 54.946079 62.265598 67.167358 72.687363 78.207359 83.727364 89.24736 92.007362 99.227524 102.3408 107.73936 110.85264"
+             x="0"
              y="0"
-             id="tspan646">PT Serpong Bangun Cipta</tspan></text>
+             id="tspan646">PT {{$nama_pt_title}}</tspan></text>
       </g>
     </g>
     <g
@@ -1700,9 +1700,9 @@ body {padding:0; margin:0; text-align:center; background-color:#777}
            transform="matrix(1,0,0,-1,172.34,480.79)"
            style="font-style:italic;font-variant:normal;font-weight:normal;font-size:11.04px;font-family:'Times New Roman';-inkscape-font-specification:TimesNewRomanPS-ItalicMT;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
            id="text682"><tspan
-             x="0 6.74544 12.83952 15.59952 20.998079 25.899839 30.22752 35.74752 41.267521 46.787521 52.307522 55.06752 61.669441 67.189438 72.709442 78.229439 83.749443 89.26944 92.029442 99.227524 102.3408 107.8608 110.86368"
+             x="0"
              y="0"
-             id="tspan680">PT Serpong Bangun Cipta</tspan></text>
+             id="tspan680">PT {{$nama_pt_title}}</tspan></text>
       </g>
     </g>
     <g
@@ -1771,7 +1771,7 @@ body {padding:0; margin:0; text-align:center; background-color:#777}
            id="text750"><tspan
              x="0"
              y="0"
-             id="tspan748">{{ $parklaring->jabatan }}; </tspan></text>
+             id="tspan748">{{ $parklaring->jabatan }} </tspan></text>
       </g>
     </g>
     <g
@@ -2154,7 +2154,7 @@ body {padding:0; margin:0; text-align:center; background-color:#777}
            id="text1102"><tspan
              x="0"
              y="0"
-             id="tspan1100">PT {{ $parklaring->nama_pt }}</tspan></text>
+             id="tspan1100">PT {{ $nama_pt_title }}</tspan></text>
       </g>
     </g>
     <g
