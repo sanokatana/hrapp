@@ -769,7 +769,7 @@ class ContractController extends Controller
         // Rest of your code...
         $dateNow = DateHelper::formatIndonesiaDate(Carbon::now());
         $dateNow2 = DateHelper::formatIndonesiaDate($employee->DOB);
-        $dateNow4 = Carbon::parse($contract->start_date)->format('l');
+        $dateNow4 = DateHelper::formatDateDay($contract->start_date);
         $dateNow5 = DateHelper::formatIndonesiaDate($contract->start_date);
         $dateNow6 = DateHelper::formatIndonesiaDate($contract->end_date);
 
