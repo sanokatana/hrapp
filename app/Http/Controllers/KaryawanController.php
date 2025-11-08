@@ -2,472 +2,100 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cabang;
+use App\Models\Company;
+use App\Models\Department;
+use App\Models\Jabatan;
 use App\Models\Karyawan;
+use App\Models\KonfigurasiLokasi;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Storage;
-use App\Http\Requests\StoreEmployeeRequest;
-use App\Models\ShiftPattern;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Shared\Date;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\KaryawanExport;
-use App\Models\Contract;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
-use Intervention\Image\ImageManagerStatic as Image;
-use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 class KaryawanController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $query = Karyawan::query();
-        $query->select('karyawan.*', 'department.nama_dept', 'jabatan.nama_jabatan');
-        $query->leftJoin('department', 'karyawan.kode_dept', '=', 'department.kode_dept');
-        $query->leftJoin('jabatan', 'karyawan.jabatan', '=', 'jabatan.id');
-        $query->orderBy('karyawan.id', 'asc');
-        $query->orderBy('karyawan.tgl_masuk', 'asc');
-
-        if (!empty($request->nama_karyawan)) {
-            $query->where('karyawan.nama_lengkap', 'like', '%' . $request->nama_karyawan . '%');
-        }
-
-        if (!empty($request->kode_dept)) {
-            $query->where('karyawan.kode_dept', $request->kode_dept);
-        }
-
-        if (!empty($request->pt_karyawan)) {
-            $query->where('karyawan.nama_pt', $request->pt_karyawan);
-        }
-
-        if (!empty($request->religion_karyawan)) {
-            $query->where('karyawan.religion', $request->religion_karyawan);
-        }
-
-        if (!empty($request->base)) {
-            $query->where('karyawan.base_poh', $request->base);
-        }
-
-        if (!empty($request->grade_karyawan)) {
-            $query->where('karyawan.grade', $request->grade_karyawan);
-        }
-
-        if (!empty($request->status_karyawan)) {
-            $query->where('karyawan.status_kar', $request->status_karyawan);
-        }
-
-        if (!empty($request->status_employee)) {
-            $query->where('karyawan.employee_status', $request->status_employee);
-        }
-
-        $karyawan = $query->paginate(25)->appends($request->except('page'));
-        $shift = ShiftPattern::all(); // Assuming you have a Shift model and you want all shifts
-        $department = DB::table('department')->get();
-        $jabatan = DB::table('jabatan')->get();
-        $contract = Contract::all();
-        $location = DB::table('konfigurasi_lokasi')->get();
-
-        // Fetch unique values for the dropdowns
-        $uniquePt = Karyawan::whereNotNull('nama_pt')->distinct()->pluck('nama_pt')->filter();
-        $uniqueReligion = Karyawan::whereNotNull('religion')->distinct()->pluck('religion')->filter();
-        $uniqueBase = Karyawan::whereNotNull('base_poh')->distinct()->pluck('base_poh')->filter();
-        $uniqueGrade = Karyawan::whereNotNull('grade')->distinct()->pluck('grade')->filter();
-        $uniqueStatusKar = Karyawan::whereNotNull('status_kar')->distinct()->pluck('status_kar')->filter();
-        $uniqueEmployeeStatus = Karyawan::whereNotNull('employee_status')->distinct()->pluck('employee_status')->filter();
-
-        return view("karyawan.index", compact(
-            'karyawan',
-            'department',
-            'jabatan',
-            'location',
-            'shift',
-            'contract',
-            'uniquePt',
-            'uniqueReligion',
-            'uniqueBase',
-            'uniqueGrade',
-            'uniqueStatusKar',
-            'uniqueEmployeeStatus'
-        ));
-    }
-
-    public function store(StoreEmployeeRequest $request)
-    {
-        $data = $request->validated();
-        $data['password'] = Hash::make('chl12345');
-        $name = Auth::guard('user')->user()->name;
-        $data['created_by'] = $name;
-
-        if ($request->hasFile('foto')) {
-            $data['foto'] = $data['nik'] . '.' . $request->file('foto')->getClientOriginalExtension();
-        }
-
-        try {
-            $simpan = DB::table('karyawan')->insert($data);
-            if ($simpan) {
-                if ($request->hasFile('foto')) {
-                    $folderPath = 'public/uploads/karyawan/';
-                    $request->file('foto')->storeAs($folderPath, $data['foto']);
-                }
-                return Redirect::back()->with(['success' => 'Data Berhasil Di Simpan']);
-            }
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            return Redirect::back()->with(['danger' => 'Data Gagal Di Simpan']);
-        }
-    }
-
-
-
-    public function edit(Request $request)
-    {
-        $id = $request->id;
-
-        // Fetch department, jabatan, and location
-        $department = DB::table('department')->get();
-        $jabatan = DB::table('jabatan')
-            ->orderBy('nama_jabatan', 'ASC')
+        $employees = Karyawan::with(['company', 'cabang', 'department', 'jabatan', 'lokasi'])
+            ->orderBy('nama_lengkap')
             ->get();
+        $companies = Company::orderBy('short_name')->get();
+        $branches = Cabang::orderBy('nama')->get();
+        $departments = Department::orderBy('nama')->get();
+        $positions = Jabatan::orderBy('nama')->get();
+        $locations = KonfigurasiLokasi::orderBy('nama_kantor')->get();
 
-        $location = DB::table('konfigurasi_lokasi')->get();
-
-        // Fetch karyawan details
-        $karyawan = DB::table('karyawan')
-            ->where('id', $id)
-            ->first();
-
-        if (!$karyawan) {
-            abort(404, 'Employee not found');
-        }
-
-        // Fetch contracts related to the karyawan's nik
-        $contract = DB::table('kontrak')
-            ->where('nik', $karyawan->nik)
-            ->get();
-
-        return view('karyawan.edit', compact('department', 'karyawan', 'jabatan', 'location', 'contract'));
+        return view('karyawan.index', compact('employees', 'companies', 'branches', 'departments', 'positions', 'locations'));
     }
 
-
-    public function update($id, StoreEmployeeRequest $request)
+    public function store(Request $request): RedirectResponse
     {
-        $data = $request->validated();
-        $data['no_kontrak'] = $request->input('no_kontrak_edit');
-        $data['employee_status'] = $request->input('employee_status_edit');
-        $name = Auth::guard('user')->user()->name;
-        $data['updated_by'] = $name;
-
-        try {
-            $karyawan = DB::table('karyawan')->where('id', $id)->first();
-            $folderName = $karyawan->nik . '.' . $karyawan->nama_lengkap;
-            $folderPath = storage_path('app/public/uploads/karyawan/' . $folderName . '/files/');
-
-            // Create directory if it doesn't exist
-            if (!File::exists($folderPath)) {
-                File::makeDirectory($folderPath, 0755, true);
-            }
-
-            // Define allowed file types
-            $allowedImages = ['jpg', 'jpeg', 'png'];
-            $allowedDocs = ['pdf', 'docx'];
-
-            // Handle each file upload
-            $fileFields = [
-                'file_photo' => 'photo',
-                'file_ktp' => 'ktp',
-                'file_kk' => 'kk',
-                'file_npwp' => 'npwp',
-                'file_sim' => 'sim',
-                'file_ijazah' => 'ijazah',
-                'file_skck' => 'skck',
-                'file_cv' => 'cv',
-                'file_applicant' => 'applicant'
-            ];
-
-            foreach ($fileFields as $field => $prefix) {
-                if ($request->hasFile($field)) {
-                    try {
-                        $file = $request->file($field);
-                        $extension = strtolower($file->getClientOriginalExtension());
-                        $fileName = $prefix . '_' . $karyawan->nip . '_' . uniqid() . '.' . $extension;
-
-                        // Check if file type is allowed
-                        if (in_array($extension, $allowedImages)) {
-                            // Process and compress images using Intervention Image
-                            $image = Image::make($file);
-                            $image->resize(null, 800, function ($constraint) {
-                                $constraint->aspectRatio();
-                                $constraint->upsize();
-                            });
-
-                            // Compress image if needed
-                            $quality = 75;
-                            do {
-                                $image->save($folderPath . $fileName, $quality);
-                                if (filesize($folderPath . $fileName) > 1048576) { // 1MB
-                                    $quality -= 5;
-                                } else {
-                                    break;
-                                }
-                            } while ($quality > 0);
-                        } elseif (in_array($extension, $allowedDocs)) {
-                            // Move document files without modification
-                            $file->move($folderPath, $fileName);
-                        } else {
-                            // Invalid file type
-                            return Redirect::back()->with([
-                                'danger' => 'Invalid file type for ' . $prefix . '. Allowed types: jpg, jpeg, png, pdf, docx'
-                            ]);
-                        }
-
-                        // Delete old file if exists
-                        if (isset($karyawan->$field) && $karyawan->$field !== 'No_Document') {
-                            $oldFilePath = $folderPath . $karyawan->$field;
-                            if (File::exists($oldFilePath)) {
-                                File::delete($oldFilePath);
-                            }
-                        }
-
-                        $data[$field] = $fileName;
-                    } catch (\Exception $e) {
-                        Log::error('Error processing file: ' . $field, ['error' => $e->getMessage()]);
-                        return Redirect::back()->with(['danger' => 'Error processing ' . $prefix . ' file: ' . $e->getMessage()]);
-                    }
-                }
-            }
-
-            // Update database
-            $update = DB::table('karyawan')->where('id', $id)->update($data);
-
-            if ($update) {
-                return Redirect::back()->with(['success' => 'Data Berhasil Di Update']);
-            }
-        } catch (\Exception $e) {
-            Log::error('Error updating karyawan:', ['error' => $e->getMessage()]);
-            return Redirect::back()->with(['danger' => 'Data Gagal Di Update: ' . $e->getMessage()]);
-        }
-    }
-
-    public function delete($nik)
-    {
-        $delete = DB::table('karyawan')->where('nik', $nik)->delete();
-        if ($delete) {
-            return Redirect::back()->with(['success' => 'Data Berhasil Di Hapus']);
-        } else {
-            return Redirect::back()->with(['warning' => 'Data Gagal Di Hapus']);
-        }
-    }
-
-    public function downloadTemplateKar()
-    {
-        $filePath = public_path('storage/uploads/kar/template_karyawan.xlsx');
-
-        return response()->download($filePath, 'template_karyawan.xlsx', [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        $data = $request->validate([
+            'nik' => ['required', 'string', 'max:50', 'unique:karyawan,nik'],
+            'nama_lengkap' => ['required', 'string', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255', 'unique:karyawan,email'],
+            'no_hp' => ['nullable', 'string', 'max:25'],
+            'tgl_masuk' => ['nullable', 'date'],
+            'company_id' => ['required', 'exists:tb_pt,id'],
+            'cabang_id' => ['nullable', 'exists:cabang,id'],
+            'department_id' => ['nullable', 'exists:department,id'],
+            'jabatan_id' => ['nullable', 'exists:jabatan,id'],
+            'lokasi_id' => ['nullable', 'exists:konfigurasi_lokasi,id'],
+            'status_kar' => ['required', 'string', 'max:50'],
+            'password' => ['required', 'string', 'min:6'],
         ]);
+
+        $data['password'] = Hash::make($data['password']);
+
+        Karyawan::create($data);
+
+        return Redirect::route('karyawan.index')->with('success', 'Karyawan created.');
     }
-    public function uploadKaryawan(Request $request)
+
+    public function update(Request $request, Karyawan $karyawan): RedirectResponse
     {
-        // Validate the incoming request
         $validator = Validator::make($request->all(), [
-            'file' => 'required|mimes:xlsx,xls',
+            'nama_lengkap' => ['required', 'string', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255', 'unique:karyawan,email,' . $karyawan->id],
+            'no_hp' => ['nullable', 'string', 'max:25'],
+            'tgl_masuk' => ['nullable', 'date'],
+            'tgl_resign' => ['nullable', 'date'],
+            'company_id' => ['required', 'exists:tb_pt,id'],
+            'cabang_id' => ['nullable', 'exists:cabang,id'],
+            'department_id' => ['nullable', 'exists:department,id'],
+            'jabatan_id' => ['nullable', 'exists:jabatan,id'],
+            'lokasi_id' => ['nullable', 'exists:konfigurasi_lokasi,id'],
+            'status_kar' => ['required', 'string', 'max:50'],
+            'password' => ['nullable', 'string', 'min:6'],
         ]);
 
-        // Redirect back if validation fails
         if ($validator->fails()) {
-            return redirect()->back()->with('danger', 'Please upload a valid XLSX file.');
+            return Redirect::route('karyawan.index')
+                ->withErrors($validator, 'karyawanUpdate')
+                ->withInput(array_merge($request->all(), ['form_action' => 'edit-karyawan']))
+                ->with('edit_karyawan_id', $karyawan->id);
         }
 
-        try {
-            // Get the uploaded file and load the spreadsheet
-            $file = $request->file('file');
-            $filePath = $file->getRealPath();
-            $spreadsheet = IOFactory::load($filePath);
-            $sheet = $spreadsheet->getActiveSheet();
+        $data = $validator->validated();
 
-            // Read the data from the spreadsheet
-            $header = [];
-            $data = [];
-            foreach ($sheet->getRowIterator() as $rowIndex => $row) {
-                $rowData = [];
-                foreach ($row->getCellIterator() as $cell) {
-                    $rowData[] = $cell->getValue();
-                }
-
-                if ($rowIndex == 1) {
-                    $header = $rowData;
-                } else {
-                    $mappedData = array_combine($header, $rowData);
-
-                    // Convert Excel date serial numbers to date strings
-                    $tglMasuk = Date::excelToDateTimeObject($mappedData['tgl_masuk'])->format('Y-m-d');
-                    $tglResign = !empty($mappedData['tgl_resign']) ? Date::excelToDateTimeObject($mappedData['tgl_resign'])->format('Y-m-d') : null;
-                    $dob = Date::excelToDateTimeObject($mappedData['DOB'])->format('Y-m-d');
-                    $start_shift = !empty($mappedData['start_shift']) ? Date::excelToDateTimeObject($mappedData['start_shift'])->format('Y-m-d') : null;
-                    $fdSiDob = !empty($mappedData['fd_si_dob']) ? Date::excelToDateTimeObject($mappedData['fd_si_dob'])->format('Y-m-d') : null;
-                    $fdAnak1Dob = !empty($mappedData['fd_anak1_dob']) ? Date::excelToDateTimeObject($mappedData['fd_anak1_dob'])->format('Y-m-d') : null;
-                    $fdAnak2Dob = !empty($mappedData['fd_anak2_dob']) ? Date::excelToDateTimeObject($mappedData['fd_anak2_dob'])->format('Y-m-d') : null;
-                    $fdAnak3Dob = !empty($mappedData['fd_anak3_dob']) ? Date::excelToDateTimeObject($mappedData['fd_anak3_dob'])->format('Y-m-d') : null;
-
-                    $data[] = [
-                        'nik' => $mappedData['nik'],
-                        'nip' => $mappedData['nip'],
-                        'nama_lengkap' => $mappedData['nama_lengkap'],
-                        'jabatan' => $mappedData['jabatan'],
-                        'email' => $mappedData['email'],
-                        'no_hp' => $mappedData['no_hp'],
-                        'tgl_masuk' => $tglMasuk,
-                        'tgl_resign' => $tglResign,
-                        'DOB' => $dob,
-                        'kode_dept' => $mappedData['kode_dept'],
-                        'grade' => $mappedData['grade'],
-                        'shift_pattern_id' => $mappedData['shift_pattern_id'],
-                        'start_shift' => $start_shift,
-                        'no_kontrak' => $mappedData['no_kontrak'],
-                        'employee_status' => $mappedData['employee_status'],
-                        'poh' => $mappedData['poh'],
-                        'base_poh' => $mappedData['base_poh'],
-                        'nama_pt' => $mappedData['nama_pt'],
-                        'sex' => $mappedData['sex'],
-                        'tax_status' => $mappedData['tax_status'],
-                        'birthplace' => $mappedData['birthplace'],
-                        'religion' => $mappedData['religion'],
-                        'address' => $mappedData['address'],
-                        'address_rt' => $mappedData['address_rt'],
-                        'address_rw' => $mappedData['address_rw'],
-                        'address_kel' => $mappedData['address_kel'],
-                        'address_kec' => $mappedData['address_kec'],
-                        'address_kota' => $mappedData['address_kota'],
-                        'address_prov' => $mappedData['address_prov'],
-                        'kode_pos' => $mappedData['kode_pos'],
-                        'nik_ktp' => $mappedData['nik_ktp'],
-                        'blood_type' => $mappedData['blood_type'],
-                        'gelar' => $mappedData['gelar'],
-                        'major' => $mappedData['major'],
-                        'kampus' => $mappedData['kampus'],
-                        'job_exp' => $mappedData['job_exp'],
-                        'email_personal' => $mappedData['email_personal'],
-                        'family_card' => $mappedData['family_card'],
-                        'no_npwp' => $mappedData['no_npwp'],
-                        'alamat_npwp' => $mappedData['alamat_npwp'],
-                        'bpjstk' => $mappedData['bpjstk'],
-                        'bpjskes' => $mappedData['bpjskes'],
-                        'rek_no' => $mappedData['rek_no'],
-                        'bank_name' => $mappedData['bank_name'],
-                        'rek_name' => $mappedData['rek_name'],
-                        'father_name' => $mappedData['father_name'],
-                        'mother_name' => $mappedData['mother_name'],
-                        'fd_si_name' => $mappedData['fd_si_name'],
-                        'fd_si_nik' => $mappedData['fd_si_nik'],
-                        'fd_si_kota' => $mappedData['fd_si_kota'],
-                        'fd_si_dob' => $fdSiDob,
-                        'fd_anak1_name' => $mappedData['fd_anak1_name'],
-                        'fd_anak1_nik' => $mappedData['fd_anak1_nik'],
-                        'fd_anak1_kota' => $mappedData['fd_anak1_kota'],
-                        'fd_anak1_dob' => $fdAnak1Dob,
-                        'fd_anak2_name' => $mappedData['fd_anak2_name'],
-                        'fd_anak2_nik' => $mappedData['fd_anak2_nik'],
-                        'fd_anak2_kota' => $mappedData['fd_anak2_kota'],
-                        'fd_anak2_dob' => $fdAnak2Dob,
-                        'fd_anak3_name' => $mappedData['fd_anak3_name'],
-                        'fd_anak3_nik' => $mappedData['fd_anak3_nik'],
-                        'fd_anak3_kota' => $mappedData['fd_anak3_kota'],
-                        'fd_anak3_dob' => $fdAnak3Dob,
-                        'em_name' => $mappedData['em_name'],
-                        'em_telp' => $mappedData['em_telp'],
-                        'em_relation' => $mappedData['em_relation'],
-                        'em_alamat' => $mappedData['em_alamat'],
-                        'status_kar' => $mappedData['status_kar'],
-                        'status_photo' => $mappedData['status_photo'],
-                        'status_npwp' => $mappedData['status_npwp'],
-                        'status_ktp' => $mappedData['status_ktp'],
-                        'status_kk' => $mappedData['status_kk'],
-                        'status_sim' => $mappedData['status_sim'],
-                        'status_ijazah' => $mappedData['status_ijazah'],
-                        'status_skck' => $mappedData['status_skck'],
-                        'status_cv' => $mappedData['status_cv'],
-                        'status_applicant' => $mappedData['status_applicant'],
-                    ];
-                }
-            }
-
-            // Insert data into the database
-            DB::table('karyawan')->insert($data);
-
-            // Redirect back with success message
-            return redirect()->back()->with('success', 'Data successfully uploaded.');
-        } catch (\Exception $e) {
-            // Redirect back with error message
-            Log::error('Error uploading data: ' . $e->getMessage());
-            return redirect()->back()->with('danger', 'Error uploading data: ' . $e->getMessage());
+        if (!empty($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        } else {
+            unset($data['password']);
         }
+
+        $karyawan->update($data);
+
+        return Redirect::route('karyawan.index')->with('success', 'Karyawan updated.');
     }
 
-    public function storeShift(Request $request, $nik)
+    public function destroy(Karyawan $karyawan): RedirectResponse
     {
-        // Ensure the $karyawan is found
-        $karyawan = Karyawan::where('nik', $nik)->first();
+        $karyawan->delete();
 
-        if (!$karyawan) {
-            return redirect()->back()->withErrors('Karyawan not found.');
-        }
-
-        // Update the shift pattern ID
-        $karyawan->shift_pattern_id = $request->shift_pattern_id;
-        $karyawan->start_shift = $request->start_shift;
-        $karyawan->save();
-
-        return redirect()->back()->with('success', 'Shift updated successfully!');
-    }
-
-    public function getShift($nik)
-    {
-        $karyawan = Karyawan::where('nik', $nik)->first();
-
-        if (!$karyawan) {
-            return response()->json(['error' => 'Karyawan not found.'], 404);
-        }
-
-        return response()->json([
-            'shift_pattern_id' => $karyawan->shift_pattern_id,
-            'start_shift' => $karyawan->start_shift,
-        ]);
-    }
-
-
-    public function export()
-    {
-        $date = Carbon::now()->format('d-m-Y');
-        return Excel::download(new KaryawanExport, "DATABASE CHL - {$date}.xlsx");
-    }
-
-    public function resign(Request $request, $id)
-    {
-        try {
-            $karyawan = Karyawan::findOrFail($id);
-
-            if (!$karyawan) {
-                return redirect()->back()->withErrors('Karyawan not found.');
-            }
-
-            $karyawan->update([
-                'status_kar' => 'Non-Aktif',
-                'tgl_resign' => $request->tgl_resign
-            ]);
-
-            $karyawan->save();
-            Log::info($karyawan);
-            Log::info($request->tgl_resign);
-
-            return redirect()->back()->with('success', 'Karyawan Sudah Dinonaktifkan!');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('danger', 'Error uploading data: ' . $e->getMessage());
-        }
+        return Redirect::route('karyawan.index')->with('success', 'Karyawan removed.');
     }
 }

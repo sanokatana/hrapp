@@ -2,102 +2,74 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+
+use App\Models\Cabang;
+use App\Models\Company;
+use App\Models\Department;
+use App\Models\Jabatan;
+use App\Models\KonfigurasiLokasi;
+use App\Models\Presensi;
 
 class Karyawan extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, Notifiable;
 
-    protected $table = "karyawan";
-    protected $primaryKey = "nik";
+    protected $table = 'karyawan';
+
     protected $fillable = [
-        'id',
         'nik',
         'nama_lengkap',
-        'tgl_masuk',
-        'tgl_resign',
         'email',
         'no_hp',
-        'DOB',
-        'foto',
-        'shift_pattern_id',
-        'start_shift',
-        'grade',
-        'no_kontrak',
-        'employee_status',
-        'poh',
-        'base_poh',
-        'nama_pt',
-        'sex',
-        'tax_status',
-        'birthplace',
-        'religion',
-        'kode_dept',
-        'jabatan',
-        'address',
-        'address_rt',
-        'address_rw',
-        'address_kel',
-        'address_kec',
-        'address_kota',
-        'address_prov',
-        'kode_pos',
-        'gelar',
-        'major',
-        'kampus',
-        'job_exp',
-        'nik_ktp',
-        'blood_type',
-        'email_personal',
-        'family_card',
-        'no_npwp',
-        'alamat_npwp',
-        'bpjstk',
-        'bpjskes',
-        'rek_no',
-        'bank_name',
-        'rek_name',
-        'father_name',
-        'mother_name',
-        'fd_si_name',
-        'fd_si_nik',
-        'fd_si_kota',
-        'fd_si_dob',
-        'fd_anak1_name',
-        'fd_anak1_nik',
-        'fd_anak1_kota',
-        'fd_anak1_dob',
-        'fd_anak2_name',
-        'fd_anak2_nik',
-        'fd_anak2_kota',
-        'fd_anak2_dob',
-        'fd_anak3_name',
-        'fd_anak3_nik',
-        'fd_anak3_kota',
-        'fd_anak3_dob',
-        'em_name',
-        'em_telp',
-        'em_relation',
-        'em_alamat',
-        'status_kar'
-    ];
-
-
-    protected $hidden = [
+        'tgl_masuk',
+        'tgl_resign',
+        'department_id',
+        'jabatan_id',
+        'pt_id',
+        'company_id',
+        'cabang_id',
+        'lokasi_id',
+        'status_kar',
         'password',
-        'remember_token',
     ];
 
+    protected $hidden = ['password', 'remember_token'];
 
     protected $casts = [
-        'email_verified_at' => 'datetime',
-        'nik' => 'string',
+        'tgl_masuk' => 'date',
+        'tgl_resign' => 'date',
     ];
 
-    public $timestamps = false;
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
 
+    public function jabatan()
+    {
+        return $this->belongsTo(Jabatan::class);
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class, 'company_id');
+    }
+
+    public function cabang()
+    {
+        return $this->belongsTo(Cabang::class, 'cabang_id');
+    }
+
+    public function lokasi()
+    {
+        return $this->belongsTo(KonfigurasiLokasi::class, 'lokasi_id');
+    }
+
+    public function presensi()
+    {
+        return $this->hasMany(Presensi::class);
+    }
 }

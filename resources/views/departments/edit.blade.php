@@ -1,14 +1,25 @@
-<form action="{{ route('cabang.update', $cabang) }}" method="POST" id="formCabang">
+<form action="{{ route('departments.update', $department) }}" method="POST" id="formDepartment">
     @csrf
     @method('PUT')
     <div class="row">
-        <div class="col-12">
+        <div class="col-md-6">
             <label class="form-label">Company</label>
             <select name="company_id" class="form-select" required>
                 <option value="">Pilih Company</option>
                 @foreach($companies as $company)
-                <option value="{{ $company->id }}" {{ $cabang->company_id == $company->id ? 'selected' : '' }}>
+                <option value="{{ $company->id }}" {{ $department->company_id == $company->id ? 'selected' : '' }}>
                     {{ $company->short_name }}
+                </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Cabang</label>
+            <select name="cabang_id" class="form-select">
+                <option value="">Pilih Cabang</option>
+                @foreach($branches as $branch)
+                <option value="{{ $branch->id }}" {{ $department->cabang_id == $branch->id ? 'selected' : '' }}>
+                    {{ $branch->nama }}
                 </option>
                 @endforeach
             </select>
@@ -16,7 +27,7 @@
     </div>
     <div class="row mt-2">
         <div class="col-12">
-            <div class="form-label">Kode Cabang</div>
+            <div class="form-label">Kode Department</div>
             <div class="input-icon mb-3">
                 <span class="input-icon-addon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-id">
@@ -28,13 +39,13 @@
                         <path d="M7 16l10 0" />
                     </svg>
                 </span>
-                <input type="text" value="{{ $cabang->kode }}" class="form-control" name="kode" id="kode" placeholder="SOR" required>
+                <input type="text" value="{{$department->kode}}" class="form-control" name="kode" id="kode" placeholder="IT/MKT" required>
             </div>
         </div>
     </div>
     <div class="row">
         <div class="col-12">
-            <div class="form-label">Nama Cabang</div>
+            <div class="form-label">Nama Department</div>
             <div class="input-icon mb-3">
                 <span class="input-icon-addon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user">
@@ -43,20 +54,8 @@
                         <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
                     </svg>
                 </span>
-                <input type="text" value="{{ $cabang->nama }}" class="form-control" name="nama" id="nama" placeholder="Sorrento" required>
+                <input type="text" value="{{$department->nama}}" class="form-control" name="nama" id="nama" placeholder="Information Technology" required>
             </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-12">
-            <div class="form-label">Alamat</div>
-            <input type="text" value="{{ $cabang->alamat }}" class="form-control" name="alamat" id="alamat" placeholder="Alamat">
-        </div>
-    </div>
-    <div class="row mt-2">
-        <div class="col-12">
-            <div class="form-label">Kota</div>
-            <input type="text" value="{{ $cabang->kota }}" class="form-control" name="kota" id="kota" placeholder="Kota">
         </div>
     </div>
     <div class="row mt-3">

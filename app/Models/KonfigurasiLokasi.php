@@ -7,17 +7,18 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Cabang;
 use App\Models\Company;
-use App\Models\Jabatan;
-use App\Models\Karyawan;
 
-class Department extends Model
+class KonfigurasiLokasi extends Model
 {
     use HasFactory;
-    protected $table = "department";
+
+    protected $table = 'konfigurasi_lokasi';
 
     protected $fillable = [
-        'kode',
-        'nama',
+        'nama_kantor',
+        'latitude',
+        'longitude',
+        'radius',
         'company_id',
         'cabang_id',
     ];
@@ -30,15 +31,5 @@ class Department extends Model
     public function cabang()
     {
         return $this->belongsTo(Cabang::class, 'cabang_id');
-    }
-
-    public function jabatans()
-    {
-        return $this->hasMany(Jabatan::class);
-    }
-
-    public function karyawans()
-    {
-        return $this->hasMany(Karyawan::class);
     }
 }

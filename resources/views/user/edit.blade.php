@@ -1,5 +1,6 @@
-<form action="/data/user/{{ $user->nik }}/update" method="POST" id="formUser" enctype="multipart/form-data">
+<form action="{{ route('data.user.update', $user) }}" method="POST" id="formUser" enctype="multipart/form-data">
     @csrf
+    @method('PUT')
     <div class="row">
         <div class="col-12">
             <div class="form-label">NIK</div>

@@ -8,7 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -17,8 +18,8 @@ class UserController extends Controller
         $query = User::query();
         $query->orderBy('name', 'asc');
 
-        if (!empty($request->nama_lengkap)) {
-            $query->where('name', 'like', '%' . $request->nama_lengkap . '%');
+        if (!empty($request->nama)) {
+            $query->where('name', 'like', '%' . $request->nama . '%');
         }
 
         $user = $query->paginate(10)->appends($request->query());
@@ -29,62 +30,55 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        $nik = $request->nik;
-        $nama_lengkap = $request->nama_lengkap;
-        $email = $request->email;
-        $level = $request->level;
-        $password = Hash::make($request->password);
+        $request->validate([
+            'nik' => ['required', 'string', 'max:50', 'unique:users,nik'],
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'level' => ['required', Rule::in(['Management', 'Admin', 'HRD', 'Superadmin'])],
+            'password' => ['required', 'string', 'min:6'],
+        ]);
 
-        try {
-            $data = [
-                'nik' => $nik,
-                'name' => $nama_lengkap,
-                'email' => $email,
-                'level' => $level,
-                'password' => $password,
-            ];
-            $simpan = DB::table('users')->insert($data);
-            if ($simpan) {
-                return Redirect::back()->with(['success' => 'Data Berhasil Di Simpan']);
-            }
-        } catch (\Exception $e) {
-            return Redirect::back()->with(['danger' => 'Data Gagal Di Simpan']);
-        }
+        User::create([
+            'nik' => $request->nik,
+            'name' => $request->name,
+            'email' => $request->email,
+            'level' => $request->level,
+            'password' => Hash::make($request->password),
+        ]);
+
+        return Redirect::back()->with(['success' => 'Data Berhasil Di Simpan']);
     }
 
     public function edit(Request $request)
     {
+        $user = User::findOrFail($request->id);
 
-        $nik = $request->nik;
-        $user = DB::table('users')
-            ->where('nik', $nik)
-            ->first();
         return view('user.edit', compact('user'));
     }
 
-    public function update($nik, Request $request)
+    public function update(User $user, Request $request)
     {
-        $user = User::where('nik', $nik)->firstOrFail();
+        $request->validate([
+            'level' => ['required', Rule::in(['Management', 'Admin', 'HRD', 'Superadmin'])],
+            'new_password' => ['nullable', 'string', 'min:6', 'confirmed'],
+        ]);
 
-        // Update the user's level
         $user->level = $request->input('level');
 
-        // Check if a new password is provided and if it matches the confirmation
         if ($request->filled('new_password')) {
-            if ($request->input('new_password') === $request->input('new_password_confirmation')) {
-                // Hash the new password and update
-                $user->password = Hash::make($request->input('new_password'));
-            } else {
-                return Redirect::back()->with(['danger' => 'Password confirmation does not match the new password.']);
-            }
+            $user->password = Hash::make($request->input('new_password'));
         }
 
-        try {
-            $user->save();
-            return Redirect::back()->with(['success' => 'Data Berhasil Di Update']);
-        } catch (\Exception $e) {
-            return Redirect::back()->with(['danger' => 'Data Gagal Di Update']);
-        }
+        $user->save();
+
+        return Redirect::back()->with(['success' => 'Data Berhasil Di Update']);
+    }
+
+    public function delete(User $user)
+    {
+        $user->delete();
+        
+        return Redirect::back()->with(['success' => 'Data Berhasil Di Hapus']);
     }
 
 
@@ -104,15 +98,5 @@ class UserController extends Controller
                     ->get(['nik', 'nama_lengkap','email']);
 
         return response()->json($employee);
-    }
-
-    public function delete($nik)
-    {
-        $delete = DB::table('users')->where('nik', $nik)->delete();
-        if ($delete) {
-            return Redirect::back()->with(['success' => 'Data Berhasil Di Hapus']);
-        } else {
-            return Redirect::back()->with(['warning' => 'Data Gagal Di Hapus']);
-        }
     }
 }

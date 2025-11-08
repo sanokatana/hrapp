@@ -27,10 +27,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         if (config('app.env') === 'local') {
-            DB::connection('mysql2')->enableQueryLog();
+            DB::enableQueryLog();
         }
-        // Enable query caching
-        DB::connection('mysql2')->getPdo()->setAttribute(
+
+        // Ensure PDO uses native prepared statements on the default connection
+        DB::connection()->getPdo()->setAttribute(
             PDO::ATTR_EMULATE_PREPARES,
             false
         );

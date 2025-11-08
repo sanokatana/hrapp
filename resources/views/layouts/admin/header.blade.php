@@ -39,102 +39,21 @@
                             </div>
                             <div class="list-group list-group-flush list-group-hoverable" style="width: max-content; max-height: 400px; overflow-y: auto;">
                                 <!-- Birthdays -->
-                                @forelse ($birthdays as $birthday)
-                                    <div class="list-group-item">
-                                        <div class="row align-items-center">
-                                            <div class="col-auto">
-                                                <span class="status-dot status-dot-animated bg-green d-block"></span>
-                                            </div>
-                                            <div class="col text-truncate">
-                                                <a href="#" class="text-body d-block">{{ $birthday->nama_lengkap }}</a>
-                                                <div class="d-block text-secondary text-truncate mt-n1">
-                                                    Happy Birthday! 🎉
-                                                    <span class="text-muted">({{ \Carbon\Carbon::parse($birthday->DOB)->format('d M') }})</span>
-                                                </div>
-                                            </div>
-                                            <div class="col-auto">
-                                                <a href="#" class="list-group-item-actions">
-                                                    <!-- Optional: Add an icon or action -->
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @empty
-                                    <div class="list-group-item">
-                                        <div class="row align-items-center">
-                                            <div class="col text-truncate">
-                                                <div class="d-block text-secondary text-truncate mt-n1">
-                                                    No birthdays this week.
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforelse
-
-                                <!-- Leave Requests -->
-                                @forelse ($izinRequests as $request)
                                 <div class="list-group-item">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto">
-                                            <span class="status-dot status-dot-animated bg-yellow d-block"></span>
+                                    <div class="d-flex">
+                                        <div class="flex-shrink-0">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 18 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                                                <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" />
+                                            </svg>
                                         </div>
-                                        <div class="col text-truncate">
-                                            <a href="#" class="text-body d-block">Absen Request from {{ $request->nama_lengkap }}</a>
-                                            <div class="d-block text-secondary text-truncate mt-n1">
-                                                Requested on {{ \Carbon\Carbon::parse($request->tgl_create)->format('d M Y') }}
-                                            </div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <a href="#" class="list-group-item-actions">
-                                                <!-- Optional: Add an icon or action -->
-                                            </a>
+                                        <div class="flex-grow-1 ms-2">
+                                            <div class="fw-bold">John Doe</div>
+                                            <div class="text-muted">Birthday on March 15</div>
                                         </div>
                                     </div>
                                 </div>
-                                @empty
-                                <div class="list-group-item">
-                                    <div class="row align-items-center">
-                                        <div class="col text-truncate">
-                                            <div class="d-block text-secondary text-truncate mt-n1">
-                                                No leave requests today.
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                @endforelse
-
-                                <!-- Leave Applications -->
-                                @forelse ($cutiApplications as $application)
-                                <div class="list-group-item">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto">
-                                            <span class="status-dot status-dot-animated bg-red d-block"></span>
-                                        </div>
-                                        <div class="col text-truncate">
-                                            <a href="#" class="text-body d-block">Cuti Application <b>{{ $application->nama_lengkap }}</b></a>
-                                            <div class="d-block text-secondary text-truncate mt-n1"> Applied on {{ \Carbon\Carbon::parse($application->tgl_create)->format('d M Y') }}</div>
-                                            <div class="d-block text-secondary text-truncate mt-n1">
-                                                {{ \Carbon\Carbon::parse($application->tgl_cuti)->format('d M Y') }} sampai {{ \Carbon\Carbon::parse($application->tgl_cuti_sampai)->format('d M Y') }}
-                                            </div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <a href="#" class="list-group-item-actions">
-                                                <!-- Optional: Add an icon or action -->
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                                @empty
-                                <div class="list-group-item">
-                                    <div class="row align-items-center">
-                                        <div class="col text-truncate">
-                                            <div class="d-block text-secondary text-truncate mt-n1">
-                                                No Cuti applications today.
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                @endforelse
 
                             </div>
                         </div>
