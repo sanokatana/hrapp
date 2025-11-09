@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany; // ← add this
 use Laravel\Sanctum\HasApiTokens;
 
 use App\Models\Cabang;
@@ -47,12 +48,14 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function companies()
+    /** @return BelongsToMany<\App\Models\Company> */
+    public function companies(): BelongsToMany // ← add return type
     {
         return $this->belongsToMany(Company::class, 'company_user')->withTimestamps();
     }
 
-    public function cabang()
+    /** @return BelongsToMany<\App\Models\Cabang> */
+    public function cabang(): BelongsToMany // ← add return type
     {
         return $this->belongsToMany(Cabang::class, 'cabang_user')->withTimestamps();
     }

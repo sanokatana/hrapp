@@ -5,6 +5,93 @@
         </button>
         <div class="navbar-nav flex-row order-md-last">
             <div class="d-none d-md-flex">
+                <!-- Company Switcher -->
+                @if(Auth::guard('user')->check())
+                    @php
+                        $user = Auth::guard('user')->user();
+                        $userCompanies = $user->level === 'Superadmin' ? \App\Models\Company::all() : $user->companies;
+                        $selectedCompanyId = session('selected_company_id');
+                        $selectedCompany = \App\Models\Company::find($selectedCompanyId);
+                        $selectedCabangId = session('selected_cabang_id');
+                    @endphp
+                    
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" title="Switch Company" data-bs-placement="bottom">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M3 21l18 0"/>
+                                <path d="M9 8l1 0"/>
+                                <path d="M9 12l1 0"/>
+                                <path d="M9 16l1 0"/>
+                                <path d="M14 8l1 0"/>
+                                <path d="M14 12l1 0"/>
+                                <path d="M14 16l1 0"/>
+                                <path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16"/>
+                            </svg>
+                            @if($selectedCompany)
+                                <span class="d-none d-xl-inline-block ms-1">{{ $selectedCompany->short_name }}</span>
+                            @endif
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <div class="dropdown-header">Switch Company</div>
+                            @foreach($userCompanies as $company)
+                                <form action="/switch-company" method="POST" style="display:inline;">
+                                    @csrf
+                                    <input type="hidden" name="company_id" value="{{ $company->id }}">
+                                    <button type="submit" class="dropdown-item {{ $selectedCompanyId == $company->id ? 'active' : '' }}">
+                                        {{ $company->short_name }}
+                                    </button>
+                                </form>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Cabang Switcher -->
+                    @if($selectedCompany)
+                        @php
+                            $cabangs = $user->level === 'Superadmin'
+                            ? \App\Models\Cabang::where('company_id', $selectedCompanyId)->get()
+                            : $user->cabang()->where('cabang.company_id', $selectedCompanyId)->get(); // <-- qualify with cabang.
+                            $selectedCabang = \App\Models\Cabang::find($selectedCabangId);
+                        @endphp
+                        
+                        <div class="nav-item dropdown" style="margin-left: 10px">
+                            <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" title="Switch Cabang" data-bs-placement="bottom">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M3 21v-13l9 -4l9 4v13"/>
+                                    <path d="M13 13h4v8h-10v-8h4"/>
+                                    <path d="M9 21v-4h6v4"/>
+                                </svg>
+                                @if($selectedCabang)
+                                    <span class="d-none d-xl-inline-block ms-1">{{ $selectedCabang->nama }}</span>
+                                @else
+                                    <span class="d-none d-xl-inline-block ms-1">All Cabang</span>
+                                @endif
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <div class="dropdown-header">Switch Cabang</div>
+                                <form action="/switch-cabang" method="POST" style="display:inline;">
+                                    @csrf
+                                    <input type="hidden" name="cabang_id" value="all">
+                                    <button type="submit" class="dropdown-item {{ !$selectedCabangId ? 'active' : '' }}">
+                                        All Cabang
+                                    </button>
+                                </form>
+                                @foreach($cabangs as $cabang)
+                                    <form action="/switch-cabang" method="POST" style="display:inline;">
+                                        @csrf
+                                        <input type="hidden" name="cabang_id" value="{{ $cabang->id }}">
+                                        <button type="submit" class="dropdown-item {{ $selectedCabangId == $cabang->id ? 'active' : '' }}">
+                                            {{ $cabang->nama }}
+                                        </button>
+                                    </form>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                @endif
+
                 <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="Enable dark mode" data-bs-toggle="tooltip" data-bs-placement="bottom">
                     <!-- Download SVG icon from http://tabler-icons.io/i/moon -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 18 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">

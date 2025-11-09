@@ -1,4 +1,4 @@
-<form action="{{ route('data.user.update', $user) }}" method="POST" id="formUser" enctype="multipart/form-data">
+<form action="/data/user/{{ $user->id }}/update" method="POST" id="formUser" enctype="multipart/form-data">
     @csrf
     @method('PUT')
     <div class="row">
@@ -72,6 +72,27 @@
             <label class="form-label"></label>
             <div class="input-group input-group-flat">
                 <input type="password" class="form-control" name="new_password_confirmation" id="new_password_confirmation" autocomplete="off" placeholder="Confirm new password">
+            </div>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-12">
+            <label class="form-label">Assign Companies (Superadmin Only)</label>
+            <div class="form-selectgroup form-selectgroup-boxes d-flex flex-column">
+                @foreach ($companies as $company)
+                <label class="form-selectgroup-item flex-fill">
+                    <input type="checkbox" name="companies[]" value="{{ $company->id }}" class="form-selectgroup-input" {{ $user->companies->contains($company->id) ? 'checked' : '' }}>
+                    <div class="form-selectgroup-label d-flex align-items-center p-3">
+                        <div class="me-3">
+                            <span class="form-selectgroup-check"></span>
+                        </div>
+                        <div>
+                            <strong>{{ $company->short_name }}</strong><br>
+                            <small class="text-muted">{{ $company->long_name }}</small>
+                        </div>
+                    </div>
+                </label>
+                @endforeach
             </div>
         </div>
     </div>

@@ -14,25 +14,15 @@
 
 @if(session('success'))
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        Swal.fire({
-            title: 'Berhasil!',
-            text: "{{ session('success') }}",
-            icon: 'success',
-            confirmButtonText: 'Ok'
-        });
-    });
+document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({ title: 'Berhasil!', text: "{{ session('success') }}", icon: 'success', confirmButtonText: 'Ok' });
+});
 </script>
 @elseif(session('danger'))
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        Swal.fire({
-            title: 'Danger!',
-            text: "{{ session('danger') }}",
-            icon: 'error',
-            confirmButtonText: 'Ok'
-        });
-    });
+document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({ title: 'Danger!', text: "{{ session('danger') }}", icon: 'error', confirmButtonText: 'Ok' });
+});
 </script>
 @endif
 
@@ -42,18 +32,20 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
+
                         <div class="row">
                             <div class="col-12">
                                 <a href="#" class="btn btn-primary" id="btnTambahJabatan">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M12 5l0 14" />
-                                        <path d="M5 12l14 0" />
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path d="M12 5v14"/>
+                                        <path d="M5 12h14"/>
                                     </svg>
                                     Add Jabatan
                                 </a>
                             </div>
                         </div>
+
                         <div class="row mt-4">
                             <div class="col-12 table-responsive">
                                 <table class="table table-vcenter card-table table-striped">
@@ -63,23 +55,23 @@
                                             <th>Perusahaan</th>
                                             <th>Cabang</th>
                                             <th>Department</th>
-                                            <th>Nama</th>
+                                            <th>Nama Jabatan</th>
                                             <th>Level</th>
-                                            <th>Aksi</th>
+                                            <th width="14%">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($positions as $d)
+                                        @forelse ($positions as $i => $p)
                                         <tr>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $d->company?->short_name }}</td>
-                                            <td>{{ $d->cabang?->nama ?? '-' }}</td>
-                                            <td>{{ $d->department?->nama }}</td>
-                                            <td>{{ $d->nama }}</td>
-                                            <td>{{ $d->level ?? '-' }}</td>
+                                            <td>{{ $i + 1 }}</td>
+                                            <td>{{ $p->company?->short_name ?? '-' }}</td>
+                                            <td>{{ $p->cabang?->nama ?? '-' }}</td>
+                                            <td>{{ $p->department?->nama ?? '-' }}</td>
+                                            <td>{{ $p->nama }}</td>
+                                            <td>{{ $p->level ?? '-' }}</td>
                                             <td>
                                                 <div class="form-group">
-                                                    <a href="#" class="edit btn btn-info btn-sm" id_jabatan="{{ $d->id }}">
+                                                    <a href="#" class="edit btn btn-info btn-sm" data-id="{{ $p->id }}" title="Edit">
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-edit">
                                                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                             <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
@@ -87,7 +79,7 @@
                                                             <path d="M16 5l3 3" />
                                                         </svg>
                                                     </a>
-                                                    <form action="{{ route('jabatans.destroy', $d) }}" method="POST" style="display:inline;">
+                                                    <form action="{{ route('jabatans.destroy', $p->id) }}" method="POST" style="display:inline;">
                                                         @csrf
                                                         @method('DELETE')
                                                         <a class="btn btn-danger btn-sm delete-confirm">
@@ -104,115 +96,91 @@
                                                 </div>
                                             </td>
                                         </tr>
-                                        @endforeach
+                                        @empty
+                                        <tr>
+                                            <td colspan="7" class="text-center">Belum ada data jabatan.</td>
+                                        </tr>
+                                        @endforelse
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-                    </div>
+
+                        <!-- Create Modal -->
+                        <div class="modal modal-blur fade" id="modal-inputjabatan" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Tambah Jabatan</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="{{ route('jabatans.store') }}" method="POST" id="formJabatanCreate">
+                                            @csrf
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Perusahaan</label>
+                                                    <select name="company_id" id="company_id_create" class="form-select" required>
+                                                        <option value="">Pilih Perusahaan</option>
+                                                        @foreach($companies as $c)
+                                                            <option value="{{ $c->id }}">{{ $c->short_name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Cabang</label>
+                                                    <select name="cabang_id" id="cabang_id_create" class="form-select" disabled>
+                                                        <option value="">Pilih perusahaan dulu</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mt-2">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Department</label>
+                                                    <select name="department_id" id="department_id_create" class="form-select" disabled required>
+                                                        <option value="">Pilih perusahaan dulu</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Nama Jabatan</label>
+                                                    <input type="text" name="nama" id="nama_create" class="form-control" placeholder="Nama Jabatan" required>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mt-2">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Level</label>
+                                                    <input type="text" name="level" id="level_create" class="form-control" placeholder="Level">
+                                                </div>
+                                            </div>
+
+                                            <div class="row mt-3">
+                                                <div class="col-12">
+                                                    <button class="btn btn-primary w-100">Simpan</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div> <!-- /modal-body -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Edit Modal -->
+                        <div class="modal modal-blur fade" id="modal-editjabatan" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Edit Jabatan</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body" id="loadedjabatan"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div> <!-- /card-body -->
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Create -->
-<div class="modal modal-blur fade" id="modal-inputjabatan" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Tambah Jabatan</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form action="{{ route('jabatans.store') }}" method="POST" id="formJabatan">
-                    @csrf
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="form-label">Perusahaan</div>
-                            <div class="input-icon mb-3">
-                                <select name="company_id" class="form-select" id="company_id" required>
-                                    <option value="">Pilih Perusahaan</option>
-                                    @foreach ($companies as $company)
-                                    <option value="{{ $company->id }}">{{ $company->short_name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="form-label">Cabang</div>
-                            <div class="input-icon mb-3">
-                                <select name="cabang_id" class="form-select" id="cabang_id">
-                                    <option value="">Semua Cabang</option>
-                                    @foreach ($branches as $branch)
-                                    <option value="{{ $branch->id }}">{{ $branch->nama }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="form-label">Department</div>
-                            <div class="input-icon mb-3">
-                                <select name="department_id" class="form-select" id="department_id" required>
-                                    <option value="">Pilih Department</option>
-                                    @foreach ($departments as $department)
-                                    <option value="{{ $department->id }}">{{ $department->nama }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="form-label">Nama Jabatan</div>
-                            <div class="input-icon mb-3">
-                                <input type="text" class="form-control" name="nama" id="nama" placeholder="Nama Jabatan" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="form-label">Level</div>
-                            <div class="input-icon mb-3">
-                                <input type="text" class="form-control" name="level" id="level" placeholder="Level (Optional)">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mt-3">
-                        <div class="col-12">
-                            <div class="form-group">
-                                <button class="btn btn-primary w-100">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-device-floppy">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                        <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"/>
-                                        <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
-                                        <path d="M14 4l0 4l-6 0l0 -4"/>
-                                    </svg>
-                                    Simpan
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Edit -->
-<div class="modal modal-blur fade" id="modal-editjabatan" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Edit Jabatan</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="loadedjabatan">
-
             </div>
         </div>
     </div>
@@ -221,82 +189,101 @@
 
 @push('myscript')
 <script>
-    $(function() {
-        $('#btnTambahJabatan').click(function() {
-            $('#modal-inputjabatan').modal("show");
+$(function() {
+    // Open create modal
+    $('#btnTambahJabatan').on('click', function() {
+        $('#modal-inputjabatan').modal('show');
+    });
+
+    // Dependent selects in CREATE modal
+    $('#company_id_create').on('change', function() {
+        const companyId = $(this).val();
+        const $cabang   = $('#cabang_id_create');
+        const $dept     = $('#department_id_create');
+
+        // Reset
+        $cabang.prop('disabled', true).empty().append('<option value="">Memuat cabang...</option>');
+        $dept.prop('disabled', true).empty().append('<option value="">Memuat department...</option>');
+
+        if (!companyId) {
+            $cabang.empty().append('<option value="">Pilih perusahaan dulu</option>');
+            $dept.empty().append('<option value="">Pilih perusahaan dulu</option>');
+            return;
+        }
+
+        $.getJSON(`/companies/${companyId}/branches`, function(rows) {
+            $cabang.empty().append('<option value="">Semua Cabang</option>');
+            rows.forEach(r => $cabang.append(new Option(r.nama, r.id)));
+            $cabang.prop('disabled', false);
         });
 
-        $('.edit').click(function() {
-            var id = $(this).attr('id_jabatan');
-            $.ajax({
-                type: 'POST',
-                url: '/jabatans/edit',
-                cache: false,
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    id: id
-                },
-                success: function(respond) {
-                    $('#loadedjabatan').html(respond);
+        $.getJSON(`/companies/${companyId}/departments`, function(rows) {
+            $dept.empty().append('<option value="">Pilih Department</option>');
+            rows.forEach(r => $dept.append(new Option(r.nama, r.id)));
+            $dept.prop('disabled', false);
+        });
+    });
+
+    // Create validation (simple front-end checks)
+    $('#formJabatanCreate').on('submit', function() {
+        const company  = $('#company_id_create').val();
+        const dept     = $('#department_id_create').val();
+        const nama     = $('#nama_create').val();
+
+        if (!company) {
+            Swal.fire({ title:'Warning!', text:'Perusahaan Harus Dipilih', icon:'warning', confirmButtonText:'Ok' });
+            return false;
+        }
+        if (!dept) {
+            Swal.fire({ title:'Warning!', text:'Department Harus Dipilih', icon:'warning', confirmButtonText:'Ok' });
+            return false;
+        }
+        if (!nama) {
+            Swal.fire({ title:'Warning!', text:'Nama Jabatan Harus Diisi', icon:'warning', confirmButtonText:'Ok' });
+            return false;
+        }
+    });
+
+    // Open edit modal (AJAX)
+    $('.edit').on('click', function() {
+        const id = $(this).data('id');
+
+        $.ajax({
+            type: 'POST',
+            url: 'jabatans/edit',
+            data: { _token: "{{ csrf_token() }}", id },
+            success: function(html) {
+                $('#loadedjabatan').html(html);
+
+                // Ensure partial initializer runs
+                if (typeof window.__initEditJabatan === 'function') {
+                    window.__initEditJabatan();
                 }
-            });
-            $('#modal-editjabatan').modal("show");
-        });
 
-        $(".delete-confirm").click(function(e) {
-            var form = $(this).closest('form');
-            e.preventDefault();
-            Swal.fire({
-                title: "Apakah Yakin?",
-                text: "Data Jabatan Akan Di Delete!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Delete"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
-                }
-            });
-        });
-
-        $('#formJabatan').submit(function() {
-            var company_id = $('#company_id').val();
-            var department_id = $('#department_id').val();
-            var nama = $('#nama').val();
-            if (company_id == "") {
-                Swal.fire({
-                    title: 'Warning!',
-                    text: 'Perusahaan Harus Dipilih',
-                    icon: 'warning',
-                    confirmButtonText: 'Ok'
-                }).then(() => {
-                    $('#company_id').focus();
-                });
-                return false;
-            } else if (department_id == "") {
-                Swal.fire({
-                    title: 'Warning!',
-                    text: 'Department Harus Dipilih',
-                    icon: 'warning',
-                    confirmButtonText: 'Ok'
-                }).then(() => {
-                    $('#department_id').focus();
-                });
-                return false;
-            } else if (nama == "") {
-                Swal.fire({
-                    title: 'Warning!',
-                    text: 'Nama Jabatan Harus Diisi',
-                    icon: 'warning',
-                    confirmButtonText: 'Ok'
-                }).then(() => {
-                    $('#nama').focus();
-                });
-                return false;
+                $('#modal-editjabatan').modal('show');
+            },
+            error: function() {
+                Swal.fire({ title:'Error', text:'Gagal memuat data.', icon:'error' });
             }
         });
     });
+
+    // Delete confirm
+    $(document).on('click', '.delete-confirm', function(e) {
+        e.preventDefault();
+        const form = $(this).closest('form');
+        Swal.fire({
+            title: "Apakah Yakin?",
+            text: "Data Jabatan Akan Dihapus!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Delete"
+        }).then((result) => {
+            if (result.isConfirmed) form.submit();
+        });
+    });
+});
 </script>
 @endpush

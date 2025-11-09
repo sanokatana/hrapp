@@ -15,22 +15,44 @@ class DepartmentController extends Controller
 {
     public function index(Request $request): View
     {
-        $departments = Department::with(['company', 'cabang'])
-            ->orderBy('nama')
-            ->get();
+        $companyId = session('selected_company_id');
+        $cabangId = session('selected_cabang_id');
+        
+        $query = Department::with(['company', 'cabang']);
+        
+        if ($companyId) {
+            $query->where('company_id', $companyId);
+        }
+        
+        if ($cabangId) {
+            $query->where('cabang_id', $cabangId);
+        }
+        
+        $departments = $query->orderBy('nama')->get();
+        
         $companies = Company::orderBy('short_name')->get();
-        $branches = Cabang::orderBy('nama')->get();
+        $branches = Cabang::when($companyId, function($q) use ($companyId) {
+            return $q->where('company_id', $companyId);
+        })->orderBy('nama')->get();
+        
         return view('departments.index', compact('departments', 'companies', 'branches'));
     }
 
     public function store(Request $request): RedirectResponse
     {
+        $companyId = session('selected_company_id');
+        
         $data = $request->validate([
             'kode' => ['required', 'string', 'max:30', 'unique:department,kode'],
             'nama' => ['required', 'string', 'max:255'],
             'company_id' => ['required', 'exists:tb_pt,id'],
             'cabang_id' => ['nullable', 'exists:cabang,id'],
         ]);
+        
+        // Ensure company_id matches selected company
+        if ($companyId && $data['company_id'] != $companyId) {
+            return Redirect::back()->with('danger', 'You can only create departments for the selected company');
+        }
 
         Department::create($data);
 

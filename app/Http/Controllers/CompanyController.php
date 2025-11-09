@@ -5,15 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\Company;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 
 class CompanyController extends Controller
 {
     public function index(Request $request): View
     {
-        $companies = Company::orderBy('short_name')->get();
+        /** @var \App\Models\User $user */
+        $user = Auth::guard('user')->user();
+
+        $companies = $user->level === 'Superadmin'
+            ? Company::orderBy('short_name')->get()
+            : $user->companies()->orderBy('short_name')->get();
 
         return view('companies.index', compact('companies'));
     }
@@ -22,7 +27,7 @@ class CompanyController extends Controller
     {
         $data = $request->validate([
             'short_name' => ['required', 'string', 'max:100', 'unique:tb_pt,short_name'],
-            'long_name' => ['required', 'string', 'max:255'],
+            'long_name'  => ['required', 'string', 'max:255'],
         ]);
 
         Company::create($data);
@@ -32,13 +37,12 @@ class CompanyController extends Controller
 
     public function edit(Request $request)
     {
-        $id = $request->id;
-        $company = Company::where('id', $id)->first();
-        
-        if (!$company) {
+        $company = Company::where('id', $request->id)->first();
+
+        if (! $company) {
             return redirect()->back()->with('danger', 'Company not found');
         }
-        
+
         return view('companies.edit', compact('company'));
     }
 
@@ -46,7 +50,7 @@ class CompanyController extends Controller
     {
         $request->validate([
             'short_name' => ['required', 'string', 'max:100', 'unique:tb_pt,short_name,' . $company->id],
-            'long_name' => ['required', 'string', 'max:255'],
+            'long_name'  => ['required', 'string', 'max:255'],
         ]);
 
         $company->update($request->only(['short_name', 'long_name']));

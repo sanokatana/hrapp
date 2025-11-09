@@ -1,4 +1,4 @@
-<form action="{{ route('departments.update', $department) }}" method="POST" id="formDepartment">
+<form action="/departments/{{ $department->id }}" method="POST" id="formDepartment">
     @csrf
     @method('PUT')
     <div class="row">

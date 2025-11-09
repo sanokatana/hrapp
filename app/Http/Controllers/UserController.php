@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\Karyawan;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -15,7 +16,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::query();
+        $query = User::with('companies');
         $query->orderBy('name', 'asc');
 
         if (!empty($request->nama)) {
@@ -52,8 +53,9 @@ class UserController extends Controller
     public function edit(Request $request)
     {
         $user = User::findOrFail($request->id);
+        $companies = Company::orderBy('short_name')->get();
 
-        return view('user.edit', compact('user'));
+        return view('user.edit', compact('user', 'companies'));
     }
 
     public function update(User $user, Request $request)
@@ -61,6 +63,8 @@ class UserController extends Controller
         $request->validate([
             'level' => ['required', Rule::in(['Management', 'Admin', 'HRD', 'Superadmin'])],
             'new_password' => ['nullable', 'string', 'min:6', 'confirmed'],
+            'companies' => ['nullable', 'array'],
+            'companies.*' => ['exists:tb_pt,id'],
         ]);
 
         $user->level = $request->input('level');
@@ -70,6 +74,13 @@ class UserController extends Controller
         }
 
         $user->save();
+        
+        // Sync company assignments
+        if ($request->has('companies')) {
+            $user->companies()->sync($request->companies);
+        } else {
+            $user->companies()->sync([]);
+        }
 
         return Redirect::back()->with(['success' => 'Data Berhasil Di Update']);
     }

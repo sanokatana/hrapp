@@ -59,8 +59,32 @@ class AuthController extends Controller
         ], $request->boolean('remember'))) {
             $request->session()->regenerate();
 
+            /** @var \App\Models\User $user */
+            $user = Auth::guard('user')->user();
+
+            // Pick first available company for this user (or any if superadmin)
+            $firstCompany = $user->level === 'Superadmin'
+                ? \App\Models\Company::orderBy('short_name')->first()
+                : $user->companies()->orderBy('short_name')->first();
+
+            if ($firstCompany) {
+                session(['selected_company_id' => $firstCompany->id]);
+
+                // Pick first cabang within that company (respecting user access)
+                $firstCabang = $user->level === 'Superadmin'
+                    ? \App\Models\Cabang::forCompany($firstCompany->id)->orderBy('nama')->first()
+                    : $user->cabang()
+                        ->where((new \App\Models\Cabang)->getTable() . '.company_id', $firstCompany->id)
+                        ->orderBy('nama')
+                        ->first();
+
+                session(['selected_cabang_id' => optional($firstCabang)->id]);
+            }
+
             return response()->json(['success' => true]);
         }
+
+
 
         return response()->json([
             'success' => false,

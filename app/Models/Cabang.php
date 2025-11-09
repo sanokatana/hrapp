@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 
 class Cabang extends Model
 {
@@ -47,5 +48,21 @@ class Cabang extends Model
     public function users()
     {
         return $this->belongsToMany(User::class, 'cabang_user')->withTimestamps();
+    }
+
+    public function scopeForCompany($query, $companyId)
+    {
+        return $query->where($this->getTable() . '.company_id', $companyId);
+    }
+
+    public function scopeForSelected(Request $request, $query)
+    {
+        if ($companyId = $request->session()->get('selected_company_id')) {
+            $query->where($this->getTable() . '.company_id', $companyId);
+        }
+        if ($cabangId = $request->session()->get('selected_cabang_id')) {
+            $query->where($this->getTable() . '.id', $cabangId);
+        }
+        return $query;
     }
 }

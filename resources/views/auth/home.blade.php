@@ -32,8 +32,11 @@
             Please Direct Yourself To One Of Our Pages
           </p>
           <div class="empty-action">
-            <a href="/candidate" class="btn btn-yellow">
-              Candidate
+            <a href="/panel" class="btn btn-yellow">
+              Karyawan
+            </a>
+            <a href="/panel" class="btn btn-yellow">
+              Admin Panel
             </a>
           </div>
         </div>

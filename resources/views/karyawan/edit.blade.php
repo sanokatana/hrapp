@@ -1,649 +1,178 @@
-<form action="/karyawan/{{ $karyawan->id }}/update" method="POST" id="formEditKaryawan" enctype="multipart/form-data">
+<form action="/karyawan/{{ $karyawan->id }}" method="POST" id="formUpdateKaryawan">
     @csrf
+    @method('PUT')
+
     <div class="row">
-        <div class="col-3">
-            <div class="form-label">Nomer Mesin</div>
-            <div class="input-icon mb-3">
-                <span class="input-icon-addon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-id">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v10a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" />
-                        <path d="M9 10m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                        <path d="M15 8l2 0" />
-                        <path d="M15 12l2 0" />
-                        <path d="M7 16l10 0" />
-                    </svg>
-                </span>
-                <input type="text" value="{{ $karyawan->nip }}" class="form-control" name="nip" id="nip" placeholder="10101">
-            </div>
-        </div>
-        <div class="col-3">
+        <div class="col-md-4">
             <div class="form-label">NIK</div>
-            <div class="input-icon mb-3">
-                <span class="input-icon-addon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-id">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v10a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" />
-                        <path d="M9 10m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                        <path d="M15 8l2 0" />
-                        <path d="M15 12l2 0" />
-                        <path d="M7 16l10 0" />
-                    </svg>
-                </span>
-                <input type="text" value="{{ $karyawan->nik }}" class="form-control" name="nik" id="nik" placeholder="10101">
-            </div>
+            <input type="text" value="{{ $karyawan->nik }}" class="form-control" disabled>
         </div>
-        <div class="col-3">
-            <div class="form-label">Nama Karyawan</div>
-            <div class="input-icon mb-3">
-                <span class="input-icon-addon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
-                        <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                    </svg>
-                </span>
-                <input type="text" value="{{ $karyawan->nama_lengkap }}" class="form-control" name="nama_lengkap" id="nama_lengkap" placeholder="John Doe">
-            </div>
+        <div class="col-md-4">
+            <div class="form-label">Nama Lengkap</div>
+            <input type="text" name="nama_lengkap" id="nama_lengkap_edit" value="{{ $karyawan->nama_lengkap }}" class="form-control" required>
         </div>
-        <div class="col-3">
+        <div class="col-md-4">
+            <div class="form-label">Email</div>
+            <input type="email" name="email" id="email_edit" value="{{ $karyawan->email }}" class="form-control">
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <div class="col-md-4">
+            <div class="form-label">No. HP</div>
+            <input type="text" name="no_hp" id="no_hp_edit" value="{{ $karyawan->no_hp }}" class="form-control">
+        </div>
+        <div class="col-md-4">
             <div class="form-label">Tanggal Masuk</div>
-            <div class="input-icon mb-3">
-                <span class="input-icon-addon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-event">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
-                        <path d="M16 3l0 4" />
-                        <path d="M8 3l0 4" />
-                        <path d="M4 11l16 0" />
-                        <path d="M8 15h2v2h-2z" />
-                    </svg>
-                </span>
-                <input type="date" value="{{ $karyawan->tgl_masuk }}" class="form-control" name="tgl_masuk" id="tgl_masuk" placeholder="Tanggal Masuk">
-            </div>
+            <input type="date" name="tgl_masuk" id="tgl_masuk_edit" value="{{ $karyawan->tgl_masuk }}" class="form-control">
         </div>
-        <div class="col-3">
+        <div class="col-md-4">
             <div class="form-label">Tanggal Resign</div>
-            <div class="input-icon mb-3">
-                <span class="input-icon-addon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-event">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
-                        <path d="M16 3l0 4" />
-                        <path d="M8 3l0 4" />
-                        <path d="M4 11l16 0" />
-                        <path d="M8 15h2v2h-2z" />
-                    </svg>
-                </span>
-                <input type="date" value="{{ $karyawan->tgl_resign }}" class="form-control" name="tgl_resign" id="tgl_resign" placeholder="Tanggal Resign">
-            </div>
+            <input type="date" name="tgl_resign" id="tgl_resign_edit" value="{{ $karyawan->tgl_resign }}" class="form-control">
         </div>
-        <div class="col-3">
-            <div class="form-label">Email Perusahaan</div>
-            <div class="input-icon mb-3">
-                <span class="input-icon-addon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-mail">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z" />
-                        <path d="M3 7l9 6l9 -6" />
-                    </svg>
-                </span>
-                <input type="text" value="{{ $karyawan->email }}" class="form-control" name="email" id="email" placeholder="@ciptaharmoni.com">
-            </div>
-        </div>
-        <div class="col-3">
-            <div class="form-label">Nomer HP</div>
-            <div class="input-icon mb-3">
-                <span class="input-icon-addon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-phone">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2" />
-                    </svg>
-                </span>
-                <input type="text" value="{{ $karyawan->no_hp }}" class="form-control" name="no_hp" id="no_hp" placeholder="No HP">
-            </div>
-        </div>
-        <div class="col-3">
-            <div class="form-label">Date Of Birth</div>
-            <div class="input-icon mb-3">
-                <span class="input-icon-addon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-event">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
-                        <path d="M16 3l0 4" />
-                        <path d="M8 3l0 4" />
-                        <path d="M4 11l16 0" />
-                        <path d="M8 15h2v2h-2z" />
-                    </svg>
-                </span>
-                <input type="date" value="{{ $karyawan->DOB }}" class="form-control" name="DOB" id="DOB" placeholder="">
-            </div>
-        </div>
-        <div class="col-3">
-            <div class="form-label">Foto Karyawan</div>
-            <input type="file" class="form-control" name="foto" id="foto" accept=".png, .jpg, .jpeg">
-        </div>
-        <!-- Additional Fields Start Here -->
-        <div class="col-3 ">
-            <div class="form-label">Grade</div>
-            <input type="text" value="{{ $karyawan->grade }}" class="form-control" name="grade" id="grade" placeholder="Grade">
-        </div>
-        <div class="col-3">
-            <div class="form-label">Nomer Kontrak</div>
-            <select name="no_kontrak_edit" id="no_kontrak_edit" class="form-select">
-                @foreach ($contract as $d)
-                <option {{ $karyawan->no_kontrak == $d->no_kontrak ? 'selected' : '' }} value="{{ $d->no_kontrak }}">{{ $d->no_kontrak }}</option>
+    </div>
+
+    <div class="row mt-2">
+        <div class="col-md-4">
+            <div class="form-label">Perusahaan</div>
+            <select name="company_id" id="company_id_edit" class="form-select" required>
+                <option value="">Pilih Perusahaan</option>
+                @foreach ($companies as $company)
+                    <option value="{{ $company->id }}" {{ $karyawan->company_id == $company->id ? 'selected' : '' }}>
+                        {{ $company->short_name }}
+                    </option>
                 @endforeach
             </select>
         </div>
-        <div class="col-3">
-            <div class="form-label">Employee Status</div>
-            <select name="employee_status_edit" id="employee_status_edit" class="form-select">
-                <option {{ $karyawan->employee_status == '' ? 'selected' : '' }} value="">Choose</option>
-                <option {{ $karyawan->employee_status == 'Kontrak' ? 'selected' : '' }} value="Kontrak">Kontrak</option>
-                <option {{ $karyawan->employee_status == 'PKWT' ? 'selected' : '' }} value="PKWT">PKWT</option>
-                <option {{ $karyawan->employee_status == 'PKWTT' ? 'selected' : '' }} value="PKWTT">PKWTT</option>
-                <option {{ $karyawan->employee_status == 'Tetap' ? 'selected' : '' }} value="Tetap">Tetap</option>
-                <option {{ $karyawan->employee_status == 'Probation' ? 'selected' : '' }} value="Probation">Probation</option>
-                <option {{ $karyawan->employee_status == 'Internship' ? 'selected' : '' }} value="Internship">Internship</option>
+
+        <div class="col-md-4">
+            <div class="form-label">Cabang</div>
+            <select name="cabang_id" id="cabang_id_edit" class="form-select" {{ $karyawan->company_id ? '' : 'disabled' }}>
+                <option value="">{{ $karyawan->company_id ? 'Memuat cabang...' : 'Pilih perusahaan dulu' }}</option>
             </select>
         </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Base POH</div>
-            <select name="base_poh" id="base_poh" class="form-select">
-                <option value="">Pilih</option>
-                @foreach ($location as $d)
-                <option {{ $karyawan->base_poh == $d->nama_kantor ? 'selected' : '' }} value="{{ $d->nama_kantor }}">{{ $d->nama_kantor }}</option>
+
+        <div class="col-md-4">
+            <div class="form-label">Department</div>
+            <select name="department_id" id="department_id_edit" class="form-select">
+                <option value="">Pilih Department</option>
+                @foreach ($departments as $department)
+                    <option value="{{ $department->id }}" {{ $karyawan->department_id == $department->id ? 'selected' : '' }}>
+                        {{ $department->nama }}
+                    </option>
                 @endforeach
             </select>
         </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Nama PT</div>
-            <input type="text" value="{{ $karyawan->nama_pt }}" class="form-control" name="nama_pt" id="nama_pt" placeholder="Nama PT">
+    </div>
+
+    <div class="row mt-2">
+        <div class="col-md-4">
+            <div class="form-label">Jabatan</div>
+            <select name="jabatan_id" id="jabatan_id_edit" class="form-select">
+                <option value="">Pilih Jabatan</option>
+                @foreach ($positions as $position)
+                    <option value="{{ $position->id }}" {{ $karyawan->jabatan_id == $position->id ? 'selected' : '' }}>
+                        {{ $position->nama }}
+                    </option>
+                @endforeach
+            </select>
         </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Sex</div>
-            <input type="text" value="{{ $karyawan->sex }}" class="form-control" name="sex" id="sex" placeholder="Sex">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Tax Status</div>
-            <input type="text" value="{{ $karyawan->tax_status }}" class="form-control" name="tax_status" id="tax_status" placeholder="Tax Status">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Birthplace</div>
-            <input type="text" value="{{ $karyawan->birthplace }}" class="form-control" name="birthplace" id="birthplace" placeholder="Birthplace">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Religion</div>
-            <input type="text" value="{{ $karyawan->religion }}" class="form-control" name="religion" id="religion" placeholder="Religion">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Status Karyawan</div>
-            <select name="status_kar" id="status_kar" class="form-select">
+
+        <div class="col-md-4">
+            <div class="form-label">Status</div>
+            <select name="status_kar" id="status_kar_edit" class="form-select" required>
                 <option value="">Pilih Status</option>
                 <option value="Aktif" {{ $karyawan->status_kar == 'Aktif' ? 'selected' : '' }}>Aktif</option>
                 <option value="Non-Aktif" {{ $karyawan->status_kar == 'Non-Aktif' ? 'selected' : '' }}>Non-Aktif</option>
             </select>
         </div>
     </div>
-    <div class="row mt-3">
-        <h5 class="modal-title"><u>Department Details</u></h5>
-        <div class="col-3">
-            <div class="form-label">Department</div>
-            <select name="kode_dept" id="kode_dept" class="form-select">
-                <option value="">Pilih</option>
-                @foreach ($department as $d)
-                <option {{ $karyawan->kode_dept == $d->kode_dept ? 'selected' : '' }} value="{{ $d->kode_dept }}">{{ $d->nama_dept }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="col-3">
-            <div class="form-label">Jabatan</div>
-            <select name="jabatan" id="jabatan" class="form-select">
-                <option value="">Pilih</option>
-                @foreach ($jabatan as $d)
-                <option {{ $karyawan->jabatan == $d->id ? 'selected' : '' }} value="{{ $d->id }}">{{ $d->nama_jabatan }} - {{ $d->site }} - {{ $d->kode_dept }}</option>
-                @endforeach
-            </select>
-        </div>
-    </div>
-    <div class="row mt-3">
-        <h5 class="modal-title"><u>Address Karyawan</u></h5>
-        <div class="col-3">
-            <div class="form-label">Address</div>
-            <input type="text" value="{{ $karyawan->address }}" class="form-control" name="address" id="address" placeholder="Address">
-        </div>
-        <div class="col-3">
-            <div class="form-label">Address RT</div>
-            <input type="text" value="{{ $karyawan->address_rt }}" class="form-control" name="address_rt" id="address_rt" placeholder="Address RT">
-        </div>
-        <div class="col-3">
-            <div class="form-label">Address RW</div>
-            <input type="text" value="{{ $karyawan->address_rw }}" class="form-control" name="address_rw" id="address_rw" placeholder="Address RW">
-        </div>
-        <div class="col-3">
-            <div class="form-label">Address Kel</div>
-            <input type="text" value="{{ $karyawan->address_kel }}" class="form-control" name="address_kel" id="address_kel" placeholder="Address Kel">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Address Kec</div>
-            <input type="text" value="{{ $karyawan->address_kec }}" class="form-control" name="address_kec" id="address_kec" placeholder="Address Kec">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Address Kota</div>
-            <input type="text" value="{{ $karyawan->address_kota }}" class="form-control" name="address_kota" id="address_kota" placeholder="Address Kota">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Address Prov</div>
-            <input type="text" value="{{ $karyawan->address_prov }}" class="form-control" name="address_prov" id="address_prov" placeholder="Address Prov">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Kode Pos</div>
-            <input type="text" value="{{ $karyawan->kode_pos }}" class="form-control" name="kode_pos" id="kode_pos" placeholder="Kode Pos">
-        </div>
-    </div>
-    <div class="row mt-3">
-        <h5 class="modal-title"><u>Education & Experience</u></h5>
-        <div class="col-3">
-            <div class="form-label">Gelar</div>
-            <input type="text" value="{{ $karyawan->gelar }}" class="form-control" name="gelar" id="gelar" placeholder="Gelar">
-        </div>
-        <div class="col-3">
-            <div class="form-label">Major</div>
-            <input type="text" value="{{ $karyawan->major }}" class="form-control" name="major" id="major" placeholder="Major">
-        </div>
-        <div class="col-3">
-            <div class="form-label">Kampus</div>
-            <input type="text" value="{{ $karyawan->kampus }}" class="form-control" name="kampus" id="kampus" placeholder="Kampus">
-        </div>
-        <div class="col-3">
-            <div class="form-label">Job Experience</div>
-            <input type="text" value="{{ $karyawan->job_exp }}" class="form-control" name="job_exp" id="job_exp" placeholder="Job Experience">
-        </div>
-    </div>
-    <div class="row mt-3">
-        <h5 class="modal-title"><u>Data Pribadi</u></h5>
-        <div class="col-3 mt-2">
-            <div class="form-label">NIK KTP</div>
-            <input type="text" value="{{ $karyawan->nik_ktp }}" class="form-control" name="nik_ktp" id="nik_ktp" placeholder="NIK KTP">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Blood Type</div>
-            <input type="text" value="{{ $karyawan->blood_type }}" class="form-control" name="blood_type" id="blood_type" placeholder="Blood Type">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Email Personal</div>
-            <input type="text" value="{{ $karyawan->email_personal }}" class="form-control" name="email_personal" id="email_personal" placeholder="Email Personal">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Family Card</div>
-            <input type="text" value="{{ $karyawan->family_card }}" class="form-control" name="family_card" id="family_card" placeholder="Family Card">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">No NPWP</div>
-            <input type="text" value="{{ $karyawan->no_npwp }}" class="form-control" name="no_npwp" id="no_npwp" placeholder="No NPWP">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Alamat NPWP</div>
-            <input type="text" value="{{ $karyawan->alamat_npwp }}" class="form-control" name="alamat_npwp" id="alamat_npwp" placeholder="Alamat NPWP">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">BPJS TK</div>
-            <input type="text" value="{{ $karyawan->bpjstk }}" class="form-control" name="bpjstk" id="bpjstk" placeholder="BPJS TK">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">BPJS Kes</div>
-            <input type="text" value="{{ $karyawan->bpjskes }}" class="form-control" name="bpjskes" id="bpjskes" placeholder="BPJS Kes">
-        </div>
-    </div>
-    <div class="row mt-3">
-        <h5 class="modal-title"><u>Bank Detail</u></h5>
-        <div class="col-3 mt-2">
-            <div class="form-label">Rekening No</div>
-            <input type="text" value="{{ $karyawan->rek_no }}" class="form-control" name="rek_no" id="rek_no" placeholder="Rekening No">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Bank Name</div>
-            <input type="text" value="{{ $karyawan->bank_name }}" class="form-control" name="bank_name" id="bank_name" placeholder="Bank Name">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Rekening Name</div>
-            <input type="text" value="{{ $karyawan->rek_name }}" class="form-control" name="rek_name" id="rek_name" placeholder="Rekening Name">
-        </div>
-    </div>
-    <div class="row mt-3">
-        <h5 class="modal-title"><u>Family Data</u></h5>
-        <div class="col-3 mt-2">
-            <div class="form-label">Father's Name</div>
-            <input type="text" value="{{ $karyawan->father_name }}" class="form-control" name="father_name" id="father_name" placeholder="Father's Name">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Mother's Name</div>
-            <input type="text" value="{{ $karyawan->mother_name }}" class="form-control" name="mother_name" id="mother_name" placeholder="Mother's Name">
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-3 mt-2">
-            <div class="form-label">Nama Pasangan</div>
-            <input type="text" value="{{ $karyawan->fd_si_name }}" class="form-control" name="fd_si_name" id="fd_si_name" placeholder="Family Data Anak">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">NIK Pasangan</div>
-            <input type="text" value="{{ $karyawan->fd_si_nik }}" class="form-control" name="fd_si_nik" id="fd_si_nik" placeholder="Family Data Anak">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Kota Lahir Pasangan</div>
-            <input type="text" value="{{ $karyawan->fd_si_kota }}" class="form-control" name="fd_si_kota" id="fd_si_kota" placeholder="Family Data Anak">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">DOB Pasangan</div>
-            <input type="date" value="{{ $karyawan->fd_si_dob }}" class="form-control" name="fd_si_dob" id="fd_si_dob" placeholder="Family Data Anak">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Nama Anak Pertama</div>
-            <input type="text" value="{{ $karyawan->fd_anak1_name }}" class="form-control" name="fd_anak1_name" id="fd_anak1_name" placeholder="Family Data Anak">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">NIK Anak Pertama</div>
-            <input type="text" value="{{ $karyawan->fd_anak1_nik }}" class="form-control" name="fd_anak1_nik" id="fd_anak1_nik" placeholder="Family Data Anak">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Kota Lahir Anak Pertama</div>
-            <input type="text" value="{{ $karyawan->fd_anak1_kota }}" class="form-control" name="fd_anak1_kota" id="fd_anak1_kota" placeholder="Family Data Anak">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">DOB Anak Pertama</div>
-            <input type="date" value="{{ $karyawan->fd_anak1_dob }}" class="form-control" name="fd_anak1_dob" id="fd_anak1_dob" placeholder="Family Data Anak">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Nama Anak Kedua</div>
-            <input type="text" value="{{ $karyawan->fd_anak2_name }}" class="form-control" name="fd_anak2_name" id="fd_anak2_name" placeholder="Family Data Anak">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">NIK Anak Kedua</div>
-            <input type="text" value="{{ $karyawan->fd_anak2_nik }}" class="form-control" name="fd_anak2_nik" id="fd_anak2_nik" placeholder="Family Data Anak">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Kota Lahir Anak Kedua</div>
-            <input type="text" value="{{ $karyawan->fd_anak2_kota }}" class="form-control" name="fd_anak2_kota" id="fd_anak2_kota" placeholder="Family Data Anak">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">DOB Anak Kedua</div>
-            <input type="date" value="{{ $karyawan->fd_anak2_dob }}" class="form-control" name="fd_anak2_dob" id="fd_anak2_dob" placeholder="Family Data Anak">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Nama Anak Ketiga</div>
-            <input type="text" value="{{ $karyawan->fd_anak3_name }}" class="form-control" name="fd_anak3_name" id="fd_anak3_name" placeholder="Family Data Anak">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">NIK Anak Kedua</div>
-            <input type="text" value="{{ $karyawan->fd_anak3_nik }}" class="form-control" name="fd_anak3_nik" id="fd_anak3_nik" placeholder="Family Data Anak">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Kota Lahir Anak Ketiga</div>
-            <input type="text" value="{{ $karyawan->fd_anak3_nik }}" class="form-control" name="fd_anak3_kota" id="fd_anak3_kota" placeholder="Family Data Anak">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">DOB Anak Ketiga</div>
-            <input type="date" value="{{ $karyawan->fd_anak3_dob }}" class="form-control" name="fd_anak3_dob" id="fd_anak3_dob" placeholder="Family Data Anak">
-        </div>
-    </div>
-    <div class="row mt-3">
-        <h5 class="modal-title"><u>Emergency Contact</u></h5>
-        <div class="col-3 mt-2">
-            <div class="form-label">Emergency Contact Name</div>
-            <input type="text" value="{{ $karyawan->em_name }}" class="form-control" name="em_name" id="em_name" placeholder="Emergency Contact Name">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Emergency Contact Phone</div>
-            <input type="text" value="{{ $karyawan->em_telp }}" class="form-control" name="em_telp" id="em_telp" placeholder="Emergency Contact Phone">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Emergency Contact Relation</div>
-            <input type="text" value="{{ $karyawan->em_relation }}" class="form-control" name="em_relation" id="em_relation" placeholder="Emergency Contact Relation">
-        </div>
-        <div class="col-3 mt-2">
-            <div class="form-label">Emergency Contact Address</div>
-            <input type="text" value="{{ $karyawan->em_alamat }}" class="form-control" name="em_alamat" id="em_alamat" placeholder="Emergency Contact Address">
-        </div>
-    </div>
-    <div class="row mt-3">
-        <h5 class="modal-title"><u>Perlengkapan File</u></h5>
+
+    <div class="row mt-2">
         <div class="col-md-6">
-            <div class="form-check mt-2 d-flex align-items-center">
-                <input type="hidden" name="status_photo" value="0">
-                <input type="checkbox" value="1" class="form-check-input" name="status_photo" id="status_photo" {{ $karyawan->status_photo ? 'checked' : '' }}>
-                <label class="form-check-label ms-2" for="status_photo">Photo Karyawan</label>
-            </div>
-
-            <div class="form-check mt-2 d-flex align-items-center">
-                <input type="hidden" name="status_ktp" value="0">
-                <input type="checkbox" value="1" class="form-check-input" name="status_ktp" id="status_ktp" {{ $karyawan->status_ktp ? 'checked' : '' }}>
-                <label class="form-check-label ms-2" for="status_ktp">KTP</label>
-            </div>
-
-            <div class="form-check mt-2 d-flex align-items-center">
-                <input type="hidden" name="status_kk" value="0">
-                <input type="checkbox" value="1" class="form-check-input" name="status_kk" id="status_kk" {{ $karyawan->status_kk ? 'checked' : '' }}>
-                <label class="form-check-label ms-2" for="status_kk">Family Card</label>
-            </div>
-
-            <div class="form-check mt-2 d-flex align-items-center">
-                <input type="hidden" name="status_npwp" value="0">
-                <input type="checkbox" value="1" class="form-check-input" name="status_npwp" id="status_npwp" {{ $karyawan->status_npwp ? 'checked' : '' }}>
-                <label class="form-check-label ms-2" for="status_npwp">NPWP</label>
-            </div>
-
-            <div class="form-check mt-2 d-flex align-items-center">
-                <input type="hidden" name="status_sim" value="0">
-                <input type="checkbox" value="1" class="form-check-input" name="status_sim" id="status_sim" {{ $karyawan->status_sim ? 'checked' : '' }}>
-                <label class="form-check-label ms-2" for="status_sim">SIM</label>
-            </div>
+            <div class="form-label">Password Baru (Opsional)</div>
+            <input type="password" name="password" id="password_edit" class="form-control" placeholder="Kosongkan jika tidak ingin mengganti">
         </div>
-
         <div class="col-md-6">
-            <div class="form-check mt-2 d-flex align-items-center">
-                <input type="hidden" name="status_ijazah" value="0">
-                <input type="checkbox" value="1" class="form-check-input" name="status_ijazah" id="status_ijazah" {{ $karyawan->status_ijazah ? 'checked' : '' }}>
-                <label class="form-check-label ms-2" for="status_ijazah">Ijazah</label>
-            </div>
-
-            <div class="form-check mt-2 d-flex align-items-center">
-                <input type="hidden" name="status_skck" value="0">
-                <input type="checkbox" value="1" class="form-check-input" name="status_skck" id="status_skck" {{ $karyawan->status_skck ? 'checked' : '' }}>
-                <label class="form-check-label ms-2" for="status_skck">SKCK</label>
-            </div>
-
-            <div class="form-check mt-2 d-flex align-items-center">
-                <input type="hidden" name="status_cv" value="0">
-                <input type="checkbox" value="1" class="form-check-input" name="status_cv" id="status_cv" {{ $karyawan->status_cv ? 'checked' : '' }}>
-                <label class="form-check-label ms-2" for="status_cv">CV</label>
-            </div>
-
-            <div class="form-check mt-2 d-flex align-items-center">
-                <input type="hidden" name="status_applicant" value="0">
-                <input type="checkbox" value="1" class="form-check-input" name="status_applicant" id="status_applicant" {{ $karyawan->status_applicant ? 'checked' : '' }}>
-                <label class="form-check-label ms-2" for="status_applicant">Application</label>
-            </div>
+            <div class="form-label">Konfirmasi Password</div>
+            <input type="password" name="password_confirmation" id="password_confirmation_edit" class="form-control" placeholder="Ulangi password baru">
         </div>
     </div>
 
-
-
-    <div class="row mt-3">
-        <h5 class="modal-title"><u>Upload Files</u></h5>
-
-        <div class="col-md-6">
-            @if(isset($karyawan->file_photo) && $karyawan->file_photo !== 'No_Document')
-            <div class="col-7 d-flex">
-                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nik . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_photo) }}"
-                target="_blank"
-                class="btn btn-info btn-block w-50">
-                    Lihat File
-                </a>
-                <label class="ms-5 align-self-center" for="file_photo">File Foto</label>
-            </div>
-            @else
-            <div class="form-group mt-2 d-flex">
-                <input class="form-control" type="file" id="file_photo" name="file_photo" style="width: 50%;">
-                <label class="ms-5 align-self-center" for="file_photo">Photo</label>
-            </div>
-            @endif
-            <!---->
-
-            @if(isset($karyawan->file_ktp) && $karyawan->file_ktp !== 'No_Document')
-            <div class="col-7 d-flex mt-2">
-                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nik . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_ktp) }}"
-                target="_blank"
-                class="btn btn-info btn-block w-50">
-                    Lihat File
-                </a>
-                <label class="ms-5 align-self-center" for="file_photo">KTP</label>
-            </div>
-            @else
-            <div class="form-group mt-2 d-flex">
-                <input class="form-control" type="file" id="file_ktp" name="file_ktp" style="width: 50%;">
-                <label class="ms-5 align-self-center" for="file_ktp">KTP</label>
-            </div>
-            @endif
-            <!---->
-
-            @if(isset($karyawan->file_kk) && $karyawan->file_kk !== 'No_Document')
-            <div class="col-7 d-flex mt-2">
-                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nik . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_kk) }}"
-                target="_blank"
-                class="btn btn-info btn-block w-50">
-                    Lihat File
-                </a>
-                <label class="ms-5 align-self-center" for="file_photo">KK</label>
-            </div>
-            @else
-            <div class="form-group mt-2 d-flex">
-                <input class="form-control" type="file" id="file_kk" name="file_kk" style="width: 50%;">
-                <label class="ms-5 align-self-center" for="file_kk">KK</label>
-            </div>
-            @endif
-            <!---->
-
-            @if(isset($karyawan->file_npwp) && $karyawan->file_npwp !== 'No_Document')
-            <div class="col-7 d-flex mt-2">
-                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nik . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_npwp) }}"
-                target="_blank"
-                class="btn btn-info btn-block w-50">
-                    Lihat File
-                </a>
-                <label class="ms-5 align-self-center" for="file_npwp">Photo</label>
-            </div>
-            @else
-            <div class="form-group mt-2 d-flex">
-                <input class="form-control" type="file" id="file_npwp" name="file_npwp" style="width: 50%;">
-                <label class="ms-5 align-self-center" for="file_npwp">Photo</label>
-            </div>
-            @endif
-            <!---->
-
-            @if(isset($karyawan->file_sim) && $karyawan->file_sim !== 'No_Document')
-            <div class="col-7 d-flex mt-2">
-                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nik . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_sim) }}"
-                target="_blank"
-                class="btn btn-info btn-block w-50">
-                    Lihat File
-                </a>
-                <label class="ms-5 align-self-center" for="file_sim">Photo</label>
-            </div>
-            @else
-            <div class="form-group mt-2 d-flex">
-                <input class="form-control" type="file" id="file_sim" name="file_sim" style="width: 50%;">
-                <label class="ms-5 align-self-center" for="file_sim">Photo</label>
-            </div>
-            @endif
-        </div>
-
-        <div class="col-md-6">
-            <!---->
-
-            @if(isset($karyawan->file_ijazah) && $karyawan->file_ijazah !== 'No_Document')
-            <div class="col-7 d-flex">
-                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nik . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_ijazah) }}"
-                target="_blank"
-                class="btn btn-info btn-block w-50">
-                    Lihat File
-                </a>
-                <label class="ms-5 align-self-center" for="file_ijazah">Ijazah</label>
-            </div>
-            @else
-            <div class="form-group mt-2 d-flex">
-                <input class="form-control" type="file" id="file_ijazah" name="file_ijazah" style="width: 50%;">
-                <label class="ms-5 align-self-center" for="file_ijazah">Ijazah</label>
-            </div>
-            @endif
-            <!---->
-
-            @if(isset($karyawan->file_skck) && $karyawan->file_skck !== 'No_Document')
-            <div class="col-7 d-flex mt-2">
-                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nik . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_skck) }}"
-                target="_blank"
-                class="btn btn-info btn-block w-50">
-                    Lihat File
-                </a>
-                <label class="ms-5 align-self-center" for="file_skck">SKCK</label>
-            </div>
-            @else
-            <div class="form-group mt-2 d-flex">
-                <input class="form-control" type="file" id="file_skck" name="file_skck" style="width: 50%;">
-                <label class="ms-5 align-self-center" for="file_skck">SKCK</label>
-            </div>
-            @endif
-            <!---->
-
-            @if(isset($karyawan->file_cv) && $karyawan->file_cv !== 'No_Document')
-            <div class="col-7 d-flex mt-2">
-                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nik . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_cv) }}"
-                target="_blank"
-                class="btn btn-info btn-block w-50">
-                    Lihat File
-                </a>
-                <label class="ms-5 align-self-center" for="file_cv">CV</label>
-            </div>
-            @else
-            <div class="form-group mt-2 d-flex">
-                <input class="form-control" type="file" id="file_cv" name="file_cv" style="width: 50%;">
-                <label class="ms-5 align-self-center" for="file_cv">CV</label>
-            </div>
-            @endif
-            <!---->
-
-            @if(isset($karyawan->file_applicant) && $karyawan->file_applicant !== 'No_Document')
-            <div class="col-7 d-flex mt-2">
-                <a href="{{ asset('storage/uploads/karyawan/' . $karyawan->nik . '.' . $karyawan->nama_lengkap . '/files/' . $karyawan->file_applicant) }}"
-                target="_blank"
-                class="btn btn-info btn-block w-50">
-                    Lihat File
-                </a>
-                <label class="ms-5 align-self-center" for="file_applicant">Applicantion</label>
-            </div>
-            @else
-            <div class="form-group mt-2 d-flex">
-                <input class="form-control" type="file" id="file_applicant" name="file_applicant" style="width: 50%;">
-                <label class="ms-5 align-self-center" for="file_applicant">Applicantion</label>
-            </div>
-            @endif
-        </div>
-    </div>
     <div class="row mt-3">
         <div class="col-12">
-            <div class="form-group">
-                <button class="btn btn-primary w-100">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-plus">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
-                        <path d="M16 19h6" />
-                        <path d="M19 16v6" />
-                        <path d="M6 21v-2a4 4 0 0 1 4 -4h4" />
-                    </svg>
-                    Update
-                </button>
-            </div>
+            <button type="submit" class="btn btn-primary w-100">Update</button>
         </div>
     </div>
 </form>
+
+<script>
+// Expose an init function the parent page will call after injecting this partial
+window.__initEditKaryawan = function () {
+    const $company = $('#company_id_edit');
+    const $cabang  = $('#cabang_id_edit');
+
+    const currentCompanyId = $company.val();
+    const currentCabangId  = @json($karyawan->cabang_id);
+
+    function loadCabang(companyId, preselectId = null) {
+        $cabang.prop('disabled', true).empty()
+               .append('<option value="">Memuat cabang...</option>');
+
+        if (!companyId) {
+            $cabang.empty().append('<option value="">Pilih perusahaan dulu</option>');
+            return;
+        }
+
+        $.getJSON(`/companies/${companyId}/branches`, function (rows) {
+            $cabang.empty().append('<option value="">Semua Cabang</option>');
+            rows.forEach(r => $cabang.append(new Option(r.nama, r.id)));
+            $cabang.prop('disabled', false);
+
+            if (preselectId && rows.some(r => String(r.id) === String(preselectId))) {
+                $cabang.val(preselectId);
+            } else if (rows.length === 1) {
+                $cabang.val(rows[0].id);
+            }
+        });
+    }
+
+    $(document).off('change.karCompanyEdit', '#company_id_edit')
+        .on('change.karCompanyEdit', '#company_id_edit', function () {
+            loadCabang($(this).val(), null);
+        });
+
+    if (currentCompanyId) {
+        loadCabang(currentCompanyId, currentCabangId);
+    } else {
+        $cabang.empty().append('<option value="">Pilih perusahaan dulu</option>').prop('disabled', true);
+    }
+
+    // Form validation (same rules as create, adjusted)
+    $('#formUpdateKaryawan').off('submit.karUpdate').on('submit.karUpdate', function () {
+        const nama_lengkap = $('#nama_lengkap_edit').val();
+        const company_id   = $('#company_id_edit').val();
+        const status_kar   = $('#status_kar_edit').val();
+        const password     = $('#password_edit').val();
+        const confirmPwd   = $('#password_confirmation_edit').val();
+
+        if (!nama_lengkap) {
+            Swal.fire({ title: 'Warning!', text: 'Nama Lengkap Harus Diisi', icon: 'warning', confirmButtonText: 'Ok' })
+                .then(() => $('#nama_lengkap_edit').focus());
+            return false;
+        } else if (!company_id) {
+            Swal.fire({ title: 'Warning!', text: 'Perusahaan Harus Dipilih', icon: 'warning', confirmButtonText: 'Ok' })
+                .then(() => $('#company_id_edit').focus());
+            return false;
+        } else if (!status_kar) {
+            Swal.fire({ title: 'Warning!', text: 'Status Harus Dipilih', icon: 'warning', confirmButtonText: 'Ok' })
+                .then(() => $('#status_kar_edit').focus());
+            return false;
+        } else if (password && password !== confirmPwd) {
+            Swal.fire({ title: 'Warning!', text: 'Password dan Konfirmasi Password Tidak Cocok', icon: 'warning', confirmButtonText: 'Ok' })
+                .then(() => $('#password_confirmation_edit').focus());
+            return false;
+        }
+    });
+};
+</script>

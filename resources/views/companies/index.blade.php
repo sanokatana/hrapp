@@ -81,7 +81,7 @@
                                                             <path d="M16 5l3 3" />
                                                         </svg>
                                                     </a>
-                                                    <form action="{{ route('companies.destroy', $d) }}" method="POST">
+                                                    <form action="/companies/{{ $d->id }}" method="POST">
                                                         @csrf
                                                         @method('DELETE')
                                                         <a class="btn btn-danger btn-sm delete-confirm">
@@ -119,7 +119,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="{{ route('companies.store') }}" method="POST" id="formCompany">
+                <form action="/companies" method="POST" id="formCompany">
                     @csrf
                     <div class="row">
                         <div class="col-12">

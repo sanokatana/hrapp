@@ -177,11 +177,9 @@
                         </span>
                     </a>
                 </li>
-                @php
-                    $organizationMenuOpen = request()->is('companies*') || request()->is('cabang*') || request()->is('departments*') || request()->is('jabatans*');
-                @endphp
+
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle {{ $organizationMenuOpen ? 'show' : '' }}" href="#navbar-organization" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="{{ $organizationMenuOpen ? 'true' : 'false' }}">
+                    <a class="nav-link dropdown-toggle {{request()->is(['companies', 'cabang', 'departments', 'jabatans'])? 'show' : '' }}" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="{{request()->is(['companies', 'data/user']) ? 'true' : 'false' }}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-building-community">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -198,30 +196,27 @@
                             Organisasi
                         </span>
                     </a>
-                    <div class="dropdown-menu {{ $organizationMenuOpen ? 'show' : '' }}">
+                    <div class="dropdown-menu {{ request()->is(['companies', 'cabang', 'departments', 'jabatans']) ? 'show' : '' }}">
                         <div class="dropdown-menu-columns">
                             <div class="dropdown-menu-column">
-                                <a class="dropdown-item {{ request()->is('companies*') ? 'active' : '' }}" href="{{ route('companies.index') }}">
+                                <a class="dropdown-item {{ request()->is('companies*') ? 'active' : '' }}" href="/companies">
                                     Perusahaan
                                 </a>
-                                <a class="dropdown-item {{ request()->is('cabang*') ? 'active' : '' }}" href="{{ route('cabang.index') }}">
+                                <a class="dropdown-item {{ request()->is('cabang*') ? 'active' : '' }}" href="/cabang">
                                     Cabang
                                 </a>
-                                <a class="dropdown-item {{ request()->is('departments*') ? 'active' : '' }}" href="{{ route('departments.index') }}">
+                                <a class="dropdown-item {{ request()->is('departments*') ? 'active' : '' }}" href="/departments">
                                     Department
                                 </a>
-                                <a class="dropdown-item {{ request()->is('jabatans*') ? 'active' : '' }}" href="{{ route('jabatans.index') }}">
+                                <a class="dropdown-item {{ request()->is('jabatans*') ? 'active' : '' }}" href="/jabatans">
                                     Jabatan
                                 </a>
                             </div>
                         </div>
                     </div>
                 </li>
-                @php
-                    $peopleMenuOpen = request()->is('karyawan*') || request()->is('data/user*');
-                @endphp
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle {{ $peopleMenuOpen ? 'show' : '' }}" href="#navbar-people" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="{{ $peopleMenuOpen ? 'true' : 'false' }}">
+                    <a class="nav-link dropdown-toggle {{ request()->is(['karyawan*', 'data/user*']) ? 'show' : '' }}" href="#navbar-people" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="{{ request()->is(['karyawan*', 'data/user*']) ? 'true' : 'false' }}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-users">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -235,15 +230,17 @@
                             Manajemen Karyawan
                         </span>
                     </a>
-                    <div class="dropdown-menu {{ $peopleMenuOpen ? 'show' : '' }}">
+                    <div class="dropdown-menu {{ request()->is(['karyawan*', 'data/user*']) ? 'show' : '' }}">
                         <div class="dropdown-menu-columns">
                             <div class="dropdown-menu-column">
-                                <a class="dropdown-item {{ request()->is('karyawan*') ? 'active' : '' }}" href="{{ route('karyawan.index') }}">
+                                <a class="dropdown-item {{ request()->is('karyawan*') ? 'active' : '' }}" href="/karyawan">
                                     Data Karyawan
                                 </a>
-                                <a class="dropdown-item {{ request()->is('data/user*') ? 'active' : '' }}" href="{{ url('/data/user') }}">
+                                @if($userLevel === 'Superadmin')
+                                <a class="dropdown-item {{ request()->is('data/user*') ? 'active' : '' }}" href="/data/user">
                                     Pengguna Sistem
                                 </a>
+                                @endif
                             </div>
                         </div>
                     </div>

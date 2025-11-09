@@ -47,8 +47,8 @@ Route::middleware(['guest:karyawan'])->group(function () {
 
 Route::middleware(['guest:web'])->group(function () {
     Route::get('/', function () {
-        return view('auth.home');
-    })->name('home');
+        return view('auth.login');
+    })->name('login');
 });
 
 Route::middleware(['guest:candidate'])->group(function () {
@@ -84,28 +84,42 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
 
     Route::get('/panel/proseslogoutadmin', [AuthController::class, 'proseslogoutadmin']);
 
+    // Company/Cabang Switcher
+    Route::post('/switch-company', [App\Http\Controllers\CompanySwitcherController::class, 'switchCompany']);
+    Route::post('/switch-cabang', [App\Http\Controllers\CompanySwitcherController::class, 'switchCabang']);
 
     Route::get('/panel/accountSetting', [DashboardController::class, 'accountSetting']);
     Route::post('/update-password', [DashboardController::class, 'updatePassword'])->name('update-password');
 
     // Karyawan
-    Route::get('/data/user', [UserController::class, 'index']);
-    Route::post('/data/user/store', [UserController::class, 'store']);
-    Route::post('/data/user/edit', [UserController::class, 'edit']);
-    Route::put('/data/user/{user}/update', [UserController::class, 'update'])->name('data.user.update');
-    Route::delete('/data/user/{user}/delete', [UserController::class, 'delete'])->name('data.user.delete');
-    Route::get('/data/user/getEmployeeByNik', [UserController::class, 'getEmployeeByNik']);
-    Route::get('/data/user/getEmployeeNameUser', [UserController::class, 'getEmployeeNameUser'])->name('getEmployeeNameUser');
+    Route::middleware('superadmin')->group(function () {
+        Route::get('/data/user', [UserController::class, 'index']);
+        Route::post('/data/user/store', [UserController::class, 'store']);
+        Route::post('/data/user/edit', [UserController::class, 'edit']);
+        Route::put('/data/user/{user}/update', [UserController::class, 'update'])->name('data.user.update');
+        Route::delete('/data/user/{user}/delete', [UserController::class, 'delete'])->name('data.user.delete');
+        Route::get('/data/user/getEmployeeByNik', [UserController::class, 'getEmployeeByNik']);
+        Route::get('/data/user/getEmployeeNameUser', [UserController::class, 'getEmployeeNameUser'])->name('getEmployeeNameUser');
+    });
 
     // Organisasi
-    Route::resource('companies', CompanyController::class)->only(['index', 'store', 'update', 'destroy']);
-    Route::post('/companies/edit', [CompanyController::class, 'edit']);
+    Route::middleware('superadmin')->group(function () {
+        Route::resource('companies', CompanyController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::post('/companies/edit', [CompanyController::class, 'edit']);
+    });
+
     Route::resource('cabang', CabangController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::post('/cabang/edit', [CabangController::class, 'edit']);
     Route::resource('departments', DepartmentController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::post('/departments/edit', [DepartmentController::class, 'edit']);
-    Route::resource('jabatans', JabatanController::class)->only(['index', 'store', 'update', 'destroy']);
-    Route::post('/jabatans/edit', [JabatanController::class, 'edit']);
+    Route::get('/jabatans',               [JabatanController::class, 'index'])->name('jabatans.index');
+    Route::post('/jabatans',              [JabatanController::class, 'store'])->name('jabatans.store');
+    Route::post('/jabatans/edit',         [JabatanController::class, 'edit'])->name('jabatans.edit'); // returns partial
+    Route::put('/jabatans/{jabatan}',     [JabatanController::class, 'update'])->name('jabatans.update');
+    Route::delete('/jabatans/{jabatan}',  [JabatanController::class, 'destroy'])->name('jabatans.destroy');
     Route::resource('karyawan', KaryawanController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::post('/karyawan/edit', [KaryawanController::class, 'edit']);
 
+    Route::get('/companies/{company}/branches', [KaryawanController::class, 'branchesByCompany']);
+        Route::get('/companies/{company}/departments', [JabatanController::class, 'departmentsByCompany'])->name('companies.departments');
 });
