@@ -159,6 +159,21 @@ document.addEventListener('DOMContentLoaded', () => {
             <input type="text" name="kota" class="form-control" placeholder="Kota">
           </div>
 
+          <div class="mb-3">
+            <label class="form-label">Latitude</label>
+            <input type="number" step="0.000001" name="latitude" id="latitude_create" class="form-control" placeholder="-6.200000" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Longitude</label>
+            <input type="number" step="0.000001" name="longitude" id="longitude_create" class="form-control" placeholder="106.816666" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Radius (meter)</label>
+            <input type="number" name="radius_meter" id="radius_create" class="form-control" placeholder="100" min="10" max="5000" required>
+          </div>
+
           <button class="btn btn-primary w-100">
             Simpan
           </button>
@@ -200,6 +215,18 @@ $(function () {
     }
     if (!$('#nama_create').val()) {
       Swal.fire({ title:'Warning!', text:'Nama cabang wajib diisi', icon:'warning' });
+      return false;
+    }
+    if (!$('#latitude_create').val()) {
+      Swal.fire({ title:'Warning!', text:'Latitude wajib diisi', icon:'warning' });
+      return false;
+    }
+    if (!$('#longitude_create').val()) {
+      Swal.fire({ title:'Warning!', text:'Longitude wajib diisi', icon:'warning' });
+      return false;
+    }
+    if (!$('#radius_create').val()) {
+      Swal.fire({ title:'Warning!', text:'Radius wajib diisi', icon:'warning' });
       return false;
     }
   });

@@ -33,6 +33,12 @@
 <!-- * App Header -->
 @endsection
 @section('content')
+@php
+    $selectedMonth = isset($selectedMonth) ? (int) $selectedMonth : (int) date('n');
+    $selectedYear = isset($selectedYear) ? (int) $selectedYear : (int) date('Y');
+    $monthNames = $namabulan ?? [];
+    $currentYear = (int) date('Y');
+@endphp
 <div class="row" style="margin-top:70px">
     <div class="col">
         <div class="row">
@@ -41,7 +47,7 @@
                     <select name="bulan" id="bulan" class="form-control" style="text-align:center">
                         <option value="">Bulan</option>
                         @for ($i=1; $i<=12; $i++)
-                            <option value="{{ $i }}" {{ date("m") == $i ? 'selected' : ''}}>{{ $namabulan[$i]}}</option>
+                            <option value="{{ $i }}" {{ $selectedMonth === $i ? 'selected' : '' }}>{{ $monthNames[$i] ?? $i }}</option>
                         @endfor
                     </select>
                 </div>
@@ -52,10 +58,10 @@
                         <option value="">Tahun</option>
                         @php
                         $tahunmulai = 2015;
-                        $tahunskrng = date("Y");
+                        $tahunskrng = max($currentYear, $selectedYear);
                         @endphp
                         @for ($tahun=$tahunmulai; $tahun<= $tahunskrng; $tahun++)
-                            <option value="{{ $tahun }}" {{ date("Y") == $tahun ? 'selected' : ''}}>{{ $tahun }}</option>
+                            <option value="{{ $tahun }}" {{ $selectedYear === (int) $tahun ? 'selected' : '' }}>{{ $tahun }}</option>
                         @endfor
                     </select>
                 </div>
@@ -74,7 +80,7 @@
 </div>
 <div class="row">
     <div class="col" id="showHistori">
-        <!-- Content will be loaded here via AJAX -->
+        {!! $initialHistory ?? '' !!}
     </div>
 </div>
 @endsection
@@ -93,13 +99,23 @@
 
     $(function(){
         $("#getData").click(function(e){
-            var bulan = $("#bulan").val();
-            var tahun = $("#tahun").val();
+            e.preventDefault();
+            var bulan = parseInt($("#bulan").val(), 10) || '';
+            var tahun = parseInt($("#tahun").val(), 10) || '';
+
+            if (!bulan || !tahun) {
+                Swal.fire({
+                    title: 'Periode Tidak Lengkap',
+                    text: 'Silakan pilih bulan dan tahun terlebih dahulu.',
+                    icon: 'warning'
+                });
+                return;
+            }
+
             $.ajax({
                 type: 'GET',
-                url: '/gethistori',
+                url: '/presensi/histori/data',
                 data: {
-                    _token: "{{ csrf_token() }}",
                     bulan: bulan,
                     tahun: tahun
                 },

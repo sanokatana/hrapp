@@ -41,30 +41,7 @@ class DashboardController extends Controller
             'withoutCheckout' => $monthRecords->filter(fn ($record) => $record->jam_masuk && !$record->jam_keluar)->count(),
         ];
 
-        $history = $monthRecords->map(function ($record) use ($lateThreshold) {
-            $status = 'Belum Absen Masuk';
-            $statusClass = 'text-danger';
-            $lateness = null;
-
-            if ($record->jam_masuk) {
-                $status = 'Tepat Waktu';
-                $statusClass = 'text-success';
-
-                if ($this->isLate($record->jam_masuk, $lateThreshold)) {
-                    $status = 'Terlambat';
-                    $statusClass = 'text-danger';
-                    $lateness = $this->formatMinutes($this->minutesLate($record->jam_masuk, $lateThreshold));
-                }
-            }
-
-            $pulangStatus = null;
-            $pulangStatusClass = null;
-
-            if ($record->jam_masuk && !$record->jam_keluar) {
-                $pulangStatus = 'Belum Absen Pulang';
-                $pulangStatusClass = 'text-warning';
-            }
-
+        $history = $monthRecords->map(function ($record) {
             $jamMasukLabel = $record->jam_masuk
                 ? Carbon::createFromFormat('H:i:s', $record->jam_masuk)->format('H:i')
                 : null;
@@ -76,15 +53,10 @@ class DashboardController extends Controller
             return (object) [
                 'tanggal' => $record->tanggal,
                 'tanggal_label' => DateHelper::formatIndonesianDate($record->tanggal->toDateString()),
-                'jam_masuk' => $record->jam_masuk,
                 'jam_masuk_label' => $jamMasukLabel,
-                'jam_keluar' => $record->jam_keluar,
                 'jam_keluar_label' => $jamKeluarLabel,
-                'status' => $status,
-                'status_class' => $statusClass,
-                'lateness' => $lateness,
-                'pulang_status' => $pulangStatus,
-                'pulang_status_class' => $pulangStatusClass,
+                'has_jam_masuk' => !empty($record->jam_masuk),
+                'has_jam_keluar' => !empty($record->jam_keluar),
                 'lokasi' => optional($record->lokasi)->nama_kantor,
             ];
         })->values();

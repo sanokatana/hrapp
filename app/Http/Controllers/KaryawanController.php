@@ -56,7 +56,6 @@ class KaryawanController extends Controller
         $companyId = session('selected_company_id');
 
         $data = $request->validate([
-            'nik'           => ['required', 'string', 'max:50', 'unique:karyawan,nik'],
             'nama_lengkap'  => ['required', 'string', 'max:255'],
             'email'         => ['nullable', 'email', 'max:255', 'unique:karyawan,email'],
             'no_hp'         => ['nullable', 'string', 'max:25'],
@@ -77,6 +76,9 @@ class KaryawanController extends Controller
             return Redirect::back()->with('danger', 'You can only create employees for the selected company');
         }
 
+        $company = Company::findOrFail($data['company_id']);
+
+        $data['nik'] = $this->generateNikForCompany($company);
         $data['password'] = Hash::make($data['password']);
 
         Karyawan::create($data);
@@ -154,5 +156,31 @@ class KaryawanController extends Controller
         return response()->json(
             $query->orderBy('nama')->get(['id','nama'])
         );
+    }
+
+    public function nextNik(Company $company)
+    {
+        return response()->json([
+            'nik' => $this->generateNikForCompany($company),
+        ]);
+    }
+
+    private function generateNikForCompany(Company $company): string
+    {
+        $prefix = strtoupper(preg_replace('/[^A-Z0-9]/', '', $company->short_name ?? ''));
+        $prefix = $prefix !== '' ? $prefix : 'CMP';
+
+        $existing = Karyawan::where('company_id', $company->id)
+            ->where('nik', 'like', $prefix . '%')
+            ->pluck('nik');
+
+        $nextNumber = $existing->map(function ($nik) use ($prefix) {
+                $suffix = substr($nik, strlen($prefix));
+                return (int) $suffix;
+            })->max() ?? 0;
+
+        $nextNumber += 1;
+
+        return sprintf('%s%03d', $prefix, $nextNumber);
     }
 }

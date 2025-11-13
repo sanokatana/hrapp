@@ -41,5 +41,20 @@
         <input type="text" value="{{ $cabang->kota }}" class="form-control" name="kota">
     </div>
 
+    <div class="mb-3">
+        <label class="form-label">Latitude</label>
+        <input type="number" step="0.000001" value="{{ $cabang->latitude }}" class="form-control" name="latitude" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Longitude</label>
+        <input type="number" step="0.000001" value="{{ $cabang->longitude }}" class="form-control" name="longitude" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Radius (meter)</label>
+        <input type="number" value="{{ $cabang->radius_meter }}" class="form-control" name="radius_meter" min="10" max="5000" required>
+    </div>
+
     <button class="btn btn-primary w-100">Update</button>
 </form>

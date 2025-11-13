@@ -19,7 +19,7 @@
             <strong>Histori</strong>
         </div>
     </a>
-    <a href="/editprofile" class="item {{ request()->is('editprofile') ? 'active' : ''}}">
+    <a href="/presensi/editprofile" class="item {{ request()->is('presensi/editprofile') ? 'active' : ''}}">
         <div class="col">
             <ion-icon name="people-outline" role="img" class="md hydrated" aria-label="people outline"></ion-icon>
             <strong>Profile</strong>

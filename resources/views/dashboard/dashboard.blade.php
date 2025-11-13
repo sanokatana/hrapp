@@ -37,21 +37,66 @@
         flex: 0 0 auto;
         width: 33.3333%;
     }
+
+    #user-detail {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#user-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#user-name {
+    font-weight: 700;
+    font-size: 1.4rem;
+    margin: 0;
+    color: #ffffff;
+    line-height: 1.1;
+}
+
+.user-meta {
+    display: flex;
+    flex-direction: column;
+    margin-top: 2px;
+}
+
+.user-role {
+    color: #e5e5e5;
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+.user-dept {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.8rem;
+    font-weight: 400;
+}
+
 </style>
 
 <div class="section" id="user-section">
     <div id="user-detail">
-        <div class="avatar">
-            <img src="{{ asset('assets/img/sample/avatar/male_avatar.jpg') }}" alt="avatar" class="imaged w64 rounded">
-        </div>
-        <div id="user-info">
-            <h2 id="user-name">{{ $firstName }}</h2>
-            <span id="user-role">{{ $jobTitle }}</span>
+    <div class="avatar">
+        <img src="{{ asset('assets/img/sample/avatar/male_avatar.jpg') }}" alt="avatar" class="imaged w64 rounded">
+    </div>
+
+    <div id="user-info">
+        <h2 id="user-name">{{ $firstName }}</h2>
+
+        <div class="user-meta">
+            <span class="user-role">{{ $jobTitle }}</span>
             @if ($department)
-            <span class="text-muted" style="font-size: 0.8rem;">{{ $department }}</span>
+                <span class="user-dept" style="margin-top: 10px;">{{ $department }}</span>
             @endif
         </div>
     </div>
+</div>
+
 </div>
 
 <div class="section" id="menu-section">
@@ -61,7 +106,7 @@
                 <div class="list-menu">
                     <div class="item-menu text-center">
                         <div class="menu-icon">
-                            <a href="/editprofile" class="green" style="font-size: 40px;">
+                            <a href="/presensi/editprofile" class="green" style="font-size: 40px;">
                                 <ion-icon name="person-sharp"></ion-icon>
                             </a>
                         </div>
@@ -81,7 +126,7 @@
                     </div>
                     <div class="item-menu text-center">
                         <div class="menu-icon">
-                            <a href="#presence-section" class="warning" style="font-size: 40px;">
+                            <a href="/presensi/histori" class="warning" style="font-size: 40px;">
                                 <ion-icon name="document-text"></ion-icon>
                             </a>
                         </div>
@@ -184,31 +229,20 @@
                     </div>
                     <div class="in">
                         <div class="jam-row">
-                            <div><b>{{ $item->tanggal_label }}</b></div>
-                            <div class="status {{ $item->status_class }}">
-                                <b>{{ $item->status }}</b>
-                            </div>
-                            @if ($item->lateness)
-                            <div class="lateness text-warning">({{ $item->lateness }})</div>
-                            @endif
-                            @if ($item->pulang_status)
-                            <div class="status {{ $item->pulang_status_class }}">
-                                <b>{{ $item->pulang_status }}</b>
-                            </div>
-                            @endif
+                            <div class="fw-bold">{{ $item->tanggal_label }}</div>
                             @if ($item->lokasi)
                             <div class="text-muted">{{ $item->lokasi }}</div>
                             @endif
                         </div>
                         <div class="jam-row">
                             <div class="jam-in mb-1">
-                                <span class="badge {{ $item->jam_masuk ? ($item->status === 'Terlambat' ? 'badge-danger' : 'badge-success') : 'badge-danger' }}" style="width: 70px;">
-                                    {{ $item->jam_masuk_label ?? 'No Scan' }}
+                                <span class="badge bg-success text-white" style="width: 80px;">
+                                    {{ $item->jam_masuk_label ?? '--:--' }}
                                 </span>
                             </div>
                             <div class="jam-out">
-                                <span class="badge {{ $item->jam_keluar ? 'badge-success' : 'badge-warning' }}" style="width: 70px;">
-                                    {{ $item->jam_keluar_label ?? 'No Scan' }}
+                                <span class="badge bg-warning text-dark" style="width: 80px;">
+                                    {{ $item->jam_keluar_label ?? '--:--' }}
                                 </span>
                             </div>
                         </div>

@@ -48,6 +48,7 @@ class JabatanController extends Controller
             ],
             'nama'          => ['required', 'string', 'max:255'],
             'level'         => ['nullable', 'string', 'max:100'],
+            'daily_rate'    => ['required', 'numeric', 'min:0'],
         ]);
 
         if ($companyIdSession && (int)$data['company_id'] !== (int)$companyIdSession) {
@@ -90,6 +91,7 @@ class JabatanController extends Controller
             ],
             'nama'          => ['required', 'string', 'max:255'],
             'level'         => ['nullable', 'string', 'max:100'],
+            'daily_rate'    => ['required', 'numeric', 'min:0'],
         ]);
 
         $jabatan->update($data);

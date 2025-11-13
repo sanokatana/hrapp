@@ -67,7 +67,6 @@
                                 </div>
                             </div>
                         </div>
-                        <p class="text-muted mb-4 small">Tap the camera button to change your photo</p>
                     </div>
 
                     <!-- Form Fields -->
@@ -91,41 +90,8 @@
                         </div>
                     </div>
 
-                    <div class="form-group mb-2">
-                        <div class="form-label">Password</div>
-                        <div class="input-icon">
-                            <span class="input-icon-addon">
-                                <ion-icon name="lock-closed-outline"></ion-icon>
-                            </span>
-                            <input type="password" class="form-control" name="password" placeholder="Enter new password to change" autocomplete="off">
-                        </div>
-                        <div class="form-hint">Leave blank to keep current password</div>
-                    </div>
-
-                    <!-- Action Buttons -->
                     <div class="row mt-4 g-2">
-                        <div class="col-6">
-                            <button type="submit" class="btn btn-primary btn-block">
-                                <ion-icon name="refresh-outline" class="me-1"></ion-icon>
-                                Update Profile
-                            </button>
-                        </div>
-                        <div class="col-6">
-                            <a href="/presensi/checkFile" class="btn btn-info btn-block text-white">
-                                <ion-icon name="document-outline" class="me-1"></ion-icon>
-                                Documents
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="row mt-2 g-2">
-                        <div class="col-6">
-                            <button type="button" class="btn btn-warning btn-block text-dark" id="sisaButton">
-                                <ion-icon name="calendar-outline" class="me-1"></ion-icon>
-                                Check Leave
-                            </button>
-                        </div>
-                        <div class="col-6">
+                        <div class="col-12">
                             <button type="button" class="btn btn-danger btn-block" id="logoutButton">
                                 <ion-icon name="log-out-outline" class="me-1"></ion-icon>
                                 Logout

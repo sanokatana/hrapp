@@ -21,6 +21,7 @@ class Jabatan extends Model
         'level',
         'company_id',
         'cabang_id',
+        'daily_rate',
     ];
 
     public function company()

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AttendanceReportController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CabangController;
 use App\Http\Controllers\CompanyController;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
 use App\Http\Controllers\PengajuanCutiController;
 use App\Http\Controllers\PerformanceController;
+use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\RecruitmentController;
 use App\Http\Controllers\ShiftController;
@@ -77,6 +79,11 @@ Route::middleware(['auth:karyawan'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::get('/proseslogout', [AuthController::class, 'proseslogout']);
     //Presensi
+    Route::get('/presensi/create', [PresensiController::class, 'create'])->name('presensi.create');
+    Route::post('/presensi/store', [PresensiController::class, 'store'])->name('presensi.store');
+    Route::get('/presensi/histori', [PresensiController::class, 'history'])->name('presensi.histori');
+    Route::get('/presensi/histori/data', [PresensiController::class, 'fetchHistory'])->name('presensi.histori.data');
+    Route::get('/presensi/editprofile', [PresensiController::class, 'editProfile'])->name('presensi.editprofile');
 });
 
 Route::middleware(['auth:user', 'notifications'])->group(function () {
@@ -121,5 +128,18 @@ Route::middleware(['auth:user', 'notifications'])->group(function () {
     Route::post('/karyawan/edit', [KaryawanController::class, 'edit']);
 
     Route::get('/companies/{company}/branches', [KaryawanController::class, 'branchesByCompany']);
-        Route::get('/companies/{company}/departments', [JabatanController::class, 'departmentsByCompany'])->name('companies.departments');
+    Route::get('/companies/{company}/next-nik', [KaryawanController::class, 'nextNik']);
+    Route::get('/companies/{company}/departments', [JabatanController::class, 'departmentsByCompany'])->name('companies.departments');
+
+    // Absensi reports
+    Route::prefix('absensi')->name('absensi.')->group(function () {
+        Route::get('/per-pekerja', [AttendanceReportController::class, 'perPekerja'])->name('per-pekerja');
+        Route::get('/tabel', [AttendanceReportController::class, 'tabel'])->name('tabel');
+    });
+
+    // Payroll reports
+    Route::prefix('payroll')->name('payroll.')->group(function () {
+        Route::get('/per-pekerja', [PayrollController::class, 'perPekerja'])->name('per-pekerja');
+        Route::get('/tabel', [PayrollController::class, 'tabel'])->name('tabel');
+    });
 });

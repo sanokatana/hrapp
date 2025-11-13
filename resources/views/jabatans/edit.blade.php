@@ -52,6 +52,13 @@
             <label class="form-label">Level</label>
             <input type="text" name="level" id="level_edit" class="form-control" value="{{ $jabatan->level }}" placeholder="Level">
         </div>
+        <div class="col-md-6">
+            <label class="form-label">Tarif Per Hari</label>
+            <div class="input-group">
+                <span class="input-group-text">Rp</span>
+                <input type="number" name="daily_rate" id="daily_rate_edit" class="form-control" value="{{ $jabatan->daily_rate ?? 0 }}" placeholder="0" step="0.01" min="0" required>
+            </div>
+        </div>
     </div>
 
     <div class="row mt-3">
@@ -121,6 +128,7 @@ window.__initEditJabatan = function () {
         const company = $company.val();
         const dept    = $dept.val();
         const nama    = $('#nama_edit').val();
+        const rate    = $('#daily_rate_edit').val();
 
         if (!company) {
             Swal.fire({ title:'Warning!', text:'Perusahaan Harus Dipilih', icon:'warning', confirmButtonText:'Ok' });
@@ -132,6 +140,10 @@ window.__initEditJabatan = function () {
         }
         if (!nama) {
             Swal.fire({ title:'Warning!', text:'Nama Jabatan Harus Diisi', icon:'warning', confirmButtonText:'Ok' });
+            return false;
+        }
+        if (rate === '' || Number(rate) < 0) {
+            Swal.fire({ title:'Warning!', text:'Tarif Per Hari harus diisi dengan angka >= 0', icon:'warning', confirmButtonText:'Ok' });
             return false;
         }
     });

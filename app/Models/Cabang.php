@@ -18,6 +18,9 @@ class Cabang extends Model
         'nama',
         'alamat',
         'kota',
+        'latitude',
+        'longitude',
+        'radius_meter',
     ];
 
     public function company()

@@ -29,10 +29,9 @@
 
         <div class="login-form mt-1">
             <div class="section">
-                <img src="{{ asset('assets/img/login/logo-pic.png')}}" alt="image" class="form-image">
+                <img src="{{ asset('assets/img/login/logo.png')}}" alt="image" class="form-image">
             </div>
             <div class="section mt-1">
-                <h1>CHL Attendance Hub</h1>
                 <h4>Silahkan Login</h4>
             </div>
             <div class="section mt-1 mb-5">
@@ -48,7 +47,7 @@
                     @csrf
                     <div class="form-group boxed">
                         <div class="input-wrapper">
-                        <input type="text" name="nik_or_email" class="form-control" id="nik_or_email" placeholder="NIK or Email" value="{{ old('nik_or_email') }}">
+                        <input type="text" name="nik" class="form-control" id="nik" placeholder="Masukkan NIK" value="{{ old('nik') }}">
                             <i class="clear-input">
                                 <ion-icon name="close-circle"></ion-icon>
                             </i>
@@ -65,11 +64,10 @@
                     </div>
                     <div class="form-group boxed mt-2">
                         <input type="checkbox" name="remember" class="form-check-input"/>
-                        <span class="form-check-label">Remember me on this device</span>
+                        <span class="form-check-label">Ingat saya di perangkat ini</span>
                     </div>
                     <div class="form-group boxed mt-2">
-                        <div><a href="page-forgot-password.html" class="text-muted">Forgot Password?</a></div>
-                        <div><a href="/panel" class="text-muted2">Admin Dashboard</a></div>
+                        <div><a href="page-forgot-password.html" class="text-muted">Lupa Password?</a></div>
                     </div>
 
                     <div class="form-button-group">
@@ -114,19 +112,14 @@
         }
 
         document.querySelector("form").addEventListener("submit", function(event) {
-            let input = document.getElementById("nik_or_email").value.trim();
-            let nikFormat = /^\d{4}-\d{8}M?$/; // Accepts 4-8 or 4-8M
+            const input = document.getElementById("nik").value.trim();
 
-            if (input.includes("@")) {
-                // It's an email, allow submission
-                return true;
-            } else if (!nikFormat.test(input)) {
-                // If not an email and doesn't match NIK format, show an alert
-                event.preventDefault(); // Prevent form submission
+            if (!input) {
+                event.preventDefault();
                 Swal.fire({
                     icon: "error",
-                    title: "Format NIK / Email anda Salah",
-                    text: "Gunakan format NIK: xxxx-xxxxxxxx atau xxxx-xxxxxxxxM atau masukkan email yang valid!",
+                    title: "NIK wajib diisi",
+                    text: "Masukkan NIK karyawan Anda untuk melanjutkan.",
                 });
             }
         });

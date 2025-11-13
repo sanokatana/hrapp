@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <th>Department</th>
                                             <th>Nama Jabatan</th>
                                             <th>Level</th>
+                                            <th>Tarif / Hari</th>
                                             <th width="14%">Aksi</th>
                                         </tr>
                                     </thead>
@@ -69,6 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <td>{{ $p->department?->nama ?? '-' }}</td>
                                             <td>{{ $p->nama }}</td>
                                             <td>{{ $p->level ?? '-' }}</td>
+                                            <td>Rp {{ number_format($p->daily_rate ?? 0, 0, ',', '.') }}</td>
                                             <td>
                                                 <div class="form-group">
                                                     <a href="#" class="edit btn btn-info btn-sm" data-id="{{ $p->id }}" title="Edit">
@@ -153,6 +155,13 @@ document.addEventListener('DOMContentLoaded', function() {
                                                     <label class="form-label">Level</label>
                                                     <input type="text" name="level" id="level_create" class="form-control" placeholder="Level">
                                                 </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Tarif Per Hari</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">Rp</span>
+                                                        <input type="number" name="daily_rate" id="daily_rate_create" class="form-control" placeholder="0" step="0.01" min="0" required>
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             <div class="row mt-3">
@@ -226,9 +235,10 @@ $(function() {
 
     // Create validation (simple front-end checks)
     $('#formJabatanCreate').on('submit', function() {
-        const company  = $('#company_id_create').val();
-        const dept     = $('#department_id_create').val();
-        const nama     = $('#nama_create').val();
+        const company   = $('#company_id_create').val();
+        const dept      = $('#department_id_create').val();
+        const nama      = $('#nama_create').val();
+        const dailyRate = $('#daily_rate_create').val();
 
         if (!company) {
             Swal.fire({ title:'Warning!', text:'Perusahaan Harus Dipilih', icon:'warning', confirmButtonText:'Ok' });
@@ -240,6 +250,10 @@ $(function() {
         }
         if (!nama) {
             Swal.fire({ title:'Warning!', text:'Nama Jabatan Harus Diisi', icon:'warning', confirmButtonText:'Ok' });
+            return false;
+        }
+        if (dailyRate === '' || Number(dailyRate) < 0) {
+            Swal.fire({ title:'Warning!', text:'Tarif Per Hari harus diisi dengan angka >= 0', icon:'warning', confirmButtonText:'Ok' });
             return false;
         }
     });

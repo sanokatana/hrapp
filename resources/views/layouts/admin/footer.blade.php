@@ -4,8 +4,8 @@
             <div class="col-12 col-lg-auto mt-3 mt-lg-0">
                 <ul class="list-inline list-inline-dots mb-0">
                     <li class="list-inline-item">
-                        Copyright &copy; 2024
-                        <a href="https://www.ciptaharmoni.com/" class="link-secondary" target="_blank">Cipta Harmoni Lestari</a>.
+                        Copyright &copy; 2025
+                        <a href="https://www.ciptaharmoni.com/" class="link-secondary" target="_blank">Zahran Chandra</a>.
                         All rights reserved.
                     </li>
                 </ul>

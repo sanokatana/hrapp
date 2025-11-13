@@ -46,11 +46,14 @@ class CabangController extends Controller
         $companyId = session('selected_company_id');
         
         $data = $request->validate([
-            'company_id' => ['required', 'exists:tb_pt,id'],
-            'kode' => ['required', 'string', 'max:50', 'unique:cabang,kode'],
-            'nama' => ['required', 'string', 'max:255'],
-            'alamat' => ['nullable', 'string', 'max:255'],
-            'kota' => ['nullable', 'string', 'max:120'],
+            'company_id'   => ['required', 'exists:tb_pt,id'],
+            'kode'         => ['required', 'string', 'max:50', 'unique:cabang,kode'],
+            'nama'         => ['required', 'string', 'max:255'],
+            'alamat'       => ['nullable', 'string', 'max:255'],
+            'kota'         => ['nullable', 'string', 'max:120'],
+            'latitude'     => ['required', 'numeric', 'between:-90,90'],
+            'longitude'    => ['required', 'numeric', 'between:-180,180'],
+            'radius_meter' => ['required', 'integer', 'min:10', 'max:5000'],
         ]);
         
         // Ensure company_id matches selected company for non-superadmin users
@@ -58,9 +61,7 @@ class CabangController extends Controller
             return Redirect::back()->with('danger', 'You can only create branches for the selected company');
         }
 
-        Cabang::create($data);
-
-        $cabang = Cabang::create($data);
+    $cabang = Cabang::create($data);
 
         /** @var \App\Models\User $user */
         $user = Auth::guard('user')->user();
@@ -94,15 +95,18 @@ class CabangController extends Controller
 
     public function update(Request $request, Cabang $cabang): RedirectResponse
     {
-        $request->validate([
-            'company_id' => ['required', 'exists:tb_pt,id'],
-            'kode' => ['required', 'string', 'max:50', 'unique:cabang,kode,' . $cabang->id],
-            'nama' => ['required', 'string', 'max:255'],
-            'alamat' => ['nullable', 'string', 'max:255'],
-            'kota' => ['nullable', 'string', 'max:120'],
+        $validated = $request->validate([
+            'company_id'   => ['required', 'exists:tb_pt,id'],
+            'kode'         => ['required', 'string', 'max:50', 'unique:cabang,kode,' . $cabang->id],
+            'nama'         => ['required', 'string', 'max:255'],
+            'alamat'       => ['nullable', 'string', 'max:255'],
+            'kota'         => ['nullable', 'string', 'max:120'],
+            'latitude'     => ['required', 'numeric', 'between:-90,90'],
+            'longitude'    => ['required', 'numeric', 'between:-180,180'],
+            'radius_meter' => ['required', 'integer', 'min:10', 'max:5000'],
         ]);
 
-        $cabang->update($request->only(['company_id', 'kode', 'nama', 'alamat', 'kota']));
+        $cabang->update($validated);
 
         return Redirect::back()->with('success', 'Data Berhasil Di Update');
     }

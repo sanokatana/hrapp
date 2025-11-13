@@ -10,9 +10,6 @@
         </button>
 
         <h1 class="navbar-brand navbar-brand-autodark">
-            <a href="/">
-                <img src="{{ asset('assets/img/login/logo-pic.png')}}" width="70" height="60" alt="Tabler" class="logo-img">
-            </a>
         </h1>
         <div class="navbar-nav flex-row d-lg-none">
             <div class="d-none d-lg-flex">
@@ -234,13 +231,67 @@
                         <div class="dropdown-menu-columns">
                             <div class="dropdown-menu-column">
                                 <a class="dropdown-item {{ request()->is('karyawan*') ? 'active' : '' }}" href="/karyawan">
-                                    Data Karyawan
+                                    Data Pekerja
                                 </a>
                                 @if($userLevel === 'Superadmin')
                                 <a class="dropdown-item {{ request()->is('data/user*') ? 'active' : '' }}" href="/data/user">
                                     Pengguna Sistem
                                 </a>
                                 @endif
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {{ request()->is('absensi/*') ? 'show' : '' }}" href="#navbar-attendance" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="{{ request()->is('absensi/*') ? 'true' : 'false' }}">
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" />
+                                <path d="M16 3v4" />
+                                <path d="M8 3v4" />
+                                <path d="M4 11h16" />
+                                <path d="M11 15h1" />
+                                <path d="M12 15v3" />
+                            </svg>
+                        </span>
+                        <span class="nav-link-title">Absensi</span>
+                    </a>
+                    <div class="dropdown-menu {{ request()->is('absensi/*') ? 'show' : '' }}">
+                        <div class="dropdown-menu-columns">
+                            <div class="dropdown-menu-column">
+                                <a class="dropdown-item {{ request()->is('absensi/per-pekerja') ? 'active' : '' }}" href="/absensi/per-pekerja">
+                                    Per Pekerja
+                                </a>
+                                <a class="dropdown-item {{ request()->is('absensi/tabel') ? 'active' : '' }}" href="/absensi/tabel">
+                                    Tabel Periode
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {{ request()->is('payroll/*') ? 'show' : '' }}" href="#navbar-payroll" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="{{ request()->is('payroll/*') ? 'true' : 'false' }}">
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-cash-banknote">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                                <path d="M3 6m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
+                                <path d="M18 12l.01 0" />
+                                <path d="M6 12l.01 0" />
+                            </svg>
+                        </span>
+                        <span class="nav-link-title">Payroll</span>
+                    </a>
+                    <div class="dropdown-menu {{ request()->is('payroll/*') ? 'show' : '' }}">
+                        <div class="dropdown-menu-columns">
+                            <div class="dropdown-menu-column">
+                                <a class="dropdown-item {{ request()->is('payroll/per-pekerja') ? 'active' : '' }}" href="/payroll/per-pekerja">
+                                    Per Pekerja
+                                </a>
+                                <a class="dropdown-item {{ request()->is('payroll/tabel') ? 'active' : '' }}" href="/payroll/tabel">
+                                    Tabel Periode
+                                </a>
                             </div>
                         </div>
                     </div>

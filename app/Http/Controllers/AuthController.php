@@ -10,15 +10,12 @@ class AuthController extends Controller
     public function proseslogin(Request $request)
     {
         $request->validate([
-            'nik_or_email' => ['required', 'string'],
+            'nik' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
 
-        $loginValue = $request->input('nik_or_email');
-        $field = filter_var($loginValue, FILTER_VALIDATE_EMAIL) ? 'email' : 'nik';
-
         if (Auth::guard('karyawan')->attempt([
-            $field => $loginValue,
+            'nik' => $request->input('nik'),
             'password' => $request->input('password'),
         ], $request->boolean('remember'))) {
             $request->session()->regenerate();
@@ -27,7 +24,7 @@ class AuthController extends Controller
         }
 
         return redirect('/karlogin')
-            ->with(['warning' => 'NIK/Email or Password is incorrect'])
+            ->with(['warning' => 'NIK atau password tidak cocok'])
             ->withInput($request->except('password'));
     }
 

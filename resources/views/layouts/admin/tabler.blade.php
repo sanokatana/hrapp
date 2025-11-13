@@ -153,56 +153,56 @@
     <script src="{{ asset('tabler/dist/libs/apexcharts/dist/apexcharts.min.js?1692870487')}}" defer></script>
     <!-- Tabler Core -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add click event listener to all links
-            document.addEventListener('click', function(e) {
-                const target = e.target.closest('a');
-                if (target) {
-                    // Skip if it's a dropdown toggle or has no href
-                    if (target.hasAttribute('data-bs-toggle') || !target.hasAttribute('href')) {
-                        return;
-                    }
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     // Add click event listener to all links
+        //     document.addEventListener('click', function(e) {
+        //         const target = e.target.closest('a');
+        //         if (target) {
+        //             // Skip if it's a dropdown toggle or has no href
+        //             if (target.hasAttribute('data-bs-toggle') || !target.hasAttribute('href')) {
+        //                 return;
+        //             }
 
-                    // Skip if it's an external link or anchor
-                    if (target.getAttribute('href').startsWith('#') ||
-                        target.getAttribute('href').startsWith('http') ||
-                        target.getAttribute('href').startsWith('javascript:')) {
-                        return;
-                    }
+        //             // Skip if it's an external link or anchor
+        //             if (target.getAttribute('href').startsWith('#') ||
+        //                 target.getAttribute('href').startsWith('http') ||
+        //                 target.getAttribute('href').startsWith('javascript:')) {
+        //                 return;
+        //             }
 
-                    e.preventDefault(); // Prevent immediate navigation
-                    const href = target.href;
+        //             e.preventDefault(); // Prevent immediate navigation
+        //             const href = target.href;
 
-                    // Show loader
-                    const loader = document.getElementById('loader-wrapper');
-                    loader.style.display = 'block';
+        //             // Show loader
+        //             const loader = document.getElementById('loader-wrapper');
+        //             loader.style.display = 'block';
 
-                    // Wait for 2 seconds before navigating
-                    setTimeout(function() {
-                        window.location.href = href;
-                    }, 800);
-                }
-            });
+        //             // Wait for 2 seconds before navigating
+        //             setTimeout(function() {
+        //                 window.location.href = href;
+        //             }, 100);
+        //         }
+        //     });
 
-            // Handle form submissions
-            document.addEventListener('submit', function(e) {
-                // Skip if it's our AJAX form
-                if (e.target.classList.contains('ajax-form')) {
-                    return;
-                }
+        //     // Handle form submissions
+        //     document.addEventListener('submit', function(e) {
+        //         // Skip if it's our AJAX form
+        //         if (e.target.classList.contains('ajax-form')) {
+        //             return;
+        //         }
 
-                const loader = document.getElementById('loader-wrapper');
-                loader.style.display = 'block';
-            });
+        //         const loader = document.getElementById('loader-wrapper');
+        //         loader.style.display = 'block';
+        //     });
 
-            // Hide loader when pressing back button
-            window.addEventListener('pageshow', function(e) {
-                if (e.persisted) {
-                    const loader = document.getElementById('loader-wrapper');
-                    loader.style.display = 'none';
-                }
-            });
-        });
+        //     // Hide loader when pressing back button
+        //     window.addEventListener('pageshow', function(e) {
+        //         if (e.persisted) {
+        //             const loader = document.getElementById('loader-wrapper');
+        //             loader.style.display = 'none';
+        //         }
+        //     });
+        // });
 
         // Hide loader when page is fully loaded
         window.addEventListener('load', function() {
